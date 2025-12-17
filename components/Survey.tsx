@@ -328,9 +328,9 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete }) => {
               </div>
               <h3 className="text-3xl font-bold text-gray-900 mb-4">Thank you!</h3>
               <p className="text-xl text-gray-600 leading-relaxed max-w-lg mx-auto">
-                My colleague Otty will engage with you to set up a quick call to take the brief.
+                My colleague Otty will set up a quick call to get your brief.
                 <br /><br />
-                We're excited to start drafting a tailored solution for you immediately after that.
+                We're excited to quickly start drafting a tailored solution for you.
                 <br /><br />
                 <span className="font-bold text-primary">Talk soon, Officience</span>
               </p>
