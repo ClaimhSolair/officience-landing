@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Officience · Flexible IT Outsourcing</title>
+    <meta name="description" content="Officience helps SMEs and outsourcing partners build elastic engineering capacity from Vietnam." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Lexend', 'sans-serif'],
+              body: ['Montserrat', 'sans-serif'],
+            },
+            colors: {
+              background: '#F7F7F7',
+              primary: '#1F49BF',
+              accent: '#38bdf8', 
+              secondary: '#555555',
+              surface: '#FFFFFF',
+              dark: '#0F1219',
+              'off-red': '#DD3C57',
+              'off-pink': '#FFBFC7',
+              'off-yellow': '#FFCE00',
+              'off-orange': '#FD941D'
+            },
+            animation: {
+              'fade-in': 'fadeIn 1s ease-out forwards',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #1F49BF;
+        color: #0F1219;
+        overflow-x: hidden;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 100px;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1F49BF;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        border: 2px solid #1F49BF;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
