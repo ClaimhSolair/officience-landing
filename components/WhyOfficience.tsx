@@ -75,20 +75,20 @@ const WhyOfficience: React.FC = () => {
                   className="flex flex-col rounded-2xl md:rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 aspect-[3/4] md:aspect-square bg-white shadow-lg"
                 >
                   {/* Top portion (Accent Color) */}
-                  <div className={`${reason.accentColor} p-4 md:p-8 flex flex-col justify-end h-[42%] md:h-1/2 relative`}>
-                    <div className="absolute top-3 right-3 md:top-6 md:right-6">
+                  <div className={`${reason.accentColor} p-3 md:p-8 flex flex-col justify-end h-[42%] md:h-1/2 relative`}>
+                    <div className="absolute top-2 right-2 md:top-6 md:right-6">
                       {reason.icon}
                     </div>
                     <div>
-                      <h3 className="text-xl md:text-3xl font-bold text-gray-900 leading-tight">
+                      <h3 className="text-lg md:text-3xl font-bold text-gray-900 leading-tight">
                         {reason.category}
                       </h3>
                     </div>
                   </div>
                   
-                  {/* Bottom portion (White) - Optimized font size for desktop readability (reduced 15% from lg to base) */}
-                  <div className="p-4 md:p-8 flex flex-col h-[58%] md:h-1/2 bg-white">
-                    <p className="text-gray-700 font-body text-sm md:text-base font-medium leading-relaxed">
+                  {/* Bottom portion (White) - Optimized font size for mobile readability */}
+                  <div className="p-3 md:p-8 flex flex-col h-[58%] md:h-1/2 bg-white">
+                    <p className="text-gray-700 font-body text-xs md:text-base font-medium leading-relaxed">
                       {reason.text}
                     </p>
                   </div>

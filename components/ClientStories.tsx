@@ -33,18 +33,18 @@ const ClientStories: React.FC = () => {
       <div className="relative w-full mt-10 grid grid-cols-1 place-items-center">
         
         {/* Background Layer: Company Logos */}
-        <div className="col-start-1 row-start-1 w-full flex justify-center items-center z-0">
+        <div className="col-start-1 row-start-1 w-full flex justify-center items-center z-0 px-0 md:px-4">
            <img 
             src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Desktop.png" 
             alt="Our Network of Companies" 
-            className="w-full h-auto object-contain max-h-[500px]"
+            className="w-[140%] md:w-full h-auto object-contain max-h-[500px] transform scale-110 md:scale-100"
             loading="lazy"
           />
         </div>
 
         {/* Foreground Layer: Text and CTA */}
         <div className="col-start-1 row-start-1 z-10 flex flex-col items-center justify-center text-center w-full px-4">
-          <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 bg-white/50 backdrop-blur-sm px-6 py-2 rounded-full md:bg-transparent md:backdrop-blur-none md:p-0">
+          <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 bg-white/70 backdrop-blur-sm px-6 py-2 rounded-full md:bg-transparent md:backdrop-blur-none md:p-0">
             You're in good company!
           </p>
           <a 
