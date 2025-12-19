@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Section } from './ui/Section';
-import { ArrowRight, Globe, Users, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Globe, Users, Truck } from 'lucide-react';
 
 const steps = [
   {
-    icon: <Globe size={32} className="text-primary md:size-[48px]" strokeWidth={1.5} />,
+    icon: <Globe size={24} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Globe size={48} className="text-primary" strokeWidth={1.5} />,
     title: 'Engage',
     desc: "Roadmap together. We're COSMIC.",
   },
   {
-    icon: <Users size={32} className="text-primary md:size-[48px]" strokeWidth={1.5} />,
+    icon: <Users size={24} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Users size={48} className="text-primary" strokeWidth={1.5} />,
     title: 'Collaborate',
     desc: 'Agile mode with transparency.',
   },
   {
-    icon: <Truck size={32} className="text-primary md:size-[48px]" strokeWidth={1.5} />,
+    icon: <Truck size={24} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Truck size={48} className="text-primary" strokeWidth={1.5} />,
     title: 'Run',
     desc: 'Support your users. People first.',
   },
@@ -70,31 +73,50 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
 
   return (
     <Section id="approach" className="relative my-4 md:my-10">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 mb-8 md:mb-16">
+      {/* Desktop Header */}
+      <div className="hidden md:flex flex-row items-center justify-between gap-6 mb-16">
         <div>
-          <h2 className="text-3xl md:text-6xl font-bold tracking-tight uppercase text-gray-900">
+          <h2 className="text-6xl font-bold tracking-tight uppercase text-gray-900">
             Our approach
           </h2>
-          <p className="text-lg md:text-2xl text-secondary mt-1 md:mt-2 font-body font-light">
+          <p className="text-2xl text-secondary mt-2 font-body font-light">
             This is how we work
           </p>
         </div>
         <img 
           src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
           alt="Otty Logo" 
-          className="hidden md:block h-24 md:h-64 w-auto object-contain"
+          className="h-64 w-auto object-contain"
         />
       </div>
 
+      {/* Mobile Header - matching SectionTitle style */}
+      <div className="md:hidden mb-6">
+        <h2 className="text-3xl font-bold tracking-tight mb-4 uppercase text-gray-900">
+          Our approach
+        </h2>
+        <p className="text-secondary text-lg font-light font-body max-w-3xl border-l-4 border-primary pl-4">
+          This is how we work
+        </p>
+        {/* Otty image below title on mobile */}
+        <div className="flex justify-center mt-6">
+          <img 
+            src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
+            alt="Otty Logo" 
+            className="h-32 w-auto object-contain"
+          />
+        </div>
+      </div>
+
       {/* Desktop View */}
-      <div className="hidden md:block relative mt-6 md:mt-12 mb-10 md:mb-20">
+      <div className="hidden md:block relative mt-12 mb-20">
         <div className="absolute top-[44px] left-[16%] right-[16%] border-t-2 border-dashed border-off-red/60 z-0"></div>
 
         <div className="grid grid-cols-3 gap-12">
           {steps.map((step, idx) => (
             <div key={idx} className="flex flex-col items-center relative z-10">
               <div className="mb-8 bg-[#EBF2FE] w-24 h-24 rounded-3xl flex items-center justify-center relative z-10 shadow-sm">
-                {step.icon}
+                {step.iconDesktop}
               </div>
 
               <div className="bg-white p-10 rounded-[2rem] shadow-sm flex flex-col h-full w-full border border-gray-50 hover:shadow-md transition-all duration-300">
@@ -109,7 +131,7 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
       </div>
 
       {/* Mobile Swipeable Carousel */}
-      <div className="md:hidden relative mt-6 mb-10">
+      <div className="md:hidden relative mt-6 mb-8">
         <div className="overflow-hidden">
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
@@ -120,60 +142,38 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
               animate="center"
               exit="exit"
               transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 }
+                x: { type: "spring", stiffness: 200, damping: 25 },
+                opacity: { duration: 0.3 }
               }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={1}
+              dragElastic={0.5}
               onDragEnd={handleDragEnd}
-              className="w-full"
+              className="w-full cursor-grab active:cursor-grabbing"
             >
               {(() => {
                 const step = steps[currentIndex];
                 return (
-                  <div className="flex flex-col items-center mx-2">
-                    {/* Icon */}
-                    <div className="mb-4 bg-[#EBF2FE] w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm">
-                      {step.icon}
-                    </div>
-
-                    {/* Card */}
+                  <div className="flex flex-col items-center mx-4">
+                    {/* Card with icon inside */}
                     <div className="bg-white p-6 rounded-2xl shadow-lg flex flex-col w-full border border-gray-50">
-                      <h3 className="text-2xl font-bold mb-2 text-gray-900 text-center">{step.title}</h3>
-                      <p className="text-secondary font-body text-sm leading-relaxed text-center">
+                      {/* Title row with icon */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="bg-[#EBF2FE] w-10 h-10 rounded-xl flex items-center justify-center">
+                          {step.icon}
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900">{step.title}</h3>
+                      </div>
+                      <p className="text-secondary font-body text-sm leading-relaxed">
                         {step.desc}
                       </p>
                     </div>
-
-                    {/* Otty Logo below card on mobile */}
-                    <img 
-                      src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
-                      alt="Otty Logo" 
-                      className="h-20 w-auto object-contain mt-4"
-                    />
                   </div>
                 );
               })()}
             </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* Navigation Arrows */}
-        <button
-          onClick={() => paginate(-1)}
-          disabled={currentIndex === 0}
-          className={`absolute left-0 top-1/3 -translate-y-1/2 -translate-x-1 z-10 p-2 rounded-full bg-white shadow-lg ${currentIndex === 0 ? 'opacity-30' : 'opacity-100'}`}
-        >
-          <ChevronLeft size={24} className="text-gray-700" />
-        </button>
-        <button
-          onClick={() => paginate(1)}
-          disabled={currentIndex === steps.length - 1}
-          className={`absolute right-0 top-1/3 -translate-y-1/2 translate-x-1 z-10 p-2 rounded-full bg-white shadow-lg ${currentIndex === steps.length - 1 ? 'opacity-30' : 'opacity-100'}`}
-        >
-          <ChevronRight size={24} className="text-gray-700" />
-        </button>
 
         {/* Dots Indicator */}
         <div className="flex justify-center gap-2 mt-4">

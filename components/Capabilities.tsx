@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Section, SectionTitle } from './ui/Section';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const services = [
   {
@@ -143,26 +143,27 @@ const Capabilities: React.FC = () => {
                 animate="center"
                 exit="exit"
                 transition={{
-                  x: { type: "spring", stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.2 }
+                  x: { type: "spring", stiffness: 200, damping: 25 },
+                  opacity: { duration: 0.3 }
                 }}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={1}
+                dragElastic={0.5}
                 onDragEnd={handleDragEnd}
-                className="w-full"
+                className="w-full cursor-grab active:cursor-grabbing"
               >
                 {(() => {
                   const service = services[currentIndex];
                   return (
                     <div 
-                      className={`p-6 rounded-2xl border ${service.border} bg-white shadow-lg flex flex-col mx-2`}
+                      className={`p-6 rounded-2xl border ${service.border} bg-white shadow-lg flex flex-col mx-4`}
                     >
-                      <div className="mb-6 w-24 h-24 flex items-center justify-center mx-auto">
+                      {/* Logo takes 30% of panel height */}
+                      <div className="mb-4 h-[30%] min-h-[120px] flex items-center justify-center">
                         <img 
                           src={service.imageUrl} 
                           alt={service.title} 
-                          className="w-full h-full object-contain drop-shadow-sm"
+                          className="w-32 h-32 object-contain drop-shadow-sm"
                           loading="lazy"
                         />
                       </div>
@@ -190,22 +191,6 @@ const Capabilities: React.FC = () => {
               </motion.div>
             </AnimatePresence>
           </div>
-
-          {/* Navigation Arrows */}
-          <button
-            onClick={() => paginate(-1)}
-            disabled={currentIndex === 0}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 z-10 p-2 rounded-full bg-white shadow-lg ${currentIndex === 0 ? 'opacity-30' : 'opacity-100'}`}
-          >
-            <ChevronLeft size={24} className="text-gray-700" />
-          </button>
-          <button
-            onClick={() => paginate(1)}
-            disabled={currentIndex === services.length - 1}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 z-10 p-2 rounded-full bg-white shadow-lg ${currentIndex === services.length - 1 ? 'opacity-30' : 'opacity-100'}`}
-          >
-            <ChevronRight size={24} className="text-gray-700" />
-          </button>
 
           {/* Dots Indicator */}
           <div className="flex justify-center gap-2 mt-6">
