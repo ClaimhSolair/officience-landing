@@ -90,18 +90,18 @@ const Capabilities: React.FC = () => {
   };
 
   return (
-    <Section id="capabilities" className="my-6 md:my-10 max-w-none px-2 md:px-10">
-      <div className="max-w-[1600px] mx-auto">
+    <Section id="capabilities" className="my-6 md:my-10">
+      <div>
         <SectionTitle>What we do</SectionTitle>
 
         {/* Desktop Grid View */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-12">
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {services.map((service, idx) => (
             <div 
               key={idx} 
-              className={`p-5 md:p-14 rounded-2xl md:rounded-[3rem] border ${service.border} bg-white hover:shadow-2xl transition-all duration-300 group flex flex-col h-full hover:-translate-y-2`}
+              className={`p-5 md:p-8 rounded-2xl md:rounded-[2rem] border ${service.border} bg-white hover:shadow-2xl transition-all duration-300 group flex flex-col h-full hover:-translate-y-2`}
             >
-              <div className="mb-4 md:mb-10 w-16 h-16 md:w-36 md:h-36 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+              <div className="mb-4 md:mb-6 w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
@@ -110,9 +110,9 @@ const Capabilities: React.FC = () => {
                 />
               </div>
               
-              <h3 className="text-xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-6">{service.title}</h3>
+              <h3 className="text-xl md:text-xl font-bold text-gray-900 mb-2 md:mb-3">{service.title}</h3>
               
-              <p className="text-gray-600 font-body text-sm md:text-[17px] leading-relaxed mb-4 md:mb-10 flex-grow">
+              <p className="text-gray-600 font-body text-sm md:text-sm leading-relaxed mb-4 md:mb-6 flex-grow">
                 {service.desc}
               </p>
               
@@ -121,10 +121,10 @@ const Capabilities: React.FC = () => {
                   href={service.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-2 px-4 md:px-10 py-2 md:py-5 rounded-full border-2 text-[10px] md:text-base font-bold uppercase tracking-wide transition-all transform hover:-translate-y-1 ${service.color} ${service.border} hover:bg-gray-50 hover:shadow-md ${service.hoverBorder}`}
+                  className={`inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full border-2 text-[10px] md:text-xs font-bold uppercase tracking-wide transition-all transform hover:-translate-y-1 ${service.color} ${service.border} hover:bg-gray-50 hover:shadow-md ${service.hoverBorder}`}
                 >
                   Explore
-                  <ArrowRight size={14} className="md:size-[20px]" />
+                  <ArrowRight size={14} className="md:size-[16px]" />
                 </a>
               </div>
             </div>

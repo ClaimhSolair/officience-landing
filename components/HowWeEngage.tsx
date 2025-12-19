@@ -6,19 +6,19 @@ import { ArrowRight, Globe, Users, Truck } from 'lucide-react';
 const steps = [
   {
     icon: <Globe size={24} className="text-primary" strokeWidth={1.5} />,
-    iconDesktop: <Globe size={48} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Globe size={36} className="text-primary" strokeWidth={1.5} />,
     title: 'Engage',
     desc: "Roadmap together. We're COSMIC.",
   },
   {
     icon: <Users size={24} className="text-primary" strokeWidth={1.5} />,
-    iconDesktop: <Users size={48} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Users size={36} className="text-primary" strokeWidth={1.5} />,
     title: 'Collaborate',
     desc: 'Agile mode with transparency.',
   },
   {
     icon: <Truck size={24} className="text-primary" strokeWidth={1.5} />,
-    iconDesktop: <Truck size={48} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Truck size={36} className="text-primary" strokeWidth={1.5} />,
     title: 'Run',
     desc: 'Support your users. People first.',
   },
@@ -73,20 +73,20 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
 
   return (
     <Section id="approach" className="relative my-4 md:my-10">
-      {/* Desktop Header */}
-      <div className="hidden md:flex flex-row items-center justify-between gap-6 mb-16">
-        <div>
-          <h2 className="text-6xl font-bold tracking-tight uppercase text-gray-900">
+      {/* Desktop Header - matching SectionTitle style */}
+      <div className="hidden md:flex flex-row items-start justify-between gap-6 mb-12">
+        <div className="mb-8 md:mb-16">
+          <h2 className="text-3xl md:text-6xl font-bold tracking-tight mb-4 uppercase text-gray-900">
             Our approach
           </h2>
-          <p className="text-2xl text-secondary mt-2 font-body font-light">
+          <p className="text-secondary text-lg md:text-2xl font-light font-body max-w-3xl border-l-4 border-primary pl-4 md:pl-6">
             This is how we work
           </p>
         </div>
         <img 
           src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
           alt="Otty Logo" 
-          className="h-64 w-auto object-contain"
+          className="h-[294px] w-auto object-contain"
         />
       </div>
 
@@ -109,19 +109,20 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block relative mt-12 mb-20">
-        <div className="absolute top-[44px] left-[16%] right-[16%] border-t-2 border-dashed border-off-red/60 z-0"></div>
+      <div className="hidden md:block relative mt-8 mb-16">
+        {/* Dotted line - positioned at exact center of icons (icon is h-20 = 80px, center at 40px) */}
+        <div className="absolute top-10 left-[16.67%] right-[16.67%] border-t-2 border-dashed border-off-red/60 z-0"></div>
 
-        <div className="grid grid-cols-3 gap-12">
+        <div className="grid grid-cols-3 gap-8">
           {steps.map((step, idx) => (
             <div key={idx} className="flex flex-col items-center relative z-10">
-              <div className="mb-8 bg-[#EBF2FE] w-24 h-24 rounded-3xl flex items-center justify-center relative z-10 shadow-sm">
+              <div className="mb-6 bg-[#EBF2FE] w-20 h-20 rounded-2xl flex items-center justify-center relative z-10 shadow-sm">
                 {step.iconDesktop}
               </div>
 
-              <div className="bg-white p-10 rounded-[2rem] shadow-sm flex flex-col h-full w-full border border-gray-50 hover:shadow-md transition-all duration-300">
-                <h3 className="text-3xl font-bold mb-2 text-gray-900">{step.title}</h3>
-                <p className="text-secondary font-body text-lg leading-relaxed">
+              <div className="bg-white p-6 rounded-2xl shadow-sm flex flex-col h-full w-full border border-gray-50 hover:shadow-md transition-all duration-300">
+                <h3 className="text-xl font-bold mb-2 text-gray-900">{step.title}</h3>
+                <p className="text-secondary font-body text-sm leading-relaxed">
                   {step.desc}
                 </p>
               </div>
