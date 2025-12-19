@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Section, SectionTitle } from './ui/Section';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const services = [
   {
@@ -45,13 +46,56 @@ const services = [
   }
 ];
 
+const swipeConfidenceThreshold = 10000;
+const swipePower = (offset: number, velocity: number) => {
+  return Math.abs(offset) * velocity;
+};
+
 const Capabilities: React.FC = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 300 : -300,
+      opacity: 0
+    })
+  };
+
+  const paginate = (newDirection: number) => {
+    const newIndex = currentIndex + newDirection;
+    if (newIndex >= 0 && newIndex < services.length) {
+      setDirection(newDirection);
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const swipe = swipePower(info.offset.x, info.velocity.x);
+    if (swipe < -swipeConfidenceThreshold) {
+      paginate(1);
+    } else if (swipe > swipeConfidenceThreshold) {
+      paginate(-1);
+    }
+  };
+
   return (
     <Section id="capabilities" className="my-6 md:my-10 max-w-none px-2 md:px-10">
       <div className="max-w-[1600px] mx-auto">
         <SectionTitle>What we do</SectionTitle>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-12">
+        {/* Desktop Grid View */}
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-12">
           {services.map((service, idx) => (
             <div 
               key={idx} 
@@ -68,7 +112,6 @@ const Capabilities: React.FC = () => {
               
               <h3 className="text-xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-6">{service.title}</h3>
               
-              {/* Reduced font size by 15% on desktop (from 20px/xl to approx 17px) */}
               <p className="text-gray-600 font-body text-sm md:text-[17px] leading-relaxed mb-4 md:mb-10 flex-grow">
                 {service.desc}
               </p>
@@ -86,6 +129,97 @@ const Capabilities: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Mobile Swipeable Carousel */}
+        <div className="md:hidden relative">
+          <div className="overflow-hidden">
+            <AnimatePresence initial={false} custom={direction} mode="wait">
+              <motion.div
+                key={currentIndex}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 }
+                }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={1}
+                onDragEnd={handleDragEnd}
+                className="w-full"
+              >
+                {(() => {
+                  const service = services[currentIndex];
+                  return (
+                    <div 
+                      className={`p-6 rounded-2xl border ${service.border} bg-white shadow-lg flex flex-col mx-2`}
+                    >
+                      <div className="mb-6 w-24 h-24 flex items-center justify-center mx-auto">
+                        <img 
+                          src={service.imageUrl} 
+                          alt={service.title} 
+                          className="w-full h-full object-contain drop-shadow-sm"
+                          loading="lazy"
+                        />
+                      </div>
+                      
+                      <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">{service.title}</h3>
+                      
+                      <p className="text-gray-600 font-body text-sm leading-relaxed mb-6 text-center flex-grow">
+                        {service.desc}
+                      </p>
+                      
+                      <div className="flex justify-center">
+                        <a 
+                          href={service.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 text-sm font-bold uppercase tracking-wide ${service.color} ${service.border}`}
+                        >
+                          Explore
+                          <ArrowRight size={16} />
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Navigation Arrows */}
+          <button
+            onClick={() => paginate(-1)}
+            disabled={currentIndex === 0}
+            className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 z-10 p-2 rounded-full bg-white shadow-lg ${currentIndex === 0 ? 'opacity-30' : 'opacity-100'}`}
+          >
+            <ChevronLeft size={24} className="text-gray-700" />
+          </button>
+          <button
+            onClick={() => paginate(1)}
+            disabled={currentIndex === services.length - 1}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 z-10 p-2 rounded-full bg-white shadow-lg ${currentIndex === services.length - 1 ? 'opacity-30' : 'opacity-100'}`}
+          >
+            <ChevronRight size={24} className="text-gray-700" />
+          </button>
+
+          {/* Dots Indicator */}
+          <div className="flex justify-center gap-2 mt-6">
+            {services.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  setDirection(idx > currentIndex ? 1 : -1);
+                  setCurrentIndex(idx);
+                }}
+                className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? 'bg-primary w-6' : 'bg-gray-300'}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </Section>
