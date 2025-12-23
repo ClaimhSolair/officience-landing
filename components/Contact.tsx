@@ -93,20 +93,20 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-24">
           
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-6 md:gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-6">
             {offices.map((office, idx) => (
-              <div key={idx} className="flex gap-4 md:gap-5">
+              <div key={idx} className="flex gap-3 md:gap-4">
                 <MapPin size={24} className="text-off-red flex-shrink-0 mt-1 md:size-[28px]" fill="currentColor" fillOpacity={0.2} />
-                <div className="space-y-1 md:space-y-2">
-                  <h4 className="text-xl md:text-2xl font-bold text-gray-900">{office.city}</h4>
+                <div className="space-y-0.5 md:space-y-1">
+                  <h4 className="text-2xl md:text-3xl font-bold text-gray-900">{office.city}</h4>
                   {office.address ? (
-                    <p className="text-gray-600 font-body text-sm md:text-lg leading-snug">
+                    <p className="text-gray-600 font-body text-base md:text-xl leading-snug">
                       {office.address}
                     </p>
                   ) : (
-                    <div className="space-y-2 md:space-y-4">
+                    <div className="space-y-1 md:space-y-2">
                       {office.subOffices?.map((sub, sIdx) => (
-                        <p key={sIdx} className="text-gray-600 font-body text-sm md:text-lg leading-snug">
+                        <p key={sIdx} className="text-gray-600 font-body text-base md:text-xl leading-snug">
                           <span className="text-primary font-bold">{sub.name}</span> - {sub.address}
                         </p>
                       ))}
