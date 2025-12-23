@@ -1,26 +1,36 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Section } from './ui/Section';
-import { ArrowRight, Globe, Users, Truck } from 'lucide-react';
+import { ArrowRight, Globe, Users, Truck, Search } from 'lucide-react';
 
 const steps = [
   {
-    icon: <Globe size={24} className="text-primary" strokeWidth={1.5} />,
-    iconDesktop: <Globe size={36} className="text-primary" strokeWidth={1.5} />,
+    icon: (
+      <div className="relative">
+        <Globe size={24} className="text-primary" strokeWidth={1.5} />
+        <Search size={12} className="absolute -bottom-1 -right-1 text-primary" strokeWidth={2} />
+      </div>
+    ),
+    iconDesktop: (
+      <div className="relative">
+        <Globe size={32} className="text-primary" strokeWidth={1.5} />
+        <Search size={14} className="absolute -bottom-1 -right-1 text-primary" strokeWidth={2} />
+      </div>
+    ),
     title: 'Engage',
-    desc: "Roadmap together. We're COSMIC.",
+    desc: "Meet our engagers to understand your pain points, find solutions, and build a roadmap together. We're COSMIC.",
   },
   {
     icon: <Users size={24} className="text-primary" strokeWidth={1.5} />,
-    iconDesktop: <Users size={36} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Users size={32} className="text-primary" strokeWidth={1.5} />,
     title: 'Collaborate',
-    desc: 'Agile mode with transparency.',
+    desc: 'Execute your project in agile mode — with proximity, transparency, and productivity. Small teams, people magic.',
   },
   {
     icon: <Truck size={24} className="text-primary" strokeWidth={1.5} />,
-    iconDesktop: <Truck size={36} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Truck size={32} className="text-primary" strokeWidth={1.5} />,
     title: 'Run',
-    desc: 'Support your users. People first.',
+    desc: 'Roll-out in production, adopt the products, and support your users. People first, tech second.',
   },
 ];
 
@@ -73,9 +83,9 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
 
   return (
     <Section id="approach" className="relative my-4 md:my-10">
-      {/* Desktop Header - matching SectionTitle style */}
-      <div className="hidden md:flex flex-row items-start justify-between gap-6 mb-12">
-        <div className="mb-8 md:mb-16">
+      {/* Desktop Header - Title and Otty on same line */}
+      <div className="hidden md:flex flex-row items-center justify-between gap-6 mb-12">
+        <div>
           <h2 className="text-3xl md:text-6xl font-bold tracking-tight mb-4 uppercase text-gray-900">
             Our approach
           </h2>
@@ -86,7 +96,7 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
         <img 
           src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
           alt="Otty Logo" 
-          className="h-[294px] w-auto object-contain"
+          className="h-[200px] w-auto object-contain"
         />
       </div>
 
@@ -110,22 +120,27 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
 
       {/* Desktop View */}
       <div className="hidden md:block relative mt-8 mb-16">
-        {/* Dotted line - positioned at exact center of icons (icon is h-20 = 80px, center at 40px) */}
-        <div className="absolute top-10 left-[16.67%] right-[16.67%] border-t-2 border-dashed border-off-red/60 z-0"></div>
-
-        <div className="grid grid-cols-3 gap-8">
+        {/* Icons Row with connecting dotted line */}
+        <div className="relative flex justify-between items-center mb-8 px-[8.33%]">
+          {/* Dotted line - connects through center of icons */}
+          <div className="absolute top-1/2 left-[calc(8.33%+40px)] right-[calc(8.33%+40px)] border-t-2 border-dashed border-off-red/60 -translate-y-1/2 z-0"></div>
+          
+          {/* Icons */}
           {steps.map((step, idx) => (
-            <div key={idx} className="flex flex-col items-center relative z-10">
-              <div className="mb-6 bg-[#EBF2FE] w-20 h-20 rounded-2xl flex items-center justify-center relative z-10 shadow-sm">
-                {step.iconDesktop}
-              </div>
+            <div key={idx} className="relative z-10 bg-[#EBF2FE] w-20 h-20 rounded-2xl flex items-center justify-center shadow-sm">
+              {step.iconDesktop}
+            </div>
+          ))}
+        </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-sm flex flex-col h-full w-full border border-gray-50 hover:shadow-md transition-all duration-300">
-                <h3 className="text-xl font-bold mb-2 text-gray-900">{step.title}</h3>
-                <p className="text-secondary font-body text-sm leading-relaxed">
-                  {step.desc}
-                </p>
-              </div>
+        {/* Cards Grid */}
+        <div className="grid grid-cols-3 gap-6">
+          {steps.map((step, idx) => (
+            <div key={idx} className="bg-gray-50 p-6 rounded-2xl flex flex-col h-full hover:shadow-md transition-all duration-300">
+              <h3 className="text-xl font-bold mb-3 text-gray-900">{step.title}</h3>
+              <p className="text-secondary font-body text-sm leading-relaxed">
+                {step.desc}
+              </p>
             </div>
           ))}
         </div>
@@ -157,7 +172,7 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
                 return (
                   <div className="flex flex-col items-center mx-4">
                     {/* Card with icon inside */}
-                    <div className="bg-white p-6 rounded-2xl shadow-lg flex flex-col w-full border border-gray-50">
+                    <div className="bg-gray-50 p-6 rounded-2xl flex flex-col w-full">
                       {/* Title row with icon */}
                       <div className="flex items-center gap-3 mb-3">
                         <div className="bg-[#EBF2FE] w-10 h-10 rounded-xl flex items-center justify-center">
