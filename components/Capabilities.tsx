@@ -75,29 +75,42 @@ const Capabilities: React.FC = () => {
 
   return (
     <Section id="capabilities" className="my-6 md:my-10">
-      <div>
-        {/* Title - Lexend SemiBold 75px */}
-        <h2 
-          className="font-sans text-[40px] md:text-[75px] font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center mb-12 md:mb-16"
-        >
-          What We Do
-        </h2>
+      <div className="max-w-[1400px] mx-auto">
+        {/* Title Row - Height Hug (360px area), Gap 80px to cards */}
+        <div className="mb-[80px]">
+          <h2 
+            className="font-sans text-[40px] md:text-[75px] font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center"
+          >
+            What We Do
+          </h2>
+        </div>
 
-        {/* Desktop Grid View */}
-        <div className="hidden md:grid grid-cols-4 gap-[44px] mb-12">
+        {/* Desktop Grid View - Section Width 1400px, Cards Height 360px */}
+        <div 
+          className="hidden md:flex justify-between mb-[80px]"
+          style={{ gap: '26.67px' }}
+        >
           {services.map((service, idx) => (
             <div 
               key={idx} 
-              className="bg-white rounded-[20px] p-[35px] pt-[40px] pb-[40px] flex flex-col"
-              style={{ minHeight: '360px' }}
+              className="bg-white flex flex-col"
+              style={{ 
+                width: '330px',
+                height: '360px',
+                borderRadius: '20px',
+                paddingTop: '40px',
+                paddingRight: '35px',
+                paddingBottom: '40px',
+                paddingLeft: '35px',
+              }}
             >
-              {/* Icon - 69.1px x 69.1px */}
-              <div className="mb-6">
+              {/* Icon - 70px x 70px */}
+              <div className="mb-6" style={{ gap: '44px' }}>
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: '69px', height: '69px' }}
+                  style={{ width: '70px', height: '70px' }}
                   loading="lazy"
                 />
               </div>
