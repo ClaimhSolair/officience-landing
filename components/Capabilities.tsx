@@ -1,47 +1,31 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { Section, SectionTitle } from './ui/Section';
+import { Section } from './ui/Section';
 import { ArrowRight } from 'lucide-react';
 
 const services = [
   {
     imageUrl: "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Property%204.png",
     title: 'Creative Tribe',
-    desc: 'Simply design & present your business online. We handle identity, UX/UI, images, and motion.',
-    color: 'text-primary',
-    bg: 'bg-primary/5',
-    border: 'border-primary/20',
-    hoverBorder: 'group-hover:border-primary',
+    desc: 'Simply design & present your business online. We handle your brand identity, UX/UI, images, and motion graphics.',
     url: 'https://demo.officience.com/brochure/creative-tribe'
   },
   {
     imageUrl: "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Property%202.png",
     title: 'IT Craft',
-    desc: 'Leverage software & automation. We deliver websites, commerce, apps, and enterprise tools.',
-    color: 'text-off-pink',
-    bg: 'bg-off-pink/5',
-    border: 'border-off-pink/20',
-    hoverBorder: 'group-hover:border-off-pink',
+    desc: 'Leverage your business with software & automation. We deliver websites, easy-commerce, mobile apps, and enterprise tools.',
     url: 'https://demo.officience.com/brochure/it-craft'
   },
   {
     imageUrl: "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Property%201.png",
     title: 'Crunch',
-    desc: 'Build & scale your data factory. We digest, collect, and support your workflows.',
-    color: 'text-off-yellow',
-    bg: 'bg-off-yellow/5',
-    border: 'border-off-yellow/20',
-    hoverBorder: 'group-hover:border-off-yellow',
+    desc: 'Build, process & scale your data factory. We digest, collect, and support your workflows.',
     url: 'https://demo.officience.com/brochure/crunch'
   },
   {
     imageUrl: "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Property%203.png",
     title: 'Analytics',
-    desc: 'Let data perform. We standardize, analyze, and innovate with business intelligence.',
-    color: 'text-off-red',
-    bg: 'bg-off-red/5',
-    border: 'border-off-red/20',
-    hoverBorder: 'group-hover:border-off-red',
+    desc: 'Streamline operations and let your data perform. We standardize, analyze, and innovate with business intelligence.',
     url: 'https://demo.officience.com/brochure/analytics'
   }
 ];
@@ -92,43 +76,54 @@ const Capabilities: React.FC = () => {
   return (
     <Section id="capabilities" className="my-6 md:my-10">
       <div>
-        <SectionTitle>What we do</SectionTitle>
+        {/* Title - Lexend SemiBold 75px */}
+        <h2 
+          className="font-sans text-[40px] md:text-[75px] font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center mb-12 md:mb-16"
+        >
+          What We Do
+        </h2>
 
         {/* Desktop Grid View */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="hidden md:grid grid-cols-4 gap-[44px] mb-12">
           {services.map((service, idx) => (
             <div 
               key={idx} 
-              className={`p-5 md:p-8 rounded-2xl md:rounded-[2rem] border ${service.border} bg-white hover:shadow-2xl transition-all duration-300 group flex flex-col h-full hover:-translate-y-2`}
+              className="bg-white rounded-[20px] p-[35px] pt-[40px] pb-[40px] flex flex-col"
+              style={{ minHeight: '360px' }}
             >
-              <div className="mb-4 md:mb-6 w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+              {/* Icon - 69.1px x 69.1px */}
+              <div className="mb-6">
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
-                  className="w-full h-full object-contain drop-shadow-sm"
+                  className="object-contain"
+                  style={{ width: '69px', height: '69px' }}
                   loading="lazy"
                 />
               </div>
               
-              <h3 className="text-xl md:text-xl font-bold text-gray-900 mb-2 md:mb-3">{service.title}</h3>
+              {/* Title */}
+              <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
               
-              <p className="text-gray-600 font-body text-sm md:text-sm leading-relaxed mb-4 md:mb-6 flex-grow">
+              {/* Description */}
+              <p className="text-gray-600 font-body text-sm leading-relaxed">
                 {service.desc}
               </p>
-              
-              <div className="mt-auto">
-                <a 
-                  href={service.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full border-2 text-[10px] md:text-xs font-bold uppercase tracking-wide transition-all transform hover:-translate-y-1 ${service.color} ${service.border} hover:bg-gray-50 hover:shadow-md ${service.hoverBorder}`}
-                >
-                  Explore
-                  <ArrowRight size={14} className="md:size-[16px]" />
-                </a>
-              </div>
             </div>
           ))}
+        </div>
+
+        {/* Desktop Single Explore Button */}
+        <div className="hidden md:flex justify-center">
+          <a 
+            href="https://demo.officience.com/brochure"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-full border-2 border-gray-900 text-gray-900 font-bold text-base hover:bg-gray-900 hover:text-white transition-all"
+          >
+            Explore
+            <ArrowRight size={20} />
+          </a>
         </div>
 
         {/* Mobile Swipeable Carousel */}
@@ -156,35 +151,25 @@ const Capabilities: React.FC = () => {
                   const service = services[currentIndex];
                   return (
                     <div 
-                      className={`p-6 rounded-2xl border ${service.border} bg-white shadow-lg flex flex-col mx-4`}
+                      className="bg-white rounded-[20px] p-6 flex flex-col mx-4"
+                      style={{ minHeight: '320px' }}
                     >
-                      {/* Logo takes 30% of panel height */}
-                      <div className="mb-4 h-[30%] min-h-[120px] flex items-center justify-center">
+                      {/* Icon */}
+                      <div className="mb-4">
                         <img 
                           src={service.imageUrl} 
                           alt={service.title} 
-                          className="w-32 h-32 object-contain drop-shadow-sm"
+                          className="object-contain"
+                          style={{ width: '60px', height: '60px' }}
                           loading="lazy"
                         />
                       </div>
                       
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">{service.title}</h3>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-3">{service.title}</h3>
                       
-                      <p className="text-gray-600 font-body text-sm leading-relaxed mb-6 text-center flex-grow">
+                      <p className="text-gray-600 font-body text-sm leading-relaxed">
                         {service.desc}
                       </p>
-                      
-                      <div className="flex justify-center">
-                        <a 
-                          href={service.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 text-sm font-bold uppercase tracking-wide ${service.color} ${service.border}`}
-                        >
-                          Explore
-                          <ArrowRight size={16} />
-                        </a>
-                      </div>
                     </div>
                   );
                 })()}
@@ -204,6 +189,19 @@ const Capabilities: React.FC = () => {
                 className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? 'bg-primary w-6' : 'bg-gray-300'}`}
               />
             ))}
+          </div>
+
+          {/* Mobile Explore Button */}
+          <div className="flex justify-center mt-8">
+            <a 
+              href="https://demo.officience.com/brochure"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-gray-900 text-gray-900 font-bold text-sm hover:bg-gray-900 hover:text-white transition-all"
+            >
+              Explore
+              <ArrowRight size={16} />
+            </a>
           </div>
         </div>
       </div>
