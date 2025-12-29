@@ -8,13 +8,12 @@ const Hero: React.FC = () => {
       {/* Content Area */}
       <div className="flex flex-col items-center justify-center text-center px-4 md:px-6 pt-12 md:pt-20 pb-8 md:pb-12">
         
-        {/* Title - 64px */}
+        {/* Title - Lexend SemiBold 64px, line-height 100%, letter-spacing -4% */}
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
-          className="text-[40px] md:text-[64px] font-bold tracking-tight mb-4 md:mb-6 text-gray-900 leading-[1.1] max-w-4xl"
-          style={{ fontStyle: 'italic' }}
+          className="font-sans text-[40px] md:text-[64px] font-semibold tracking-[-0.04em] mb-4 md:mb-6 text-gray-900 leading-[100%] max-w-4xl text-center"
         >
           Full-stack data solutions to empower your business.
         </motion.h1>
