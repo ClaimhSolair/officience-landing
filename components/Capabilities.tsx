@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { Section } from './ui/Section';
 import { ArrowRight } from 'lucide-react';
 
 const services = [
@@ -74,25 +73,23 @@ const Capabilities: React.FC = () => {
   };
 
   return (
-    <Section id="capabilities" className="my-6 md:my-10">
-      <div className="max-w-[1400px] mx-auto">
-        {/* Title Row - Height Hug (360px area), Gap 80px to cards */}
+    <section id="capabilities" className="bg-white rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-16">
+      {/* Container for 1440px viewport with 20px padding = 1400px content */}
+      <div className="w-full max-w-[1400px] mx-auto px-5">
+        
+        {/* Title Row */}
         <div className="mb-[80px]">
-          <h2 
-            className="font-sans text-[40px] md:text-[75px] font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center"
-          >
+          <h2 className="font-sans text-[40px] md:text-[75px] font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center">
             What We Do
           </h2>
         </div>
 
-        {/* Desktop Grid View - Panels Section: width: 1400, height: 360, justify-content: space-between */}
+        {/* Desktop Cards Row - Width: Fill (1400px), Height: Hug (360px), Justify: space-between */}
         <div 
-          className="hidden md:flex mb-[80px]"
+          className="hidden md:flex w-full mb-[80px]"
           style={{ 
-            width: '1400px',
-            height: '360px',
             justifyContent: 'space-between',
-            opacity: 1
+            height: '360px'
           }}
         >
           {services.map((service, idx) => (
@@ -110,7 +107,7 @@ const Capabilities: React.FC = () => {
               }}
             >
               {/* Icon - 70px x 70px */}
-              <div className="mb-6" style={{ gap: '44px' }}>
+              <div style={{ marginBottom: '44px' }}>
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
@@ -121,17 +118,17 @@ const Capabilities: React.FC = () => {
               </div>
               
               {/* Title */}
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
+              <h3 className="text-[22px] font-bold text-gray-900 mb-3 leading-tight">{service.title}</h3>
               
               {/* Description */}
-              <p className="text-gray-600 font-body text-sm leading-relaxed">
+              <p className="text-gray-600 font-body text-[15px] leading-relaxed">
                 {service.desc}
               </p>
             </div>
           ))}
         </div>
 
-        {/* Desktop Single Explore Button */}
+        {/* Desktop Explore Button */}
         <div className="hidden md:flex justify-center">
           <a 
             href="https://demo.officience.com/brochure"
@@ -169,10 +166,9 @@ const Capabilities: React.FC = () => {
                   const service = services[currentIndex];
                   return (
                     <div 
-                      className="bg-white rounded-[20px] p-6 flex flex-col mx-4"
-                      style={{ minHeight: '320px' }}
+                      className="bg-white rounded-[20px] p-6 flex flex-col mx-2"
+                      style={{ minHeight: '300px' }}
                     >
-                      {/* Icon */}
                       <div className="mb-4">
                         <img 
                           src={service.imageUrl} 
@@ -223,7 +219,7 @@ const Capabilities: React.FC = () => {
           </div>
         </div>
       </div>
-    </Section>
+    </section>
   );
 };
 
