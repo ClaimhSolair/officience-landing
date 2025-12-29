@@ -93,9 +93,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
             <a 
               href="#contact"
               onClick={(e) => handleNavClick(e, '#contact')}
-              className="bg-black text-white px-7 py-3 text-base font-bold rounded hover:bg-primary transition-all transform hover:scale-105 shadow-md whitespace-nowrap"
+              className="bg-primary text-white px-7 py-3 text-base font-bold rounded-full hover:bg-blue-800 transition-all transform hover:scale-105 shadow-md whitespace-nowrap"
             >
-              Let's meet
+              Let's Start!
             </a>
           </div>
         </nav>
@@ -133,9 +133,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
           <a 
             href="#contact"
             onClick={(e) => handleNavClick(e, '#contact')}
-            className="bg-primary text-white w-full text-center py-4 text-xl font-bold rounded"
+            className="bg-primary text-white w-full text-center py-4 text-xl font-bold rounded-full"
           >
-            Let's meet
+            Let's Start!
           </a>
         </div>
       )}
