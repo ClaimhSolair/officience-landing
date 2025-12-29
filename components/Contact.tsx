@@ -52,7 +52,7 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
     data.append("_subject", "New Inquiry from Officience Website");
     data.append("_captcha", "false");
     data.append("_template", "table");
-    data.append("_cc", "huycanh.duong@officience.com,steven.duyminhnguyen@officience.com,tructien.ho@officience.com");
+    data.append("_cc", "huycanh.duong@officience.com,steven.duyminhnguyen@officience.com,tructien.ho@officience.com,thanhlong.le@officience.com");
     
     Object.entries(formData).forEach(([key, value]) => {
       data.append(key, value as string);

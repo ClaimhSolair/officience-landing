@@ -91,8 +91,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
           
           <div className="flex items-center gap-3">
             <a 
-              href="#contact"
-              onClick={(e) => handleNavClick(e, '#contact')}
+              href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2_Y6LOgZzxIKzfDosjBF0E-UDncHoOshsY5_C63VvY3qy7VDnylBb7rGgVUyLuXPLsWDzuhtSJ"
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-primary text-white px-7 py-3 text-base font-bold rounded-full hover:bg-blue-800 transition-all transform hover:scale-105 shadow-md whitespace-nowrap"
             >
               Let's Start!
@@ -131,8 +132,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
             </a>
           ))}
           <a 
-            href="#contact"
-            onClick={(e) => handleNavClick(e, '#contact')}
+            href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2_Y6LOgZzxIKzfDosjBF0E-UDncHoOshsY5_C63VvY3qy7VDnylBb7rGgVUyLuXPLsWDzuhtSJ"
+            target="_blank"
+            rel="noopener noreferrer"
             className="bg-primary text-white w-full text-center py-4 text-xl font-bold rounded-full"
           >
             Let's Start!

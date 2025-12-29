@@ -35,11 +35,6 @@ const reasons = [
 ];
 
 const WhyOfficience: React.FC = () => {
-  const handleStart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
     <section id="why-us" className="w-full bg-primary py-12 md:py-24 my-6 md:my-10">
       <div className="max-w-7xl mx-auto px-4 md:px-12">
@@ -59,13 +54,15 @@ const WhyOfficience: React.FC = () => {
                 AI-first teams, accessible globally. We start in 24 hours!
               </p>
               
-              <button 
-                onClick={handleStart}
+              <a 
+                href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2_Y6LOgZzxIKzfDosjBF0E-UDncHoOshsY5_C63VvY3qy7VDnylBb7rGgVUyLuXPLsWDzuhtSJ"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="mt-2 md:mt-6 bg-white text-gray-900 hover:bg-gray-50 px-8 md:px-12 py-3 md:py-6 rounded-full font-bold text-lg md:text-2xl flex items-center gap-3 md:gap-4 transition-all transform hover:-translate-y-1 shadow-lg"
               >
                 Let's Start!
                 <ArrowRight size={20} className="md:size-[28px]" />
-              </button>
+              </a>
             </div>
 
             <div className="grid grid-cols-2 gap-3 md:gap-4 w-full">
