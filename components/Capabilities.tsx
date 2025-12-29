@@ -85,10 +85,15 @@ const Capabilities: React.FC = () => {
           </h2>
         </div>
 
-        {/* Desktop Grid View - Section Width 1400px, Cards Height 360px */}
+        {/* Desktop Grid View - Panels Section: width: 1400, height: 360, justify-content: space-between */}
         <div 
-          className="hidden md:flex justify-between mb-[80px]"
-          style={{ gap: '26.67px' }}
+          className="hidden md:flex mb-[80px]"
+          style={{ 
+            width: '1400px',
+            height: '360px',
+            justifyContent: 'space-between',
+            opacity: 1
+          }}
         >
           {services.map((service, idx) => (
             <div 
