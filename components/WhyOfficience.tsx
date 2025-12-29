@@ -37,20 +37,26 @@ const reasons = [
 const WhyOfficience: React.FC = () => {
   return (
     <section id="why-us" className="w-full bg-primary py-12 md:py-24 my-6 md:my-10">
-      <div className="max-w-7xl mx-auto px-4 md:px-12">
+      <div className="max-w-[1880px] mx-auto px-4 md:px-5">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 items-center">
             
-            <div className="flex flex-col items-start gap-4 md:gap-10">
-              <h2 className="text-4xl md:text-8xl font-bold leading-tight tracking-tight text-white">
+            <div className="flex flex-col items-start gap-4 md:gap-12">
+              <h2 
+                className="font-bold leading-tight tracking-tight text-white"
+                style={{ fontSize: 'clamp(36px, 7vw, 120px)' }}
+              >
                 Why <br className="hidden md:block"/> Choose Us
               </h2>
-              <p className="text-lg md:text-3xl font-body font-light text-blue-100 max-w-xl leading-relaxed">
+              <p 
+                className="font-body font-light text-blue-100 max-w-2xl leading-relaxed"
+                style={{ fontSize: 'clamp(18px, 2vw, 36px)' }}
+              >
                 AI-first teams, accessible globally. We start in 24 hours!
               </p>
               
@@ -58,36 +64,49 @@ const WhyOfficience: React.FC = () => {
                 href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2_Y6LOgZzxIKzfDosjBF0E-UDncHoOshsY5_C63VvY3qy7VDnylBb7rGgVUyLuXPLsWDzuhtSJ"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 md:mt-6 bg-white text-gray-900 hover:bg-gray-50 px-8 md:px-12 py-3 md:py-6 rounded-full font-bold text-lg md:text-2xl flex items-center gap-3 md:gap-4 transition-all transform hover:-translate-y-1 shadow-lg"
+                className="mt-2 md:mt-8 bg-white text-gray-900 hover:bg-gray-50 rounded-full font-bold flex items-center gap-4 transition-all transform hover:-translate-y-1 shadow-lg"
+                style={{
+                  paddingLeft: 'clamp(32px, 3vw, 48px)',
+                  paddingRight: 'clamp(32px, 3vw, 48px)',
+                  paddingTop: 'clamp(12px, 1.5vw, 24px)',
+                  paddingBottom: 'clamp(12px, 1.5vw, 24px)',
+                  fontSize: 'clamp(18px, 1.5vw, 28px)'
+                }}
               >
                 Let's Start!
-                <ArrowRight size={20} className="md:size-[28px]" />
+                <ArrowRight size={28} />
               </a>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 md:gap-4 w-full">
+            <div className="grid grid-cols-2 gap-3 md:gap-5 w-full">
               {reasons.map((reason, idx) => (
                 <div 
                   key={idx} 
                   className="flex flex-col rounded-2xl md:rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-white shadow-lg"
                 >
                   {/* Top portion (Accent Color) - Rectangle shape */}
-                  <div className={`${reason.accentColor} p-4 md:p-5 flex flex-col justify-between min-h-[80px] md:min-h-[100px] relative`}>
+                  <div className={`${reason.accentColor} p-4 md:p-6 flex flex-col justify-between min-h-[80px] md:min-h-[120px] relative`}>
                     {/* Icon at top-right, smaller and less intrusive */}
-                    <div className="absolute top-3 right-3 md:top-4 md:right-4 opacity-70">
+                    <div className="absolute top-3 right-3 md:top-5 md:right-5 opacity-70">
                       {reason.icon}
                     </div>
                     {/* Title at bottom-left */}
                     <div className="mt-auto">
-                      <h3 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight">
+                      <h3 
+                        className="font-bold text-gray-900 leading-tight"
+                        style={{ fontSize: 'clamp(20px, 1.8vw, 30px)' }}
+                      >
                         {reason.category}
                       </h3>
                     </div>
                   </div>
                   
                   {/* Bottom portion (White) - Description */}
-                  <div className="p-4 md:p-5 flex flex-col bg-white">
-                    <p className="text-gray-600 font-body text-xs md:text-sm leading-relaxed">
+                  <div className="p-4 md:p-6 flex flex-col bg-white">
+                    <p 
+                      className="text-gray-600 font-body leading-relaxed"
+                      style={{ fontSize: 'clamp(12px, 1vw, 18px)' }}
+                    >
                       {reason.text}
                     </p>
                   </div>

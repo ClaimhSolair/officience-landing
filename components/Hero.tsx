@@ -5,53 +5,56 @@ import { ArrowRight } from 'lucide-react';
 const Hero: React.FC = () => {
   return (
     <section className="relative flex flex-col overflow-hidden">
-      {/* Content Area */}
-      <div className="flex flex-col items-center justify-center text-center px-4 md:px-6 pt-12 md:pt-20 pb-8 md:pb-12">
+      {/* Content Area - 1880px container */}
+      <div className="w-full max-w-[1880px] mx-auto flex flex-col items-center justify-center text-center px-5 pt-16 md:pt-24 pb-10 md:pb-16">
         
-        {/* Title - Lexend SemiBold 64px, line-height 100%, letter-spacing -4% */}
+        {/* Title - Lexend SemiBold, scaled for Full HD */}
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
-          className="font-sans text-[40px] md:text-[64px] font-semibold tracking-[-0.04em] mb-4 md:mb-6 text-gray-900 leading-[100%] max-w-4xl text-center"
+          className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center max-w-5xl"
+          style={{ fontSize: 'clamp(40px, 5.5vw, 86px)' }}
         >
           Full-stack data solutions to empower your business.
         </motion.h1>
 
-        {/* Description - 28px */}
+        {/* Description - scaled for Full HD */}
         <motion.p 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
-          className="text-gray-700 text-lg md:text-[28px] font-body font-light leading-relaxed mb-8 md:mb-10 max-w-3xl"
+          className="text-gray-700 font-body font-light leading-relaxed max-w-4xl mt-6 md:mt-8"
+          style={{ fontSize: 'clamp(18px, 2.5vw, 38px)' }}
         >
           We analyze, design, and code with AI — bringing Vietnamese agility to speed up your growth.
         </motion.p>
         
-        {/* CTA Button - 216px x 63px */}
+        {/* CTA Button - scaled for Full HD (290px x 85px) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
+          className="mt-10 md:mt-14"
         >
           <a 
             href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2_Y6LOgZzxIKzfDosjBF0E-UDncHoOshsY5_C63VvY3qy7VDnylBb7rGgVUyLuXPLsWDzuhtSJ"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center justify-center gap-3 bg-primary hover:bg-blue-800 text-white font-bold rounded-full transition-all cursor-pointer shadow-lg hover:shadow-xl"
+            className="group inline-flex items-center justify-center gap-4 bg-primary hover:bg-blue-800 text-white font-bold rounded-full transition-all cursor-pointer shadow-lg hover:shadow-xl"
             style={{ 
-              width: '216px', 
-              height: '63px',
-              fontSize: '18px'
+              width: 'clamp(216px, 15vw, 290px)', 
+              height: 'clamp(63px, 4.5vw, 85px)',
+              fontSize: 'clamp(18px, 1.5vw, 24px)'
             }}
           >
             Let's Start!
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </a>
         </motion.div>
       </div>
 
-      {/* Background Image - Bottom, Full Width, Height ~300px */}
+      {/* Background Image - Full Width, scaled height for Full HD */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -63,7 +66,7 @@ const Hero: React.FC = () => {
           alt="Officience Creative Elements" 
           className="w-full h-auto object-cover object-center"
           style={{ 
-            maxHeight: '300px',
+            maxHeight: 'clamp(200px, 25vw, 400px)',
             minHeight: '150px'
           }}
         />

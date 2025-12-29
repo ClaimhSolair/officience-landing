@@ -73,23 +73,27 @@ const Capabilities: React.FC = () => {
   };
 
   return (
-    <section id="capabilities" className="bg-white rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-16">
-      {/* Container for 1440px viewport with 20px padding = 1400px content */}
-      <div className="w-full max-w-[1400px] mx-auto px-5">
+    <section id="capabilities" className="bg-white rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-20">
+      {/* Container for 1920px viewport with 20px padding = 1880px content */}
+      <div className="w-full max-w-[1880px] mx-auto px-5">
         
-        {/* Title Row */}
-        <div className="mb-[80px]">
-          <h2 className="font-sans text-[40px] md:text-[75px] font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center">
+        {/* Title Row - Gap 107px to cards (scaled from 80px) */}
+        <div style={{ marginBottom: '107px' }}>
+          <h2 
+            className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center"
+            style={{ fontSize: '100px' }}
+          >
             What We Do
           </h2>
         </div>
 
-        {/* Desktop Cards Row - Width: Fill (1400px), Height: Hug (360px), Justify: space-between */}
+        {/* Desktop Cards Row - Width: Fill (1880px), Height: 484px, Justify: space-between */}
         <div 
-          className="hidden md:flex w-full mb-[80px]"
+          className="hidden md:flex w-full"
           style={{ 
             justifyContent: 'space-between',
-            height: '360px'
+            height: '484px',
+            marginBottom: '107px'
           }}
         >
           {services.map((service, idx) => (
@@ -97,31 +101,39 @@ const Capabilities: React.FC = () => {
               key={idx} 
               className="bg-white flex flex-col"
               style={{ 
-                width: '330px',
-                height: '360px',
-                borderRadius: '20px',
-                paddingTop: '40px',
-                paddingRight: '35px',
-                paddingBottom: '40px',
-                paddingLeft: '35px',
+                width: '443px',
+                height: '484px',
+                borderRadius: '27px',
+                paddingTop: '54px',
+                paddingRight: '47px',
+                paddingBottom: '54px',
+                paddingLeft: '47px',
               }}
             >
-              {/* Icon - 70px x 70px */}
-              <div style={{ marginBottom: '44px' }}>
+              {/* Icon - 94px x 94px (scaled from 70px) */}
+              <div style={{ marginBottom: '59px' }}>
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: '70px', height: '70px' }}
+                  style={{ width: '94px', height: '94px' }}
                   loading="lazy"
                 />
               </div>
               
-              {/* Title */}
-              <h3 className="text-[22px] font-bold text-gray-900 mb-3 leading-tight">{service.title}</h3>
+              {/* Title - scaled from 22px */}
+              <h3 
+                className="font-bold text-gray-900 leading-tight"
+                style={{ fontSize: '30px', marginBottom: '16px' }}
+              >
+                {service.title}
+              </h3>
               
-              {/* Description */}
-              <p className="text-gray-600 font-body text-[15px] leading-relaxed">
+              {/* Description - scaled from 15px */}
+              <p 
+                className="text-gray-600 font-body leading-relaxed"
+                style={{ fontSize: '20px' }}
+              >
                 {service.desc}
               </p>
             </div>
@@ -134,10 +146,17 @@ const Capabilities: React.FC = () => {
             href="https://demo.officience.com/brochure"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-full border-2 border-gray-900 text-gray-900 font-bold text-base hover:bg-gray-900 hover:text-white transition-all"
+            className="inline-flex items-center gap-4 rounded-full border-2 border-gray-900 text-gray-900 font-bold hover:bg-gray-900 hover:text-white transition-all"
+            style={{ 
+              paddingLeft: '40px',
+              paddingRight: '40px',
+              paddingTop: '20px',
+              paddingBottom: '20px',
+              fontSize: '20px'
+            }}
           >
             Explore
-            <ArrowRight size={20} />
+            <ArrowRight size={24} />
           </a>
         </div>
 

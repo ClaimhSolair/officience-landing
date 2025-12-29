@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Section } from './ui/Section';
-import { MapPin, Loader2, Check, X } from 'lucide-react';
+import { MapPin, Loader2, Check } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface ContactProps {
@@ -79,34 +79,54 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
     }
   };
 
-  const inputClasses = "w-full bg-[#F3F4F6] border-none rounded-lg px-4 py-2 md:py-3 text-base md:text-lg text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10";
+  const inputClasses = "w-full bg-[#F3F4F6] border-none rounded-lg px-4 py-3 md:py-4 text-base md:text-xl text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10";
 
   return (
-    <Section id="contact" className="py-12 md:py-20 bg-white rounded-3xl md:rounded-[3rem] my-4 md:my-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 md:mb-16">
-          <h2 className="text-4xl md:text-8xl font-bold mb-4 md:mb-6 text-gray-900 leading-tight">Let’s Build Together</h2>
-          <p className="text-xl md:text-2xl text-secondary font-body font-light">
+    <Section id="contact" className="py-12 md:py-24 bg-white rounded-3xl md:rounded-[3rem] my-4 md:my-6">
+      <div className="w-full">
+        <div className="mb-8 md:mb-20">
+          <h2 
+            className="font-bold mb-4 md:mb-8 text-gray-900 leading-tight"
+            style={{ fontSize: 'clamp(36px, 6vw, 100px)' }}
+          >
+            Let's Build Together
+          </h2>
+          <p 
+            className="text-secondary font-body font-light"
+            style={{ fontSize: 'clamp(18px, 2vw, 32px)' }}
+          >
             Ready to scale? Drop us a note.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-32">
           
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-8">
             {offices.map((office, idx) => (
-              <div key={idx} className="flex gap-3 md:gap-4">
-                <MapPin size={24} className="text-off-red flex-shrink-0 mt-1 md:size-[28px]" fill="currentColor" fillOpacity={0.2} />
-                <div className="space-y-0.5 md:space-y-1">
-                  <h4 className="text-2xl md:text-3xl font-bold text-gray-900">{office.city}</h4>
+              <div key={idx} className="flex gap-3 md:gap-5">
+                <MapPin size={24} className="text-off-red flex-shrink-0 mt-1 md:size-[36px]" fill="currentColor" fillOpacity={0.2} />
+                <div className="space-y-0.5 md:space-y-2">
+                  <h4 
+                    className="font-bold text-gray-900"
+                    style={{ fontSize: 'clamp(24px, 2.5vw, 40px)' }}
+                  >
+                    {office.city}
+                  </h4>
                   {office.address ? (
-                    <p className="text-gray-600 font-body text-base md:text-xl leading-snug">
+                    <p 
+                      className="text-gray-600 font-body leading-snug"
+                      style={{ fontSize: 'clamp(16px, 1.5vw, 26px)' }}
+                    >
                       {office.address}
                     </p>
                   ) : (
-                    <div className="space-y-1 md:space-y-2">
+                    <div className="space-y-1 md:space-y-3">
                       {office.subOffices?.map((sub, sIdx) => (
-                        <p key={sIdx} className="text-gray-600 font-body text-base md:text-xl leading-snug">
+                        <p 
+                          key={sIdx} 
+                          className="text-gray-600 font-body leading-snug"
+                          style={{ fontSize: 'clamp(16px, 1.5vw, 26px)' }}
+                        >
                           <span className="text-primary font-bold">{sub.name}</span> - {sub.address}
                         </p>
                       ))}
@@ -117,10 +137,15 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
             ))}
           </div>
 
-          <div className="bg-white p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.05)]">
-            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-8">
+          <div className="bg-white p-6 md:p-12 rounded-2xl md:rounded-[2.5rem] border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.05)]">
+            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-10">
               <div>
-                <label className="block text-lg md:text-xl font-bold text-gray-900 mb-2">Full name</label>
+                <label 
+                  className="block font-bold text-gray-900 mb-2 md:mb-3"
+                  style={{ fontSize: 'clamp(18px, 1.5vw, 26px)' }}
+                >
+                  Full name
+                </label>
                 <input 
                   type="text" 
                   name="name"
@@ -132,7 +157,12 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
                 />
               </div>
               <div>
-                <label className="block text-lg md:text-xl font-bold text-gray-900 mb-2">Work email</label>
+                <label 
+                  className="block font-bold text-gray-900 mb-2 md:mb-3"
+                  style={{ fontSize: 'clamp(18px, 1.5vw, 26px)' }}
+                >
+                  Work email
+                </label>
                 <input 
                   type="email" 
                   name="email"
@@ -144,7 +174,12 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
                 />
               </div>
               <div>
-                <label className="block text-lg md:text-xl font-bold text-gray-900 mb-2">Company</label>
+                <label 
+                  className="block font-bold text-gray-900 mb-2 md:mb-3"
+                  style={{ fontSize: 'clamp(18px, 1.5vw, 26px)' }}
+                >
+                  Company
+                </label>
                 <input 
                   type="text" 
                   name="company"
@@ -155,7 +190,12 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
                 />
               </div>
               <div>
-                <label className="block text-lg md:text-xl font-bold text-gray-900 mb-2">Note</label>
+                <label 
+                  className="block font-bold text-gray-900 mb-2 md:mb-3"
+                  style={{ fontSize: 'clamp(18px, 1.5vw, 26px)' }}
+                >
+                  Note
+                </label>
                 <textarea 
                   name="message"
                   rows={3}
@@ -166,16 +206,26 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
                 ></textarea>
               </div>
 
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 pt-4">
-                <div className="text-gray-500 font-body text-xs md:text-base text-center md:text-left">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 pt-4">
+                <div 
+                  className="text-gray-500 font-body text-center md:text-left"
+                  style={{ fontSize: 'clamp(14px, 1.2vw, 20px)' }}
+                >
                   <p>Reply in one business day.</p>
                 </div>
                 <button 
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-primary text-white md:bg-white md:text-gray-900 font-bold px-8 py-3 md:py-4 rounded-full text-lg md:text-xl transition-all border border-primary md:border-gray-900 flex justify-center items-center gap-2 w-full md:min-w-[240px]"
+                  className="bg-primary text-white md:bg-white md:text-gray-900 font-bold rounded-full transition-all border border-primary md:border-gray-900 flex justify-center items-center gap-2 w-full md:min-w-[280px]"
+                  style={{
+                    paddingLeft: 'clamp(32px, 2vw, 40px)',
+                    paddingRight: 'clamp(32px, 2vw, 40px)',
+                    paddingTop: 'clamp(12px, 1vw, 20px)',
+                    paddingBottom: 'clamp(12px, 1vw, 20px)',
+                    fontSize: 'clamp(18px, 1.5vw, 26px)'
+                  }}
                 >
-                  {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : "Request proposal"}
+                  {isSubmitting ? <Loader2 className="animate-spin" size={24} /> : "Request proposal"}
                 </button>
               </div>
             </form>
