@@ -74,26 +74,25 @@ const Capabilities: React.FC = () => {
 
   return (
     <section id="capabilities" className="bg-white rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-20">
-      {/* Container for 1920px viewport with 20px padding = 1880px content */}
-      <div className="w-full max-w-[1880px] mx-auto px-5">
+      <div className="w-full flex flex-col items-center px-5">
         
-        {/* Title Row - Gap 107px to cards (scaled from 80px) */}
-        <div style={{ marginBottom: '107px' }}>
+        {/* Title */}
+        <div className="mb-16 md:mb-20">
           <h2 
             className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center"
-            style={{ fontSize: '100px' }}
+            style={{ fontSize: '75px' }}
           >
             What We Do
           </h2>
         </div>
 
-        {/* Desktop Cards Row - Width: Fill (1880px), Height: 484px, Justify: space-between */}
+        {/* Desktop Cards Row - Width: 1400px, Height: 360px, Justify: space-between */}
         <div 
-          className="hidden md:flex w-full"
+          className="hidden md:flex"
           style={{ 
-            justifyContent: 'space-between',
-            height: '484px',
-            marginBottom: '107px'
+            width: '1400px',
+            height: '360px',
+            justifyContent: 'space-between'
           }}
         >
           {services.map((service, idx) => (
@@ -101,38 +100,45 @@ const Capabilities: React.FC = () => {
               key={idx} 
               className="bg-white flex flex-col"
               style={{ 
-                width: '443px',
-                height: '484px',
-                borderRadius: '27px',
-                paddingTop: '54px',
-                paddingRight: '47px',
-                paddingBottom: '54px',
-                paddingLeft: '47px',
+                width: '330px',
+                height: '360px',
+                borderRadius: '20px',
+                paddingTop: '40px',
+                paddingRight: '35px',
+                paddingBottom: '40px',
+                paddingLeft: '35px',
               }}
             >
-              {/* Icon - 94px x 94px (scaled from 70px) */}
-              <div style={{ marginBottom: '59px' }}>
+              {/* Icon - Width: 70px, Height: 70px */}
+              <div style={{ marginBottom: '44px' }}>
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: '94px', height: '94px' }}
+                  style={{ width: '70px', height: '70px' }}
                   loading="lazy"
                 />
               </div>
               
-              {/* Title - scaled from 22px */}
+              {/* Title - Font: Lexend, Size: 22px, Weight: 600 (SemiBold) */}
               <h3 
-                className="font-bold text-gray-900 leading-tight"
-                style={{ fontSize: '30px', marginBottom: '16px' }}
+                className="font-sans text-gray-900 leading-tight"
+                style={{ 
+                  fontSize: '22px',
+                  fontWeight: 600,
+                  marginBottom: '16px'
+                }}
               >
                 {service.title}
               </h3>
               
-              {/* Description - scaled from 15px */}
+              {/* Description - Font: Montserrat, Style: Regular, Size: 16px */}
               <p 
-                className="text-gray-600 font-body leading-relaxed"
-                style={{ fontSize: '20px' }}
+                className="font-body text-gray-600 leading-relaxed flex items-center"
+                style={{ 
+                  fontSize: '16px',
+                  fontWeight: 400
+                }}
               >
                 {service.desc}
               </p>
@@ -141,27 +147,27 @@ const Capabilities: React.FC = () => {
         </div>
 
         {/* Desktop Explore Button */}
-        <div className="hidden md:flex justify-center">
+        <div className="hidden md:flex justify-center" style={{ marginTop: '80px' }}>
           <a 
             href="https://demo.officience.com/brochure"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-4 rounded-full border-2 border-gray-900 text-gray-900 font-bold hover:bg-gray-900 hover:text-white transition-all"
+            className="inline-flex items-center gap-3 rounded-full border-2 border-gray-900 text-gray-900 font-bold hover:bg-gray-900 hover:text-white transition-all"
             style={{ 
-              paddingLeft: '40px',
-              paddingRight: '40px',
-              paddingTop: '20px',
-              paddingBottom: '20px',
-              fontSize: '20px'
+              paddingLeft: '32px',
+              paddingRight: '32px',
+              paddingTop: '16px',
+              paddingBottom: '16px',
+              fontSize: '18px'
             }}
           >
             Explore
-            <ArrowRight size={24} />
+            <ArrowRight size={20} />
           </a>
         </div>
 
         {/* Mobile Swipeable Carousel */}
-        <div className="md:hidden relative">
+        <div className="md:hidden relative w-full">
           <div className="overflow-hidden">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
@@ -188,7 +194,7 @@ const Capabilities: React.FC = () => {
                       className="bg-white rounded-[20px] p-6 flex flex-col mx-2"
                       style={{ minHeight: '300px' }}
                     >
-                      <div className="mb-4">
+                      <div className="mb-6">
                         <img 
                           src={service.imageUrl} 
                           alt={service.title} 
@@ -198,7 +204,7 @@ const Capabilities: React.FC = () => {
                         />
                       </div>
                       
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3">{service.title}</h3>
+                      <h3 className="font-sans text-xl font-semibold text-gray-900 mb-3">{service.title}</h3>
                       
                       <p className="text-gray-600 font-body text-sm leading-relaxed">
                         {service.desc}
