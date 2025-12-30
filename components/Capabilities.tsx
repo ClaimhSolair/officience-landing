@@ -2,6 +2,20 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
+/*
+ * SCALING: 1.33x from 1440px base to 1920px Full HD
+ * 
+ * Original → Scaled:
+ * Cards Row: 1400×360 → 1862×479
+ * Each Card: 330×360 → 439×479
+ * Padding: 40/35/40/35 → 53/47/53/47
+ * Gap: 44 → 59
+ * Icon: 70×70 → 93×93
+ * Title: 22px → 29px
+ * Description: 16px → 21px
+ * Section Title: 75px → 100px
+ */
+
 const services = [
   {
     imageUrl: "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Property%204.png",
@@ -73,25 +87,25 @@ const Capabilities: React.FC = () => {
   };
 
   return (
-    <section id="capabilities" className="bg-white rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-20">
+    <section id="capabilities" className="bg-white rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-24">
       <div className="w-full flex flex-col items-center px-5">
         
-        {/* Title */}
-        <div className="mb-16 md:mb-20">
+        {/* Title - 75px × 1.33 = 100px */}
+        <div style={{ marginBottom: '106px' }}>
           <h2 
             className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center"
-            style={{ fontSize: '75px' }}
+            style={{ fontSize: '100px' }}
           >
             What We Do
           </h2>
         </div>
 
-        {/* Desktop Cards Row - Width: 1400px, Height: 360px, Justify: space-between */}
+        {/* Desktop Cards Row - 1400×360 × 1.33 = 1862×479 */}
         <div 
           className="hidden md:flex"
           style={{ 
-            width: '1400px',
-            height: '360px',
+            width: '1862px',
+            height: '479px',
             justifyContent: 'space-between'
           }}
         >
@@ -100,43 +114,46 @@ const Capabilities: React.FC = () => {
               key={idx} 
               className="bg-white flex flex-col"
               style={{ 
-                width: '330px',
-                height: '360px',
-                borderRadius: '20px',
-                paddingTop: '40px',
-                paddingRight: '35px',
-                paddingBottom: '40px',
-                paddingLeft: '35px',
+                /* 330×360 × 1.33 = 439×479 */
+                width: '439px',
+                height: '479px',
+                /* 20 × 1.33 = 27 */
+                borderRadius: '27px',
+                /* 40/35/40/35 × 1.33 = 53/47/53/47 */
+                paddingTop: '53px',
+                paddingRight: '47px',
+                paddingBottom: '53px',
+                paddingLeft: '47px',
               }}
             >
-              {/* Icon - Width: 70px, Height: 70px */}
-              <div style={{ marginBottom: '44px' }}>
+              {/* Icon - 70×70 × 1.33 = 93×93, gap 44 × 1.33 = 59 */}
+              <div style={{ marginBottom: '59px' }}>
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: '70px', height: '70px' }}
+                  style={{ width: '93px', height: '93px' }}
                   loading="lazy"
                 />
               </div>
               
-              {/* Title - Font: Lexend, Size: 22px, Weight: 600 (SemiBold) */}
+              {/* Title - 22px × 1.33 = 29px */}
               <h3 
                 className="font-sans text-gray-900 leading-tight"
                 style={{ 
-                  fontSize: '22px',
+                  fontSize: '29px',
                   fontWeight: 600,
-                  marginBottom: '16px'
+                  marginBottom: '21px'
                 }}
               >
                 {service.title}
               </h3>
               
-              {/* Description - Font: Montserrat, Style: Regular, Size: 16px */}
+              {/* Description - 16px × 1.33 = 21px */}
               <p 
-                className="font-body text-gray-600 leading-relaxed flex items-center"
+                className="font-body text-gray-600 leading-relaxed"
                 style={{ 
-                  fontSize: '16px',
+                  fontSize: '21px',
                   fontWeight: 400
                 }}
               >
@@ -146,27 +163,29 @@ const Capabilities: React.FC = () => {
           ))}
         </div>
 
-        {/* Desktop Explore Button */}
-        <div className="hidden md:flex justify-center" style={{ marginTop: '80px' }}>
+        {/* Desktop Explore Button - margin 80 × 1.33 = 106 */}
+        <div className="hidden md:flex justify-center" style={{ marginTop: '106px' }}>
           <a 
             href="https://demo.officience.com/brochure"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 rounded-full border-2 border-gray-900 text-gray-900 font-bold hover:bg-gray-900 hover:text-white transition-all"
+            className="inline-flex items-center gap-4 rounded-full border-2 border-gray-900 text-gray-900 font-bold hover:bg-gray-900 hover:text-white transition-all"
             style={{ 
-              paddingLeft: '32px',
-              paddingRight: '32px',
-              paddingTop: '16px',
-              paddingBottom: '16px',
-              fontSize: '18px'
+              /* 32/16 × 1.33 = 43/21 */
+              paddingLeft: '43px',
+              paddingRight: '43px',
+              paddingTop: '21px',
+              paddingBottom: '21px',
+              /* 18 × 1.33 = 24 */
+              fontSize: '24px'
             }}
           >
             Explore
-            <ArrowRight size={20} />
+            <ArrowRight size={27} />
           </a>
         </div>
 
-        {/* Mobile Swipeable Carousel */}
+        {/* Mobile Swipeable Carousel - unchanged */}
         <div className="md:hidden relative w-full">
           <div className="overflow-hidden">
             <AnimatePresence initial={false} custom={direction} mode="wait">
