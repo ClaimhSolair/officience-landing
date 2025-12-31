@@ -70,14 +70,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
 
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-          <a 
-             href="https://demo.officience.com/brochure"
-             target="_blank"
-             rel="noopener noreferrer"
-             className="text-base font-medium text-gray-600 hover:text-primary transition-colors font-body whitespace-nowrap"
-          >
-            About us
-          </a>
           {navItems.map((item) => (
             <a 
               key={item.label}
@@ -113,14 +105,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 p-8 flex flex-col space-y-6 shadow-2xl h-screen rounded-b-3xl">
-          <a 
-             href="https://demo.officience.com/brochure"
-             target="_blank"
-             rel="noopener noreferrer"
-             className="text-xl font-medium text-gray-900 hover:text-primary font-body text-left"
-          >
-            About us
-          </a>
           {navItems.map((item) => (
             <a 
               key={item.label}
