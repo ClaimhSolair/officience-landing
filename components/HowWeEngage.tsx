@@ -3,6 +3,23 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Section } from './ui/Section';
 import { ArrowRight, Globe, Users, Truck, Search } from 'lucide-react';
 
+/*
+ * SCALING: 1.33x from 1440px base to 1920px Full HD
+ * 
+ * Original → Scaled:
+ * Section Title: 60px → 80px
+ * Subtitle: 24px → 32px
+ * Otty image: 200px → 266px
+ * Icon box: 80px → 106px
+ * Icon size: 32px → 43px
+ * Card padding: 24px → 32px
+ * Card title: 20px → 27px
+ * Card description: 14px → 19px
+ * Grid gap: 24px → 32px
+ * Button padding: 40/16 → 53/21
+ * Button text: 16px → 21px
+ */
+
 const steps = [
   {
     icon: (
@@ -13,8 +30,8 @@ const steps = [
     ),
     iconDesktop: (
       <div className="relative">
-        <Globe size={32} className="text-primary" strokeWidth={1.5} />
-        <Search size={14} className="absolute -bottom-1 -right-1 text-primary" strokeWidth={2} />
+        <Globe size={43} className="text-primary" strokeWidth={1.5} />
+        <Search size={19} className="absolute -bottom-1 -right-1 text-primary" strokeWidth={2} />
       </div>
     ),
     title: 'Engage',
@@ -22,13 +39,13 @@ const steps = [
   },
   {
     icon: <Users size={24} className="text-primary" strokeWidth={1.5} />,
-    iconDesktop: <Users size={32} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Users size={43} className="text-primary" strokeWidth={1.5} />,
     title: 'Collaborate',
     desc: 'Execute your project in agile mode — with proximity, transparency, and productivity. Small teams, people magic.',
   },
   {
     icon: <Truck size={24} className="text-primary" strokeWidth={1.5} />,
-    iconDesktop: <Truck size={32} className="text-primary" strokeWidth={1.5} />,
+    iconDesktop: <Truck size={43} className="text-primary" strokeWidth={1.5} />,
     title: 'Run',
     desc: 'Roll-out in production, adopt the products, and support your users. People first, tech second.',
   },
@@ -82,25 +99,35 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
   };
 
   return (
-    <Section id="approach" className="relative my-4 md:my-10">
+    <Section id="approach" className="relative my-4 md:my-12">
       {/* Desktop Header - Title and Otty on same line */}
-      <div className="hidden md:flex flex-row items-center justify-between gap-6 mb-12">
+      <div className="hidden md:flex flex-row items-center justify-between gap-8 mb-16">
         <div>
-          <h2 className="text-3xl md:text-6xl font-bold tracking-tight mb-4 uppercase text-gray-900">
+          {/* Title: 60→80px */}
+          <h2 
+            className="font-bold tracking-tight mb-5 uppercase text-gray-900"
+            style={{ fontSize: '80px' }}
+          >
             Our approach
           </h2>
-          <p className="text-secondary text-lg md:text-2xl font-light font-body max-w-3xl border-l-4 border-primary pl-4 md:pl-6">
+          {/* Subtitle: 24→32px, border-left: 4→5px, padding-left: 24→32px */}
+          <p 
+            className="text-secondary font-light font-body max-w-4xl border-l-[5px] border-primary"
+            style={{ fontSize: '32px', paddingLeft: '32px' }}
+          >
             This is how we work
           </p>
         </div>
+        {/* Otty image: 200→266px */}
         <img 
           src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
           alt="Otty Logo" 
-          className="h-[200px] w-auto object-contain"
+          style={{ height: '266px' }}
+          className="w-auto object-contain"
         />
       </div>
 
-      {/* Mobile Header - matching SectionTitle style */}
+      {/* Mobile Header - unchanged */}
       <div className="md:hidden mb-6">
         <h2 className="text-3xl font-bold tracking-tight mb-4 uppercase text-gray-900">
           Our approach
@@ -108,7 +135,6 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
         <p className="text-secondary text-lg font-light font-body max-w-3xl border-l-4 border-primary pl-4">
           This is how we work
         </p>
-        {/* Otty image below title on mobile */}
         <div className="flex justify-center mt-6">
           <img 
             src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
@@ -119,26 +145,53 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block relative mt-8 mb-16">
+      <div className="hidden md:block relative mt-10 mb-20">
         {/* Icons Row with connecting dotted line */}
-        <div className="relative flex justify-between items-center mb-8 px-[8.33%]">
-          {/* Dotted line - connects through center of icons */}
-          <div className="absolute top-1/2 left-[calc(8.33%+40px)] right-[calc(8.33%+40px)] border-t-2 border-dashed border-off-red/60 -translate-y-1/2 z-0"></div>
+        <div className="relative flex justify-between items-center mb-10 px-[8.33%]">
+          {/* Dotted line */}
+          <div 
+            className="absolute top-1/2 left-[calc(8.33%+53px)] right-[calc(8.33%+53px)] border-t-[3px] border-dashed border-off-red/60 -translate-y-1/2 z-0"
+          ></div>
           
-          {/* Icons */}
+          {/* Icons - box: 80→106px, rounded: 16→21px */}
           {steps.map((step, idx) => (
-            <div key={idx} className="relative z-10 bg-[#EBF2FE] w-20 h-20 rounded-2xl flex items-center justify-center shadow-sm">
+            <div 
+              key={idx} 
+              className="relative z-10 bg-[#EBF2FE] flex items-center justify-center shadow-sm"
+              style={{ 
+                width: '106px', 
+                height: '106px', 
+                borderRadius: '21px' 
+              }}
+            >
               {step.iconDesktop}
             </div>
           ))}
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-3 gap-6">
+        {/* Cards Grid - gap: 24→32px */}
+        <div className="grid grid-cols-3" style={{ gap: '32px' }}>
           {steps.map((step, idx) => (
-            <div key={idx} className="bg-gray-50 p-6 rounded-2xl flex flex-col h-full hover:shadow-md transition-all duration-300">
-              <h3 className="text-xl font-bold mb-3 text-gray-900">{step.title}</h3>
-              <p className="text-secondary font-body text-sm leading-relaxed">
+            <div 
+              key={idx} 
+              className="bg-gray-50 flex flex-col h-full hover:shadow-md transition-all duration-300"
+              style={{ 
+                padding: '32px', 
+                borderRadius: '21px' 
+              }}
+            >
+              {/* Card title: 20→27px */}
+              <h3 
+                className="font-bold text-gray-900"
+                style={{ fontSize: '27px', marginBottom: '16px' }}
+              >
+                {step.title}
+              </h3>
+              {/* Card description: 14→19px */}
+              <p 
+                className="text-secondary font-body leading-relaxed"
+                style={{ fontSize: '19px' }}
+              >
                 {step.desc}
               </p>
             </div>
@@ -146,7 +199,7 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
         </div>
       </div>
 
-      {/* Mobile Swipeable Carousel */}
+      {/* Mobile Swipeable Carousel - unchanged */}
       <div className="md:hidden relative mt-6 mb-8">
         <div className="overflow-hidden">
           <AnimatePresence initial={false} custom={direction} mode="wait">
@@ -171,9 +224,7 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
                 const step = steps[currentIndex];
                 return (
                   <div className="flex flex-col items-center mx-4">
-                    {/* Card with icon inside */}
                     <div className="bg-gray-50 p-6 rounded-2xl flex flex-col w-full">
-                      {/* Title row with icon */}
                       <div className="flex items-center gap-3 mb-3">
                         <div className="bg-[#EBF2FE] w-10 h-10 rounded-xl flex items-center justify-center">
                           {step.icon}
@@ -206,13 +257,21 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
         </div>
       </div>
 
+      {/* CTA Button - padding: 40/16→53/21, text: 16→21px */}
       <div className="text-center">
         <button 
           onClick={onOpenSurvey}
-          className="inline-flex items-center gap-2 md:gap-3 bg-off-red text-white hover:bg-red-700 px-8 md:px-10 py-3 md:py-4 rounded-full font-bold transition-all uppercase tracking-wide text-sm md:text-base shadow-md"
+          className="inline-flex items-center gap-4 bg-off-red text-white hover:bg-red-700 rounded-full font-bold transition-all uppercase tracking-wide shadow-md"
+          style={{
+            paddingLeft: '53px',
+            paddingRight: '53px',
+            paddingTop: '21px',
+            paddingBottom: '21px',
+            fontSize: '21px'
+          }}
         >
           Check how we match
-          <ArrowRight size={18} />
+          <ArrowRight size={24} />
         </button>
       </div>
     </Section>
