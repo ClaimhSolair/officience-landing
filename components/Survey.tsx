@@ -74,7 +74,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete }) => {
     formData.append("_captcha", "false");
     formData.append("_template", "table");
     // Updated CC list
-    formData.append("_cc", "huycanh.duong@officience.com,steven.duyminhnguyen@officience.com,tructien.ho@officience.com,thanhlong.le@officience.com");
+    formData.append("_cc", "huycanh.duong@officience.com,steven.duyminhnguyen@officience.com,tructien.ho@officience.com,thanhlong.le@officience.com,minhquyen.tranha@officience.com,quynhnhu.trannguyen@officience.com");
 
     // Append Answers
     Object.entries(answers).forEach(([key, value]) => {
