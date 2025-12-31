@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Survey from './components/Survey';
@@ -21,13 +22,13 @@ function App() {
   };
 
   return (
-    <div className="bg-primary min-h-screen w-full p-3 md:p-6 box-border flex flex-col font-sans text-gray-900 selection:bg-yellow-400 selection:text-black">
+    <div className="bg-background min-h-screen w-full box-border flex flex-col font-sans text-gray-900 selection:bg-yellow-400 selection:text-black">
       
       {/* Main Card Container */}
-      <div className="flex-1 rounded-3xl md:rounded-[2.5rem] shadow-2xl relative isolate flex flex-col min-h-[calc(100vh-3rem)]">
+      <div className="flex-1 relative isolate flex flex-col min-h-screen">
         
         {/* Background Layer */}
-        <div className="absolute inset-0 -z-10 rounded-3xl md:rounded-[2.5rem] overflow-hidden bg-background">
+        <div className="absolute inset-0 -z-10 overflow-hidden bg-background">
            {/* Blob animation removed */}
         </div>
 
@@ -54,6 +55,9 @@ function App() {
         onClose={closeSurvey} 
         onComplete={handleSurveyComplete} 
       />
+
+      {/* Vercel Analytics */}
+      <Analytics />
     </div>
   );
 }
