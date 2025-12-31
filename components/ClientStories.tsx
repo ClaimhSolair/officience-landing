@@ -37,40 +37,35 @@ const testimonials = [
 const ClientStories: React.FC = () => {
   return (
     <Section id="clients" className="relative py-16 md:py-32">
-      {/* Title - Center aligned */}
+      {/* Title - Center aligned, responsive font */}
       <div className="text-center mb-6 md:mb-8">
         <h2 
           className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%]"
-          style={{ fontSize: '100px' }}
+          style={{ fontSize: 'clamp(48px, 6vw, 100px)' }}
         >
           People Trust Us
         </h2>
       </div>
 
-      {/* Description - Center aligned */}
+      {/* Description - Center aligned, responsive font */}
       <div className="text-center mb-16 md:mb-20">
         <p 
           className="text-gray-600 font-body"
-          style={{ fontSize: '28px' }}
+          style={{ fontSize: 'clamp(18px, 2vw, 28px)' }}
         >
           Success stories across different domains
         </p>
       </div>
 
-      {/* Testimonial Cards Row - 1800px width, space-between */}
+      {/* Testimonial Cards Row - responsive grid */}
       <div 
-        className="hidden md:flex mx-auto"
-        style={{ 
-          width: '1800px',
-          justifyContent: 'space-between',
-          marginBottom: '80px'
-        }}
+        className="hidden md:grid w-full max-w-[1800px] mx-auto px-5 gap-5 mb-16 md:mb-20"
+        style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}
       >
         {testimonials.map((testimonial, idx) => (
           <div 
             key={idx} 
             className="flex justify-center items-start"
-            style={{ width: '500px' }}
           >
             <img 
               src={testimonial.image} 
@@ -101,15 +96,15 @@ const ClientStories: React.FC = () => {
 
       {/* Desktop: Company Logos with Text/CTA overlay */}
       <div className="hidden md:grid relative w-full mt-12 grid-cols-1 place-items-center">
-        {/* Background Layer: Company Logos - reduced by 15% for Full HD */}
-        <div className="col-start-1 row-start-1 w-full flex justify-center items-center z-0 px-4">
+        {/* Background Layer: Company Logos - responsive */}
+        <div className="col-start-1 row-start-1 w-full flex justify-center items-center z-0 px-5">
            <img 
             src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Desktop.png" 
             alt="Our Network of Companies" 
             className="w-full h-auto object-contain"
             style={{ 
-              maxHeight: '595px', 
-              maxWidth: '1583px',
+              maxHeight: '50vh', 
+              maxWidth: '100%',
               imageRendering: 'crisp-edges'
             }}
             loading="lazy"
@@ -120,7 +115,7 @@ const ClientStories: React.FC = () => {
         <div className="col-start-1 row-start-1 z-10 flex flex-col items-center justify-center text-center w-full px-4">
           <p 
             className="font-bold text-gray-900"
-            style={{ fontSize: '40px', marginBottom: '32px' }}
+            style={{ fontSize: 'clamp(24px, 2.5vw, 40px)', marginBottom: 'clamp(20px, 2vw, 32px)' }}
           >
             You're in good company!
           </p>
@@ -129,17 +124,17 @@ const ClientStories: React.FC = () => {
             href="https://www.linkedin.com/company/officience/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-4 bg-white text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:text-white rounded-full font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            className="inline-flex items-center gap-3 bg-white text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:text-white rounded-full font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             style={{
-              paddingLeft: '40px',
-              paddingRight: '40px',
-              paddingTop: '18px',
-              paddingBottom: '18px',
-              fontSize: '20px'
+              paddingLeft: 'clamp(24px, 2.5vw, 40px)',
+              paddingRight: 'clamp(24px, 2.5vw, 40px)',
+              paddingTop: 'clamp(12px, 1.2vw, 18px)',
+              paddingBottom: 'clamp(12px, 1.2vw, 18px)',
+              fontSize: 'clamp(14px, 1.3vw, 20px)'
             }}
           >
             Join our network
-            <ArrowRight size={24} />
+            <ArrowRight style={{ width: 'clamp(16px, 1.5vw, 24px)', height: 'clamp(16px, 1.5vw, 24px)' }} />
           </a>
         </div>
       </div>

@@ -88,24 +88,23 @@ const Capabilities: React.FC = () => {
 
   return (
     <section id="capabilities" className="rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-24" style={{ backgroundColor: '#F7F7F7' }}>
-      <div className="w-full flex flex-col items-center px-5">
+      <div className="w-full max-w-[1880px] mx-auto flex flex-col items-center px-5">
         
-        {/* Title - 75px × 1.33 = 100px */}
-        <div style={{ marginBottom: '106px' }}>
+        {/* Title - responsive font size */}
+        <div className="mb-16 md:mb-24">
           <h2 
             className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center"
-            style={{ fontSize: '100px' }}
+            style={{ fontSize: 'clamp(48px, 6vw, 100px)' }}
           >
             What We Do
           </h2>
         </div>
 
-        {/* Desktop Cards Row - Width: 1800px */}
+        {/* Desktop Cards Row - responsive width */}
         <div 
-          className="hidden md:flex"
+          className="hidden md:grid w-full gap-5"
           style={{ 
-            width: '1800px',
-            justifyContent: 'space-between'
+            gridTemplateColumns: 'repeat(4, 1fr)',
           }}
         >
           {services.map((service, idx) => (
@@ -113,42 +112,38 @@ const Capabilities: React.FC = () => {
               key={idx} 
               className="bg-white flex flex-col"
               style={{ 
-                width: '420px',
-                borderRadius: '27px',
-                paddingTop: '53px',
-                paddingRight: '47px',
-                paddingBottom: '53px',
-                paddingLeft: '47px',
+                borderRadius: '20px',
+                padding: 'clamp(30px, 3vw, 53px)',
               }}
             >
-              {/* Icon - 90px × 90px */}
-              <div style={{ marginBottom: '59px' }}>
+              {/* Icon - responsive size */}
+              <div style={{ marginBottom: 'clamp(30px, 3vw, 59px)' }}>
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: '90px', height: '90px' }}
+                  style={{ width: 'clamp(60px, 5vw, 90px)', height: 'clamp(60px, 5vw, 90px)' }}
                   loading="lazy"
                 />
               </div>
               
-              {/* Title - 22px × 1.33 = 29px */}
+              {/* Title - responsive font */}
               <h3 
                 className="font-sans text-gray-900 leading-tight"
                 style={{ 
-                  fontSize: '29px',
+                  fontSize: 'clamp(20px, 1.8vw, 29px)',
                   fontWeight: 600,
-                  marginBottom: '21px'
+                  marginBottom: 'clamp(12px, 1.2vw, 21px)'
                 }}
               >
                 {service.title}
               </h3>
               
-              {/* Description - 16px × 1.33 = 21px */}
+              {/* Description - responsive font */}
               <p 
                 className="font-body text-gray-600 leading-relaxed"
                 style={{ 
-                  fontSize: '21px',
+                  fontSize: 'clamp(14px, 1.2vw, 21px)',
                   fontWeight: 400
                 }}
               >
@@ -159,18 +154,18 @@ const Capabilities: React.FC = () => {
         </div>
 
         {/* Desktop Explore Button */}
-        <div className="hidden md:flex justify-center" style={{ marginTop: '106px' }}>
+        <div className="hidden md:flex justify-center" style={{ marginTop: 'clamp(60px, 6vw, 106px)' }}>
           <a 
             href="https://demo.officience.com/brochure"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-4 rounded-full border-2 border-gray-900 text-gray-900 font-bold transition-all hover:text-white hover:border-[#1F49BF]"
             style={{ 
-              paddingLeft: '43px',
-              paddingRight: '43px',
-              paddingTop: '21px',
-              paddingBottom: '21px',
-              fontSize: '24px'
+              paddingLeft: 'clamp(28px, 2.5vw, 43px)',
+              paddingRight: 'clamp(28px, 2.5vw, 43px)',
+              paddingTop: 'clamp(14px, 1.3vw, 21px)',
+              paddingBottom: 'clamp(14px, 1.3vw, 21px)',
+              fontSize: 'clamp(16px, 1.4vw, 24px)'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#1F49BF';
@@ -180,7 +175,7 @@ const Capabilities: React.FC = () => {
             }}
           >
             Explore
-            <ArrowRight size={27} />
+            <ArrowRight style={{ width: 'clamp(18px, 1.5vw, 27px)', height: 'clamp(18px, 1.5vw, 27px)' }} />
           </a>
         </div>
 

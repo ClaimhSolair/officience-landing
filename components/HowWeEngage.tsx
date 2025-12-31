@@ -102,28 +102,28 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
     <Section id="approach" className="relative my-4 md:my-12">
       {/* Desktop Header - Title and Otty on same line */}
       <div className="hidden md:flex flex-row items-center justify-between gap-8 mb-16">
-        <div>
-          {/* Title: 60→80px */}
+        <div className="flex-shrink-0">
+          {/* Title: responsive */}
           <h2 
             className="font-bold tracking-tight mb-5 uppercase text-gray-900"
-            style={{ fontSize: '80px' }}
+            style={{ fontSize: 'clamp(48px, 5vw, 80px)' }}
           >
             Our approach
           </h2>
-          {/* Subtitle: 32px, no border */}
+          {/* Subtitle: responsive */}
           <p 
             className="text-secondary font-light font-body max-w-4xl"
-            style={{ fontSize: '32px' }}
+            style={{ fontSize: 'clamp(20px, 2vw, 32px)' }}
           >
             This is how we work
           </p>
         </div>
-        {/* Otty image: 499×259.79 × 1.33 = 664×346 */}
+        {/* Otty image: responsive */}
         <img 
           src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
           alt="Otty Logo" 
-          style={{ width: '664px', height: '346px' }}
-          className="object-contain"
+          className="object-contain flex-shrink-0"
+          style={{ width: 'clamp(300px, 35vw, 664px)', height: 'auto' }}
         />
       </div>
 
@@ -154,15 +154,15 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
             style={{ borderColor: '#FD941D' }}
           ></div>
           
-          {/* Icons - box: 80→106px, rounded: 16→21px */}
+          {/* Icons - responsive */}
           {steps.map((step, idx) => (
             <div 
               key={idx} 
               className="relative z-10 bg-[#EBF2FE] flex items-center justify-center shadow-sm"
               style={{ 
-                width: '106px', 
-                height: '106px', 
-                borderRadius: '21px' 
+                width: 'clamp(70px, 6vw, 106px)', 
+                height: 'clamp(70px, 6vw, 106px)', 
+                borderRadius: 'clamp(14px, 1.2vw, 21px)' 
               }}
             >
               {step.iconDesktop}
@@ -170,28 +170,28 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
           ))}
         </div>
 
-        {/* Cards Grid - gap: 24→32px */}
-        <div className="grid grid-cols-3" style={{ gap: '32px' }}>
+        {/* Cards Grid - responsive */}
+        <div className="grid grid-cols-3 gap-4 md:gap-6 lg:gap-8">
           {steps.map((step, idx) => (
             <div 
               key={idx} 
               className="bg-gray-50 flex flex-col h-full hover:shadow-md transition-all duration-300"
               style={{ 
-                padding: '32px', 
-                borderRadius: '21px' 
+                padding: 'clamp(20px, 2vw, 32px)', 
+                borderRadius: 'clamp(14px, 1.2vw, 21px)' 
               }}
             >
-              {/* Card title: 20→27px */}
+              {/* Card title: responsive */}
               <h3 
                 className="font-bold text-gray-900"
-                style={{ fontSize: '27px', marginBottom: '16px' }}
+                style={{ fontSize: 'clamp(18px, 1.6vw, 27px)', marginBottom: 'clamp(10px, 1vw, 16px)' }}
               >
                 {step.title}
               </h3>
-              {/* Card description: 14→19px */}
+              {/* Card description: responsive */}
               <p 
                 className="text-secondary font-body leading-relaxed"
-                style={{ fontSize: '19px' }}
+                style={{ fontSize: 'clamp(14px, 1.1vw, 19px)' }}
               >
                 {step.desc}
               </p>
@@ -262,17 +262,17 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
       <div className="text-center">
         <button 
           onClick={onOpenSurvey}
-          className="inline-flex items-center gap-4 bg-white text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:text-white rounded-full font-bold transition-all uppercase tracking-wide shadow-md"
+          className="inline-flex items-center gap-3 bg-white text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:text-white rounded-full font-bold transition-all uppercase tracking-wide shadow-md"
           style={{
-            paddingLeft: '53px',
-            paddingRight: '53px',
-            paddingTop: '21px',
-            paddingBottom: '21px',
-            fontSize: '21px'
+            paddingLeft: 'clamp(32px, 3vw, 53px)',
+            paddingRight: 'clamp(32px, 3vw, 53px)',
+            paddingTop: 'clamp(14px, 1.3vw, 21px)',
+            paddingBottom: 'clamp(14px, 1.3vw, 21px)',
+            fontSize: 'clamp(14px, 1.3vw, 21px)'
           }}
         >
           Check how we match
-          <ArrowRight size={24} />
+          <ArrowRight style={{ width: 'clamp(18px, 1.5vw, 24px)', height: 'clamp(18px, 1.5vw, 24px)' }} />
         </button>
       </div>
     </Section>
