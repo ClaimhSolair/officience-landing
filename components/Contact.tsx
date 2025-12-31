@@ -137,79 +137,77 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
               ))}
             </div>
 
-          {/* Contact form - right side, square box */}
-          <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 aspect-auto md:aspect-square flex flex-col justify-between">
-            <form onSubmit={handleSubmit} className="flex flex-col h-full">
-              <div className="space-y-4 flex-grow">
-                <div>
-                  <label 
-                    className="block font-bold text-gray-900 mb-1.5"
-                    style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
-                  >
-                    Full name
-                  </label>
-                  <input 
-                    type="text" 
-                    name="name"
-                    required
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Name" 
-                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
-                  />
-                </div>
-                <div>
-                  <label 
-                    className="block font-bold text-gray-900 mb-1.5"
-                    style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
-                  >
-                    Work email
-                  </label>
-                  <input 
-                    type="email" 
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Email" 
-                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
-                  />
-                </div>
-                <div>
-                  <label 
-                    className="block font-bold text-gray-900 mb-1.5"
-                    style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
-                  >
-                    Company
-                  </label>
-                  <input 
-                    type="text" 
-                    name="company"
-                    value={formData.company}
-                    onChange={handleInputChange}
-                    placeholder="Company" 
-                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
-                  />
-                </div>
-                <div>
-                  <label 
-                    className="block font-bold text-gray-900 mb-1.5"
-                    style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
-                  >
-                    Note/ Project context
-                  </label>
-                  <textarea 
-                    name="message"
-                    rows={3}
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    placeholder="Share a few lines about your project"
-                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30 resize-none"
-                  ></textarea>
-                </div>
+          {/* Contact form - right side, compact */}
+          <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label 
+                  className="block font-bold text-gray-900 mb-1.5"
+                  style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
+                >
+                  Full name
+                </label>
+                <input 
+                  type="text" 
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Name" 
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
+                />
+              </div>
+              <div>
+                <label 
+                  className="block font-bold text-gray-900 mb-1.5"
+                  style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
+                >
+                  Work email
+                </label>
+                <input 
+                  type="email" 
+                  name="email"
+                  required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="Email" 
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
+                />
+              </div>
+              <div>
+                <label 
+                  className="block font-bold text-gray-900 mb-1.5"
+                  style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
+                >
+                  Company
+                </label>
+                <input 
+                  type="text" 
+                  name="company"
+                  value={formData.company}
+                  onChange={handleInputChange}
+                  placeholder="Company" 
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
+                />
+              </div>
+              <div>
+                <label 
+                  className="block font-bold text-gray-900 mb-1.5"
+                  style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
+                >
+                  Note/ Project context
+                </label>
+                <textarea 
+                  name="message"
+                  rows={3}
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  placeholder="Share a few lines about your project"
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30 resize-none"
+                ></textarea>
               </div>
 
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 mt-auto">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4">
                 <div 
                   className="text-gray-500 font-body text-center md:text-left italic"
                   style={{ fontSize: 'clamp(11px, 0.9vw, 14px)' }}
