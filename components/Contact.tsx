@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Section } from './ui/Section';
 import { MapPin, Loader2, Check } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -10,21 +9,21 @@ interface ContactProps {
 const offices = [
   {
     city: "Paris, France",
-    address: "47 Boulevard de Sébastopol, Paris"
+    address: "47 Boulevard de Sébastopol, 75001, Paris, France"
   },
   {
     city: "San Francisco, USA",
-    address: "8 The Green, Dover, Delaware"
+    address: "8 The Green, Suite #4511, Dover, Delaware 19901, USA"
   },
   {
     city: "Singapore",
-    address: "9 Kallang Place, Singapore"
+    address: "9 Kallang Place, #04-08, Singapore 339154"
   },
   {
-    city: "HCMC, Vietnam",
+    city: "Hochiminh City, Vietnam",
     subOffices: [
-      { name: "OffyPlex", address: "District 10, HCMC" },
-      { name: "CrunchBase", address: "Phu Nhuan District, HCMC" }
+      { name: "OffyPlex", address: "16A Le Hong Phong Street, Ward 12, District 10, HCMC" },
+      { name: "CrunchBase", address: "262/18 Huynh Van Banh Street, Ward 11, Phu Nhuan District, HCMC" }
     ]
   }
 ];
@@ -82,52 +81,52 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
   const inputClasses = "w-full bg-[#F3F4F6] border-none rounded-lg px-4 py-3 md:py-4 text-base md:text-xl text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10";
 
   return (
-    <Section id="contact" className="py-12 md:py-24 bg-white rounded-3xl md:rounded-[3rem] my-4 md:my-6">
-      <div className="w-full">
+    <section id="contact" className="py-12 md:py-24 rounded-3xl md:rounded-[3rem] my-4 md:my-6 w-full" style={{ backgroundColor: '#1F49BF' }}>
+      <div className="max-w-[1880px] mx-auto px-4 md:px-5">
         <div className="mb-8 md:mb-20">
           <h2 
-            className="font-bold mb-4 md:mb-8 text-gray-900 leading-tight"
+            className="font-bold mb-4 md:mb-8 text-white leading-tight"
             style={{ fontSize: 'clamp(36px, 6vw, 100px)' }}
           >
             Let's Build Together
           </h2>
           <p 
-            className="text-secondary font-body font-light"
+            className="text-blue-100 font-body font-light"
             style={{ fontSize: 'clamp(18px, 2vw, 32px)' }}
           >
-            Ready to scale? Drop us a note.
+            Ready to scale? Drop us a note below.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-32">
           
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-6">
             {offices.map((office, idx) => (
-              <div key={idx} className="flex gap-3 md:gap-5">
-                <MapPin size={24} className="text-off-red flex-shrink-0 mt-1 md:size-[36px]" fill="currentColor" fillOpacity={0.2} />
-                <div className="space-y-0.5 md:space-y-2">
+              <div key={idx} className="flex gap-3 md:gap-4">
+                <MapPin size={24} className="text-off-red flex-shrink-0 mt-1 md:size-[28px]" fill="currentColor" fillOpacity={0.2} />
+                <div className="space-y-0.5 md:space-y-1">
                   <h4 
-                    className="font-bold text-gray-900"
-                    style={{ fontSize: 'clamp(24px, 2.5vw, 40px)' }}
+                    className="font-bold text-white"
+                    style={{ fontSize: 'clamp(18px, 1.5vw, 24px)' }}
                   >
                     {office.city}
                   </h4>
                   {office.address ? (
                     <p 
-                      className="text-gray-600 font-body leading-snug"
-                      style={{ fontSize: 'clamp(16px, 1.5vw, 26px)' }}
+                      className="text-blue-100 font-body leading-snug"
+                      style={{ fontSize: 'clamp(14px, 1.2vw, 20px)' }}
                     >
                       {office.address}
                     </p>
                   ) : (
-                    <div className="space-y-1 md:space-y-3">
+                    <div className="space-y-1 md:space-y-2">
                       {office.subOffices?.map((sub, sIdx) => (
                         <p 
                           key={sIdx} 
-                          className="text-gray-600 font-body leading-snug"
-                          style={{ fontSize: 'clamp(16px, 1.5vw, 26px)' }}
+                          className="text-blue-100 font-body leading-snug"
+                          style={{ fontSize: 'clamp(14px, 1.2vw, 20px)' }}
                         >
-                          <span className="text-primary font-bold">{sub.name}</span> - {sub.address}
+                          <span className="text-[#FFBFC7] font-semibold underline">{sub.name}</span> - {sub.address}
                         </p>
                       ))}
                     </div>
@@ -267,7 +266,7 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
           </div>
         )}
       </AnimatePresence>
-    </Section>
+    </section>
   );
 };
 
