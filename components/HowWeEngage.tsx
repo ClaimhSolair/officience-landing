@@ -110,29 +110,29 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
           >
             Our approach
           </h2>
-          {/* Subtitle: 24→32px, border-left: 4→5px, padding-left: 24→32px */}
+          {/* Subtitle: 32px, no border */}
           <p 
-            className="text-secondary font-light font-body max-w-4xl border-l-[5px] border-primary"
-            style={{ fontSize: '32px', paddingLeft: '32px' }}
+            className="text-secondary font-light font-body max-w-4xl"
+            style={{ fontSize: '32px' }}
           >
             This is how we work
           </p>
         </div>
-        {/* Otty image: 200→266px */}
+        {/* Otty image: 499×259.79 × 1.33 = 664×346 */}
         <img 
           src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
           alt="Otty Logo" 
-          style={{ height: '266px' }}
-          className="w-auto object-contain"
+          style={{ width: '664px', height: '346px' }}
+          className="object-contain"
         />
       </div>
 
-      {/* Mobile Header - unchanged */}
+      {/* Mobile Header */}
       <div className="md:hidden mb-6">
         <h2 className="text-3xl font-bold tracking-tight mb-4 uppercase text-gray-900">
           Our approach
         </h2>
-        <p className="text-secondary text-lg font-light font-body max-w-3xl border-l-4 border-primary pl-4">
+        <p className="text-secondary text-lg font-light font-body max-w-3xl">
           This is how we work
         </p>
         <div className="flex justify-center mt-6">
@@ -148,9 +148,10 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
       <div className="hidden md:block relative mt-10 mb-20">
         {/* Icons Row with connecting dotted line */}
         <div className="relative flex justify-between items-center mb-10 px-[8.33%]">
-          {/* Dotted line */}
+          {/* Dotted line - color #FD941D */}
           <div 
-            className="absolute top-1/2 left-[calc(8.33%+53px)] right-[calc(8.33%+53px)] border-t-[3px] border-dashed border-off-red/60 -translate-y-1/2 z-0"
+            className="absolute top-1/2 left-[calc(8.33%+53px)] right-[calc(8.33%+53px)] border-t-[3px] border-dashed -translate-y-1/2 z-0"
+            style={{ borderColor: '#FD941D' }}
           ></div>
           
           {/* Icons - box: 80→106px, rounded: 16→21px */}
@@ -257,11 +258,11 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
         </div>
       </div>
 
-      {/* CTA Button - padding: 40/16→53/21, text: 16→21px */}
+      {/* CTA Button - White bg, hover → black bg + white text */}
       <div className="text-center">
         <button 
           onClick={onOpenSurvey}
-          className="inline-flex items-center gap-4 bg-off-red text-white hover:bg-red-700 rounded-full font-bold transition-all uppercase tracking-wide shadow-md"
+          className="inline-flex items-center gap-4 bg-white text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:text-white rounded-full font-bold transition-all uppercase tracking-wide shadow-md"
           style={{
             paddingLeft: '53px',
             paddingRight: '53px',
