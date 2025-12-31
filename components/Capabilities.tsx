@@ -47,21 +47,21 @@ const Capabilities: React.FC = () => {
     <section id="capabilities" className="rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-24" style={{ backgroundColor: '#F7F7F7' }}>
       <div className="w-full max-w-[1880px] mx-auto flex flex-col items-center px-5">
         
-        {/* Title - 70px on desktop */}
+        {/* Title - 40px mobile, 70px desktop */}
         <div className="mb-4 md:mb-6">
           <h2 
             className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center"
-            style={{ fontSize: 'clamp(36px, 5vw, 70px)' }}
+            style={{ fontSize: 'clamp(40px, 5vw, 70px)' }}
           >
             What We Do
           </h2>
         </div>
 
-        {/* Description - 24px on desktop */}
+        {/* Description - 20px mobile, 24px desktop */}
         <div className="mb-12 md:mb-16">
           <p 
             className="text-gray-600 font-body text-center"
-            style={{ fontSize: 'clamp(16px, 1.5vw, 24px)' }}
+            style={{ fontSize: 'clamp(20px, 1.5vw, 24px)' }}
           >
             Comprehensive solutions tailored to your needs
           </p>
@@ -146,19 +146,19 @@ const Capabilities: React.FC = () => {
           </a>
         </div>
 
-        {/* Mobile Cards - Vertical scroll, 1 card per row, center aligned */}
+        {/* Mobile Cards - Square cards, vertical scroll */}
         <div className="md:hidden w-full flex flex-col gap-4">
           {services.map((service, idx) => (
             <div 
               key={idx}
-              className="bg-white rounded-[20px] p-6 flex flex-col items-center text-center mx-2"
+              className="bg-white rounded-[20px] p-6 flex flex-col items-center justify-center text-center mx-2 aspect-square"
             >
               <div className="mb-4">
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: '60px', height: '60px' }}
+                  style={{ width: '70px', height: '70px' }}
                   loading="lazy"
                 />
               </div>

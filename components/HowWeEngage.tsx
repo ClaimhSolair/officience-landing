@@ -84,12 +84,18 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
         />
       </div>
 
-      {/* Mobile Header */}
-      <div className="md:hidden mb-6">
-        <h2 className="text-3xl font-bold tracking-tight mb-4 text-gray-900">
+      {/* Mobile Header - 40px title centered, 20px description centered */}
+      <div className="md:hidden mb-6 text-center">
+        <h2 
+          className="font-bold tracking-tight mb-4 text-gray-900"
+          style={{ fontSize: '40px' }}
+        >
           Our approach
         </h2>
-        <p className="text-secondary text-lg font-light font-body max-w-3xl">
+        <p 
+          className="text-secondary font-light font-body"
+          style={{ fontSize: '20px' }}
+        >
           This is how we work
         </p>
         <div className="flex justify-center mt-6">

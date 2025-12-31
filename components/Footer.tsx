@@ -44,12 +44,12 @@ const Footer: React.FC = () => {
       </div>
       
       {/* Mobile Footer Bottom */}
-      <div className="md:hidden relative z-10 max-w-7xl mx-auto mt-6 pt-4 border-t border-white/20 flex flex-row justify-between items-center text-xs text-white/80">
-        <span>© {new Date().getFullYear()} Officience, All rights reserved.</span>
-        <div className="flex gap-3">
-          <a href="https://demo.officience.com/brochure" target="_blank" rel="noopener noreferrer" className="hover:text-white">About us</a>
-          <a href="#capabilities" className="hover:text-white">Our service</a>
-          <a href="https://www.linkedin.com/company/officience/jobs/" target="_blank" rel="noopener noreferrer" className="hover:text-white">Hiring</a>
+      <div className="md:hidden relative z-10 max-w-7xl mx-auto mt-6 pt-4 border-t border-white/20 flex flex-col gap-3 text-xs text-white/80">
+        <span className="text-center">© {new Date().getFullYear()} Officience, All rights reserved.</span>
+        <div className="flex justify-center gap-4">
+          <a href="https://demo.officience.com/brochure" target="_blank" rel="noopener noreferrer" className="hover:text-white whitespace-nowrap">About us</a>
+          <a href="#capabilities" className="hover:text-white whitespace-nowrap">Our service</a>
+          <a href="https://www.linkedin.com/company/officience/jobs/" target="_blank" rel="noopener noreferrer" className="hover:text-white whitespace-nowrap">Hiring</a>
         </div>
       </div>
 

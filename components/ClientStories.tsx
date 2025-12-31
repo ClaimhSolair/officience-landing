@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Section } from './ui/Section';
 import { ArrowRight } from 'lucide-react';
 
@@ -34,24 +35,66 @@ const testimonials = [
   }
 ];
 
+const swipeConfidenceThreshold = 10000;
+const swipePower = (offset: number, velocity: number) => {
+  return Math.abs(offset) * velocity;
+};
+
 const ClientStories: React.FC = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 300 : -300,
+      opacity: 0
+    })
+  };
+
+  const paginate = (newDirection: number) => {
+    const newIndex = currentIndex + newDirection;
+    if (newIndex >= 0 && newIndex < testimonials.length) {
+      setDirection(newDirection);
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const swipe = swipePower(info.offset.x, info.velocity.x);
+    if (swipe < -swipeConfidenceThreshold) {
+      paginate(1);
+    } else if (swipe > swipeConfidenceThreshold) {
+      paginate(-1);
+    }
+  };
+
   return (
     <Section id="clients" className="relative py-16 md:py-32">
-      {/* Title - 70px on desktop */}
+      {/* Title - 40px mobile, 70px desktop */}
       <div className="text-center mb-4 md:mb-6">
         <h2 
           className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%]"
-          style={{ fontSize: 'clamp(36px, 5vw, 70px)' }}
+          style={{ fontSize: 'clamp(40px, 5vw, 70px)' }}
         >
           People Trust Us
         </h2>
       </div>
 
-      {/* Description - 24px on desktop */}
+      {/* Description - 20px mobile, 24px desktop */}
       <div className="text-center mb-12 md:mb-16">
         <p 
           className="text-gray-600 font-body"
-          style={{ fontSize: 'clamp(16px, 1.5vw, 24px)' }}
+          style={{ fontSize: 'clamp(20px, 1.5vw, 24px)' }}
         >
           Success stories across different domains
         </p>
@@ -77,21 +120,52 @@ const ClientStories: React.FC = () => {
         ))}
       </div>
 
-      {/* Mobile Testimonials - using original images */}
-      <div className="md:hidden grid grid-cols-1 gap-6 mb-12 px-4">
-        {testimonials.map((testimonial, idx) => (
-          <div 
-            key={idx} 
-            className="flex justify-center items-start"
-          >
-            <img 
-              src={testimonial.image} 
-              alt={`${testimonial.name} - ${testimonial.role}`}
-              className="w-full h-auto object-contain"
-              loading="lazy"
+      {/* Mobile Testimonials - Swipe left/right carousel */}
+      <div className="md:hidden relative mb-8 px-4">
+        <div className="overflow-hidden">
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            <motion.div
+              key={currentIndex}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 200, damping: 25 },
+                opacity: { duration: 0.3 }
+              }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.5}
+              onDragEnd={handleDragEnd}
+              className="w-full cursor-grab active:cursor-grabbing"
+            >
+              <div className="flex justify-center items-start">
+                <img 
+                  src={testimonials[currentIndex].image} 
+                  alt={`${testimonials[currentIndex].name} - ${testimonials[currentIndex].role}`}
+                  className="w-full h-auto object-contain"
+                  loading="lazy"
+                />
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Dots Indicator */}
+        <div className="flex justify-center gap-2 mt-4">
+          {testimonials.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setDirection(idx > currentIndex ? 1 : -1);
+                setCurrentIndex(idx);
+              }}
+              className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? 'bg-primary w-6' : 'bg-gray-300'}`}
             />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Desktop: Company Logos with Text/CTA overlay */}
@@ -139,33 +213,34 @@ const ClientStories: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile: Side by Side Layout - unchanged */}
-      <div className="md:hidden relative w-full mt-6">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 flex flex-col items-start justify-center">
-            <p className="text-xl font-bold text-gray-900 mb-4">
-              You're in good company!
-            </p>
-            <a 
-              href="https://www.linkedin.com/company/officience/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-white text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:text-white px-5 py-3 rounded-full font-bold transition-all text-xs shadow-lg"
-            >
-              Join our network
-              <ArrowRight size={14} />
-            </a>
-          </div>
-
-          <div className="flex-1 flex justify-center items-center">
-            <img 
-              src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Mobile.png" 
-              alt="Our Network of Companies" 
-              className="w-full h-auto object-contain max-h-[200px]"
-              loading="lazy"
-            />
-          </div>
+      {/* Mobile: Text centered above logo, CTA below logo */}
+      <div className="md:hidden relative w-full mt-6 flex flex-col items-center px-4">
+        {/* Text centered */}
+        <p className="text-2xl font-bold text-gray-900 mb-6 text-center">
+          You're in good company!
+        </p>
+        
+        {/* Company logo - 25% larger */}
+        <div className="w-full flex justify-center items-center mb-6">
+          <img 
+            src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Mobile.png" 
+            alt="Our Network of Companies" 
+            className="w-full h-auto object-contain"
+            style={{ maxHeight: '250px', transform: 'scale(1.25)' }}
+            loading="lazy"
+          />
         </div>
+        
+        {/* CTA button centered */}
+        <a 
+          href="https://www.linkedin.com/company/officience/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-white text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:text-white px-6 py-3 rounded-full font-bold transition-all text-sm shadow-lg"
+        >
+          Join our network
+          <ArrowRight size={16} />
+        </a>
       </div>
     </Section>
   );
