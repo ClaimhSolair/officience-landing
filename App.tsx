@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Analytics } from '@vercel/analytics/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Survey from './components/Survey';
@@ -55,9 +54,6 @@ function App() {
         onClose={closeSurvey} 
         onComplete={handleSurveyComplete} 
       />
-
-      {/* Vercel Analytics */}
-      <Analytics />
     </div>
   );
 }
