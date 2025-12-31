@@ -7,7 +7,7 @@ const PATTERN_URL = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Footer.
 
 const Footer: React.FC = () => {
   return (
-    <footer className="relative bg-[#1F49BF] py-8 md:py-16 px-4 md:px-8 z-50 rounded-b-3xl md:rounded-b-[2.5rem] overflow-hidden">
+    <footer className="relative bg-[#1F49BF] py-8 md:py-16 px-4 md:px-8 z-50 overflow-hidden">
       {/* Pattern Background - bottom half */}
       <div 
         className="absolute bottom-0 left-0 right-0 h-1/2 bg-bottom bg-no-repeat bg-contain pointer-events-none opacity-50"

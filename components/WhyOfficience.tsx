@@ -27,7 +27,7 @@ const reasons = [
 
 const WhyOfficience: React.FC = () => {
   return (
-    <section id="why-us" className="w-full bg-primary py-12 md:py-24 my-6 md:my-10">
+    <section id="why-us" className="w-full bg-primary py-12 md:py-24">
       <div className="max-w-[1880px] mx-auto px-4 md:px-5">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}

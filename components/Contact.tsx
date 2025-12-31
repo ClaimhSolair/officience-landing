@@ -81,7 +81,7 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
   const inputClasses = "w-full bg-white border border-gray-200 rounded-lg px-4 py-2 md:py-3 text-sm md:text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30";
 
   return (
-    <section id="contact" className="py-6 md:py-12 my-4 md:my-6 w-full" style={{ backgroundColor: '#1F49BF' }}>
+    <section id="contact" className="py-6 md:py-12 w-full" style={{ backgroundColor: '#1F49BF' }}>
       {/* Inner Card with #F7F7F7 background */}
       <div className="max-w-[1880px] mx-auto px-4 md:px-5">
         <div className="rounded-3xl md:rounded-[2.5rem] p-8 md:p-16" style={{ backgroundColor: '#F7F7F7' }}>

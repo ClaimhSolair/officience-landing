@@ -36,16 +36,19 @@ function App() {
           onOpenSurvey={openSurvey} 
         />
         
-        <main className="relative z-10 flex-grow flex flex-col gap-0 pb-8">
+        <main className="relative z-10 flex-grow flex flex-col gap-0">
           <Hero />
           <Capabilities />
           <ClientStories />
           <HowWeEngage onOpenSurvey={openSurvey} />
-          <WhyOfficience />
-          <Contact surveyData={surveyData} />
+          
+          {/* Blue background wrapper for bottom sections */}
+          <div style={{ backgroundColor: '#1F49BF' }}>
+            <WhyOfficience />
+            <Contact surveyData={surveyData} />
+            <Footer />
+          </div>
         </main>
-
-        <Footer />
       </div>
 
       {/* Survey Modal */}
