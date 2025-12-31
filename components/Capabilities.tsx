@@ -87,7 +87,7 @@ const Capabilities: React.FC = () => {
   };
 
   return (
-    <section id="capabilities" className="bg-white rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-24">
+    <section id="capabilities" className="rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-24" style={{ backgroundColor: '#F7F7F7' }}>
       <div className="w-full flex flex-col items-center px-5">
         
         {/* Title - 75px × 1.33 = 100px */}
@@ -100,12 +100,11 @@ const Capabilities: React.FC = () => {
           </h2>
         </div>
 
-        {/* Desktop Cards Row - 1400×360 × 1.33 = 1862×479 */}
+        {/* Desktop Cards Row - Width: 1800px */}
         <div 
           className="hidden md:flex"
           style={{ 
-            width: '1862px',
-            height: '479px',
+            width: '1800px',
             justifyContent: 'space-between'
           }}
         >
@@ -114,25 +113,21 @@ const Capabilities: React.FC = () => {
               key={idx} 
               className="bg-white flex flex-col"
               style={{ 
-                /* 330×360 × 1.33 = 439×479 */
-                width: '439px',
-                height: '479px',
-                /* 20 × 1.33 = 27 */
+                width: '420px',
                 borderRadius: '27px',
-                /* 40/35/40/35 × 1.33 = 53/47/53/47 */
                 paddingTop: '53px',
                 paddingRight: '47px',
                 paddingBottom: '53px',
                 paddingLeft: '47px',
               }}
             >
-              {/* Icon - 70×70 × 1.33 = 93×93, gap 44 × 1.33 = 59 */}
+              {/* Icon - 90px × 90px */}
               <div style={{ marginBottom: '59px' }}>
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: '93px', height: '93px' }}
+                  style={{ width: '90px', height: '90px' }}
                   loading="lazy"
                 />
               </div>
@@ -163,21 +158,25 @@ const Capabilities: React.FC = () => {
           ))}
         </div>
 
-        {/* Desktop Explore Button - margin 80 × 1.33 = 106 */}
+        {/* Desktop Explore Button */}
         <div className="hidden md:flex justify-center" style={{ marginTop: '106px' }}>
           <a 
             href="https://demo.officience.com/brochure"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-4 rounded-full border-2 border-gray-900 text-gray-900 font-bold hover:bg-gray-900 hover:text-white transition-all"
+            className="inline-flex items-center gap-4 rounded-full border-2 border-gray-900 text-gray-900 font-bold transition-all hover:text-white hover:border-[#1F49BF]"
             style={{ 
-              /* 32/16 × 1.33 = 43/21 */
               paddingLeft: '43px',
               paddingRight: '43px',
               paddingTop: '21px',
               paddingBottom: '21px',
-              /* 18 × 1.33 = 24 */
               fontSize: '24px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#1F49BF';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
             Explore
