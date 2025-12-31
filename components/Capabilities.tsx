@@ -44,8 +44,8 @@ const services = [
 
 const Capabilities: React.FC = () => {
   return (
-    <section id="capabilities" className="rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-24" style={{ backgroundColor: '#F7F7F7' }}>
-      <div className="w-full max-w-[1880px] mx-auto flex flex-col items-center px-5">
+    <section id="capabilities" className="rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-24 overflow-hidden" style={{ backgroundColor: '#F7F7F7' }}>
+      <div className="w-full max-w-[1600px] mx-auto flex flex-col items-center px-5">
         
         {/* Title - 40px mobile, 70px desktop */}
         <div className="mb-4 md:mb-6">
@@ -67,20 +67,20 @@ const Capabilities: React.FC = () => {
           </p>
         </div>
 
-        {/* Desktop Cards Row - Square cards */}
+        {/* Desktop Cards Row - Flexible height, constrained width */}
         <div 
-          className="hidden md:grid w-full gap-5"
+          className="hidden md:grid w-full gap-4 lg:gap-5"
           style={{ 
-            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
           }}
         >
           {services.map((service, idx) => (
             <div 
               key={idx} 
-              className="bg-white flex flex-col items-center text-center aspect-square"
+              className="bg-white flex flex-col items-center text-center"
               style={{ 
                 borderRadius: '20px',
-                padding: 'clamp(24px, 2.5vw, 40px)',
+                padding: 'clamp(20px, 2vw, 32px)',
               }}
             >
               {/* Icon - centered */}
@@ -89,7 +89,7 @@ const Capabilities: React.FC = () => {
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: 'clamp(80px, 7vw, 120px)', height: 'clamp(80px, 7vw, 120px)' }}
+                  style={{ width: 'clamp(60px, 5vw, 90px)', height: 'clamp(60px, 5vw, 90px)' }}
                   loading="lazy"
                 />
               </div>
@@ -98,9 +98,9 @@ const Capabilities: React.FC = () => {
               <h3 
                 className="font-sans text-gray-900 leading-tight"
                 style={{ 
-                  fontSize: 'clamp(20px, 1.8vw, 29px)',
+                  fontSize: 'clamp(18px, 1.5vw, 26px)',
                   fontWeight: 600,
-                  marginBottom: 'clamp(8px, 1vw, 16px)'
+                  marginBottom: 'clamp(8px, 0.8vw, 12px)'
                 }}
               >
                 {service.title}
@@ -110,7 +110,7 @@ const Capabilities: React.FC = () => {
               <p 
                 className="font-body text-gray-600 leading-relaxed"
                 style={{ 
-                  fontSize: 'clamp(14px, 1.2vw, 21px)',
+                  fontSize: 'clamp(13px, 1vw, 18px)',
                   fontWeight: 400
                 }}
               >
@@ -121,18 +121,18 @@ const Capabilities: React.FC = () => {
         </div>
 
         {/* Desktop Explore Button */}
-        <div className="hidden md:flex justify-center" style={{ marginTop: 'clamp(60px, 6vw, 106px)' }}>
+        <div className="hidden md:flex justify-center" style={{ marginTop: 'clamp(40px, 4vw, 80px)' }}>
           <a 
             href="https://demo.officience.com/brochure"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-4 rounded-full border-2 border-gray-900 text-gray-900 font-bold transition-all hover:text-white hover:border-[#1F49BF]"
             style={{ 
-              paddingLeft: 'clamp(28px, 2.5vw, 43px)',
-              paddingRight: 'clamp(28px, 2.5vw, 43px)',
-              paddingTop: 'clamp(14px, 1.3vw, 21px)',
-              paddingBottom: 'clamp(14px, 1.3vw, 21px)',
-              fontSize: 'clamp(16px, 1.4vw, 24px)'
+              paddingLeft: 'clamp(24px, 2vw, 36px)',
+              paddingRight: 'clamp(24px, 2vw, 36px)',
+              paddingTop: 'clamp(12px, 1vw, 18px)',
+              paddingBottom: 'clamp(12px, 1vw, 18px)',
+              fontSize: 'clamp(14px, 1.2vw, 20px)'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#1F49BF';
@@ -142,16 +142,16 @@ const Capabilities: React.FC = () => {
             }}
           >
             Explore
-            <ArrowRight style={{ width: 'clamp(18px, 1.5vw, 27px)', height: 'clamp(18px, 1.5vw, 27px)' }} />
+            <ArrowRight style={{ width: 'clamp(16px, 1.2vw, 22px)', height: 'clamp(16px, 1.2vw, 22px)' }} />
           </a>
         </div>
 
-        {/* Mobile Cards - Square cards, vertical scroll */}
+        {/* Mobile Cards - Vertical scroll, no aspect-square */}
         <div className="md:hidden w-full flex flex-col gap-4">
           {services.map((service, idx) => (
             <div 
               key={idx}
-              className="bg-white rounded-[20px] p-6 flex flex-col items-center justify-center text-center mx-2 aspect-square"
+              className="bg-white rounded-[20px] p-6 flex flex-col items-center text-center mx-2"
             >
               <div className="mb-4">
                 <img 
