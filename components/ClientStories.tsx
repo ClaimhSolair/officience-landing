@@ -37,21 +37,21 @@ const testimonials = [
 const ClientStories: React.FC = () => {
   return (
     <Section id="clients" className="relative py-16 md:py-32">
-      {/* Title - Center aligned, responsive font */}
-      <div className="text-center mb-6 md:mb-8">
+      {/* Title - 70px on desktop */}
+      <div className="text-center mb-4 md:mb-6">
         <h2 
           className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%]"
-          style={{ fontSize: 'clamp(48px, 6vw, 100px)' }}
+          style={{ fontSize: 'clamp(36px, 5vw, 70px)' }}
         >
           People Trust Us
         </h2>
       </div>
 
-      {/* Description - Center aligned, responsive font */}
-      <div className="text-center mb-16 md:mb-20">
+      {/* Description - 24px on desktop */}
+      <div className="text-center mb-12 md:mb-16">
         <p 
           className="text-gray-600 font-body"
-          style={{ fontSize: 'clamp(18px, 2vw, 28px)' }}
+          style={{ fontSize: 'clamp(16px, 1.5vw, 24px)' }}
         >
           Success stories across different domains
         </p>

@@ -86,13 +86,13 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
           <div className="mb-6 md:mb-12">
             <h2 
               className="font-bold mb-3 md:mb-4 text-gray-900 leading-tight"
-              style={{ fontSize: 'clamp(36px, 5vw, 72px)' }}
+              style={{ fontSize: 'clamp(32px, 5vw, 70px)' }}
             >
               Let's Build Together
             </h2>
             <p 
               className="text-gray-600 font-body font-light"
-              style={{ fontSize: 'clamp(16px, 1.5vw, 22px)' }}
+              style={{ fontSize: 'clamp(16px, 1.5vw, 24px)' }}
             >
               Ready to scale? Drop us a note below.
             </p>

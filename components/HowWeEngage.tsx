@@ -60,17 +60,17 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
       {/* Desktop Header - Title and Otty on same line */}
       <div className="hidden md:flex flex-row items-center justify-between gap-8 mb-16">
         <div className="flex-shrink-0">
-          {/* Title: responsive */}
+          {/* Title: 70px, not uppercase */}
           <h2 
-            className="font-bold tracking-tight mb-5 uppercase text-gray-900"
-            style={{ fontSize: 'clamp(48px, 5vw, 80px)' }}
+            className="font-bold tracking-tight mb-5 text-gray-900"
+            style={{ fontSize: 'clamp(36px, 5vw, 70px)' }}
           >
             Our approach
           </h2>
-          {/* Subtitle: responsive */}
+          {/* Subtitle: 24px */}
           <p 
             className="text-secondary font-light font-body max-w-4xl"
-            style={{ fontSize: 'clamp(20px, 2vw, 32px)' }}
+            style={{ fontSize: 'clamp(16px, 1.5vw, 24px)' }}
           >
             This is how we work
           </p>
@@ -86,7 +86,7 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
 
       {/* Mobile Header */}
       <div className="md:hidden mb-6">
-        <h2 className="text-3xl font-bold tracking-tight mb-4 uppercase text-gray-900">
+        <h2 className="text-3xl font-bold tracking-tight mb-4 text-gray-900">
           Our approach
         </h2>
         <p className="text-secondary text-lg font-light font-body max-w-3xl">

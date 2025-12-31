@@ -8,24 +8,24 @@ const Hero: React.FC = () => {
       {/* Content Area - 1880px container */}
       <div className="w-full max-w-[1880px] mx-auto flex flex-col items-center justify-center text-center px-5 pt-16 md:pt-24 pb-10 md:pb-16">
         
-        {/* Title - Lexend SemiBold, rescaled for 2 lines max */}
+        {/* Title - 70px on desktop */}
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
           className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[110%] text-center"
-          style={{ fontSize: 'clamp(32px, 4vw, 64px)', maxWidth: '1200px' }}
+          style={{ fontSize: 'clamp(32px, 4vw, 70px)', maxWidth: '1200px' }}
         >
           Full-stack data solutions to empower your business.
         </motion.h1>
 
-        {/* Description - rescaled for 2 lines max */}
+        {/* Description - 24px on desktop */}
         <motion.p 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
           className="text-gray-700 font-body font-light leading-relaxed mt-6 md:mt-8"
-          style={{ fontSize: 'clamp(16px, 1.8vw, 28px)', maxWidth: '900px' }}
+          style={{ fontSize: 'clamp(16px, 1.5vw, 24px)', maxWidth: '900px' }}
         >
           We analyze, design, and code with AI — bringing Vietnamese agility to speed up your growth.
         </motion.p>

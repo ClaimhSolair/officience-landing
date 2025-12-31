@@ -38,17 +38,17 @@ const WhyOfficience: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 items-center">
             
             <div className="flex flex-col items-start gap-4 md:gap-12">
-              {/* Title - reduced by 15% more (102px × 0.85 = 87px) for 1 line */}
+              {/* Title - 70px */}
               <h2 
                 className="font-bold leading-tight tracking-tight text-white whitespace-nowrap"
-                style={{ fontSize: 'clamp(26px, 5vw, 87px)' }}
+                style={{ fontSize: 'clamp(26px, 5vw, 70px)' }}
               >
                 Why Choose Us
               </h2>
-              {/* Description - reduced by 15% (31px × 0.85 = 26px) */}
+              {/* Description - 24px */}
               <p 
                 className="font-body font-light text-blue-100 max-w-2xl leading-relaxed"
-                style={{ fontSize: 'clamp(13px, 1.4vw, 26px)' }}
+                style={{ fontSize: 'clamp(14px, 1.5vw, 24px)' }}
               >
                 Connect with our AI-first teams, accessible globally, and launch your project immediately – we start in 24 hours!
               </p>
@@ -86,10 +86,10 @@ const WhyOfficience: React.FC = () => {
                   key={idx} 
                   className="flex flex-col rounded-2xl md:rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-white shadow-lg"
                 >
-                  {/* Top portion (Accent Color) - Title only, no icon */}
-                  <div className={`${reason.accentColor} p-4 md:p-6 flex flex-col justify-end min-h-[80px] md:min-h-[120px]`}>
+                  {/* Top portion (Accent Color) - Title center aligned */}
+                  <div className={`${reason.accentColor} p-4 md:p-6 flex flex-col justify-center items-center min-h-[80px] md:min-h-[120px]`}>
                     <h3 
-                      className="font-bold text-gray-900 leading-tight"
+                      className="font-bold text-gray-900 leading-tight text-center"
                       style={{ fontSize: 'clamp(20px, 1.8vw, 30px)' }}
                     >
                       {reason.category}

@@ -47,17 +47,27 @@ const Capabilities: React.FC = () => {
     <section id="capabilities" className="rounded-3xl md:rounded-[3rem] my-6 md:my-10 py-12 md:py-24" style={{ backgroundColor: '#F7F7F7' }}>
       <div className="w-full max-w-[1880px] mx-auto flex flex-col items-center px-5">
         
-        {/* Title - responsive font size */}
-        <div className="mb-16 md:mb-24">
+        {/* Title - 70px on desktop */}
+        <div className="mb-4 md:mb-6">
           <h2 
             className="font-sans font-semibold tracking-[-0.04em] text-gray-900 leading-[100%] text-center"
-            style={{ fontSize: 'clamp(48px, 6vw, 100px)' }}
+            style={{ fontSize: 'clamp(36px, 5vw, 70px)' }}
           >
             What We Do
           </h2>
         </div>
 
-        {/* Desktop Cards Row - responsive width */}
+        {/* Description - 24px on desktop */}
+        <div className="mb-12 md:mb-16">
+          <p 
+            className="text-gray-600 font-body text-center"
+            style={{ fontSize: 'clamp(16px, 1.5vw, 24px)' }}
+          >
+            Comprehensive solutions tailored to your needs
+          </p>
+        </div>
+
+        {/* Desktop Cards Row - Square cards */}
         <div 
           className="hidden md:grid w-full gap-5"
           style={{ 
@@ -67,36 +77,36 @@ const Capabilities: React.FC = () => {
           {services.map((service, idx) => (
             <div 
               key={idx} 
-              className="bg-white flex flex-col"
+              className="bg-white flex flex-col items-center text-center aspect-square"
               style={{ 
                 borderRadius: '20px',
-                padding: 'clamp(30px, 3vw, 53px)',
+                padding: 'clamp(24px, 2.5vw, 40px)',
               }}
             >
-              {/* Icon - 2x larger */}
-              <div style={{ marginBottom: 'clamp(30px, 3vw, 59px)' }}>
+              {/* Icon - centered */}
+              <div className="flex-shrink-0 mb-4">
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: 'clamp(120px, 10vw, 180px)', height: 'clamp(120px, 10vw, 180px)' }}
+                  style={{ width: 'clamp(80px, 7vw, 120px)', height: 'clamp(80px, 7vw, 120px)' }}
                   loading="lazy"
                 />
               </div>
               
-              {/* Title - responsive font */}
+              {/* Title - keep same size */}
               <h3 
                 className="font-sans text-gray-900 leading-tight"
                 style={{ 
                   fontSize: 'clamp(20px, 1.8vw, 29px)',
                   fontWeight: 600,
-                  marginBottom: 'clamp(12px, 1.2vw, 21px)'
+                  marginBottom: 'clamp(8px, 1vw, 16px)'
                 }}
               >
                 {service.title}
               </h3>
               
-              {/* Description - responsive font */}
+              {/* Description - keep same size */}
               <p 
                 className="font-body text-gray-600 leading-relaxed"
                 style={{ 
