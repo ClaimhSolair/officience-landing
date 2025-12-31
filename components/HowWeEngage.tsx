@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+import React from 'react';
 import { Section } from './ui/Section';
 import { ArrowRight, Globe, Users, Truck, Search } from 'lucide-react';
 
@@ -55,49 +54,7 @@ interface HowWeEngageProps {
   onOpenSurvey?: () => void;
 }
 
-const swipeConfidenceThreshold = 10000;
-const swipePower = (offset: number, velocity: number) => {
-  return Math.abs(offset) * velocity;
-};
-
 const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(0);
-
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 300 : -300,
-      opacity: 0
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 300 : -300,
-      opacity: 0
-    })
-  };
-
-  const paginate = (newDirection: number) => {
-    const newIndex = currentIndex + newDirection;
-    if (newIndex >= 0 && newIndex < steps.length) {
-      setDirection(newDirection);
-      setCurrentIndex(newIndex);
-    }
-  };
-
-  const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const swipe = swipePower(info.offset.x, info.velocity.x);
-    if (swipe < -swipeConfidenceThreshold) {
-      paginate(1);
-    } else if (swipe > swipeConfidenceThreshold) {
-      paginate(-1);
-    }
-  };
-
   return (
     <Section id="approach" className="relative my-4 md:my-12">
       {/* Desktop Header - Title and Otty on same line */}
@@ -200,62 +157,24 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
         </div>
       </div>
 
-      {/* Mobile Swipeable Carousel - unchanged */}
-      <div className="md:hidden relative mt-6 mb-8">
-        <div className="overflow-hidden">
-          <AnimatePresence initial={false} custom={direction} mode="wait">
-            <motion.div
-              key={currentIndex}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 200, damping: 25 },
-                opacity: { duration: 0.3 }
-              }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.5}
-              onDragEnd={handleDragEnd}
-              className="w-full cursor-grab active:cursor-grabbing"
-            >
-              {(() => {
-                const step = steps[currentIndex];
-                return (
-                  <div className="flex flex-col items-center mx-4">
-                    <div className="bg-gray-50 p-6 rounded-2xl flex flex-col w-full">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="bg-[#EBF2FE] w-10 h-10 rounded-xl flex items-center justify-center">
-                          {step.icon}
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900">{step.title}</h3>
-                      </div>
-                      <p className="text-secondary font-body text-sm leading-relaxed">
-                        {step.desc}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })()}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Dots Indicator */}
-        <div className="flex justify-center gap-2 mt-4">
-          {steps.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                setDirection(idx > currentIndex ? 1 : -1);
-                setCurrentIndex(idx);
-              }}
-              className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? 'bg-off-red w-6' : 'bg-gray-300'}`}
-            />
-          ))}
-        </div>
+      {/* Mobile Cards - Vertical scroll, 1 card per row */}
+      <div className="md:hidden mt-6 mb-8 flex flex-col gap-4 px-4">
+        {steps.map((step, idx) => (
+          <div 
+            key={idx}
+            className="bg-gray-50 p-6 rounded-2xl flex flex-col w-full"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="bg-[#EBF2FE] w-10 h-10 rounded-xl flex items-center justify-center">
+                {step.icon}
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">{step.title}</h3>
+            </div>
+            <p className="text-secondary font-body text-sm leading-relaxed">
+              {step.desc}
+            </p>
+          </div>
+        ))}
       </div>
 
       {/* CTA Button - White bg, hover → black bg + white text */}
