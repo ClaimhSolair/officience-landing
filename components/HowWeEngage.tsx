@@ -118,12 +118,12 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
             This is how we work
           </p>
         </div>
-        {/* Otty image: responsive */}
+        {/* Otty image: increased by 25% */}
         <img 
           src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
           alt="Otty Logo" 
           className="object-contain flex-shrink-0"
-          style={{ width: 'clamp(300px, 35vw, 664px)', height: 'auto' }}
+          style={{ width: 'clamp(375px, 44vw, 830px)', height: 'auto' }}
         />
       </div>
 
@@ -148,9 +148,9 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
       <div className="hidden md:block relative mt-10 mb-20">
         {/* Icons Row with connecting dotted line */}
         <div className="relative flex justify-between items-center mb-10 px-[8.33%]">
-          {/* Dotted line - color #FD941D */}
+          {/* Dotted line - color #FD941D, thickness reduced by 25% (3px → 2px) */}
           <div 
-            className="absolute top-1/2 left-[calc(8.33%+53px)] right-[calc(8.33%+53px)] border-t-[3px] border-dashed -translate-y-1/2 z-0"
+            className="absolute top-1/2 left-[calc(8.33%+53px)] right-[calc(8.33%+53px)] border-t-[2px] border-dashed -translate-y-1/2 z-0"
             style={{ borderColor: '#FD941D' }}
           ></div>
           

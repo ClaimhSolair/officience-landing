@@ -116,13 +116,13 @@ const Capabilities: React.FC = () => {
                 padding: 'clamp(30px, 3vw, 53px)',
               }}
             >
-              {/* Icon - responsive size */}
+              {/* Icon - 2x larger */}
               <div style={{ marginBottom: 'clamp(30px, 3vw, 59px)' }}>
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="object-contain"
-                  style={{ width: 'clamp(60px, 5vw, 90px)', height: 'clamp(60px, 5vw, 90px)' }}
+                  style={{ width: 'clamp(120px, 10vw, 180px)', height: 'clamp(120px, 10vw, 180px)' }}
                   loading="lazy"
                 />
               </div>

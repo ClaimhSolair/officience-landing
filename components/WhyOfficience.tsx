@@ -38,17 +38,17 @@ const WhyOfficience: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 items-center">
             
             <div className="flex flex-col items-start gap-4 md:gap-12">
-              {/* Title - reduced by 15% (120px → 102px) */}
+              {/* Title - reduced by 15% more (102px × 0.85 = 87px) for 1 line */}
               <h2 
-                className="font-bold leading-tight tracking-tight text-white"
-                style={{ fontSize: 'clamp(31px, 6vw, 102px)' }}
+                className="font-bold leading-tight tracking-tight text-white whitespace-nowrap"
+                style={{ fontSize: 'clamp(26px, 5vw, 87px)' }}
               >
-                Why <br className="hidden md:block"/> Choose Us
+                Why Choose Us
               </h2>
-              {/* Description - reduced by 15% (36px → 31px) */}
+              {/* Description - reduced by 15% (31px × 0.85 = 26px) */}
               <p 
                 className="font-body font-light text-blue-100 max-w-2xl leading-relaxed"
-                style={{ fontSize: 'clamp(15px, 1.7vw, 31px)' }}
+                style={{ fontSize: 'clamp(13px, 1.4vw, 26px)' }}
               >
                 Connect with our AI-first teams, accessible globally, and launch your project immediately – we start in 24 hours!
               </p>

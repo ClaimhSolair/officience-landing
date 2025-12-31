@@ -98,33 +98,34 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-8 md:gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
             
-            <div className="flex flex-col gap-3 md:gap-4">
+            {/* Address section - left side, increased gap by 15%, text size by 20% */}
+            <div className="flex flex-col gap-4 md:gap-5">
               {offices.map((office, idx) => (
-                <div key={idx} className="flex gap-2 md:gap-3">
-                  <MapPin size={18} className="text-off-red flex-shrink-0 mt-0.5 md:size-[20px]" fill="currentColor" fillOpacity={0.2} />
+                <div key={idx} className="flex gap-3 md:gap-4">
+                  <MapPin size={22} className="text-off-red flex-shrink-0 mt-0.5 md:size-[26px]" fill="currentColor" fillOpacity={0.2} />
                   <div>
                     <h4 
                       className="font-bold text-gray-900 leading-tight"
-                      style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
+                      style={{ fontSize: 'clamp(17px, 1.44vw, 22px)' }}
                     >
                       {office.city}
                     </h4>
                     {office.address ? (
                       <p 
-                        className="text-gray-600 font-body leading-tight"
-                        style={{ fontSize: 'clamp(13px, 1vw, 16px)' }}
+                        className="text-gray-600 font-body leading-snug"
+                        style={{ fontSize: 'clamp(15px, 1.2vw, 19px)' }}
                       >
                         {office.address}
                       </p>
                     ) : (
-                      <div>
+                      <div className="space-y-1">
                         {office.subOffices?.map((sub, sIdx) => (
                           <p 
                             key={sIdx} 
-                            className="text-gray-600 font-body leading-tight"
-                            style={{ fontSize: 'clamp(13px, 1vw, 16px)' }}
+                            className="text-gray-600 font-body leading-snug"
+                            style={{ fontSize: 'clamp(15px, 1.2vw, 19px)' }}
                           >
                             <span className="text-primary font-semibold underline">{sub.name}</span> - {sub.address}
                           </p>
@@ -136,79 +137,82 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
               ))}
             </div>
 
-          <div className="bg-white p-6 md:p-10 rounded-2xl md:rounded-[1.5rem] border border-gray-200">
-            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-              <div>
-                <label 
-                  className="block font-bold text-gray-900 mb-2"
-                  style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
-                >
-                  Full name
-                </label>
-                <input 
-                  type="text" 
-                  name="name"
-                  required
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Name" 
-                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
-                />
-              </div>
-              <div>
-                <label 
-                  className="block font-bold text-gray-900 mb-2"
-                  style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
-                >
-                  Work email
-                </label>
-                <input 
-                  type="email" 
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Email" 
-                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
-                />
-              </div>
-              <div>
-                <label 
-                  className="block font-bold text-gray-900 mb-2"
-                  style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
-                >
-                  Company
-                </label>
-                <input 
-                  type="text" 
-                  name="company"
-                  value={formData.company}
-                  onChange={handleInputChange}
-                  placeholder="Company" 
-                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
-                />
-              </div>
-              <div>
-                <label 
-                  className="block font-bold text-gray-900 mb-2"
-                  style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
-                >
-                  Note/ Project context
-                </label>
-                <textarea 
-                  name="message"
-                  rows={4}
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  placeholder="Share a few lines about your"
-                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
-                ></textarea>
+          {/* Contact form - right side, square box */}
+          <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 aspect-auto md:aspect-square flex flex-col justify-between">
+            <form onSubmit={handleSubmit} className="flex flex-col h-full">
+              <div className="space-y-4 flex-grow">
+                <div>
+                  <label 
+                    className="block font-bold text-gray-900 mb-1.5"
+                    style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
+                  >
+                    Full name
+                  </label>
+                  <input 
+                    type="text" 
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Name" 
+                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
+                  />
+                </div>
+                <div>
+                  <label 
+                    className="block font-bold text-gray-900 mb-1.5"
+                    style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
+                  >
+                    Work email
+                  </label>
+                  <input 
+                    type="email" 
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Email" 
+                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
+                  />
+                </div>
+                <div>
+                  <label 
+                    className="block font-bold text-gray-900 mb-1.5"
+                    style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
+                  >
+                    Company
+                  </label>
+                  <input 
+                    type="text" 
+                    name="company"
+                    value={formData.company}
+                    onChange={handleInputChange}
+                    placeholder="Company" 
+                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30"
+                  />
+                </div>
+                <div>
+                  <label 
+                    className="block font-bold text-gray-900 mb-1.5"
+                    style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}
+                  >
+                    Note/ Project context
+                  </label>
+                  <textarea 
+                    name="message"
+                    rows={3}
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    placeholder="Share a few lines about your project"
+                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-base text-gray-900 outline-none transition-all duration-300 font-body placeholder:text-gray-400 focus:ring-2 focus:ring-primary/10 focus:border-primary/30 resize-none"
+                  ></textarea>
+                </div>
               </div>
 
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 pt-4">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 mt-auto">
                 <div 
                   className="text-gray-500 font-body text-center md:text-left italic"
-                  style={{ fontSize: 'clamp(12px, 1vw, 16px)' }}
+                  style={{ fontSize: 'clamp(11px, 0.9vw, 14px)' }}
                 >
                   <p>We reply within one business day.</p>
                   <p>No aggressive sales.</p>
@@ -218,14 +222,14 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
                   disabled={isSubmitting}
                   className="bg-white text-gray-900 font-bold rounded-full transition-all border-2 border-gray-900 hover:bg-gray-900 hover:text-white flex justify-center items-center gap-2 w-full md:w-auto"
                   style={{
-                    paddingLeft: 'clamp(24px, 2vw, 36px)',
-                    paddingRight: 'clamp(24px, 2vw, 36px)',
-                    paddingTop: 'clamp(12px, 1vw, 16px)',
-                    paddingBottom: 'clamp(12px, 1vw, 16px)',
-                    fontSize: 'clamp(14px, 1.2vw, 18px)'
+                    paddingLeft: 'clamp(20px, 1.8vw, 32px)',
+                    paddingRight: 'clamp(20px, 1.8vw, 32px)',
+                    paddingTop: 'clamp(10px, 0.9vw, 14px)',
+                    paddingBottom: 'clamp(10px, 0.9vw, 14px)',
+                    fontSize: 'clamp(13px, 1.1vw, 16px)'
                   }}
                 >
-                  {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : "Request a proposal"}
+                  {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : "Request a proposal"}
                 </button>
               </div>
             </form>

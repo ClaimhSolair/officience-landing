@@ -8,10 +8,14 @@ const PATTERN_URL = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Footer.
 const Footer: React.FC = () => {
   return (
     <footer className="relative bg-[#1F49BF] py-8 md:py-16 px-4 md:px-8 z-50 overflow-hidden">
-      {/* Pattern Background - bottom half */}
+      {/* Pattern Background - full width */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-1/2 bg-bottom bg-no-repeat bg-contain pointer-events-none opacity-50"
-        style={{ backgroundImage: `url(${PATTERN_URL})` }}
+        className="absolute bottom-0 left-0 right-0 h-full bg-bottom bg-no-repeat pointer-events-none opacity-50"
+        style={{ 
+          backgroundImage: `url(${PATTERN_URL})`,
+          backgroundSize: '100% auto',
+          backgroundPosition: 'center bottom'
+        }}
       />
 
       {/* Content */}
@@ -43,8 +47,9 @@ const Footer: React.FC = () => {
       <div className="md:hidden relative z-10 max-w-7xl mx-auto mt-6 pt-4 border-t border-white/20 flex flex-row justify-between items-center text-xs text-white/80">
         <span>© {new Date().getFullYear()} Officience, All rights reserved.</span>
         <div className="flex gap-3">
-          <a href="#" className="hover:text-white">Privacy Policy</a>
-          <a href="#" className="hover:text-white">Terms of Service</a>
+          <a href="https://demo.officience.com/brochure" target="_blank" rel="noopener noreferrer" className="hover:text-white">About us</a>
+          <a href="#capabilities" className="hover:text-white">Our service</a>
+          <a href="https://www.linkedin.com/company/officience/jobs/" target="_blank" rel="noopener noreferrer" className="hover:text-white">Hiring</a>
         </div>
       </div>
 
@@ -52,8 +57,9 @@ const Footer: React.FC = () => {
       <div className="hidden md:flex relative z-10 max-w-7xl mx-auto mt-16 pt-10 border-t border-white/20 flex-row justify-between items-center text-lg text-white/80">
         <span>© {new Date().getFullYear()} Officience, All rights reserved.</span>
         <div className="flex gap-6">
-          <a href="#" className="hover:text-white">Privacy Policy</a>
-          <a href="#" className="hover:text-white">Terms of Service</a>
+          <a href="https://demo.officience.com/brochure" target="_blank" rel="noopener noreferrer" className="hover:text-white">About us</a>
+          <a href="#capabilities" className="hover:text-white">Our service</a>
+          <a href="https://www.linkedin.com/company/officience/jobs/" target="_blank" rel="noopener noreferrer" className="hover:text-white">Hiring</a>
         </div>
       </div>
     </footer>

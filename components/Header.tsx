@@ -45,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
 
   return (
     <header 
-      className={`sticky top-0 z-50 transition-all duration-300 border-b rounded-t-3xl md:rounded-t-[2.5rem] ${
+      className={`sticky top-0 z-50 transition-all duration-300 border-b ${
         isScrolled || isMobileMenuOpen 
           ? 'bg-white/90 backdrop-blur-md border-gray-200 py-4 shadow-sm' 
           : 'bg-transparent border-transparent py-6'
