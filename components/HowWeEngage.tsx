@@ -157,19 +157,17 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
         </div>
       </div>
 
-      {/* Mobile Cards - Vertical scroll, 1 card per row */}
+      {/* Mobile Cards - Vertical scroll, 1 card per row, center aligned */}
       <div className="md:hidden mt-6 mb-8 flex flex-col gap-4 px-4">
         {steps.map((step, idx) => (
           <div 
             key={idx}
-            className="bg-gray-50 p-6 rounded-2xl flex flex-col w-full"
+            className="bg-gray-50 p-6 rounded-2xl flex flex-col items-center text-center w-full"
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="bg-[#EBF2FE] w-10 h-10 rounded-xl flex items-center justify-center">
-                {step.icon}
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900">{step.title}</h3>
+            <div className="bg-[#EBF2FE] w-10 h-10 rounded-xl flex items-center justify-center mb-3">
+              {step.icon}
             </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">{step.title}</h3>
             <p className="text-secondary font-body text-sm leading-relaxed">
               {step.desc}
             </p>

@@ -136,12 +136,12 @@ const Capabilities: React.FC = () => {
           </a>
         </div>
 
-        {/* Mobile Cards - Vertical scroll, 1 card per row */}
+        {/* Mobile Cards - Vertical scroll, 1 card per row, center aligned */}
         <div className="md:hidden w-full flex flex-col gap-4">
           {services.map((service, idx) => (
             <div 
               key={idx}
-              className="bg-white rounded-[20px] p-6 flex flex-col mx-2"
+              className="bg-white rounded-[20px] p-6 flex flex-col items-center text-center mx-2"
             >
               <div className="mb-4">
                 <img 
