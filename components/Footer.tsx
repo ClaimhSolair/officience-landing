@@ -5,7 +5,11 @@ import { Linkedin, Facebook, Youtube } from 'lucide-react';
 const LOGO_URL = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/logo_horizontal.png";
 const PATTERN_URL = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Footer.png";
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenTerms: () => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
   return (
     <footer className="relative bg-[#1F49BF] py-8 md:py-16 px-4 md:px-8 z-50 overflow-hidden">
       {/* Pattern Background - full width */}
@@ -47,6 +51,12 @@ const Footer: React.FC = () => {
       <div className="md:hidden relative z-10 max-w-7xl mx-auto mt-6 pt-4 border-t border-white/20 flex flex-col gap-3 text-xs text-white/80">
         <span className="text-center">© {new Date().getFullYear()} Officience, All rights reserved.</span>
         <div className="flex justify-center gap-4">
+          <button 
+            onClick={onOpenTerms}
+            className="hover:text-white whitespace-nowrap transition-colors"
+          >
+            Terms & Conditions
+          </button>
           <a href="#capabilities" className="hover:text-white whitespace-nowrap">Our service</a>
           <a href="https://www.linkedin.com/company/officience/jobs/" target="_blank" rel="noopener noreferrer" className="hover:text-white whitespace-nowrap">Hiring</a>
         </div>
@@ -56,6 +66,12 @@ const Footer: React.FC = () => {
       <div className="hidden md:flex relative z-10 max-w-7xl mx-auto mt-16 pt-10 border-t border-white/20 flex-row justify-between items-center text-lg text-white/80">
         <span>© {new Date().getFullYear()} Officience, All rights reserved.</span>
         <div className="flex gap-6">
+          <button 
+            onClick={onOpenTerms}
+            className="hover:text-white transition-colors"
+          >
+            Terms & Conditions
+          </button>
           <a href="#capabilities" className="hover:text-white">Our service</a>
           <a href="https://www.linkedin.com/company/officience/jobs/" target="_blank" rel="noopener noreferrer" className="hover:text-white">Hiring</a>
         </div>

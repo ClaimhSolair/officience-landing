@@ -8,13 +8,18 @@ import Capabilities from './components/Capabilities';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import WhyOfficience from './components/WhyOfficience';
+import TermsConditions from './components/TermsConditions';
 
 function App() {
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
   const [surveyData, setSurveyData] = useState<Record<string, string> | null>(null);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   const openSurvey = () => setIsSurveyOpen(true);
   const closeSurvey = () => setIsSurveyOpen(false);
+  
+  const openTerms = () => setIsTermsOpen(true);
+  const closeTerms = () => setIsTermsOpen(false);
   
   const handleSurveyComplete = (data: Record<string, string>) => {
     setSurveyData(data);
@@ -46,7 +51,7 @@ function App() {
           <div style={{ backgroundColor: '#1F49BF' }}>
             <WhyOfficience />
             <Contact surveyData={surveyData} />
-            <Footer />
+            <Footer onOpenTerms={openTerms} />
           </div>
         </main>
       </div>
@@ -56,6 +61,12 @@ function App() {
         isOpen={isSurveyOpen} 
         onClose={closeSurvey} 
         onComplete={handleSurveyComplete} 
+      />
+
+      {/* Terms & Conditions Modal */}
+      <TermsConditions 
+        isOpen={isTermsOpen} 
+        onClose={closeTerms} 
       />
     </div>
   );
