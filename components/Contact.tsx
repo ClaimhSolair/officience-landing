@@ -8,11 +8,11 @@ interface ContactProps {
 
 const offices = [
   {
-    city: "Paris, France",
+    city: "France",
     address: "47 Boulevard de Sébastopol, 75001, Paris, France"
   },
   {
-    city: "San Francisco, USA",
+    city: "USA",
     address: "8 The Green, Suite #4511, Dover, Delaware 19901, USA"
   },
   {
@@ -20,10 +20,10 @@ const offices = [
     address: "9 Kallang Place, #04-08, Singapore 339154"
   },
   {
-    city: "Hochiminh City, Vietnam",
+    city: "Vietnam",
     subOffices: [
-      { name: "OffyPlex", address: "16A Le Hong Phong Street, Ward 12, District 10, HCMC" },
-      { name: "CrunchBase", address: "262/18 Huynh Van Banh Street, Ward 11, Phu Nhuan District, HCMC" }
+      { name: "OffyPlex", address: "16A Le Hong Phong Street, Ward 12, District 10, Ho Chi Minh City" },
+      { name: "CrunchBase", address: "262/18 Huynh Van Banh Street, Ward 11, Phu Nhuan District, Ho Chi Minh City" }
     ]
   }
 ];
