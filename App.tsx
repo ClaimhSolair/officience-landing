@@ -9,6 +9,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import WhyOfficience from './components/WhyOfficience';
 import TermsConditions from './components/TermsConditions';
+import SplashScreen from './components/SplashScreen';
 
 function App() {
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
@@ -27,6 +28,9 @@ function App() {
 
   return (
     <div className="bg-background min-h-screen w-full box-border flex flex-col font-sans text-gray-900 selection:bg-yellow-400 selection:text-black">
+      
+      {/* Splash Screen */}
+      <SplashScreen />
       
       {/* Main Card Container */}
       <div className="flex-1 relative isolate flex flex-col min-h-screen">
