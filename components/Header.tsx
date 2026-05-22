@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 
 // Direct link to the Officience Logo as requested
-const LOGO_URL = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Logo.png";
+const LOGO_URL = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Avatar%2020th.png";
 
 const navItems = [
   { label: 'What we do', href: '#capabilities' },
@@ -59,12 +59,13 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
             onClick={(e) => handleNavClick(e, '#')}
             className="flex items-center gap-2"
           >
-            <img 
-              src={LOGO_URL} 
-              alt="Officience" 
+            <img
+              src={LOGO_URL}
+              alt="Officience"
               className="h-10 md:h-12 w-auto object-contain"
               referrerPolicy="no-referrer"
             />
+            <span className="text-xl md:text-2xl font-bold text-primary font-sans tracking-tight">officience</span>
           </a>
         </div>
 
