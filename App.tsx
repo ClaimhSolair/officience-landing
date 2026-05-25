@@ -9,18 +9,23 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import WhyOfficience from './components/WhyOfficience';
 import TermsConditions from './components/TermsConditions';
+import AboutUs from './components/AboutUs';
 import SplashScreen from './components/SplashScreen';
 
 function App() {
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
   const [surveyData, setSurveyData] = useState<Record<string, string> | null>(null);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const openSurvey = () => setIsSurveyOpen(true);
   const closeSurvey = () => setIsSurveyOpen(false);
   
   const openTerms = () => setIsTermsOpen(true);
   const closeTerms = () => setIsTermsOpen(false);
+
+  const openAbout = () => setIsAboutOpen(true);
+  const closeAbout = () => setIsAboutOpen(false);
   
   const handleSurveyComplete = (data: Record<string, string>) => {
     setSurveyData(data);
@@ -41,8 +46,9 @@ function App() {
         </div>
 
         {/* Content */}
-        <Header 
-          onOpenSurvey={openSurvey} 
+        <Header
+          onOpenSurvey={openSurvey}
+          onOpenAbout={openAbout}
         />
         
         <main className="relative z-10 flex-grow flex flex-col gap-0">
@@ -55,7 +61,7 @@ function App() {
           <div style={{ backgroundColor: '#1F49BF' }}>
             <WhyOfficience />
             <Contact surveyData={surveyData} />
-            <Footer onOpenTerms={openTerms} />
+            <Footer onOpenTerms={openTerms} onOpenAbout={openAbout} />
           </div>
         </main>
       </div>
@@ -68,9 +74,15 @@ function App() {
       />
 
       {/* Terms & Conditions Modal */}
-      <TermsConditions 
-        isOpen={isTermsOpen} 
-        onClose={closeTerms} 
+      <TermsConditions
+        isOpen={isTermsOpen}
+        onClose={closeTerms}
+      />
+
+      {/* About Us Modal */}
+      <AboutUs
+        isOpen={isAboutOpen}
+        onClose={closeAbout}
       />
     </div>
   );

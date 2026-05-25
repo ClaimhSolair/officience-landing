@@ -9,13 +9,15 @@ const navItems = [
   { label: 'Clients', href: '#clients' },
   { label: 'Our approach', href: '#approach' },
   { label: 'Why choose us', href: '#why-us' },
+  { label: 'About Us', href: '#about' },
 ];
 
 interface HeaderProps {
   onOpenSurvey: () => void;
+  onOpenAbout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenSurvey, onOpenAbout }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -30,6 +32,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     setIsMobileMenuOpen(false);
+
+    // Special case: About Us opens a modal
+    if (href === '#about') {
+      onOpenAbout();
+      return;
+    }
 
     const targetId = href.replace('#', '');
     if (!targetId) {
