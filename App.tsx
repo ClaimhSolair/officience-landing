@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Survey from './components/Survey';
@@ -33,6 +34,7 @@ function App() {
 
   return (
     <div className="bg-background min-h-screen w-full box-border flex flex-col font-sans text-gray-900 selection:bg-yellow-400 selection:text-black">
+      <SpeedInsights />
       
       {/* Splash Screen */}
       <SplashScreen />
