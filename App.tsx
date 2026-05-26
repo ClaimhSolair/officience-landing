@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Survey from './components/Survey';
@@ -84,6 +85,9 @@ function App() {
         isOpen={isAboutOpen}
         onClose={closeAbout}
       />
+
+      {/* Vercel Web Analytics */}
+      <Analytics />
     </div>
   );
 }
