@@ -11,7 +11,7 @@ const R2 = 'https://pub-4f84cf40db4548bdaa61d64bc4aeba8a.r2.dev';
 
 /* ── tiny SVG person (reused for stats) ── */
 const PersonIcon = ({ color }: { color: string }) => (
-  <svg viewBox="0 0 20 28" className="w-[22px] h-[28px]">
+  <svg viewBox="0 0 20 28" className="w-[28px] h-[35px]">
     <circle cx="10" cy="7" r="5" fill={color} />
     <path d="M1 26c0-5 4-9 9-9s9 4 9 9" fill={color} />
   </svg>
@@ -63,7 +63,7 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
               <section className="bg-white">
                 <div
                   className="bg-[#1F49BF] text-white px-8 py-4 font-sans font-bold"
-                  style={{ fontSize: 'clamp(18px, 2.5vw, 24px)' }}
+                  style={{ fontSize: 'clamp(18px, 2.5vw, 30px)' }}
                 >
                   Officience – Solutions To Support Your Growth
                 </div>
@@ -168,12 +168,12 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
                           ))}
                         </div>
                         <div className="flex items-baseline gap-1.5 mt-1">
-                          <span className="font-sans text-[28px] font-extrabold text-gray-900">220</span>
-                          <span className="text-sm text-gray-500">members</span>
+                          <span className="font-sans text-[35px] font-extrabold text-gray-900">220</span>
+                          <span className="text-[18px] text-gray-500">members</span>
                         </div>
                       </div>
 
-                      <span className="text-[15px] text-gray-400 font-medium">with</span>
+                      <span className="text-[19px] text-gray-400 font-medium">with</span>
 
                       {/* 2/3 women */}
                       <div>
@@ -186,8 +186,8 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
                           ))}
                         </div>
                         <div className="flex items-baseline gap-1.5 mt-1">
-                          <span className="font-sans text-[28px] font-extrabold text-gray-900">2/3</span>
-                          <span className="text-sm text-gray-500">women</span>
+                          <span className="font-sans text-[35px] font-extrabold text-gray-900">2/3</span>
+                          <span className="text-[18px] text-gray-500">women</span>
                         </div>
                       </div>
                     </div>
@@ -197,12 +197,12 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
                       <img
                         src={`${R2}/Cosmic.png`}
                         alt="Cosmic Values"
-                        className="max-h-[160px] object-contain"
+                        className="max-h-[200px] object-contain"
                       />
                       <img
                         src={`${R2}/3%20core.jpg`}
                         alt="Purpose, Autonomy, Mastery"
-                        className="max-h-[160px] object-contain"
+                        className="max-h-[200px] object-contain"
                       />
                     </div>
                   </div>
@@ -322,15 +322,15 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="px-8 py-7">
-                  <div className="flex flex-col md:flex-row gap-7 items-start mb-6">
+                  <div className="flex flex-col md:flex-row gap-7 items-center mb-6">
                     <div className="flex-1">
                       <h3
                         className="font-sans font-extrabold text-gray-300 mb-2.5"
-                        style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}
+                        style={{ fontSize: '50px' }}
                       >
                         Officience
                       </h3>
-                      <p className="text-base text-gray-800 leading-relaxed">
+                      <p className="text-[25px] text-gray-800 leading-relaxed">
                         Digital Services Company
                         <br />
                         at the heart of the French Tech ecosystem
@@ -351,22 +351,35 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
                     </div>
                   </div>
 
-                  {/* Partner logos */}
-                  <div className="flex flex-wrap gap-5 items-center">
-                    {[
-                      { file: 'image23.png', alt: 'Women in Tech' },
-                      { file: 'image26.png', alt: 'Le Wagon' },
-                      { file: 'image24.png', alt: 'Campus Cyber' },
-                      { file: 'image25.png', alt: 'Passerelles Numériques' },
-                      { file: 'image27.png', alt: 'Silicon Sentier' },
-                    ].map((p) => (
-                      <img
-                        key={p.file}
-                        src={`${R2}/${p.file}`}
-                        alt={p.alt}
-                        className="h-[38px] w-auto object-contain opacity-90 hover:opacity-100 transition-opacity"
-                      />
-                    ))}
+                  {/* Partner logos — 2-row stacked left */}
+                  <div className="flex flex-col items-start gap-5">
+                    <div className="flex gap-8 items-center">
+                      {[
+                        { file: 'image23.png', alt: 'Women in Tech' },
+                        { file: 'image26.png', alt: 'Le Wagon' },
+                      ].map((p) => (
+                        <img
+                          key={p.file}
+                          src={`${R2}/${p.file}`}
+                          alt={p.alt}
+                          className="h-[52px] w-auto object-contain opacity-90 hover:opacity-100 transition-opacity"
+                        />
+                      ))}
+                    </div>
+                    <div className="flex gap-8 items-center">
+                      {[
+                        { file: 'image24.png', alt: 'Campus Cyber' },
+                        { file: 'image25.png', alt: 'Passerelles Numériques' },
+                        { file: 'image27.png', alt: 'Silicon Sentier' },
+                      ].map((p) => (
+                        <img
+                          key={p.file}
+                          src={`${R2}/${p.file}`}
+                          alt={p.alt}
+                          className="h-[52px] w-auto object-contain opacity-90 hover:opacity-100 transition-opacity"
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </section>
@@ -411,15 +424,6 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
               </section>
             </div>
 
-            {/* ─── Sticky Footer ─── */}
-            <div className="sticky bottom-0 z-10 bg-white border-t border-gray-200 p-4 md:p-6 flex justify-center">
-              <button
-                onClick={onClose}
-                className="px-9 py-3 bg-[#1F49BF] text-white rounded-full font-bold text-base hover:bg-blue-800 transition-colors font-sans"
-              >
-                Close
-              </button>
-            </div>
           </motion.div>
         </div>
       )}
