@@ -87,7 +87,12 @@ function App() {
         onClose={closeAbout}
       />
 
-      <Analytics />
+      <Analytics beforeSend={(event) => {
+        if (event.url && new URL(event.url, window.location.origin).pathname !== '/') {
+          return null;
+        }
+        return event;
+      }} />
       <SpeedInsights />
     </div>
   );
