@@ -110,10 +110,13 @@ const ClientStories: React.FC = () => {
             key={idx} 
             className="flex justify-center items-start"
           >
-            <img 
-              src={testimonial.image} 
+            <img
+              src={testimonial.image}
               alt={`${testimonial.name} - ${testimonial.role}`}
+              width={386}
+              height={345}
               className="w-full h-auto object-contain"
+              style={{ aspectRatio: '386/345' }}
               loading="lazy"
             />
           </div>
@@ -142,10 +145,13 @@ const ClientStories: React.FC = () => {
               className="w-full cursor-grab active:cursor-grabbing"
             >
               <div className="flex justify-center items-start">
-                <img 
-                  src={testimonials[currentIndex].image} 
+                <img
+                  src={testimonials[currentIndex].image}
                   alt={`${testimonials[currentIndex].name} - ${testimonials[currentIndex].role}`}
+                  width={386}
+                  height={345}
                   className="w-full h-auto object-contain"
+                  style={{ aspectRatio: '386/345' }}
                   loading="lazy"
                 />
               </div>
@@ -172,12 +178,15 @@ const ClientStories: React.FC = () => {
       <div className="hidden md:grid relative w-full mt-12 grid-cols-1 place-items-center">
         {/* Background Layer: Company Logos - responsive */}
         <div className="col-start-1 row-start-1 w-full flex justify-center items-center z-0 px-5">
-           <img 
-            src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Desktop.png" 
-            alt="Our Network of Companies" 
+           <img
+            src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Desktop.png"
+            alt="Our Network of Companies"
+            width={1240}
+            height={242}
             className="w-full h-auto object-contain"
-            style={{ 
-              maxHeight: '50vh', 
+            style={{
+              aspectRatio: '1240/242',
+              maxHeight: '50vh',
               maxWidth: '100%',
               imageRendering: 'crisp-edges'
             }}
@@ -222,11 +231,13 @@ const ClientStories: React.FC = () => {
         
         {/* Company logo - 25% larger */}
         <div className="w-full flex justify-center items-center mb-6">
-          <img 
-            src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Mobile.png" 
-            alt="Our Network of Companies" 
+          <img
+            src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Mobile.png"
+            alt="Our Network of Companies"
+            width={1170}
+            height={1260}
             className="w-full h-auto object-contain"
-            style={{ maxHeight: '250px', transform: 'scale(1.25)' }}
+            style={{ aspectRatio: '1170/1260', maxHeight: '250px', transform: 'scale(1.25)' }}
             loading="lazy"
           />
         </div>

@@ -35,9 +35,9 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="relative bg-white w-full max-w-5xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* ─── Sticky Header ─── */}
@@ -82,6 +82,7 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
                       src={`${R2}/Office_view.png`}
                       alt="Officience Office — F Central"
                       className="w-full h-full object-cover block"
+                      style={{ aspectRatio: '16/9' }}
                     />
                   </div>
                 </div>
@@ -110,6 +111,7 @@ const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
                       src={`${R2}/location%20map.png`}
                       alt="Global Presence"
                       className="w-full h-auto"
+                      style={{ aspectRatio: '16/9' }}
                     />
                   </div>
                 </div>

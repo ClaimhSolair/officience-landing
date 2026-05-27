@@ -27,9 +27,11 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenAbout }) => {
       <div className="relative z-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 md:gap-10">
         
         <div className="text-center md:text-left">
-          <img 
-            src={LOGO_URL} 
-            alt="Officience" 
+          <img
+            src={LOGO_URL}
+            alt="Officience"
+            width={2140}
+            height={557}
             className="h-12 md:h-24 w-auto object-contain mx-auto md:mx-0 brightness-0 invert"
             referrerPolicy="no-referrer"
           />

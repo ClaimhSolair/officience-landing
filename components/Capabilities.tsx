@@ -84,12 +84,16 @@ const Capabilities: React.FC = () => {
               }}
             >
               {/* Icon - centered */}
-              <div className="flex-shrink-0 mb-4">
-                <img 
-                  src={service.imageUrl} 
-                  alt={service.title} 
-                  className="object-contain"
-                  style={{ width: 'clamp(60px, 5vw, 90px)', height: 'clamp(60px, 5vw, 90px)' }}
+              <div
+                className="flex-shrink-0 mb-4"
+                style={{ width: 'clamp(60px, 5vw, 90px)', height: 'clamp(60px, 5vw, 90px)' }}
+              >
+                <img
+                  src={service.imageUrl}
+                  alt={service.title}
+                  width={235}
+                  height={274}
+                  className="w-full h-full object-contain"
                   loading="lazy"
                 />
               </div>
@@ -153,12 +157,13 @@ const Capabilities: React.FC = () => {
               key={idx}
               className="bg-white rounded-[20px] p-6 flex flex-col items-center text-center mx-2"
             >
-              <div className="mb-4">
-                <img 
-                  src={service.imageUrl} 
-                  alt={service.title} 
-                  className="object-contain"
-                  style={{ width: '70px', height: '70px' }}
+              <div className="mb-4 w-[70px] h-[70px]">
+                <img
+                  src={service.imageUrl}
+                  alt={service.title}
+                  width={235}
+                  height={274}
+                  className="w-full h-full object-contain"
                   loading="lazy"
                 />
               </div>

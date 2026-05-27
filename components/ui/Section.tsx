@@ -6,8 +6,8 @@ export const Section: React.FC<SectionProps> = ({ id, className = '', children }
   return (
     <section id={id} className={`py-8 md:py-20 px-4 md:px-5 max-w-[1880px] mx-auto relative ${className}`}>
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
         viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >

@@ -76,11 +76,13 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
           </p>
         </div>
         {/* Otty image: increased by 25% */}
-        <img 
-          src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
-          alt="Otty Logo" 
+        <img
+          src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png"
+          alt="Otty Logo"
+          width={577}
+          height={298}
           className="object-contain flex-shrink-0"
-          style={{ width: 'clamp(375px, 44vw, 830px)', height: 'auto' }}
+          style={{ width: 'clamp(375px, 44vw, 830px)', height: 'auto', aspectRatio: '577/298' }}
         />
       </div>
 
@@ -99,9 +101,11 @@ const HowWeEngage: React.FC<HowWeEngageProps> = ({ onOpenSurvey }) => {
           This is how we work
         </p>
         <div className="flex justify-center mt-6">
-          <img 
-            src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png" 
-            alt="Otty Logo" 
+          <img
+            src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Otty%20logo.png"
+            alt="Otty Logo"
+            width={577}
+            height={298}
             className="h-32 w-auto object-contain"
           />
         </div>

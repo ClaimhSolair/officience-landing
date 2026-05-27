@@ -29,9 +29,9 @@ const WhyOfficience: React.FC = () => {
   return (
     <section id="why-us" className="w-full bg-primary py-12 md:py-24">
       <div className="max-w-[1880px] mx-auto px-4 md:px-5">
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.6 }}
         >

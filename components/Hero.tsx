@@ -56,16 +56,19 @@ const Hero: React.FC = () => {
 
       {/* Background Image - Full Width, scaled height for Full HD */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 1 }}
         className="w-full"
       >
-        <img 
-          src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Element_header.png" 
-          alt="Officience Creative Elements" 
+        <img
+          src="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Element_header.png"
+          alt="Officience Creative Elements"
+          width={5760}
+          height={1200}
           className="w-full h-auto object-cover object-center"
-          style={{ 
+          style={{
+            aspectRatio: '5760/1200',
             maxHeight: 'clamp(200px, 25vw, 400px)',
             minHeight: '150px'
           }}

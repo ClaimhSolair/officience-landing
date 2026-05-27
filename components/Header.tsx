@@ -52,11 +52,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey, onOpenAbout }) => {
   };
 
   return (
-    <header 
-      className={`sticky top-0 z-50 transition-all duration-300 border-b ${
-        isScrolled || isMobileMenuOpen 
-          ? 'bg-white/90 backdrop-blur-md border-gray-200 py-4 shadow-sm' 
-          : 'bg-transparent border-transparent py-6'
+    <header
+      className={`sticky top-0 z-50 transition-[background-color,border-color,box-shadow] duration-300 border-b py-6 ${
+        isScrolled || isMobileMenuOpen
+          ? 'bg-white/90 backdrop-blur-md border-gray-200 shadow-sm'
+          : 'bg-transparent border-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -70,10 +70,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey, onOpenAbout }) => {
             <img
               src={LOGO_URL}
               alt="Officience"
+              width={187}
+              height={182}
               className="h-10 md:h-12 w-auto object-contain"
               referrerPolicy="no-referrer"
             />
-            <span className="text-xl md:text-2xl font-bold text-primary font-sans tracking-tight">officience</span>
+            <span className="text-xl md:text-2xl font-bold text-primary font-sans tracking-tight inline-block min-w-[120px] md:min-w-[150px]">officience</span>
           </a>
         </div>
 

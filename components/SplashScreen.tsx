@@ -83,21 +83,26 @@ const SplashScreen: React.FC = () => {
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="relative max-w-[90vw] max-h-[85vh] md:max-w-[80vw] md:max-h-[80vh]"
+            style={{ aspectRatio: isMobile ? '682/632' : '2314/1500' }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Desktop Image */}
             <img
               src={DESKTOP_IMAGE}
               alt="Welcome to Officience"
+              width={2314}
+              height={1500}
               className={`hidden md:block w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl ${isMobile ? 'hidden' : ''}`}
               loading="eager"
             />
-            
+
             {/* Mobile Image */}
             <img
               src={MOBILE_IMAGE}
               alt="Welcome to Officience"
-              className={`md:hidden w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl`}
+              width={682}
+              height={632}
+              className="md:hidden w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
               loading="eager"
             />
           </motion.div>
