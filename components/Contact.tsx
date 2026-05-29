@@ -247,10 +247,10 @@ const Contact: React.FC<ContactProps> = ({ surveyData }) => {
               onClick={() => setShowSuccess(false)}
             />
             
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="relative bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden p-8 md:p-12 text-center"
             >
               <div className="w-16 h-16 md:w-24 md:h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8">

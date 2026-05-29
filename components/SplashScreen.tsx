@@ -78,9 +78,9 @@ const SplashScreen: React.FC = () => {
 
           {/* Image Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="relative max-w-[90vw] max-h-[85vh] md:max-w-[80vw] md:max-h-[80vh]"
             style={{ aspectRatio: isMobile ? '682/632' : '2314/1500' }}

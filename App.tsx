@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
+import { track } from '@vercel/analytics';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -28,6 +29,30 @@ function App() {
 
   const openAbout = () => setIsAboutOpen(true);
   const closeAbout = () => setIsAboutOpen(false);
+
+  useEffect(() => {
+    const sections = ['capabilities', 'clients', 'approach', 'why-us', 'contact'];
+    const tracked = new Set<string>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !tracked.has(entry.target.id)) {
+            tracked.add(entry.target.id);
+            track('section_view', { section: entry.target.id });
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
   
   const handleSurveyComplete = (data: Record<string, string>) => {
     setSurveyData(data);
@@ -87,12 +112,7 @@ function App() {
         onClose={closeAbout}
       />
 
-      <Analytics beforeSend={(event) => {
-        if (event.url && new URL(event.url, window.location.origin).pathname !== '/') {
-          return null;
-        }
-        return event;
-      }} />
+      <Analytics />
       <SpeedInsights />
     </div>
   );

@@ -12,9 +12,10 @@
     { "source": "/xmlrpc.php", "destination": "/", "permanent": true },
     { "source": "/our-people/:path*", "destination": "/", "permanent": true },
     { "source": "/en", "destination": "/", "permanent": true },
-    { "source": "/post-sitemap.xml", "destination": "/", "permanent": false },
-    { "source": "/post-sitemap1.xml", "destination": "/", "permanent": false },
-    { "source": "/posts-sitemap.xml", "destination": "/", "permanent": false }
+    { "source": "/post-sitemap.xml", "destination": "/", "permanent": true },
+    { "source": "/post-sitemap1.xml", "destination": "/", "permanent": true },
+    { "source": "/posts-sitemap.xml", "destination": "/", "permanent": true },
+    { "source": "/posts-sitemap1.xml", "destination": "/", "permanent": true }
   ],
   "headers": [
     {
