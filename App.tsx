@@ -10,18 +10,23 @@ import Footer from './components/Footer';
 import WhyOfficience from './components/WhyOfficience';
 import TermsConditions from './components/TermsConditions';
 import SplashScreen from './components/SplashScreen';
+import type { SurveyBranch } from './components/Contact';
 
 function App() {
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
-  const [surveyData, setSurveyData] = useState<Record<string, string> | null>(null);
+  const [surveyBranch, setSurveyBranch] = useState<SurveyBranch>('work');
+  const [, setSurveyData] = useState<Record<string, string> | null>(null);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
-  const openSurvey = () => setIsSurveyOpen(true);
+  const openSurvey = (branch: SurveyBranch = 'work') => {
+    setSurveyBranch(branch);
+    setIsSurveyOpen(true);
+  };
   const closeSurvey = () => setIsSurveyOpen(false);
-  
+
   const openTerms = () => setIsTermsOpen(true);
   const closeTerms = () => setIsTermsOpen(false);
-  
+
   const handleSurveyComplete = (data: Record<string, string>) => {
     setSurveyData(data);
   };
@@ -45,26 +50,29 @@ function App() {
           onOpenSurvey={openSurvey} 
         />
         
-        <main className="relative z-10 flex-grow flex flex-col gap-0">
+        {/* Figma order: Hero → Services → Approach → Testimonials → Why Us → Contact → Footer.
+            120px vertical rhythm between top-region sections (clamp-anchored). */}
+        <main className="relative z-10 flex-grow flex flex-col gap-[clamp(56px,9vw,120px)] pt-[clamp(56px,9vw,120px)]">
           <Hero />
           <Capabilities />
-          <ClientStories />
           <HowWeEngage onOpenSurvey={openSurvey} />
-          
-          {/* Blue background wrapper for bottom sections */}
+          <ClientStories />
+
+          {/* Blue background wrapper for bottom sections (Figma: Why Us frame contains Why Us + Contact + Footer) */}
           <div style={{ backgroundColor: '#1F49BF' }}>
             <WhyOfficience />
-            <Contact surveyData={surveyData} />
+            <Contact onOpenSurvey={openSurvey} />
             <Footer onOpenTerms={openTerms} />
           </div>
         </main>
       </div>
 
       {/* Survey Modal */}
-      <Survey 
-        isOpen={isSurveyOpen} 
-        onClose={closeSurvey} 
-        onComplete={handleSurveyComplete} 
+      <Survey
+        isOpen={isSurveyOpen}
+        onClose={closeSurvey}
+        onComplete={handleSurveyComplete}
+        initialBranch={surveyBranch}
       />
 
       {/* Terms & Conditions Modal */}

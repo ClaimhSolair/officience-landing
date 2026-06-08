@@ -1,173 +1,127 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ASSETS } from '../assets';
 
-const reasons = [
+type Reason = {
+  category: string;
+  text: string;
+  pink: boolean;
+  // desktop quadrant placement
+  col: 'left' | 'right';
+  row: 'top' | 'bottom';
+};
+
+const reasons: Reason[] = [
   {
     category: 'Talents',
     text: 'We are digital-native doers, living online, and breathing new tools every day.',
-    accentColor: 'bg-[#D1EAEF]', // Pastel Teal
+    pink: true,
+    col: 'left',
+    row: 'top',
   },
   {
     category: 'Flexible',
-    text: "We deliver the agile way, support 'follow the sun', and focus on visible results.",
-    accentColor: 'bg-[#FDE2E4]', // Pastel Pink
+    text: 'We deliver the agile way, support ‘follow the sun’, and focus on visible results.',
+    pink: false,
+    col: 'right',
+    row: 'top',
   },
   {
     category: 'International',
-    text: "We've got a track record helping businesses transform faster in dynamic markets.",
-    accentColor: 'bg-[#FDF4A3]', // Pastel Yellow
+    text: 'We’ve got a track record helping businesses transform faster in dynamic markets.',
+    pink: false,
+    col: 'left',
+    row: 'bottom',
   },
   {
     category: 'Affordable',
     text: 'We provide budget-friendly, value-driven pricing – ensuring your investment brings impact.',
-    accentColor: 'bg-[#E5D4FA]', // Pastel Purple
-  }
+    pink: true,
+    col: 'right',
+    row: 'bottom',
+  },
 ];
 
 const WhyOfficience: React.FC = () => {
   return (
-    <section id="why-us" className="w-full bg-primary py-12 md:py-24">
-      <div className="max-w-[1880px] mx-auto px-4 md:px-5">
-        <motion.div 
+    <section id="why-us" className="w-full bg-bg-primary">
+      <div className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] py-[clamp(64px,8vw,100px)]">
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.6 }}
+          className="flex flex-col items-center gap-[clamp(48px,6vw,80px)]"
         >
-          {/* Desktop Layout - 2 columns */}
-          <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 items-center">
-            
-            <div className="flex flex-col items-start gap-4 md:gap-12">
-              {/* Title - 70px */}
-              <h2 
-                className="font-bold leading-tight tracking-tight text-white whitespace-nowrap"
-                style={{ fontSize: 'clamp(26px, 5vw, 70px)' }}
-              >
-                Why Choose Us
-              </h2>
-              {/* Description - 24px */}
-              <p 
-                className="font-body font-light text-blue-100 max-w-2xl leading-relaxed"
-                style={{ fontSize: 'clamp(14px, 1.5vw, 24px)' }}
-              >
-                Connect with our AI-first teams, accessible globally, and launch your project immediately – we start in 24 hours!
-              </p>
-              
-              {/* CTA button - hover: bg #FFBFC7, text #1F49BF */}
-              <a 
-                href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2_Y6LOgZzxIKzfDosjBF0E-UDncHoOshsY5_C63VvY3qy7VDnylBb7rGgVUyLuXPLsWDzuhtSJ"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 md:mt-8 bg-white text-gray-900 rounded-full font-bold flex items-center gap-4 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
-                style={{
-                  paddingLeft: 'clamp(32px, 3vw, 48px)',
-                  paddingRight: 'clamp(32px, 3vw, 48px)',
-                  paddingTop: 'clamp(12px, 1.5vw, 24px)',
-                  paddingBottom: 'clamp(12px, 1.5vw, 24px)',
-                  fontSize: 'clamp(18px, 1.5vw, 28px)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#FFBFC7';
-                  e.currentTarget.style.color = '#1F49BF';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white';
-                  e.currentTarget.style.color = '#111827';
-                }}
-              >
-                Let's Start!
-                <ArrowRight size={28} />
-              </a>
-            </div>
+          {/* Header */}
+          <div className="flex flex-col items-center gap-[20px] text-center">
+            <h2 className="t-display-xl text-white">Why Choose Us</h2>
+            <p className="t-subtitle text-white/85 max-w-[678px]">
+              Connect with our AI-first teams, accessible globally, and launch your project immediately –{' '}
+              <span className="font-sans font-semibold text-white">we start in 24 hours!</span>
+            </p>
+          </div>
 
-            <div className="grid grid-cols-2 gap-3 md:gap-5 w-full">
-              {reasons.map((reason, idx) => (
-                <div 
-                  key={idx} 
-                  className="flex flex-col rounded-2xl md:rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-white shadow-lg"
+          {/* Pinwheel — 4 quadrants hugging a center cross + icon (desktop) */}
+          <div className="relative w-full max-w-[1207px] hidden md:grid grid-cols-2 grid-rows-2">
+            {reasons.map((r) => {
+              const alignH = r.col === 'left' ? 'items-end text-right' : 'items-start text-left';
+              const alignV = r.row === 'top' ? 'justify-start' : 'justify-end';
+              // Clearance from the center cross so text never collides with the 138px icon.
+              const padToCenter = [
+                r.col === 'left' ? 'pr-[clamp(24px,4vw,80px)]' : 'pl-[clamp(24px,4vw,80px)]',
+                r.row === 'top' ? 'pb-[clamp(40px,5vw,90px)]' : 'pt-[clamp(40px,5vw,90px)]',
+              ].join(' ');
+              return (
+                <div
+                  key={r.category}
+                  className={`flex flex-col gap-[10px] min-h-[clamp(180px,20vw,290px)] px-2 ${alignH} ${alignV} ${padToCenter}`}
                 >
-                  {/* Top portion (Accent Color) - Title center aligned */}
-                  <div className={`${reason.accentColor} p-4 md:p-6 flex flex-col justify-center items-center min-h-[80px] md:min-h-[120px]`}>
-                    <h3 
-                      className="font-bold text-gray-900 leading-tight text-center"
-                      style={{ fontSize: 'clamp(20px, 1.8vw, 30px)' }}
-                    >
-                      {reason.category}
-                    </h3>
-                  </div>
-                  
-                  {/* Bottom portion (White) - Description */}
-                  <div className="p-4 md:p-6 flex flex-col bg-white">
-                    <p 
-                      className="text-gray-600 font-body leading-relaxed"
-                      style={{ fontSize: 'clamp(12px, 1vw, 18px)' }}
-                    >
-                      {reason.text}
-                    </p>
-                  </div>
+                  <h3 className="t-display-md" style={{ color: r.pink ? '#FFBFC7' : '#FFFFFF' }}>
+                    {r.category}
+                  </h3>
+                  <p className="t-body-xl text-white max-w-[464px]">{r.text}</p>
                 </div>
-              ))}
+              );
+            })}
+
+            {/* Cross dividers (centered) */}
+            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-white/30 pointer-events-none" />
+            <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 h-px w-[48%] bg-white/30 pointer-events-none" />
+
+            {/* Center icon at the cross intersection */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="bg-bg-primary p-3 rounded-full">
+                <img
+                  src={ASSETS.whyus.centerIcon}
+                  alt=""
+                  aria-hidden="true"
+                  width={138}
+                  height={138}
+                  className="w-[clamp(96px,10vw,138px)] h-[clamp(96px,10vw,138px)]"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Mobile Layout - centered, 1-column cards */}
-          <div className="md:hidden flex flex-col items-center">
-            {/* Title - 40px, center aligned */}
-            <h2 
-              className="font-bold leading-tight tracking-tight text-white text-center mb-4"
-              style={{ fontSize: '40px' }}
-            >
-              Why Choose Us
-            </h2>
-            {/* Description - 20px, center aligned */}
-            <p 
-              className="font-body font-light text-blue-100 leading-relaxed text-center mb-8"
-              style={{ fontSize: '20px' }}
-            >
-              Connect with our AI-first teams, accessible globally, and launch your project immediately – we start in 24 hours!
-            </p>
-            
-            {/* Cards - 1 column, vertical scroll */}
-            <div className="flex flex-col gap-4 w-full mb-8">
-              {reasons.map((reason, idx) => (
-                <div 
-                  key={idx} 
-                  className="flex flex-col rounded-2xl overflow-hidden bg-white shadow-lg"
-                >
-                  {/* Top portion (Accent Color) - Title center aligned */}
-                  <div className={`${reason.accentColor} p-5 flex flex-col justify-center items-center min-h-[80px]`}>
-                    <h3 
-                      className="font-bold text-gray-900 leading-tight text-center"
-                      style={{ fontSize: '24px' }}
-                    >
-                      {reason.category}
-                    </h3>
-                  </div>
-                  
-                  {/* Bottom portion (White) - Description +15% font, center aligned */}
-                  <div className="p-5 flex flex-col bg-white">
-                    <p 
-                      className="text-gray-600 font-body leading-relaxed text-center"
-                      style={{ fontSize: '16px' }}
-                    >
-                      {reason.text}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA button - center aligned */}
-            <a 
-              href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2_Y6LOgZzxIKzfDosjBF0E-UDncHoOshsY5_C63VvY3qy7VDnylBb7rGgVUyLuXPLsWDzuhtSJ"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-gray-900 rounded-full font-bold flex items-center justify-center gap-3 transition-all shadow-lg px-8 py-4 text-lg"
-            >
-              Let's Start!
-              <ArrowRight size={20} />
-            </a>
+          {/* Mobile: stacked list with the icon on top */}
+          <div className="md:hidden flex flex-col items-center gap-10 w-full">
+            <img
+              src={ASSETS.whyus.centerIcon}
+              alt=""
+              aria-hidden="true"
+              width={120}
+              height={120}
+              className="w-[120px] h-[120px]"
+            />
+            {reasons.map((r) => (
+              <div key={r.category} className="flex flex-col gap-2 text-center">
+                <h3 className="t-display-md" style={{ color: r.pink ? '#FFBFC7' : '#FFFFFF' }}>
+                  {r.category}
+                </h3>
+                <p className="t-body-xl text-white max-w-[464px]">{r.text}</p>
+              </div>
+            ))}
           </div>
         </motion.div>
       </div>

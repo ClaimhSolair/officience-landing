@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import { ASSETS } from '../assets';
 
-// Direct link to the Officience Logo as requested
-const LOGO_URL = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Avatar%2020th.png";
+const LOGO_URL = ASSETS.header.logo;
 
-const navItems = [
+const SHOWCASE_URL = "https://demo.officience.com/work";
+const CAREER_URL = "https://www.linkedin.com/company/officience/jobs/";
+
+interface NavLink {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+const navItems: NavLink[] = [
   { label: 'What we do', href: '#capabilities' },
-  { label: 'Clients', href: '#clients' },
-  { label: 'Our approach', href: '#approach' },
+  { label: 'Services', href: '#capabilities' },
+  { label: 'Showcase', href: SHOWCASE_URL, external: true },
+  { label: 'Career', href: CAREER_URL, external: true },
   { label: 'Why choose us', href: '#why-us' },
 ];
 
@@ -44,60 +54,77 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
   };
 
   return (
-    <header 
-      className={`sticky top-0 z-50 transition-all duration-300 border-b ${
-        isScrolled || isMobileMenuOpen 
-          ? 'bg-white/90 backdrop-blur-md border-gray-200 py-4 shadow-sm' 
-          : 'bg-transparent border-transparent py-6'
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        isMobileMenuOpen
+          ? 'bg-bg-secondary shadow-fig-exsm'
+          : isScrolled
+            ? 'bg-[#F7F7F7]/70 backdrop-blur-md shadow-fig-exsm'
+            : 'bg-bg-secondary'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        {/* Logo Area */}
-        <div className="flex flex-col">
-          <a 
-            href="#" 
-            onClick={(e) => handleNavClick(e, '#')}
-            className="flex items-center gap-2"
-          >
-            <img
-              src={LOGO_URL}
-              alt="Officience"
-              className="h-10 md:h-12 w-auto object-contain"
-              referrerPolicy="no-referrer"
-            />
-            <span className="text-xl md:text-2xl font-bold text-primary font-sans tracking-tight">officience</span>
-          </a>
-        </div>
+      {/* Figma: px-100 py-24, content-width, items-center justify-between */}
+      <div className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] py-[24px] flex items-center justify-between">
+        {/* Logo Area — Figma 182 x 72.5 */}
+        <a
+          href="#"
+          onClick={(e) => handleNavClick(e, '#')}
+          className="flex items-center shrink-0"
+          aria-label="Officience home"
+        >
+          <img
+            src={LOGO_URL}
+            alt="Officience — 20 Years Anniversary"
+            width={182}
+            height={72.5}
+            className="h-[clamp(44px,5vw,72.5px)] w-auto object-contain"
+            referrerPolicy="no-referrer"
+          />
+        </a>
 
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-          {navItems.map((item) => (
-            <a 
-              key={item.label}
-              href={item.href}
-              onClick={(e) => handleNavClick(e, item.href)}
-              className="text-base font-medium text-gray-600 hover:text-primary transition-colors font-body whitespace-nowrap"
-            >
-              {item.label}
-            </a>
-          ))}
-          
-          <div className="flex items-center gap-3">
-            <a 
-              href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2_Y6LOgZzxIKzfDosjBF0E-UDncHoOshsY5_C63VvY3qy7VDnylBb7rGgVUyLuXPLsWDzuhtSJ"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-primary text-white px-7 py-3 text-base font-bold rounded-full hover:bg-blue-800 transition-all transform hover:scale-105 shadow-md whitespace-nowrap"
-            >
-              Let's Start!
-            </a>
+        {/* Desktop Nav — Figma: gap-40 between menu and CTA */}
+        <nav className="hidden lg:flex items-center gap-[40px]">
+          {/* Menu — Montserrat Regular 20px, color #0f1219, gap-36 */}
+          <div className="flex items-center gap-[36px] font-body text-text-default text-[clamp(16px,1.2vw,20px)] leading-[28px] whitespace-nowrap">
+            {navItems.map((item) => (
+              item.external ? (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-text-primary transition-colors"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  className="hover:text-text-primary transition-colors"
+                >
+                  {item.label}
+                </a>
+              )
+            ))}
           </div>
+
+          {/* CTA — Figma: square blue button, px-32 py-16, Lexend SemiBold 20px, shadow ex-sm */}
+          <a
+            href="#contact"
+            onClick={(e) => handleNavClick(e, '#contact')}
+            className="bg-bg-primary text-white px-[32px] py-[16px] font-sans font-semibold text-[clamp(16px,1.2vw,20px)] leading-[24px] shadow-fig-exsm hover:bg-blue-800 transition-colors whitespace-nowrap"
+          >
+            Contact Us
+          </a>
         </nav>
 
         {/* Mobile Toggle */}
-        <button 
-          className="lg:hidden text-gray-900"
+        <button
+          className="lg:hidden text-text-default"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle menu"
         >
           {isMobileMenuOpen ? <X size={32} /> : <Menu size={32} />}
         </button>
@@ -107,22 +134,34 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
       {isMobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 p-8 flex flex-col space-y-6 shadow-2xl h-screen rounded-b-3xl">
           {navItems.map((item) => (
-            <a 
-              key={item.label}
-              href={item.href}
-              onClick={(e) => handleNavClick(e, item.href)}
-              className="text-xl font-medium text-gray-900 hover:text-primary font-body"
-            >
-              {item.label}
-            </a>
+            item.external ? (
+              <a
+                key={item.label}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-xl font-medium text-gray-900 hover:text-primary font-body"
+              >
+                {item.label}
+              </a>
+            ) : (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
+                className="text-xl font-medium text-gray-900 hover:text-primary font-body"
+              >
+                {item.label}
+              </a>
+            )
           ))}
-          <a 
-            href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2_Y6LOgZzxIKzfDosjBF0E-UDncHoOshsY5_C63VvY3qy7VDnylBb7rGgVUyLuXPLsWDzuhtSJ"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-primary text-white w-full text-center py-4 text-xl font-bold rounded-full"
+          <a
+            href="#contact"
+            onClick={(e) => handleNavClick(e, '#contact')}
+            className="bg-bg-primary text-white w-full text-center py-4 text-xl font-sans font-semibold shadow-fig-exsm"
           >
-            Let's Start!
+            Contact Us
           </a>
         </div>
       )}

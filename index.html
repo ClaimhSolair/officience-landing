@@ -21,23 +21,66 @@
             colors: {
               background: '#F7F7F7',
               primary: '#1F49BF',
-              accent: '#38bdf8', 
+              accent: '#38bdf8',
               secondary: '#555555',
               surface: '#FFFFFF',
               dark: '#0F1219',
+              // --- Figma semantic tokens (source of truth) ---
+              'text-default': '#0F1219',
+              'text-primary': '#1F49BF',
+              subtitle: '#5A5A5A',
+              link: '#4B4D53',
+              'text-muted': '#4B4D53',
+              'bg-default': '#FFFFFF',
+              'bg-secondary': '#F7F7F7',
+              'bg-primary': '#1F49BF',
+              'sec-100': '#FFBFC7',
+              'sec-800': '#B8253E',
+              'pri-100': '#B1D1FD',
+              'err': '#C12D46',
+              'gray-fig-100': '#E5E5E5',
               'off-red': '#DD3C57',
               'off-pink': '#FFBFC7',
               'off-yellow': '#FFCE00',
               'off-orange': '#FD941D'
             },
+            // --- Figma spacing scale (px) ---
+            spacing: {
+              'fig-4': '4px', 'fig-8': '8px', 'fig-12': '12px', 'fig-16': '16px',
+              'fig-20': '20px', 'fig-32': '32px', 'fig-40': '40px', 'fig-48': '48px',
+              'fig-64': '64px', 'fig-80': '80px', 'fig-96': '96px', 'fig-100': '100px',
+              'fig-120': '120px', 'fig-160': '160px',
+            },
+            borderRadius: {
+              'fig-xs': '4px',
+              'fig-m': '8px',
+            },
+            boxShadow: {
+              'fig-xs': '0 1px 2px 0 #0000000D',
+              'fig-exsm': '0 1.5px 10px 0 #E5E5E5',
+            },
+            maxWidth: {
+              'content': '1720px',
+            },
             animation: {
               'fade-in': 'fadeIn 1s ease-out forwards',
+              'marquee': 'marquee 40s linear infinite',
+              'marquee-reverse': 'marqueeReverse 40s linear infinite',
             },
             keyframes: {
               fadeIn: {
                 '0%': { opacity: '0', transform: 'translateY(10px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
-              }
+              },
+              // Track must contain the content duplicated twice; -50% loops seamlessly.
+              marquee: {
+                '0%': { transform: 'translateX(0)' },
+                '100%': { transform: 'translateX(-50%)' },
+              },
+              marqueeReverse: {
+                '0%': { transform: 'translateX(-50%)' },
+                '100%': { transform: 'translateX(0)' },
+              },
             }
           },
         },
@@ -56,6 +99,61 @@
       }
       ::-webkit-scrollbar {
         display: none;
+      }
+      /* ---- Figma typography tokens (clamp-anchored: exact at desktop, fluid below) ---- */
+      /* Lexend headings */
+      .t-display-xl {
+        font-family: 'Lexend', sans-serif; font-weight: 700;
+        font-size: clamp(40px, 6vw, 86px); line-height: 1.105; letter-spacing: -0.03em;
+      }
+      .t-display-md {
+        font-family: 'Lexend', sans-serif; font-weight: 600;
+        font-size: clamp(32px, 4vw, 50px); line-height: 1.16; letter-spacing: 0;
+      }
+      .t-h2 {
+        font-family: 'Lexend', sans-serif; font-weight: 600;
+        font-size: clamp(24px, 2.5vw, 32px); line-height: 1.25; letter-spacing: 0;
+      }
+      .t-h3 {
+        font-family: 'Lexend', sans-serif; font-weight: 600;
+        font-size: clamp(20px, 2vw, 24px); line-height: 1.333; letter-spacing: 0;
+      }
+      .t-h4 {
+        font-family: 'Lexend', sans-serif; font-weight: 500;
+        font-size: clamp(16px, 1.4vw, 20px); line-height: 1.4; letter-spacing: 0;
+      }
+      .t-button {
+        font-family: 'Lexend', sans-serif; font-weight: 600;
+        font-size: 16px; line-height: 1.5; letter-spacing: 0;
+      }
+      /* Montserrat body */
+      .t-subtitle {
+        font-family: 'Montserrat', sans-serif; font-weight: 400;
+        font-size: clamp(18px, 1.6vw, 24px); line-height: 1.333; letter-spacing: 0;
+      }
+      .t-body-xl {
+        font-family: 'Montserrat', sans-serif; font-weight: 400;
+        font-size: clamp(16px, 1.3vw, 20px); line-height: 1.4; letter-spacing: 0;
+      }
+      .t-body-lg {
+        font-family: 'Montserrat', sans-serif; font-weight: 400;
+        font-size: 16px; line-height: 1.25; letter-spacing: 0;
+      }
+      .t-body-lg-bold {
+        font-family: 'Montserrat', sans-serif; font-weight: 700;
+        font-size: 16px; line-height: 1.625; letter-spacing: 0;
+      }
+      /* Pause marquee on hover for readability */
+      .marquee-track:hover {
+        animation-play-state: paused;
+      }
+      /* Client logos: greyed by default, reveal true color on hover (others stay grey) */
+      .client-logo {
+        filter: grayscale(1);
+        transition: filter 0.3s ease;
+      }
+      .client-logo:hover {
+        filter: grayscale(0);
       }
     </style>
   </head>

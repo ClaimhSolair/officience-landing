@@ -1,0 +1,22 @@
+# Secrets / env
+.env
+.env.*
+*.env
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+tsconfig.tsbuildinfo
+
+# Editor / OS
+.DS_Store
+.vscode/
+
+# Local tooling / agent state
+.claude/
+.superpowers/
+
+# Local asset backups (originals kept locally, not in repo)
+.logo-orig-backup/

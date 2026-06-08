@@ -2,9 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { SectionProps } from '../../types';
 
+// Faithful container: 1720px content width + 100px gutters (clamp-anchored per guardrails).
 export const Section: React.FC<SectionProps> = ({ id, className = '', children }) => {
   return (
-    <section id={id} className={`py-8 md:py-20 px-4 md:px-5 max-w-[1880px] mx-auto relative ${className}`}>
+    <section
+      id={id}
+      className={`w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] relative ${className}`}
+    >
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -16,6 +20,13 @@ export const Section: React.FC<SectionProps> = ({ id, className = '', children }
     </section>
   );
 };
+
+// Plain content-width wrapper (no motion) for sections that own their full-bleed background.
+export const Container: React.FC<{ className?: string; children: React.ReactNode }> = ({ className = '', children }) => (
+  <div className={`w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] ${className}`}>
+    {children}
+  </div>
+);
 
 export const SectionTitle: React.FC<{ children: React.ReactNode; subtitle?: string }> = ({ children, subtitle }) => (
   <div className="mb-8 md:mb-16">

@@ -1,0 +1,5 @@
+# Drop redesign assets here (organized in subfolders if you like), then run:
+#   npm run upload-assets
+# Files upload to the R2 "redesign" bucket and become available at
+#   https://pub-37210447316445838bf89f8613ac9ea5.r2.dev/<relative-path>
+# Prefer optimized WebP/AVIF, correctly sized for their slot.

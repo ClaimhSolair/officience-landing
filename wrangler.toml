@@ -1,0 +1,12 @@
+# Wrangler config — used ONLY for uploading redesign assets to Cloudflare R2.
+# This is NOT a Worker deployment. Credentials come from .env (git-ignored):
+#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, R2_BUCKET=redesign
+# Upload with:  npm run upload-assets
+# Assets become public at: https://pub-37210447316445838bf89f8613ac9ea5.r2.dev/<file>
+
+name = "officience-redesign-assets"
+account_id = "d9f699dcdee9916fea0acbcbe505d117"
+
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "redesign"

@@ -1,0 +1,9 @@
+I want at add a splash screen on my website. Rules and instruction is as follow:
+
+Image source for desktop version:__ ____https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Banner%20splash%20Web%2030%204.png__
+Image source for mobile version: https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Banner%20splash%20Mobile%2030%204.png
+The splash screen last 5 seconds for desktop, 4 seconds on Mobile.
+Animation speed: make it quick and elegant, non intrusive.
+First-Time Only: only show the splash screen on the first visit of the day of the user, not every time they click a new page.
+Provide a "Skip" or "X" close button on the top right of the splash screen. ## Target Devices (in priority order): 1. Desktop: 1920×1080, 2560×1440, 3840×2160 (4K) .
+Tablet: 768×1024 . 3. Mobile: 375×812, 390×844.
