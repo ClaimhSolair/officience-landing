@@ -105,11 +105,11 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => {
                   onClick={() => onOpenSurvey(opt.branch)}
                   className="group flex items-center justify-between gap-4 text-left rounded-fig-m border bg-bg-secondary border-gray-fig-100 hover:border-primary transition-all px-[14px] py-[14px] min-h-[99px]"
                 >
-                  <span className="flex flex-col gap-[3px]">
-                    <span className="font-sans font-medium text-text-primary text-[20px] leading-[28px]">
+                  <span className="flex flex-col gap-[3px] min-w-0">
+                    <span className="font-sans font-medium text-text-primary text-[clamp(16px,5vw,20px)] leading-[28px]">
                       {opt.title}
                     </span>
-                    <span className="font-body text-subtitle text-[20px] leading-[28px]">
+                    <span className="font-body text-subtitle text-[clamp(16px,5vw,20px)] leading-[28px]">
                       {opt.desc}
                     </span>
                   </span>

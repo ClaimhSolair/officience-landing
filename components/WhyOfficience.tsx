@@ -66,7 +66,7 @@ const WhyOfficience: React.FC = () => {
               Figma "Why Us Items" block is 1208×575 (aspect ≈ 2.1:1); each text block is
               vertically centered within its quadrant and right/left-aligned toward the cross.
               aspect-ratio (not a vw height) keeps the block faithful at every container width. */}
-          <div className="relative w-full max-w-[1208px] hidden md:grid grid-cols-2 grid-rows-2 aspect-[1208/575] min-h-[480px]">
+          <div className="relative w-full max-w-[1208px] hidden lg:grid grid-cols-2 grid-rows-2 aspect-[1208/575] min-h-[480px]">
             {reasons.map((r) => {
               const alignH = r.col === 'left' ? 'items-end text-right' : 'items-start text-left';
               // Inner gap from the center cross/icon (Figma ≈ 36–48px on the inner edge).
@@ -105,8 +105,9 @@ const WhyOfficience: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile: stacked list with the icon on top */}
-          <div className="md:hidden flex flex-col items-center gap-10 w-full">
+          {/* Mobile + tablet (<1024px): stacked list with the icon on top.
+              The pinwheel only fits comfortably at lg+, so tablets use this layout. */}
+          <div className="lg:hidden flex flex-col items-center gap-10 w-full">
             <img
               src={ASSETS.whyus.centerIcon}
               alt=""
