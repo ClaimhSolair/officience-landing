@@ -62,20 +62,21 @@ const WhyOfficience: React.FC = () => {
             </p>
           </div>
 
-          {/* Pinwheel — 4 quadrants hugging a center cross + icon (desktop) */}
-          <div className="relative w-full max-w-[1207px] hidden md:grid grid-cols-2 grid-rows-2">
+          {/* Pinwheel — 4 quadrants hugging a center cross + icon (desktop).
+              Figma "Why Us Items" block is 1208×575 (aspect ≈ 2.1:1); each text block is
+              vertically centered within its quadrant and right/left-aligned toward the cross.
+              aspect-ratio (not a vw height) keeps the block faithful at every container width. */}
+          <div className="relative w-full max-w-[1208px] hidden md:grid grid-cols-2 grid-rows-2 aspect-[1208/575] min-h-[480px]">
             {reasons.map((r) => {
               const alignH = r.col === 'left' ? 'items-end text-right' : 'items-start text-left';
-              const alignV = r.row === 'top' ? 'justify-start' : 'justify-end';
-              // Clearance from the center cross so text never collides with the 138px icon.
-              const padToCenter = [
-                r.col === 'left' ? 'pr-[clamp(24px,4vw,80px)]' : 'pl-[clamp(24px,4vw,80px)]',
-                r.row === 'top' ? 'pb-[clamp(40px,5vw,90px)]' : 'pt-[clamp(40px,5vw,90px)]',
-              ].join(' ');
+              // Inner gap from the center cross/icon (Figma ≈ 36–48px on the inner edge).
+              const padInner = r.col === 'left'
+                ? 'pr-[clamp(20px,3vw,48px)]'
+                : 'pl-[clamp(20px,3vw,48px)]';
               return (
                 <div
                   key={r.category}
-                  className={`flex flex-col gap-[10px] min-h-[clamp(180px,20vw,290px)] px-2 ${alignH} ${alignV} ${padToCenter}`}
+                  className={`flex flex-col justify-center gap-[10px] px-2 ${alignH} ${padInner}`}
                 >
                   <h3 className="t-display-md" style={{ color: r.pink ? '#FFBFC7' : '#FFFFFF' }}>
                     {r.category}
