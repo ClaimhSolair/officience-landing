@@ -39,8 +39,8 @@ React 18.3 + TS 5.6 + Vite 5.4, Tailwind **via CDN** (config in index.html — o
 ## Section status (all sections built + real assets mapped + visually verified)
 | Section | File | Status |
 |---|---|---|
-| Header | Header.tsx | ✅ R2 logo (wordmark included), nav: What we do/Services(#capabilities), Showcase(ext demo.officience.com/work), Career(ext LinkedIn jobs), Why choose us(#why-us); CTA→#contact |
-| Hero | Hero.tsx | ✅ blue title clamp, milestones 20/200+/6/500+, 2 opposite-direction icon marquees |
+| Header | Header.tsx | ✅ R2 logo, nav unchanged; CTA→#contact. **Compact bar (2026-06-09) — see Header+Hero refinements section below** |
+| Hero | Hero.tsx | ✅ blue title clamp, milestones 20/200+/6/500+, **2 STATIC icon rows** (marquee de-animated 2026-06-09) |
 | Services | Capabilities.tsx | ✅ 4 cards, real icons, exact Figma copy, "View General Brochure" + per-card links (demo.officience.com/brochure) |
 | Approach | HowWeEngage.tsx | ✅ split: title+mascot left, 3 numbered cards (01 Engage/02 Collaborate/03 Run) right; CTA→onOpenSurvey |
 | Testimonials | ClientStories.tsx | ✅ "People Trust Us", 3 cards w/ author photos+quote icon, 12 client logos grayscale marquee |
@@ -65,6 +65,16 @@ Rebuilt `components/Survey.tsx` to the Figma survey frames (page `2148:826`, nod
 - **Submission moved off FormSubmit → own Vercel Edge function** `api/survey.ts` + **Resend** (2026-06-08). All flows POST `FormData` to `/api/survey`; the function emails the team an HTML table + **CV PDF attached** (Resend), `reply_to`=candidate. Recipients live server-side (env-overridable: `SURVEY_TO`/`SURVEY_CC`/`RESEND_FROM`; default To/CC = the original list). CV capped at 4 MB (Edge body limit) — guarded in UI + function. Frontend now reads the response: success → completed screen, failure → error banner + retry. `vercel.json` SPA rewrite excludes `/api`. **Setup steps for going live in `SURVEY_SETUP.md`** (needs `RESEND_API_KEY` in Vercel env + domain verification to email the whole team).
 - Minor faithful deviations: removed asterisk from group labels "3. Contact details" & category picker (fields/gating handle required); category-detail questions left un-numbered (Figma numbering was inconsistent 2/3/4).
 - Verified: `npm run build` green (322 kB / 101 kB gz); all 4 flows + gating + completion screen diffed vs Figma `get_screenshot`; responsive at 1280/375 (2-col grids stack, modal scrolls in 90vh, no overflow). Completion tested with stubbed fetch (no real test emails sent).
+
+## Header + Hero refinements — DONE & PUSHED (2026-06-09)
+User flagged two unrequested changes from the `2c3a658` checkpoint and asked to fix only those. Committed on `redesign/2026` (NOT yet merged to `main`):
+- **Hero icon band → static** (`Hero.tsx`): replaced the looping `MarqueeRow` (animate-marquee) with `IconRow` — two static full-width `bg-repeat-x` rows (`backgroundSize:auto 100%`), same `iconsRow1`/`iconsRow2` SVGs, 2-row Figma layout kept. `animate-marquee` keyframes in `index.html` left in place but now unused.
+- **Header → compact, fixed logo** (`Header.tsx`): user wants a compact bar (NOT Figma node 2255-555's 120.5px) with a consistent logo. Final = CTA button `py-[12px]`, header padding `py-[8px]`, logo **`h-[56px] md:h-[72px]`** (fixed px, 72px desktop) → **steady ~88px header at every window width**.
+  - **Two gotchas worth remembering:**
+    1. 1.25× bump was first applied to an already-shrunk 48px logo (=60px) → *smaller* than the original 72.5px, looked unchanged. Size against the original.
+    2. A `vw`-based logo (`clamp(48px,4.7vw,90px)`) makes header height track **window width** (75px@1253, 81px@1392, 106px maximized). User read this as a "local vs Vercel build difference" — it was just different browser-window widths (verified local@1253 == Vercel@1253 == 74.89px). **For sizes the user wants consistent across machines, use fixed px / breakpoints, NOT vw.**
+- Commits: `f265bf6` (static band + first compaction) → `289971e` (logo 90px) → **`9cb4f36`** (fixed 72px logo, final). All pushed; Vercel Preview green. Branch-alias URL `officience-landing-git-redesign-2026-ldks-projects-e4d63e2c.vercel.app` always serves latest (per-commit hash URLs are immutable — that caused repeated "changes not showing" confusion).
+- Left untouched per user: header content double-gutter (`max-w-content` + `px-100` → 1520px span vs Figma 1720; shown to user, declined).
 
 ## Open items (awaiting user input — NOT actioned)
 1. **⏳ BACKLOG — Resend setup (survey emails go live):** Survey now posts to `api/survey.ts` but emails won't actually send until the user provisions Resend. Steps in `SURVEY_SETUP.md`: (a) create Resend account → `RESEND_API_KEY` in Vercel env; (b) verify `officience.com` domain (SPF/DKIM DNS) + set `RESEND_FROM` so it can email the whole team (until then only the Resend account owner receives); (c) deploy preview / `vercel dev` and submit a real Internship app w/ small PDF to confirm attachment + reply-to. **Remind the user to do this later.**
