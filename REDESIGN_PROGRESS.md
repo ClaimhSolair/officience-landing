@@ -44,10 +44,10 @@ React 18.3 + TS 5.6 + Vite 5.4, Tailwind **via CDN** (config in index.html — o
 | Services | Capabilities.tsx | ✅ 4 cards, real icons, exact Figma copy, "View General Brochure" + per-card links (demo.officience.com/brochure) |
 | Approach | HowWeEngage.tsx | ✅ split: title+mascot left, 3 numbered cards (01 Engage/02 Collaborate/03 Run) right; CTA→onOpenSurvey |
 | Testimonials | ClientStories.tsx | ✅ "People Trust Us", 3 cards w/ author photos+quote icon, 12 client logos grayscale marquee |
-| Why Us | WhyOfficience.tsx | ✅ 4-quadrant cross, real center icon, fixed overlap via directional inner padding |
+| Why Us | WhyOfficience.tsx | ✅ 4-quadrant cross, real center icon. **Block now aspect-[1208/575] + justify-center per quadrant (2026-06-09) — see Why-Us layout fix below** |
 | Contact | Contact.tsx | ✅ "Let's Build Together" + 2 branch options (work/category), 4 offices grid |
 | Survey | Survey.tsx | ✅ two-branch wizard (work=2 steps, category=2 steps) + completion; FormSubmit.co |
-| Footer | Footer.tsx | ✅ R2 white logo + banner, social 45px circles, dynamic year © {getFullYear()} |
+| Footer | Footer.tsx | ✅ R2 white logo + banner, social 45px circles, dynamic year © {getFullYear()}. **"Terms & Conditions" link → tabbed legal modal (2026-06-09) — see Legal modal section below** |
 
 ## Build/verify
 - `npm run build` (`tsc -b && vite build`) passes — 318 kB JS / 100 kB gzip. No console errors.
@@ -76,7 +76,22 @@ User flagged two unrequested changes from the `2c3a658` checkpoint and asked to 
 - Commits: `f265bf6` (static band + first compaction) → `289971e` (logo 90px) → **`9cb4f36`** (fixed 72px logo, final). All pushed; Vercel Preview green. Branch-alias URL `officience-landing-git-redesign-2026-ldks-projects-e4d63e2c.vercel.app` always serves latest (per-commit hash URLs are immutable — that caused repeated "changes not showing" confusion).
 - Left untouched per user: header content double-gutter (`max-w-content` + `px-100` → 1520px span vs Figma 1720; shown to user, declined).
 
+## Legal modal — General T&C + Privacy in one tabbed modal — DONE & PUSHED (2026-06-09)
+User supplied `Terms & Conditions 2025 (LTD).docx` (a 23-section B2B services contract) and asked to add it. Discovered the footer **"Terms & Conditions"** link actually opened a **Privacy Policy**. Per user decisions: **combine both in ONE modal, two tabs** (Terms & Conditions default + Privacy Policy), **restyle to 2026 tokens**, footer label stays "Terms & Conditions".
+- **New `components/legalContent.ts`**: typed model (`LegalSection`→`LegalClause`→`LegalBlock` of `p`/`ul`/`address`). `TERMS_SECTIONS` = 23 sections transcribed **verbatim** from the docx (proper curly quotes/dashes, subsections 4.1–14.4, 5 bullet lists, §20 address, closing line). `PRIVACY_SECTIONS` = the old 14-section policy migrated unchanged.
+- **Rewrote `components/TermsConditions.tsx`** (props `{isOpen,onClose}` unchanged): tabbed shell matching the Survey modal (`bg-bg-secondary max-w-[900px] rounded-fig-m shadow-fig-xs`), `t-h2/t-h3/t-h4`/`t-body-lg` tokens, primary-blue header+underline tabs, shared `LegalDocument` renderer that **auto-linkifies emails (`mailto:`) and URLs**. Resets to Terms tab on open, resets scroll on tab switch (`key={tab}` on body), body-scroll lock, closes on Esc/backdrop/X/Close. `Footer.tsx`/`App.tsx` wiring untouched.
+- **Extraction gotcha**: docx text via `zipfile`+regex — use precise `<w:t(?:\s[^>]*)?>` (plain `<w:t[^>]*>` also matches `<w:tbl>`/`<w:tc>` and leaks table XML); decode `word/document.xml` as utf-8 (smart quotes are real Unicode, NOT cp1252 here).
+- **Source discrepancy left verbatim (flagged to user, NOT reconciled):** Privacy §14 address = "Ward 15", new T&C §20 = "Ward 12". Also fixed an obvious missing-space typo in T&C §16 ("OFFICIENCE.Each" → "OFFICIENCE. Each") — punctuation only.
+- Commit: **`a4e4b4c`**. Pushed; build green (345 kB / 110 kB gz).
+
+## Why-Us 4-quadrant layout fix — DONE & PUSHED (2026-06-09)
+User: the "Why Choose Us" 4 elements' spacing/layout was off vs Figma (node 2202-5109, "Why Us Items" = **1208×575**). Build had huge empty bands above/below the centre icon.
+- **Root cause** (`WhyOfficience.tsx`): quadrants pinned text to the OUTER edge (`justify-start` top row / `justify-end` bottom) with `min-h` up to 290px each → top labels shoved to top, bottom labels to bottom. Figma centres each text in its quadrant around the cross.
+- **Fix**: block now `aspect-[1208/575]` (tracks **container** width, not vw — same lesson as the header logo); `justify-center` each cell; inner gap to the cross `pr/pl-[clamp(20px,3vw,48px)]` (Figma ≈36–48px); `min-h-[480px]` floor so the `md`/tablet range can't collide with the icon (desktop aspect height 575 overrides it). Mobile stacked layout untouched.
+- Verified 1920/1440/768: exact **1208×575** at desktop, no text/icon overlap at any width. Commit **`f2277dd`**.
+
 ## Open items (awaiting user input — NOT actioned)
+0. **Two T&C content confirmations (2026-06-09):** (a) address Ward 15 (Privacy) vs Ward 12 (T&C) — confirm which is correct; (b) confirm the §16 missing-space typo fix is acceptable.
 1. **⏳ BACKLOG — Resend setup (survey emails go live):** Survey now posts to `api/survey.ts` but emails won't actually send until the user provisions Resend. Steps in `SURVEY_SETUP.md`: (a) create Resend account → `RESEND_API_KEY` in Vercel env; (b) verify `officience.com` domain (SPF/DKIM DNS) + set `RESEND_FROM` so it can email the whole team (until then only the Resend account owner receives); (c) deploy preview / `vercel dev` and submit a real Internship app w/ small PDF to confirm attachment + reply-to. **Remind the user to do this later.**
 2. **Japan office address** — added (Ark Mori Bldg, Tokyo); confirm correct.
 3. **Footer "About us"** → placeholder `https://demo.officience.com/about`.
