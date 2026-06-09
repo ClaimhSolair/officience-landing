@@ -119,7 +119,7 @@ const ChipGroup: React.FC<{
           key={opt}
           type="button"
           onClick={() => toggle(opt)}
-          className={`px-[14px] py-[6px] rounded-fig-xs border font-body text-[14px] leading-[20px] transition-colors ${
+          className={`px-[14px] py-[12px] sm:py-[6px] rounded-fig-xs border font-body text-[14px] leading-[20px] transition-colors ${
             selected(opt)
               ? 'border-primary bg-[#ecf4ff] text-primary font-medium'
               : 'border-[#c6c6c6] text-text-default hover:border-primary'
@@ -155,7 +155,7 @@ const CardOptions: React.FC<{
           key={opt.label}
           type="button"
           onClick={() => toggle(opt.label)}
-          className={`flex items-center gap-[8px] text-left rounded-fig-xs border px-[16px] py-[10px] transition-colors ${
+          className={`flex items-center gap-[8px] text-left rounded-fig-xs border px-[16px] py-[12px] sm:py-[10px] transition-colors ${
             selected(opt.label) ? 'border-primary bg-[#ecf4ff]' : 'border-gray-fig-100 hover:border-primary'
           }`}
         >
@@ -200,7 +200,7 @@ const TextField: React.FC<{
       placeholder={placeholder}
       value={answers[k] || ''}
       onChange={(e) => set(k, e.target.value)}
-      className="w-full rounded-fig-xs border border-[#c6c6c6] px-[14px] py-[10px] font-body text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary transition-colors"
+      className="w-full rounded-fig-xs border border-[#c6c6c6] px-[14px] py-[14px] sm:py-[10px] font-body text-[16px] sm:text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary transition-colors"
     />
   </label>
 );
@@ -215,9 +215,10 @@ const TextArea: React.FC<{
   <textarea
     rows={rows}
     placeholder={placeholder}
+    aria-label={placeholder}
     value={answers[k] || ''}
     onChange={(e) => set(k, e.target.value)}
-    className="w-full rounded-fig-xs border border-[#c6c6c6] px-[14px] py-[10px] font-body text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary transition-colors resize-none"
+    className="w-full rounded-fig-xs border border-[#c6c6c6] px-[14px] py-[10px] font-body text-[16px] sm:text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary transition-colors resize-none"
   />
 );
 
@@ -538,15 +539,15 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
         className="relative bg-bg-secondary w-full max-w-[800px] rounded-fig-m shadow-fig-xs overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header: progress + close */}
-        <div className="flex items-start gap-[16px] px-[32px] pt-[32px]">
+        <div className="flex items-start gap-[16px] px-[16px] sm:px-[32px] pt-[24px] sm:pt-[32px]">
           <ProgressBar labels={PROGRESS_LABELS[branch]} current={progressCurrent} />
-          <button onClick={onClose} aria-label="Close" className="text-text-default hover:text-primary transition-colors shrink-0">
+          <button onClick={onClose} aria-label="Close" className="text-text-default hover:text-primary transition-colors shrink-0 p-3 -m-1 sm:p-0 sm:m-0">
             <X size={24} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="px-[32px] py-[24px] overflow-y-auto">
+        <div className="px-[16px] sm:px-[32px] py-[24px] overflow-y-auto">
           {isCompleted ? (
             <div className="flex flex-col gap-[24px]">
               <h2 className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">
@@ -585,20 +586,20 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
 
         {/* Error banner */}
         {error && !isCompleted && (
-          <div className="mx-[32px] mb-[8px] flex items-center gap-[8px] rounded-fig-xs border border-[#f5c2cb] bg-[#fff1f3] px-[16px] py-[10px] text-[#b8253e]">
+          <div className="mx-[16px] sm:mx-[32px] mb-[8px] flex items-center gap-[8px] rounded-fig-xs border border-[#f5c2cb] bg-[#fff1f3] px-[16px] py-[10px] text-[#b8253e]">
             <AlertCircle size={16} className="shrink-0" />
             <span className="font-body text-[14px] leading-[20px]">{error}</span>
           </div>
         )}
 
         {/* Footer */}
-        <div className="flex justify-between items-center px-[32px] pb-[32px] pt-[8px]">
+        <div className="flex justify-between items-center px-[16px] sm:px-[32px] pb-[24px] sm:pb-[32px] pt-[8px]">
           {isCompleted ? (
             <>
               <span />
               <button
                 onClick={onClose}
-                className="h-[40px] px-[24px] rounded-fig-xs bg-primary text-white font-sans font-medium text-[16px] leading-[24px] hover:bg-blue-700 transition-colors"
+                className="h-[48px] sm:h-[40px] px-[24px] rounded-fig-xs bg-primary text-white font-sans font-medium text-[16px] leading-[24px] hover:bg-blue-700 transition-colors"
               >
                 Close
               </button>
@@ -608,14 +609,14 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
               <button
                 onClick={step === 0 ? onClose : () => setStep((p) => p - 1)}
                 disabled={isSubmitting}
-                className="font-sans font-medium text-[16px] leading-[24px] text-primary hover:opacity-70 transition-opacity disabled:opacity-50"
+                className="inline-flex items-center min-h-[48px] sm:min-h-0 px-2 -ml-2 sm:px-0 sm:ml-0 font-sans font-medium text-[16px] leading-[24px] text-primary hover:opacity-70 transition-opacity disabled:opacity-50"
               >
                 {step === 0 ? 'Cancel' : 'Back'}
               </button>
               <button
                 onClick={handleNext}
                 disabled={!valid || isSubmitting}
-                className={`h-[40px] px-[24px] rounded-fig-xs font-sans font-medium text-[16px] leading-[24px] flex items-center gap-[8px] transition-colors ${
+                className={`h-[48px] sm:h-[40px] px-[24px] rounded-fig-xs font-sans font-medium text-[16px] leading-[24px] flex items-center gap-[8px] transition-colors ${
                   valid && !isSubmitting
                     ? 'bg-primary text-white hover:bg-blue-700'
                     : 'bg-[#d9d9d9] text-white cursor-not-allowed'

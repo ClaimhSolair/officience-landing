@@ -52,13 +52,13 @@ const AddressBlock: React.FC<{ office: Office }> = ({ office }) => (
   <div className="flex gap-[8px] items-start w-full">
     <img src={ASSETS.contact.pin} alt="" aria-hidden="true" width={32} height={32} className="w-[32px] h-[32px] shrink-0" />
     <div className="flex flex-col gap-[8px] text-text-default">
-      <p className="t-h3 text-text-default">{office.city}</p>
+      <p className="t-h3 text-text-default max-md:!text-[15px]">{office.city}</p>
       {office.address ? (
-        <p className="font-body text-[20px] leading-[26px] text-text-default">{office.address}</p>
+        <p className="font-body text-[12px] leading-[18px] md:text-[20px] md:leading-[26px] text-text-default">{office.address}</p>
       ) : (
         <div className="flex flex-col gap-[16px]">
           {office.subOffices!.map((sub) => (
-            <p key={sub.name} className="font-body text-[20px] leading-[26px] text-text-default">
+            <p key={sub.name} className="font-body text-[12px] leading-[18px] md:text-[20px] md:leading-[26px] text-text-default">
               <span className="font-bold text-text-primary">{sub.name}</span> - {sub.address}
             </p>
           ))}
@@ -81,19 +81,19 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => {
           {/* Contact Content: header (left) + form (right) */}
           <div className="flex flex-col lg:flex-row gap-[clamp(32px,4vw,48px)] items-stretch">
 
-            {/* Header — bottom-aligned */}
+            {/* Header — bottom-aligned. Mobile sizes per Figma 2284:2172 (28/14); desktop unchanged. */}
             <div className="flex-1 flex flex-col justify-end gap-[20px]">
-              <h2 className="t-display-xl text-text-default">Let’s Build Together</h2>
-              <p className="t-subtitle text-subtitle max-w-[660px]">
+              <h2 className="t-display-xl text-text-default max-md:!text-[28px] max-md:!leading-[36px]">Let’s Build Together</h2>
+              <p className="t-subtitle text-subtitle max-w-[660px] max-md:!text-[14px] max-md:!leading-[22px]">
                 Ready to scale? Fill out our quick requirement survey to get started.
               </p>
             </div>
 
             {/* Form — white panel */}
-            <div className="flex-1 bg-bg-default rounded-fig-xs p-[clamp(24px,3vw,40px)] flex flex-col gap-[20px]">
+            <div className="flex-1 bg-bg-default rounded-fig-xs p-[clamp(24px,3vw,40px)] flex flex-col gap-[12px] md:gap-[20px]">
               <div className="flex flex-col gap-[4px]">
-                <h3 className="t-h2 text-text-default">What brings you here?</h3>
-                <p className="font-body text-[20px] leading-[28px] text-subtitle">
+                <h3 className="t-h2 text-text-default max-md:!text-[16px]">What brings you here?</h3>
+                <p className="font-body text-[12px] leading-[18px] md:text-[20px] md:leading-[28px] text-subtitle">
                   We'll tailor the next questions just for you.
                 </p>
               </div>
@@ -103,13 +103,13 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => {
                   key={opt.branch}
                   type="button"
                   onClick={() => onOpenSurvey(opt.branch)}
-                  className="group flex items-center justify-between gap-4 text-left rounded-fig-m border bg-bg-secondary border-gray-fig-100 hover:border-primary transition-all px-[14px] py-[14px] min-h-[99px]"
+                  className="group flex items-center justify-between gap-4 text-left rounded-fig-m border bg-bg-secondary border-gray-fig-100 hover:border-primary transition-all px-[14px] py-[14px] min-h-[81px] md:min-h-[99px]"
                 >
                   <span className="flex flex-col gap-[3px] min-w-0">
-                    <span className="font-sans font-medium text-text-primary text-[clamp(16px,5vw,20px)] leading-[28px]">
+                    <span className="font-sans font-medium text-text-primary text-[14px] leading-[20px] md:text-[clamp(16px,5vw,20px)] md:leading-[28px]">
                       {opt.title}
                     </span>
-                    <span className="font-body text-subtitle text-[clamp(16px,5vw,20px)] leading-[28px]">
+                    <span className="font-body text-subtitle text-[12px] leading-[18px] md:text-[clamp(16px,5vw,20px)] md:leading-[28px]">
                       {opt.desc}
                     </span>
                   </span>
@@ -122,7 +122,7 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => {
           {/* Contact Details — 3 columns of offices */}
           <div className="flex flex-col md:flex-row gap-[clamp(24px,3vw,32px)] items-start">
             {officeColumns.map((col, i) => (
-              <div key={i} className="flex-1 flex flex-col gap-[24px] w-full">
+              <div key={i} className="flex-1 flex flex-col gap-[16px] md:gap-[24px] w-full">
                 {col.map((office) => (
                   <AddressBlock key={office.city} office={office} />
                 ))}

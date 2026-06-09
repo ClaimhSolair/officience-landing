@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { ASSETS } from '../assets';
 
@@ -36,6 +37,16 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Lock body scroll while the mobile menu is open (restore on close).
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isMobileMenuOpen]);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -121,19 +132,25 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
           </a>
         </nav>
 
-        {/* Mobile Toggle */}
+        {/* Mobile Toggle — p-3 gives a ~56px tap target; -mr-3 keeps the icon edge-aligned */}
         <button
-          className="lg:hidden text-text-default"
+          className="lg:hidden text-text-default p-3 -mr-3"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle menu"
+          aria-expanded={isMobileMenuOpen}
         >
           {isMobileMenuOpen ? <X size={32} /> : <Menu size={32} />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu — slide/fade in; ≥48px tap rows; body scroll locked while open */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 p-8 flex flex-col space-y-6 shadow-2xl h-screen rounded-b-3xl">
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 px-6 py-4 flex flex-col space-y-2 shadow-2xl h-screen overflow-y-auto rounded-b-3xl"
+        >
           {navItems.map((item) => (
             item.external ? (
               <a
@@ -142,7 +159,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-xl font-medium text-gray-900 hover:text-primary font-body"
+                className="block py-3 px-2 rounded-lg text-xl font-medium text-gray-900 hover:text-primary hover:bg-gray-50 font-body transition-colors"
               >
                 {item.label}
               </a>
@@ -151,7 +168,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
                 key={item.label}
                 href={item.href}
                 onClick={(e) => handleNavClick(e, item.href)}
-                className="text-xl font-medium text-gray-900 hover:text-primary font-body"
+                className="block py-3 px-2 rounded-lg text-xl font-medium text-gray-900 hover:text-primary hover:bg-gray-50 font-body transition-colors"
               >
                 {item.label}
               </a>
@@ -160,11 +177,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
           <a
             href="#contact"
             onClick={(e) => handleNavClick(e, '#contact')}
-            className="bg-bg-primary text-white w-full text-center py-4 text-xl font-sans font-semibold shadow-fig-exsm"
+            className="mt-2 bg-bg-primary text-white w-full text-center py-4 text-xl font-sans font-semibold shadow-fig-exsm rounded-fig-m"
           >
             Contact Us
           </a>
-        </div>
+        </motion.div>
       )}
     </header>
   );

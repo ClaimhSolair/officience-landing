@@ -105,25 +105,35 @@ const WhyOfficience: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile + tablet (<1024px): stacked list with the icon on top.
-              The pinwheel only fits comfortably at lg+, so tablets use this layout. */}
-          <div className="lg:hidden flex flex-col items-center gap-10 w-full">
+          {/* Mobile + tablet (<1024px): center icon on top, then a 2×2 compact grid
+              echoing the desktop quadrants. Heading is fluid so the longest word
+              ("International") fits a narrow column down to 320px; supporting copy is
+              compact (14px secondary text) to keep the cards short. */}
+          <div className="lg:hidden flex flex-col items-center gap-8 w-full">
             <img
               src={ASSETS.whyus.centerIcon}
               alt=""
               aria-hidden="true"
-              width={120}
-              height={120}
-              className="w-[120px] h-[120px]"
+              width={96}
+              height={96}
+              className="w-[96px] h-[96px]"
             />
-            {reasons.map((r) => (
-              <div key={r.category} className="flex flex-col gap-2 text-center">
-                <h3 className="t-display-md" style={{ color: r.pink ? '#FFBFC7' : '#FFFFFF' }}>
-                  {r.category}
-                </h3>
-                <p className="t-body-xl text-white max-w-[464px]">{r.text}</p>
-              </div>
-            ))}
+            <div className="grid grid-cols-2 gap-3 w-full">
+              {reasons.map((r) => (
+                <div
+                  key={r.category}
+                  className="flex flex-col gap-2 rounded-fig-m bg-white/5 p-3 text-left"
+                >
+                  <h3
+                    className="font-sans font-semibold text-[clamp(15px,4vw,20px)] leading-tight"
+                    style={{ color: r.pink ? '#FFBFC7' : '#FFFFFF' }}
+                  >
+                    {r.category}
+                  </h3>
+                  <p className="font-body text-[14px] leading-snug text-white/90">{r.text}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </motion.div>
       </div>

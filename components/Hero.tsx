@@ -51,7 +51,7 @@ const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-[clamp(48px,6vw,80px)] grid grid-cols-2 gap-x-12 gap-y-8 md:flex md:items-start md:justify-center md:gap-[80px]"
+          className="mt-[clamp(48px,6vw,80px)] grid grid-cols-2 gap-x-6 gap-y-8 md:flex md:items-start md:justify-center md:gap-[80px]"
         >
           {milestones.map((m) => (
             <div key={m.label} className="flex flex-col items-center text-center gap-[4px]">

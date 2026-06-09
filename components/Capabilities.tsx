@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { ASSETS } from '../assets';
+import CarouselDots from './ui/CarouselDots';
 
 const BROCHURE_URL = 'https://demo.officience.com/brochure';
 
@@ -40,6 +41,7 @@ const services = [
 ];
 
 const Capabilities: React.FC = () => {
+  const trackRef = useRef<HTMLDivElement>(null);
   return (
     <section id="capabilities" className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)]">
       {/* Services Section: gap-48 between header and list */}
@@ -65,12 +67,15 @@ const Capabilities: React.FC = () => {
           </a>
         </div>
 
-        {/* Service cards — 4-up, equal height, radius 4, padding 32 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[clamp(20px,2vw,32px)] items-stretch">
+        {/* Service cards — mobile: scroll-snap swipe carousel (peek + dots); sm+: restore exact 2-up/4-up grid */}
+        <div
+          ref={trackRef}
+          className="flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] gap-[clamp(20px,2vw,32px)] items-stretch sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
+        >
           {services.map((service, idx) => (
             <div
               key={idx}
-              className="bg-bg-default rounded-fig-xs shadow-fig-xs p-[32px] flex flex-col justify-between gap-[32px] h-full"
+              className="snap-center shrink-0 w-[82%] sm:w-auto sm:shrink bg-bg-default rounded-fig-xs shadow-fig-xs p-[24px] sm:p-[32px] flex flex-col justify-between gap-[32px] h-full"
             >
               <div className="flex flex-col gap-[32px]">
                 {/* Icon — 70px (Data 64px) */}
@@ -104,7 +109,7 @@ const Capabilities: React.FC = () => {
                 href={service.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-[8px] font-sans font-semibold text-[16px] leading-[24px] text-[#1F49BF] hover:text-[#63A4FC] active:text-[#000086] hover:gap-[12px] transition-all"
+                className="inline-flex items-center gap-[8px] py-3 sm:py-0 font-sans font-semibold text-[16px] leading-[24px] text-[#1F49BF] hover:text-[#63A4FC] active:text-[#000086] hover:gap-[12px] transition-all"
               >
                 View brochure
                 <ArrowRight size={20} strokeWidth={2} />
@@ -112,6 +117,9 @@ const Capabilities: React.FC = () => {
             </div>
           ))}
         </div>
+
+        {/* Mobile pagination dots (hidden once the grid is restored at sm) */}
+        <CarouselDots containerRef={trackRef} count={services.length} className="sm:hidden -mt-2" />
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ASSETS } from '../assets';
+import CarouselDots from './ui/CarouselDots';
 
 const testimonials = [
   {
@@ -26,6 +27,7 @@ const testimonials = [
 ];
 
 const ClientStories: React.FC = () => {
+  const trackRef = useRef<HTMLDivElement>(null);
   return (
     <section id="clients" className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)]">
       {/* Section: gap-64, centered */}
@@ -37,12 +39,15 @@ const ClientStories: React.FC = () => {
           <p className="t-subtitle text-subtitle">Success stories across different domains</p>
         </div>
 
-        {/* Testimonial cards — card1 517px, others flex; gap-24 */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-[517px_1fr_1fr] gap-[24px] items-stretch">
+        {/* Testimonials — mobile: scroll-snap swipe carousel (peek + dots); md+: restore exact grid (card1 517px) */}
+        <div
+          ref={trackRef}
+          className="w-full flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] gap-[24px] items-stretch md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-[517px_1fr_1fr]"
+        >
           {testimonials.map((t, idx) => (
             <div
               key={idx}
-              className="bg-bg-default rounded-fig-m shadow-fig-xs flex flex-col gap-[20px] p-[36px]"
+              className="snap-center shrink-0 w-[85%] md:w-auto md:shrink bg-bg-default rounded-fig-m shadow-fig-xs flex flex-col gap-[20px] p-[24px] md:p-[36px]"
             >
               <img
                 src={ASSETS.testimonials.quote}
@@ -72,6 +77,9 @@ const ClientStories: React.FC = () => {
             </div>
           ))}
         </div>
+
+        {/* Mobile pagination dots (hidden once the grid is restored at md) */}
+        <CarouselDots containerRef={trackRef} count={testimonials.length} className="md:hidden -mt-4" />
 
         {/* Client logos — marquee. Sources are trimmed to their content bbox, then each is
             fit into a uniform box (max-height + max-width, aspect preserved) so logos read at
