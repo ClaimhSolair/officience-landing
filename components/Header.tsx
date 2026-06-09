@@ -65,7 +65,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
     >
       {/* Figma: px-100 py-24, content-width, items-center justify-between */}
       <div className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] py-[24px] flex items-center justify-between">
-        {/* Logo Area — Figma 182 x 72.5 */}
+        {/* Logo Area — logo ~60px tall (1.25× for visibility); drives ~108px header height */}
         <a
           href="#"
           onClick={(e) => handleNavClick(e, '#')}
@@ -77,7 +77,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
             alt="Officience — 20 Years Anniversary"
             width={182}
             height={72.5}
-            className="h-[clamp(44px,5vw,72.5px)] w-auto object-contain"
+            className="h-[clamp(50px,5vw,60px)] w-auto object-contain"
             referrerPolicy="no-referrer"
           />
         </a>
@@ -110,11 +110,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
             ))}
           </div>
 
-          {/* CTA — Figma: square blue button, px-32 py-16, Lexend SemiBold 20px, shadow ex-sm */}
+          {/* CTA — square blue button, py-12 so it matches the 48px logo (96px compact header), Lexend SemiBold 20px, shadow ex-sm */}
           <a
             href="#contact"
             onClick={(e) => handleNavClick(e, '#contact')}
-            className="bg-bg-primary text-white px-[32px] py-[16px] font-sans font-semibold text-[clamp(16px,1.2vw,20px)] leading-[24px] shadow-fig-exsm hover:bg-blue-800 transition-colors whitespace-nowrap"
+            className="bg-bg-primary text-white px-[32px] py-[12px] font-sans font-semibold text-[clamp(16px,1.2vw,20px)] leading-[24px] shadow-fig-exsm hover:bg-blue-800 transition-colors whitespace-nowrap"
           >
             Contact Us
           </a>

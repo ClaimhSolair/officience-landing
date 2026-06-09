@@ -9,34 +9,16 @@ const milestones = [
   { value: '500+', label: 'Projects Done' },
 ];
 
-// Each icon group SVG is a 800×160 strip of 5 colored icons. Repeat it across the
-// track and duplicate the whole track once so the -50% marquee loops seamlessly.
-// Each icon group SVG is an 800×160 strip of 5 colored 160×160 tiles. Repeat it across the
-// track and duplicate the whole track once so the -50% marquee loops seamlessly.
-const MarqueeRow: React.FC<{ src: string; reverse?: boolean }> = ({ src, reverse }) => {
-  const copies = Array.from({ length: 4 });
-  const strip = (
-    <div className="flex shrink-0">
-      {copies.map((_, i) => (
-        <img
-          key={i}
-          src={src}
-          alt=""
-          aria-hidden="true"
-          className="h-[clamp(88px,9.2vw,160px)] w-auto shrink-0"
-        />
-      ))}
-    </div>
-  );
-  return (
-    <div className="w-full overflow-hidden">
-      <div className={`flex w-max marquee-track ${reverse ? 'animate-marquee-reverse' : 'animate-marquee'}`}>
-        {strip}
-        {strip}
-      </div>
-    </div>
-  );
-};
+// Each icon group SVG is an 800×160 strip of 5 colored 160×160 tiles. Render it as a
+// static, full-width repeating band (no animation) — background-size `auto 100%` scales
+// the strip to the row height and tiles it horizontally to fill any viewport width.
+const IconRow: React.FC<{ src: string }> = ({ src }) => (
+  <div
+    className="w-full h-[clamp(88px,9.2vw,160px)] bg-repeat-x"
+    style={{ backgroundImage: `url(${src})`, backgroundSize: 'auto 100%' }}
+    aria-hidden="true"
+  />
+);
 
 const Hero: React.FC = () => {
   return (
@@ -80,7 +62,7 @@ const Hero: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Icon marquee rows — two rows of 160px tiles, opposite directions, no row gap */}
+      {/* Icon band — two static rows of 160px tiles, no animation, no row gap */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -88,8 +70,8 @@ const Hero: React.FC = () => {
         className="w-full flex flex-col"
         aria-hidden="true"
       >
-        <MarqueeRow src={ASSETS.hero.iconsRow1} />
-        <MarqueeRow src={ASSETS.hero.iconsRow2} reverse />
+        <IconRow src={ASSETS.hero.iconsRow1} />
+        <IconRow src={ASSETS.hero.iconsRow2} />
       </motion.div>
     </section>
   );
