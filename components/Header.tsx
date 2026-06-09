@@ -65,7 +65,8 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
     >
       {/* Figma: px-100 py-24, content-width, items-center justify-between */}
       <div className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] py-[8px] flex items-center justify-between">
-        {/* Logo Area — logo ~90px tall (1.25× the original 72.5px); compact py-8 keeps header ~106px */}
+        {/* Logo Area — FIXED logo height (no vw scaling, so header is identical at every window width):
+            72px desktop / 56px mobile. With py-8 the header is a steady ~88px on desktop. */}
         <a
           href="#"
           onClick={(e) => handleNavClick(e, '#')}
@@ -77,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
             alt="Officience — 20 Years Anniversary"
             width={182}
             height={72.5}
-            className="h-[clamp(48px,4.7vw,90px)] w-auto object-contain"
+            className="h-[56px] md:h-[72px] w-auto object-contain"
             referrerPolicy="no-referrer"
           />
         </a>
