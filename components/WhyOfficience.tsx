@@ -105,34 +105,42 @@ const WhyOfficience: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile + tablet (<1024px): center icon on top, then a 2×2 compact grid
-              echoing the desktop quadrants. Heading is fluid so the longest word
-              ("International") fits a narrow column down to 320px; supporting copy is
-              compact (14px secondary text) to keep the cards short. */}
-          <div className="lg:hidden flex flex-col items-center gap-8 w-full">
-            <img
-              src={ASSETS.whyus.centerIcon}
-              alt=""
-              aria-hidden="true"
-              width={96}
-              height={96}
-              className="w-[96px] h-[96px]"
-            />
-            <div className="grid grid-cols-2 gap-3 w-full">
-              {reasons.map((r) => (
-                <div
-                  key={r.category}
-                  className="flex flex-col gap-2 rounded-fig-m bg-white/5 p-3 text-left"
+          {/* Mobile + tablet (<1024px): portrait pinwheel echoing the desktop quadrants —
+              cross dividers + center sparkle, no card backgrounds. Quadrant text is
+              centered and padded away from the center cross. Heading is fluid so the
+              longest word ("International") fits a narrow column down to 320px. */}
+          <div className="lg:hidden relative grid grid-cols-2 grid-rows-2 w-full">
+            {reasons.map((r) => (
+              <div
+                key={r.category}
+                className="flex flex-col items-center justify-center text-center gap-[10px] px-2 py-[clamp(20px,6vw,32px)]"
+              >
+                <h3
+                  className="font-sans font-semibold text-[clamp(16px,4.5vw,20px)] leading-tight"
+                  style={{ color: r.pink ? '#FFBFC7' : '#FFFFFF' }}
                 >
-                  <h3
-                    className="font-sans font-semibold text-[clamp(15px,4vw,20px)] leading-tight"
-                    style={{ color: r.pink ? '#FFBFC7' : '#FFFFFF' }}
-                  >
-                    {r.category}
-                  </h3>
-                  <p className="font-body text-[14px] leading-snug text-white/90">{r.text}</p>
-                </div>
-              ))}
+                  {r.category}
+                </h3>
+                <p className="font-body text-[13px] leading-snug text-white/90">{r.text}</p>
+              </div>
+            ))}
+
+            {/* Cross dividers (centered) */}
+            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-white/30 pointer-events-none" />
+            <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 h-px w-[88%] bg-white/30 pointer-events-none" />
+
+            {/* Center sparkle at the cross intersection */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="bg-bg-primary rounded-full p-2">
+                <img
+                  src={ASSETS.whyus.centerIcon}
+                  alt=""
+                  aria-hidden="true"
+                  width={56}
+                  height={56}
+                  className="w-[56px] h-[56px]"
+                />
+              </div>
             </div>
           </div>
         </motion.div>

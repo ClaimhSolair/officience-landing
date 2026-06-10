@@ -75,7 +75,7 @@ const Capabilities: React.FC = () => {
           {services.map((service, idx) => (
             <div
               key={idx}
-              className="snap-center shrink-0 w-[82%] sm:w-auto sm:shrink bg-bg-default rounded-fig-xs shadow-fig-xs p-[24px] sm:p-[32px] flex flex-col justify-between gap-[32px] h-full"
+              className="snap-center shrink-0 w-[82%] sm:w-auto sm:shrink bg-bg-default rounded-fig-xs shadow-fig-xs p-[24px] sm:p-[32px] flex flex-col justify-between gap-[32px] sm:h-full"
             >
               <div className="flex flex-col gap-[32px]">
                 {/* Icon — 70px (Data 64px) */}

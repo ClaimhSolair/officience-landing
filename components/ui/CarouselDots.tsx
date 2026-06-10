@@ -64,7 +64,7 @@ const CarouselDots: React.FC<CarouselDotsProps> = ({ containerRef, count, classN
           aria-selected={active === i}
           aria-label={`Go to slide ${i + 1}`}
           onClick={() => goTo(i)}
-          className="flex h-11 w-11 items-center justify-center"
+          className="flex h-10 w-6 items-center justify-center"
         >
           <span
             className={`block h-2 rounded-full transition-all duration-300 ${

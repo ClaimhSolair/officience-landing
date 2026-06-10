@@ -20,8 +20,51 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
 
   return (
     <footer className="relative bg-bg-primary flex flex-col gap-[32px] overflow-hidden">
-      {/* Footer Content */}
-      <div className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] pt-[clamp(40px,5vw,64px)] flex flex-col gap-[32px]">
+      {/* Mobile footer (<768px) — logo, then link stack (left) + socials & copyright (right).
+          Faint full-bleed watermark is rendered as a footer-level sibling below. */}
+      <div className="md:hidden w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] pt-[40px] flex flex-col gap-[24px] font-body text-white">
+        <img
+          src={LOGO_URL}
+          alt="Officience — 20 Years Anniversary"
+          width={223.5}
+          height={88.5}
+          className="h-[56px] w-auto object-contain"
+          referrerPolicy="no-referrer"
+        />
+        <div className="w-full h-px bg-white/30" />
+        <div className="flex justify-between gap-4">
+          {/* Links — left-aligned stack, ≥44px tap rows */}
+          <div className="flex flex-col text-[15px]">
+            <button onClick={onOpenTerms} className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity">
+              Terms &amp; Conditions
+            </button>
+            <a href={ABOUT_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
+              About us
+            </a>
+            <a href="#capabilities" className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
+              Our Services
+            </a>
+            <a href={CAREER_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
+              We’re Hiring
+            </a>
+          </div>
+          {/* Socials (top) + copyright (below), right-aligned */}
+          <div className="flex flex-col items-end gap-4 shrink-0">
+            <div className="flex gap-[16px] items-center">
+              {socials.map(({ href, label, icon }) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+                   className="hover:opacity-80 transition-opacity">
+                  <img src={icon} alt={label} width={28} height={28} className="w-[28px] h-[28px]" />
+                </a>
+              ))}
+            </div>
+            <span className="text-[12px] text-right">© {new Date().getFullYear()} Officience, All rights reserved</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Content (≥768px) */}
+      <div className="hidden md:flex w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] pt-[clamp(40px,5vw,64px)] flex-col gap-[32px]">
 
         {/* Top: logo + social icons */}
         <div className="flex flex-col gap-6 sm:flex-row items-center justify-between">
@@ -73,6 +116,16 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
         alt=""
         aria-hidden="true"
         className="w-full h-auto object-cover hidden md:block"
+        style={{ aspectRatio: '2880 / 346' }}
+        loading="lazy"
+      />
+
+      {/* Mobile watermark — same banner, faded, full-bleed at the footer bottom */}
+      <img
+        src={BANNER_URL}
+        alt=""
+        aria-hidden="true"
+        className="w-full h-auto object-cover opacity-20 md:hidden"
         style={{ aspectRatio: '2880 / 346' }}
         loading="lazy"
       />
