@@ -5,9 +5,6 @@ import { ASSETS } from '../assets';
 
 const LOGO_URL = ASSETS.header.logo;
 
-const SHOWCASE_URL = "https://demo.officience.com/work";
-const CAREER_URL = "https://www.linkedin.com/company/officience/jobs/";
-
 interface NavLink {
   label: string;
   href: string;
@@ -15,11 +12,10 @@ interface NavLink {
 }
 
 const navItems: NavLink[] = [
-  { label: 'What we do', href: '#capabilities' },
-  { label: 'Services', href: '#capabilities' },
-  { label: 'Showcase', href: SHOWCASE_URL, external: true },
-  { label: 'Career', href: CAREER_URL, external: true },
-  { label: 'Why choose us', href: '#why-us' },
+  { label: 'What we do', href: '#capabilities' },     // → Capabilities "What We Do"
+  { label: 'People Trust Us', href: '#clients' },     // → ClientStories "People Trust Us"
+  { label: 'Our Approach', href: '#approach' },       // → HowWeEngage "Our Approach"
+  { label: 'Why choose us', href: '#why-us' },        // → WhyOfficience "Why Choose Us"
 ];
 
 interface HeaderProps {

@@ -42,7 +42,7 @@ const ClientStories: React.FC = () => {
         {/* Testimonials — mobile: scroll-snap swipe carousel (peek + dots); md+: restore exact grid (card1 517px) */}
         <div
           ref={trackRef}
-          className="w-full flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] gap-[24px] items-stretch md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-[517px_1fr_1fr]"
+          className="w-full flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] gap-[24px] items-stretch md:grid md:grid-cols-3 md:overflow-visible"
         >
           {testimonials.map((t, idx) => (
             <div
