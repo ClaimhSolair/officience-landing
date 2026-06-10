@@ -121,7 +121,7 @@ const ChipGroup: React.FC<{
           onClick={() => toggle(opt)}
           className={`px-[14px] py-[12px] sm:py-[6px] rounded-fig-xs border font-body text-[14px] leading-[20px] transition-colors ${
             selected(opt)
-              ? 'border-primary bg-[#ecf4ff] text-primary font-medium'
+              ? 'border-primary bg-[#ecf4ff] text-primary font-bold'
               : 'border-[#c6c6c6] text-text-default hover:border-primary'
           }`}
         >
@@ -138,7 +138,8 @@ const CardOptions: React.FC<{
   onChange: (v: any) => void;
   multi?: boolean;
   columns?: 1 | 2;
-}> = ({ options, value, onChange, multi, columns = 1 }) => {
+  boldOnSelect?: boolean;
+}> = ({ options, value, onChange, multi, columns = 1, boldOnSelect }) => {
   const selected = (opt: string) => (multi ? (value || []).includes(opt) : value === opt);
   const toggle = (opt: string) => {
     if (multi) {
@@ -150,13 +151,15 @@ const CardOptions: React.FC<{
   };
   return (
     <div className={`grid gap-[12px] ${columns === 2 ? 'sm:grid-cols-2' : 'grid-cols-1'}`}>
-      {options.map((opt) => (
+      {options.map((opt) => {
+        const isSel = selected(opt.label);
+        return (
         <button
           key={opt.label}
           type="button"
           onClick={() => toggle(opt.label)}
           className={`flex items-center gap-[8px] text-left rounded-fig-xs border px-[16px] py-[12px] sm:py-[10px] transition-colors ${
-            selected(opt.label) ? 'border-primary bg-[#ecf4ff]' : 'border-gray-fig-100 hover:border-primary'
+            isSel ? 'border-primary bg-[#ecf4ff]' : 'border-gray-fig-100 hover:border-primary'
           }`}
         >
           {opt.tag && (
@@ -169,14 +172,15 @@ const CardOptions: React.FC<{
           )}
           {opt.desc ? (
             <span className="flex flex-col">
-              <span className="font-sans font-semibold text-[16px] leading-[24px] text-text-default">{opt.label}</span>
+              <span className={`font-sans font-semibold text-[16px] leading-[24px] ${isSel ? 'text-primary' : 'text-text-default'}`}>{opt.label}</span>
               <span className="font-body text-[14px] leading-[20px] text-subtitle">{opt.desc}</span>
             </span>
           ) : (
-            <span className="font-body text-[14px] leading-[20px] text-text-default">{opt.label}</span>
+            <span className={`font-body text-[14px] leading-[20px] ${isSel ? `text-primary ${boldOnSelect ? 'font-bold' : ''}` : 'text-text-default'}`}>{opt.label}</span>
           )}
         </button>
-      ))}
+        );
+      })}
     </div>
   );
 };
@@ -363,6 +367,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
               onChange={(v) => set('services', v)}
               multi
               columns={2}
+              boldOnSelect
             />
           </div>
           <div>
@@ -373,6 +378,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
               onChange={(v) => set('solve', v)}
               multi
               columns={2}
+              boldOnSelect
             />
           </div>
         </Panel>

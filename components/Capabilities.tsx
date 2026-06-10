@@ -60,7 +60,7 @@ const Capabilities: React.FC = () => {
             href={BROCHURE_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="self-start inline-flex items-center gap-[8px] bg-[#1F49BF] hover:bg-[#000086] active:bg-[#000050] text-white rounded-fig-m px-[24px] py-[16px] shadow-fig-xs transition-colors whitespace-nowrap shrink-0"
+            className="self-start inline-flex items-center gap-[8px] bg-[#1F49BF] hover:bg-[#000086] active:bg-[#000050] text-white px-[24px] py-[16px] shadow-fig-xs transition-colors whitespace-nowrap shrink-0"
           >
             <span className="t-button text-[clamp(15px,4.5vw,20px)]">View General Brochure</span>
             <ArrowUpRight size={24} strokeWidth={2} />
