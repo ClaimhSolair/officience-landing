@@ -83,8 +83,18 @@ const ClientStories: React.FC = () => {
 
         {/* Client logos — marquee. Sources are trimmed to their content bbox, then each is
             fit into a uniform box (max-height + max-width, aspect preserved) so logos read at
-            a consistent optical size. Track contains the set duplicated twice for a seamless loop. */}
-        <div className="w-full overflow-hidden">
+            a consistent optical size. Track contains the set duplicated twice for a seamless loop.
+            Edge fade: a mask gradient dissolves the logos into the section background at both
+            ends (desktop + mobile), so they glide in/out instead of hard-clipping at the edge. */}
+        <div
+          className="w-full overflow-hidden"
+          style={{
+            WebkitMaskImage:
+              'linear-gradient(to right, transparent 0, #000 clamp(32px,8vw,96px), #000 calc(100% - clamp(32px,8vw,96px)), transparent 100%)',
+            maskImage:
+              'linear-gradient(to right, transparent 0, #000 clamp(32px,8vw,96px), #000 calc(100% - clamp(32px,8vw,96px)), transparent 100%)',
+          }}
+        >
           <div className="flex w-max marquee-track animate-marquee items-center">
             {[...ASSETS.clients, ...ASSETS.clients].map((src, i) => (
               <img
