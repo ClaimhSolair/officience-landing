@@ -1,39 +1,34 @@
-// Vercel Edge Function: receives a survey submission (text fields only) and emails it
-// to the Officience team via Resend. Candidates share a CV/portfolio as links (LinkedIn,
-// GitHub, etc.) in the "portfolio" field — no file uploads are accepted.
+// Vercel Node Function: receives a survey submission (text fields only) and emails it to
+// contact@officience.com via Google Workspace SMTP. Candidates share a CV/portfolio as links
+// (LinkedIn, GitHub, etc.) in the "portfolio" field — no file uploads are accepted.
+//
+// Delivery model: the function logs in to Google Workspace SMTP AS contact@officience.com and
+// sends the submission TO contact@officience.com (the mailbox emails itself). IT's forwarding
+// rules on that mailbox then distribute it to the relevant teams, who reply to the visitor
+// directly (the visitor's address is set as reply-to). This keeps mail on Officience's own
+// Google infra and needs NO DNS changes (Google handles SPF/DKIM for Workspace mail).
 //
 // Abuse hardening (all server-side, zero external dependency):
 //   - Origin allowlist  — rejects POSTs that don't come from the site.
 //   - Honeypot          — a hidden form field; if filled, we fake success and drop it.
 //   - Rate limit        — best-effort per-IP throttle (in-memory, per-instance).
 //
-// Required env var (set in Vercel → Project → Settings → Environment Variables):
-//   RESEND_API_KEY   — your Resend API key
-// Optional overrides:
-//   SURVEY_TO   — primary recipient(s), comma-separated (default below)
-//   SURVEY_CC   — CC recipients, comma-separated (default below)
-//   RESEND_FROM — verified sender, e.g. "Officience Website <website@notify.officience.com>"
-//                 (falls back to Resend's test sender, which only delivers to the
-//                  Resend account owner until you verify a domain)
-//
-// Going live (one-time, done out-of-band — makes mail actually reach the team's inbox):
-//   DNS for officience.com is managed at OVH (nameservers ns/dns200.anycast.me) — NOT
-//   Cloudflare (R2/images) and NOT Vercel (website hosting). The records below go in OVH.
-//   The "notify." subdomain isolates this from the existing Google Workspace email on the
-//   root domain, so that mail setup stays untouched.
-//   1. Resend → Domains → add "notify.officience.com". Resend lists the exact DNS rows
-//      (Type / Name / Value) for SPF, DKIM, and DMARC — don't invent them, copy them.
-//   2. OVH → DNS Zone for officience.com → add each row Resend gave you, e.g.:
-//        TXT  send.notify              (SPF)
-//        TXT/CNAME  resend._domainkey.notify  (DKIM)
-//        MX   send.notify              (bounce handling — value from Resend)
-//        TXT  _dmarc.notify            (DMARC)
-//      Use the precise Name/Value Resend shows; the names above are illustrative.
-//   3. Back in Resend, click Verify and wait for the domain to show "Verified".
-//   4. In Vercel, set RESEND_FROM to the notify.officience.com address (and confirm
-//      RESEND_API_KEY is set), then redeploy.
+// Required env vars (Vercel → Project → Settings → Environment Variables):
+//   SMTP_USER   — the sending mailbox, i.e. contact@officience.com
+//   SMTP_PASS   — a Google App Password (16-char) for that mailbox (NOT the normal password;
+//                 the account needs 2-Step Verification on, and the Workspace admin must allow
+//                 app passwords)
+// Optional overrides (defaults are fine):
+//   SMTP_HOST   — default smtp.gmail.com
+//   SMTP_PORT   — default 465 (SSL). For 587 (STARTTLS), set 587 (secure becomes false).
+//   SURVEY_TO   — recipient, default contact@officience.com
+//   MAIL_FROM   — From header, default "Officience Website <contact@officience.com>"
 
-export const config = { runtime: 'edge' };
+import { createTransport } from 'nodemailer';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+const DEFAULT_TO = 'contact@officience.com';
+const DEFAULT_FROM = 'Officience Website <contact@officience.com>';
 
 // Honeypot field name — must match the hidden input rendered in components/Survey.tsx.
 const HONEYPOT_FIELD = 'company_website';
@@ -44,7 +39,7 @@ const ALLOWED_ORIGINS = [
   'https://www.officience.com',
 ];
 // Vercel preview/deploy origins (e.g. *.vercel.app) are also allowed.
-const isAllowedOrigin = (origin: string | null): boolean => {
+const isAllowedOrigin = (origin: string | undefined): boolean => {
   if (!origin) return false;
   if (ALLOWED_ORIGINS.includes(origin)) return true;
   try {
@@ -54,18 +49,19 @@ const isAllowedOrigin = (origin: string | null): boolean => {
   }
 };
 
-// Best-effort in-memory rate limit. Per-instance and ephemeral on Edge (instances are
-// distributed and recycled), so it won't stop a determined attacker hitting many regions —
-// it pairs with the honeypot + origin check to blunt typical floods. Swap in a durable store
-// (e.g. Upstash) here if abuse shows up.
+// Best-effort in-memory rate limit. Per-instance and ephemeral (instances are recycled), so it
+// won't stop a determined attacker hitting many instances — it pairs with the honeypot + origin
+// check to blunt typical floods. Swap in a durable store (e.g. Upstash) here if abuse shows up.
 const RATE_LIMIT_MAX = 5; // requests…
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // …per 10 minutes, per IP
 const hits = new Map<string, { count: number; resetAt: number }>();
 
-const clientIp = (req: Request): string => {
-  const fwd = req.headers.get('x-forwarded-for');
-  if (fwd) return fwd.split(',')[0].trim();
-  return req.headers.get('x-real-ip')?.trim() || 'unknown';
+const clientIp = (req: VercelRequest): string => {
+  const fwd = req.headers['x-forwarded-for'];
+  const raw = Array.isArray(fwd) ? fwd[0] : fwd;
+  if (raw) return raw.split(',')[0].trim();
+  const real = req.headers['x-real-ip'];
+  return (Array.isArray(real) ? real[0] : real)?.trim() || 'unknown';
 };
 
 const rateLimited = (ip: string, now: number): boolean => {
@@ -77,11 +73,6 @@ const rateLimited = (ip: string, now: number): boolean => {
   entry.count += 1;
   return entry.count > RATE_LIMIT_MAX;
 };
-
-const DEFAULT_TO = 'duykhang.le@officience.com';
-const DEFAULT_CC =
-  'huycanh.duong@officience.com,steven.duyminhnguyen@officience.com,tructien.ho@officience.com,thanhlong.le@officience.com,minhquyen.tranha@officience.com,quynhnhu.trannguyen@officience.com';
-const DEFAULT_FROM = 'Officience Website <onboarding@resend.dev>';
 
 // Human-readable labels for the email table, keyed by the form field name.
 const FIELD_LABELS: Record<string, string> = {
@@ -135,48 +126,55 @@ const FIELD_ORDER = [
   'mind',
 ];
 
-const json = (body: unknown, status: number) =>
-  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
-
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
 
-export default async function handler(req: Request): Promise<Response> {
-  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
 
   // Origin allowlist — drop cross-site / direct-to-API bots before any work.
-  if (!isAllowedOrigin(req.headers.get('origin'))) {
-    return json({ error: 'Forbidden' }, 403);
+  if (!isAllowedOrigin(req.headers.origin)) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error('RESEND_API_KEY is not set');
-    return json({ error: 'Email service not configured' }, 500);
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  if (!user || !pass) {
+    console.error('SMTP_USER / SMTP_PASS are not set');
+    res.status(500).json({ error: 'Email service not configured' });
+    return;
   }
 
-  let form: FormData;
+  // Vercel auto-parses a JSON body into req.body; be defensive if it arrives as a string.
+  let body: Record<string, unknown>;
   try {
-    form = await req.formData();
+    body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body ?? {});
   } catch {
-    return json({ error: 'Invalid form data' }, 400);
+    res.status(400).json({ error: 'Invalid request body' });
+    return;
   }
 
-  // Honeypot: bots fill this hidden field; humans never see it. If present, fake success
-  // (200) and silently drop the submission so bots get no signal.
-  if (String(form.get(HONEYPOT_FIELD) || '').trim() !== '') {
-    return json({ ok: true }, 200);
+  // Honeypot: bots fill this hidden field; humans never see it. If present, fake success (200)
+  // and silently drop the submission so bots get no signal.
+  if (String(body[HONEYPOT_FIELD] ?? '').trim() !== '') {
+    res.status(200).json({ ok: true });
+    return;
   }
 
   // Best-effort per-IP rate limit (see note above).
   if (rateLimited(clientIp(req), Date.now())) {
-    return json({ error: 'Too many submissions. Please try again later.' }, 429);
+    res.status(429).json({ error: 'Too many submissions. Please try again later.' });
+    return;
   }
 
   const fields = new Map<string, string>();
-  for (const [key, value] of form.entries()) {
+  for (const [key, value] of Object.entries(body)) {
     if (key === HONEYPOT_FIELD) continue; // never email the honeypot
-    if (!(value instanceof File) && String(value).trim() !== '') {
+    if (value != null && String(value).trim() !== '') {
       fields.set(key, String(value));
     }
   }
@@ -207,34 +205,30 @@ export default async function handler(req: Request): Promise<Response> {
     <table style="border-collapse:collapse;font-size:14px;">${rows}</table>
   </div>`;
 
-  const to = (process.env.SURVEY_TO || DEFAULT_TO).split(',').map((s) => s.trim()).filter(Boolean);
-  const cc = (process.env.SURVEY_CC || DEFAULT_CC).split(',').map((s) => s.trim()).filter(Boolean);
-  const from = process.env.RESEND_FROM || DEFAULT_FROM;
+  const to = process.env.SURVEY_TO || DEFAULT_TO;
+  const from = process.env.MAIL_FROM || DEFAULT_FROM;
+  const port = Number(process.env.SMTP_PORT) || 465;
 
-  const payload: Record<string, unknown> = {
-    from,
-    to,
-    cc,
-    subject: `New survey: ${inquiry}`,
-    html,
-  };
-  if (candidateEmail) payload.reply_to = candidateEmail;
+  const transporter = createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port,
+    secure: port === 465, // 465 = SSL; 587 = STARTTLS
+    auth: { user, pass },
+  });
 
   try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    await transporter.sendMail({
+      from,
+      to,
+      replyTo: candidateEmail || undefined,
+      subject: `New survey: ${inquiry}`,
+      html,
     });
-    if (!res.ok) {
-      const detail = await res.text();
-      console.error('Resend error', res.status, detail);
-      return json({ error: 'Failed to send email' }, 502);
-    }
   } catch (err) {
-    console.error('Resend request failed', err);
-    return json({ error: 'Failed to send email' }, 502);
+    console.error('SMTP send failed', err);
+    res.status(502).json({ error: 'Failed to send email' });
+    return;
   }
 
-  return json({ ok: true }, 200);
+  res.status(200).json({ ok: true });
 }

@@ -289,16 +289,20 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
     setIsSubmitting(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append('Inquiry Type', branch === 'work' ? 'Work with Officience' : `Category inquiry: ${category || ''}`);
+    const payload: Record<string, string> = {};
+    payload['Inquiry Type'] = branch === 'work' ? 'Work with Officience' : `Category inquiry: ${category || ''}`;
     Object.entries(answers).forEach(([key, value]) => {
-      if (Array.isArray(value)) formData.append(key, value.join(', '));
-      else if (value != null && String(value).trim() !== '') formData.append(key, String(value));
+      if (Array.isArray(value)) payload[key] = value.join(', ');
+      else if (value != null && String(value).trim() !== '') payload[key] = String(value);
     });
-    formData.append('company_website', honeypot); // honeypot — empty for real users
+    payload['company_website'] = honeypot; // honeypot — empty for real users
 
     try {
-      const res = await fetch('/api/survey', { method: 'POST', body: formData });
+      const res = await fetch('/api/survey', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       setIsCompleted(true);
       onComplete(answers as Record<string, string>);
