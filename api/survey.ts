@@ -1,23 +1,87 @@
-// Vercel Edge Function: receives a survey submission (text fields + optional PDF CV),
-// and emails it to the Officience team via Resend, with the CV attached.
+// Vercel Edge Function: receives a survey submission (text fields only) and emails it
+// to the Officience team via Resend. Candidates share a CV/portfolio as links (LinkedIn,
+// GitHub, etc.) in the "portfolio" field — no file uploads are accepted.
+//
+// Abuse hardening (all server-side, zero external dependency):
+//   - Origin allowlist  — rejects POSTs that don't come from the site.
+//   - Honeypot          — a hidden form field; if filled, we fake success and drop it.
+//   - Rate limit        — best-effort per-IP throttle (in-memory, per-instance).
 //
 // Required env var (set in Vercel → Project → Settings → Environment Variables):
 //   RESEND_API_KEY   — your Resend API key
 // Optional overrides:
 //   SURVEY_TO   — primary recipient(s), comma-separated (default below)
 //   SURVEY_CC   — CC recipients, comma-separated (default below)
-//   RESEND_FROM — verified sender, e.g. "Officience Website <website@officience.com>"
+//   RESEND_FROM — verified sender, e.g. "Officience Website <website@notify.officience.com>"
 //                 (falls back to Resend's test sender, which only delivers to the
 //                  Resend account owner until you verify a domain)
+//
+// Going live (one-time, done out-of-band — makes mail actually reach the team's inbox):
+//   DNS for officience.com is managed at OVH (nameservers ns/dns200.anycast.me) — NOT
+//   Cloudflare (R2/images) and NOT Vercel (website hosting). The records below go in OVH.
+//   The "notify." subdomain isolates this from the existing Google Workspace email on the
+//   root domain, so that mail setup stays untouched.
+//   1. Resend → Domains → add "notify.officience.com". Resend lists the exact DNS rows
+//      (Type / Name / Value) for SPF, DKIM, and DMARC — don't invent them, copy them.
+//   2. OVH → DNS Zone for officience.com → add each row Resend gave you, e.g.:
+//        TXT  send.notify              (SPF)
+//        TXT/CNAME  resend._domainkey.notify  (DKIM)
+//        MX   send.notify              (bounce handling — value from Resend)
+//        TXT  _dmarc.notify            (DMARC)
+//      Use the precise Name/Value Resend shows; the names above are illustrative.
+//   3. Back in Resend, click Verify and wait for the domain to show "Verified".
+//   4. In Vercel, set RESEND_FROM to the notify.officience.com address (and confirm
+//      RESEND_API_KEY is set), then redeploy.
 
 export const config = { runtime: 'edge' };
+
+// Honeypot field name — must match the hidden input rendered in components/Survey.tsx.
+const HONEYPOT_FIELD = 'company_website';
+
+// Allowed request origins. Foreign origins are rejected before any work is done.
+const ALLOWED_ORIGINS = [
+  'https://officience.com',
+  'https://www.officience.com',
+];
+// Vercel preview/deploy origins (e.g. *.vercel.app) are also allowed.
+const isAllowedOrigin = (origin: string | null): boolean => {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  try {
+    return new URL(origin).hostname.endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
+};
+
+// Best-effort in-memory rate limit. Per-instance and ephemeral on Edge (instances are
+// distributed and recycled), so it won't stop a determined attacker hitting many regions —
+// it pairs with the honeypot + origin check to blunt typical floods. Swap in a durable store
+// (e.g. Upstash) here if abuse shows up.
+const RATE_LIMIT_MAX = 5; // requests…
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // …per 10 minutes, per IP
+const hits = new Map<string, { count: number; resetAt: number }>();
+
+const clientIp = (req: Request): string => {
+  const fwd = req.headers.get('x-forwarded-for');
+  if (fwd) return fwd.split(',')[0].trim();
+  return req.headers.get('x-real-ip')?.trim() || 'unknown';
+};
+
+const rateLimited = (ip: string, now: number): boolean => {
+  const entry = hits.get(ip);
+  if (!entry || now > entry.resetAt) {
+    hits.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > RATE_LIMIT_MAX;
+};
 
 const DEFAULT_TO = 'duykhang.le@officience.com';
 const DEFAULT_CC =
   'huycanh.duong@officience.com,steven.duyminhnguyen@officience.com,tructien.ho@officience.com,thanhlong.le@officience.com,minhquyen.tranha@officience.com,quynhnhu.trannguyen@officience.com';
 const DEFAULT_FROM = 'Officience Website <onboarding@resend.dev>';
-
-const MAX_FILE_BYTES = 4 * 1024 * 1024; // keep within Vercel Edge request body limits
 
 // Human-readable labels for the email table, keyed by the form field name.
 const FIELD_LABELS: Record<string, string> = {
@@ -77,19 +141,13 @@ const json = (body: unknown, status: number) =>
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
 
-// Chunked base64 encode (avoids call-stack blowups on larger files; no Buffer in Edge).
-function toBase64(buf: ArrayBuffer): string {
-  const bytes = new Uint8Array(buf);
-  let binary = '';
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
-  }
-  return btoa(binary);
-}
-
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  // Origin allowlist — drop cross-site / direct-to-API bots before any work.
+  if (!isAllowedOrigin(req.headers.get('origin'))) {
+    return json({ error: 'Forbidden' }, 403);
+  }
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -104,18 +162,23 @@ export default async function handler(req: Request): Promise<Response> {
     return json({ error: 'Invalid form data' }, 400);
   }
 
-  const fields = new Map<string, string>();
-  let file: File | null = null;
-  for (const [key, value] of form.entries()) {
-    if (value instanceof File) {
-      if (key === 'cv' && value.size > 0) file = value;
-    } else if (String(value).trim() !== '') {
-      fields.set(key, String(value));
-    }
+  // Honeypot: bots fill this hidden field; humans never see it. If present, fake success
+  // (200) and silently drop the submission so bots get no signal.
+  if (String(form.get(HONEYPOT_FIELD) || '').trim() !== '') {
+    return json({ ok: true }, 200);
   }
 
-  if (file && file.size > MAX_FILE_BYTES) {
-    return json({ error: 'CV file is too large (max 4 MB).' }, 413);
+  // Best-effort per-IP rate limit (see note above).
+  if (rateLimited(clientIp(req), Date.now())) {
+    return json({ error: 'Too many submissions. Please try again later.' }, 429);
+  }
+
+  const fields = new Map<string, string>();
+  for (const [key, value] of form.entries()) {
+    if (key === HONEYPOT_FIELD) continue; // never email the honeypot
+    if (!(value instanceof File) && String(value).trim() !== '') {
+      fields.set(key, String(value));
+    }
   }
 
   const inquiry = fields.get('Inquiry Type') || 'Website Survey';
@@ -142,9 +205,6 @@ export default async function handler(req: Request): Promise<Response> {
     <h2 style="color:#1f49bf;margin:0 0 16px;">New survey submission</h2>
     <p style="margin:0 0 16px;color:#5a5a5a;">${escapeHtml(inquiry)}</p>
     <table style="border-collapse:collapse;font-size:14px;">${rows}</table>
-    <p style="margin:16px 0 0;color:#5a5a5a;">${
-      file ? 'CV is attached to this email.' : 'No CV was attached.'
-    }</p>
   </div>`;
 
   const to = (process.env.SURVEY_TO || DEFAULT_TO).split(',').map((s) => s.trim()).filter(Boolean);
@@ -159,11 +219,6 @@ export default async function handler(req: Request): Promise<Response> {
     html,
   };
   if (candidateEmail) payload.reply_to = candidateEmail;
-  if (file) {
-    payload.attachments = [
-      { filename: file.name || 'cv.pdf', content: toBase64(await file.arrayBuffer()) },
-    ];
-  }
 
   try {
     const res = await fetch('https://api.resend.com/emails', {

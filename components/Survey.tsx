@@ -236,6 +236,8 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
   const [isCompleted, setIsCompleted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Honeypot: a hidden field humans never fill. The server drops any submission that has it set.
+  const [honeypot, setHoneypot] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -245,6 +247,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
       setIsCompleted(false);
       setIsSubmitting(false);
       setError(null);
+      setHoneypot('');
     }
   }, [isOpen, initialBranch]);
 
@@ -292,6 +295,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
       if (Array.isArray(value)) formData.append(key, value.join(', '));
       else if (value != null && String(value).trim() !== '') formData.append(key, String(value));
     });
+    formData.append('company_website', honeypot); // honeypot — empty for real users
 
     try {
       const res = await fetch('/api/survey', { method: 'POST', body: formData });
@@ -514,6 +518,18 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
         exit={{ opacity: 0, scale: 0.97, y: 16 }}
         className="relative bg-bg-secondary w-full max-w-[800px] rounded-fig-m shadow-fig-xs overflow-hidden flex flex-col max-h-[90vh]"
       >
+        {/* Honeypot: hidden from humans; bots that fill it get silently dropped server-side. */}
+        <input
+          type="text"
+          name="company_website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+          style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
+        />
+
         {/* Header: progress + close */}
         <div className="flex items-start gap-[16px] px-[16px] sm:px-[32px] pt-[24px] sm:pt-[32px]">
           <ProgressBar labels={PROGRESS_LABELS[branch]} current={progressCurrent} />
