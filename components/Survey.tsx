@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, Check, UploadCloud, AlertCircle } from 'lucide-react';
+import { X, ArrowRight, Check, AlertCircle } from 'lucide-react';
 import type { SurveyBranch } from './Contact';
 
 interface SurveyProps {
@@ -233,7 +233,6 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
   const [branch, setBranch] = useState<SurveyBranch>(initialBranch);
   const [step, setStep] = useState(0); // 0 = first input step, 1 = second input step
   const [answers, setAnswers] = useState<Record<string, any>>({});
-  const [file, setFile] = useState<File | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -243,7 +242,6 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
       setBranch(initialBranch);
       setStep(0);
       setAnswers({});
-      setFile(null);
       setIsCompleted(false);
       setIsSubmitting(false);
       setError(null);
@@ -253,17 +251,6 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
   if (!isOpen) return null;
 
   const set = (k: string, v: any) => setAnswers((prev) => ({ ...prev, [k]: v }));
-
-  const MAX_CV_BYTES = 4 * 1024 * 1024;
-  const handleFile = (f?: File) => {
-    if (!f) return;
-    if (f.size > MAX_CV_BYTES) {
-      setError('Your CV is too large (max 4 MB). Please upload a smaller PDF.');
-      return;
-    }
-    setError(null);
-    setFile(f);
-  };
 
   const category = answers['category'] as string | undefined;
   const isTalent = category === 'Internship' || category === 'Full-time career';
@@ -284,7 +271,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
     if (step === 0) return filled('category');
     // step 1 detail
     if (isTalent)
-      return filled('name') && validEmail() && hasMulti('positions') && (Boolean(file) || filled('portfolio'));
+      return filled('name') && validEmail() && hasMulti('positions') && filled('portfolio');
     if (isCoworking)
       return filled('name') && validEmail() && filled('location') && filled('duration') && filled('teamSize');
     if (isPartnership)
@@ -305,7 +292,6 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
       if (Array.isArray(value)) formData.append(key, value.join(', '));
       else if (value != null && String(value).trim() !== '') formData.append(key, String(value));
     });
-    if (file) formData.append('cv', file);
 
     try {
       const res = await fetch('/api/survey', { method: 'POST', body: formData });
@@ -443,29 +429,13 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
             </div>
             <div>
               <QLabel required>Portfolio, CV or LinkedIn</QLabel>
-              <div className="grid sm:grid-cols-2 gap-[16px]">
-                <label className="flex flex-col items-center justify-center text-center gap-[6px] rounded-fig-xs border border-dashed border-[#c6c6c6] px-[16px] py-[24px] cursor-pointer hover:border-primary transition-colors text-subtitle">
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    className="hidden"
-                    onChange={(e) => handleFile(e.target.files?.[0])}
-                  />
-                  <UploadCloud size={20} />
-                  <span className="font-body font-bold text-[14px] leading-[20px] text-text-default">
-                    {file ? file.name : 'Upload CV (PDF only)'}
-                  </span>
-                  <span className="font-body text-[12px] leading-[18px]">Drag & drop or click</span>
-                  <span className="font-body text-[12px] leading-[18px] text-subtitle/70">PDF, max 4 MB</span>
-                </label>
-                <TextArea
-                  placeholder="Paste your Linkedin, portfolio links, GitHub, or briefly introduce yourself here..."
-                  k="portfolio"
-                  rows={4}
-                  answers={answers}
-                  set={set}
-                />
-              </div>
+              <TextArea
+                placeholder="Paste your Linkedin, portfolio links, GitHub, or briefly introduce yourself here..."
+                k="portfolio"
+                rows={4}
+                answers={answers}
+                set={set}
+              />
             </div>
           </>
         )}

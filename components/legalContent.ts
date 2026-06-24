@@ -1,9 +1,8 @@
 // Legal copy for the footer "Terms & Conditions" modal.
 //
 // Two documents are exposed as tabs:
-//   - TERMS_SECTIONS   → General Terms & Conditions (B2B services contract,
-//                        transcribed verbatim from "Terms & Conditions 2025 (LTD).docx").
-//   - PRIVACY_SECTIONS → Privacy Policy (migrated unchanged from the previous modal).
+//   - TERMS_SECTIONS   → Terms of Use (transcribed from "Terms of Use (draft).docx").
+//   - PRIVACY_SECTIONS → Privacy Policy (transcribed from "Privacy Policy (draft).docx").
 //
 // Content is kept as plain data so the modal stays small and both docs share one
 // renderer (see TermsConditions.tsx). The renderer auto-linkifies email addresses
@@ -15,398 +14,207 @@ export type LegalBlock =
   | { kind: 'address'; lines: string[] }; // boxed postal address
 
 export interface LegalClause {
-  heading?: string; // sub-section heading, e.g. "4.1. OFFICIENCE’s General Commitments"
+  heading?: string; // sub-section heading, e.g. "1.1. Interpretation"
   blocks: LegalBlock[];
 }
 
 export interface LegalSection {
-  id: string; // section number ("1"…"23"); "" for intro / closing blocks
+  id: string; // section number prefix; "" renders just the title (or no heading at all)
   title: string; // section title; "" to render no heading at all
   clauses: LegalClause[]; // a first headingless clause acts as the section intro
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// General Terms & Conditions — Officience, 2025 (verbatim)
+// Terms of Use — Officience (verbatim from draft)
 // ─────────────────────────────────────────────────────────────────────────────
 export const TERMS_SECTIONS: LegalSection[] = [
   {
-    id: '1',
-    title: 'DEFINITIONS',
+    id: '',
+    title: 'Introduction',
     clauses: [
       {
         blocks: [
-          { kind: 'p', lead: 'Services:', text: `Shall mean all services specified in the Contract/Quotation appended to the present terms and conditions of sale, and more generally all services to be completed by OFFICIENCE in accordance with the present general terms and conditions of sale.` },
-          { kind: 'p', lead: 'Deadlines:', text: `Shall mean, in these general terms and conditions of sale, the deadline in working days.` },
-          { kind: 'p', lead: 'Information:', text: `Shall mean, in these general terms and conditions of sale, all information, documents or data of any kind (commercial, technical, financial or other), including, without limitation, any drawing, model, study, invention, trade secret, expertise, process, technology, computer program, algorithm, database, programming or software, in whole or part, in any form whatsoever and on any tangible medium whatsoever, including any written, printed or electronic document, as well as any samples or models, whether or not this information is protected or protectable by industrial property rights or copyright.` },
-          { kind: 'p', lead: 'Deliverables:', text: `Shall mean, individually or collectively, the products to be delivered by OFFICIENCE in accordance with the present general terms and conditions of sale, including, but not limited to software, documents, an IT product, research, settings etc.` },
-          { kind: 'p', lead: 'Party:', text: `Shall mean separately the CLIENT or OFFICIENCE.` },
-          { kind: 'p', lead: 'Parties:', text: `Shall mean jointly the CLIENT and OFFICIENCE.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '2',
-    title: 'CONTRACTUAL DOCUMENTS',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `The services ordered by the CLIENT and carried out by OFFICIENCE under the present Contract shall be regulated exclusively by:` },
-          { kind: 'ul', items: [
-            `OFFICIENCE’s Contract/Quotation`,
-            `The present General Terms (referred to below as ‘the General Terms’)`,
-          ] },
-          { kind: 'p', text: `In the event of conflict between the provisions of the General Terms and those of the Contract/Quotation, the terms of the Contract/Quotation shall prevail.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '3',
-    title: 'PURPOSE',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `These General Terms are intended to determine the technical and financial conditions under which OFFICIENCE agrees to provide the CLIENT with the services defined in the Contract/Quotation appended to these General Terms. Any changes to these General Terms may be made only by amendment and with the agreement of both parties.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '4',
-    title: 'OFFICIENCE’S OBLIGATIONS AND COMMITMENTS',
-    clauses: [
-      {
-        heading: '4.1. OFFICIENCE’s General Commitments',
-        blocks: [
-          { kind: 'p', text: `OFFICIENCE, a company specialising in back-office services, guarantees to be able to ensure the establishment and management of dedicated offshore support. OFFICIENCE shall perform the services in accordance with the professional standards of its sector regarding the techniques and methods to be used. OFFICIENCE commits to take all necessary care for the proper completion of the General Terms, in close collaboration with the CLIENT, and commits to implement the services requested by the CLIENT, under the conditions agreed upon by both parties. OFFICIENCE assumes responsibility for:` },
-          { kind: 'ul', items: [
-            `Implementing the methods used,`,
-            `Monitoring and supervising its own employees,`,
-            `The practical organisation of work.`,
-          ] },
-          { kind: 'p', text: `In order to provide these services, OFFICIENCE commits to respect the methodology described in the Contract/Quotation appended to the present General Terms.` },
-        ],
-      },
-      {
-        heading: '4.2. Disclosure',
-        blocks: [
-          { kind: 'p', text: `OFFICIENCE commits to inform the CLIENT if any difficulties are encountered which could lead to additional time required for completion. In this event, the parties will liaise to determine any corrective action and/or curative measures to be taken.` },
-        ],
-      },
-      {
-        heading: '4.3. Continuity of service',
-        blocks: [
-          { kind: 'p', text: `OFFICIENCE commits under these terms to provide the CLIENT with continuous service except in cases of force majeure, as defined in the ‘Force Majeure’ clause of the present General Terms.` },
-          { kind: 'p', text: `If, in the course of carrying out the Services, a difficulty should occur, both Parties shall commit to cooperate in order to define and implement an appropriate solution to resolve the difficulty at the earliest opportunity.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '5',
-    title: 'CLIENT OBLIGATIONS AND COMMITMENTS',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `The CLIENT warrants having the full authority and rights to enforce these General Terms.` },
-          { kind: 'p', text: `The CLIENT commits to collaborate with OFFICIENCE to enable OFFICIENCE to perform all of the services entrusted to them.` },
-          { kind: 'p', text: `The Services may be carried out either (a) exclusively on OFFICIENCE sites and with OFFICIENCE’s materials, or (b) principally on CLIENT sites with materials and software supplied wholly or in part by the CLIENT. In the case of (b) the CLIENT shall, for the needs of the present Contract, ensure that OFFICIENCE employees, representatives, agents and subcontractors have full access to its sites and provide them with work areas, data and any other material necessary for the successful completion of the present Contract. The CLIENT shall also put OFFICIENCE employees, representatives, agents and sub-contractors in contact with all necessary persons from the company and the CLIENT for completion of the services.` },
-          { kind: 'p', text: `The CLIENT shall authorise and facilitate access to the information required by OFFICIENCE for completion of the Services. The CLIENT may only refuse access to information if access is proven non-essential to completion of the Services. In any case, if OFFICIENCE thinks otherwise, the CLIENT shall be informed of the difficulties and OFFICIENCE will endeavour to minimise any consequences.` },
-          { kind: 'p', text: `The CLIENT commits to provide OFFICIENCE, in strictest confidence, with:` },
-          { kind: 'ul', items: [
-            `Information necessary for best possible understanding of the CLIENT’s services and markets,`,
-            `The financial, material, technical and human resources as well as any items necessary to complete the Services.`,
-          ] },
-          { kind: 'p', text: `The CLIENT is entirely responsible for any materials (texts, music, photographs etc.) provided to OFFICIENCE.` },
-          { kind: 'p', text: `The CLIENT must hold the rights to use these materials as part of the Services.` },
-          { kind: 'p', text: `The CLIENT agrees to respect the validation timelines set out in the Contract/Quotation appended to the present General Terms.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '6',
-    title: 'FINANCIAL CONDITIONS',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `The CLIENT commits to pay the service fee to OFFICIENCE fully and on time as prescribed in the Business Proposal.` },
-          { kind: 'p', text: `Pricing conditions and terms of payment are stipulated in the Contract/Quotation appended to these General Terms. A renegotiation of the pricing conditions will take place at the contract’s anniversary dates or in the event of a Contract renewal by both parties.` },
-          { kind: 'p', text: `The late payment penalty shall be calculated from the first day of delay in payment on the total amount of the invoice, tax included and multiplied by a late factor. The annual interest rate used for the calculation of late payment penalty is fixed at 8%.` },
-          { kind: 'p', text: `In the event of non-payment, OFFICIENCE shall be entitled to terminate the present contract if there is no response eight days after formal notice is served (by corporate email).` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '7',
-    title: 'DURATION AND SCHEDULE',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `The Contract/Quotation will enter into force upon signature by the CLIENT. The service performance duration, the stages and deadline schedule for the Services are stipulated in the Contract/Quotation appended to these General Terms.` },
-          { kind: 'p', text: `Taking into account the Services for which OFFICIENCE is liable, the timelines indicated in the Contract/Quotation appended to the present General Terms for completion of the Services shall remain in any case indicative timelines. OFFICIENCE shall endeavour to respect these but shall not be held responsible if these are not respected, except in cases of serious negligence that can be demonstrated by the CLIENT.` },
-          { kind: 'p', text: `In this regard, OFFICIENCE shall not be held liable for any delay originating from the late, incomplete or incorrect submission of information that should have been supplied by the CLIENT, or in the event of force majeure.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '8',
-    title: 'EXTRAORDINARY SERVICES',
-    clauses: [
-      {
-        heading: '8.1. Definition',
-        blocks: [
-          { kind: 'p', text: `Any service requested by the CLIENT that does not fit within the framework of the Services set forth in the Contract/Quotation, and appendices, be it a change of concept or additional functions that require significant improvements, shall be considered as an Extraordinary Service.` },
-          { kind: 'p', text: `All requests for an Extraordinary Service must be made in writing to OFFICIENCE and must detail the changes desired by the CLIENT. The request for extraordinary services will be subject to a quotation which will be carried out only with the agreement of both parties.` },
-          { kind: 'p', text: `The Parties will then meet to set a new schedule for completion of those Extraordinary Services.` },
-        ],
-      },
-      {
-        heading: '8.2. Pricing conditions for Extraordinary Services',
-        blocks: [
-          { kind: 'p', text: `All Extraordinary Service requests will be subject to a preliminary estimate of workload and costs. The completion of these Extraordinary Services will be agreed upon and billed in accordance with the terms set out in an amendment to the Quotation signed by the CLIENT, to the Contract and appendices signed by both parties.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '9',
-    title: 'INTELLECTUAL PROPERTY',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `All information provided by the CLIENT of any nature whatsoever and in any format whatsoever (including HTML pages, image files, audio, video, etc.) is and shall remain at all times the property of the CLIENT.` },
-          { kind: 'p', text: `OFFICIENCE shall transfer all economic rights to the Deliverables exclusively to the CLIENT, with all the associated legal and de facto warranties, including usage, publication, marketing, reproduction, representation and adaptation rights. This transfer of rights includes the entire legal term of protection of intellectual property rights applicable to each of the deliverables. The present transfer is also granted globally.` },
-          { kind: 'p', text: `The costs of the present transfer are fixed and definitively included in the cost of the Services in question.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '10',
-    title: 'GUARANTEE',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `The CLIENT guarantees that all materials provided to OFFICIENCE for the Services are not illegal and do not violate third party rights in any way.` },
-          { kind: 'p', text: `OFFICIENCE guarantees that the Services and Deliverables created for and provided to the CLIENT respect third party rights and are not illegal. In the event that OFFICIENCE calls on external parties to carry out all or part of the Services, it shall have obtained all necessary rights and authorisations allowing it to complete the present Contract.` },
-          { kind: 'p', text: `OFFICIENCE will not be held responsible for any damages encountered by the CLIENT following any modifications to the Services made by the CLIENT or any other person who is not an OFFICIENCE employee.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '11',
-    title: 'NON-SOLICITATION',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `The PARTIES, by express agreement, agree not to employ or to work in any way with a present or future employee of the other PARTY. This provision shall apply whatever the specialisation of the employee in question and even where the solicitation is at that employee’s own initiative.` },
-          { kind: 'p', text: `This provision shall apply for the entire duration of these General Terms and for one year following. In the event of a failure to comply with this non-solicitation clause, the concerned PARTY agrees to pay to the other PARTY a fixed indemnification equal to the gross annual salary that each employee concerned received before his/her departure.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '12',
-    title: 'CONFIDENTIALITY',
-    clauses: [
-      {
-        heading: '12.1. Definition',
-        blocks: [
-          { kind: 'p', text: `OFFICIENCE and the CLIENT agree to maintain the confidentiality of any information declared as such by the other Party, whatever its nature (financial, technical, commercial, etc.) to which they may have had access during the completion of these General Terms. Both Parties shall take all necessary measures regarding their staff to ensure the confidentiality of all the Information under their responsibility. The provisions of the present General Terms and appendices made between OFFICIENCE and the CLIENT, and any production, sales, support, and/or maintenance forecast shall be deemed to be confidential and as such shall not be published or disclosed to unauthorised third parties without the express consent of the Parties.` },
-        ],
-      },
-      {
-        heading: '12.2. Exclusions',
-        blocks: [
-          { kind: 'p', text: `Notwithstanding anything to the contrary, the provisions of this article shall not apply to any Information which:` },
-          { kind: 'ul', items: [
-            `Prior to its disclosure is legitimately known by the Party who receives it, or`,
-            `Is lawfully obtained from a third party without obligation of confidentiality by the party who receives it, or,`,
-            `Is made public by the party to whom it belongs without any restrictions, or,`,
-            `Is developed independently by one of the parties without any use and/or reference to the Confidential Information of the other party, or,`,
-            `Is disclosed by the party who has previously received it with the prior written consent of the party to which it belongs.`,
-          ] },
-        ],
-      },
-      {
-        heading: '12.3. Use',
-        blocks: [
-          { kind: 'p', text: `Each party will disclose Confidential Information only to employees who require such Confidential Information to perform the task assigned to them in order to complete the Services and purpose of the Contract/Quotation. Those employees shall be systematically informed of the confidential nature of such information. Without limiting the general principle stated above, the party receiving the Confidential Information shall take the same degree of caution (and at least a reasonable degree of caution) to prevent the unauthorised use, disclosure or publication of said Information, as it takes to protect its own Confidential Information of similar nature.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '13',
-    title: 'PARTIAL INVALIDITY',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `If one or several provisions in these General Terms are deemed to be invalid or are declared as such in accordance with legal or regulatory provisions or following a definitive decision by the competent court, all other provisions shall remain in full force and effect. However, if there is a substantial change that may affect the equilibrium of this Contract, the Parties shall agree new terms with equivalent effect by means of amendment as soon as possible.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '14',
-    title: 'FORCE MAJEURE',
-    clauses: [
-      {
-        heading: '14.1. Definition',
-        blocks: [
-          { kind: 'p', text: `The concept of force majeure shall be interpreted according to the law, particularly anything external, unforeseeable and insurmountable to the party asserting it. Explicitly considered as force majeure, besides those normally accepted by case law, are partial or total strikes, whether internal or external to the company, lockout, bad weather, epidemics, transport or supply difficulties, for whatever reason, earthquakes, fires, storms, floods, water damages, government or legal restrictions, legal or regulatory changes to forms of marketing, computer failure, interruption of telecommunications including the dial-up network, and any other cause beyond the reasonable control of the parties preventing the normal execution of the present contract.` },
-        ],
-      },
-      {
-        heading: '14.2. Application',
-        blocks: [
-          { kind: 'p', text: `Neither party shall be liable where there has been no negligence and/or fault on their part, in the event that the cause of a delay or failure to fulfil their obligations may be defined as a case of force majeure.` },
-        ],
-      },
-      {
-        heading: '14.3. Disclosure',
-        blocks: [
-          { kind: 'p', text: `In the event of force majeure, OFFICIENCE shall immediately inform the CLIENT, in writing where possible, of the event and measures taken to minimise if not avoid any consequences to the fulfilment of its obligations.` },
-        ],
-      },
-      {
-        heading: '14.4. Effects',
-        blocks: [
-          { kind: 'p', text: `If a force majeure event lasts for a period of longer than fourteen days, the CLIENT may request the termination of work in progress affected by this event without penalty or compensation. If the force majeure event lasts for a period longer than three months, the present Contract may be terminated by mutual agreement. In such a case, the CLIENT shall pay all sums due for those Services already completed.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '15',
-    title: 'LIABILITY',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `Any requirements not stated by the CLIENT shall be excluded from the scope of OFFICIENCE’s liability.` },
-          { kind: 'p', text: `In the event that any files, data, programs etc. or any other Information is assigned to OFFICIENCE by the CLIENT, it shall be the CLIENT’s responsibility to safeguard, where necessary, against the risks of loss or accident by keeping a copy of all materials submitted to OFFICIENCE. Moreover it is the CLIENT’s responsibility to ensure regular back-up of the digital work areas concerned. OFFICIENCE will accept no liability in the event of any damage to such materials.` },
-          { kind: 'p', text: `OFFICIENCE shall not be held liable for:` },
-          { kind: 'ul', items: [
-            `any material damage that may be caused to buildings, facilities, equipment, furniture, through its own actions or those of its representatives,`,
-            `any damage to the installation, operation or use of the software by the CLIENT,`,
-            `any consequences of a lack of collaboration and information on the part of the CLIENT.`,
-          ] },
-          { kind: 'p', text: `OFFICIENCE shall be held liable for all damages as result of proven negligence. In this case, any compensation, by mutual agreement between the Parties, shall not exceed that amount actually received by OFFICIENCE for the services multiplied by 4 times for which it accepts liability at the time of the relevant event and whatever the legal basis in question.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '16',
-    title: 'INDEPENDENCE',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `OFFICIENCE shall act in its own name and on its own behalf.` },
-          { kind: 'p', text: `None of the provisions in this Contract shall be construed as creating a sales contract, a subsidiary, an agency relationship or employee-employer relationship between the CLIENT and OFFICIENCE. Each Party shall act in all circumstances as an independent entity towards the other as well as towards any third party. Under no circumstances shall these General Terms be construed as an intention to create any incorporated or de facto company between the Parties.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '17',
-    title: '‘INTUITU PERSONAE’',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `As the Contract is drawn up ‘intuitu personae’, the Parties shall not assign or transfer all or part of the obligations conferred upon them by the present terms, without the express consent of the other Party.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '18',
-    title: 'INSURANCE',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `OFFICIENCE holds a public liability insurance policy for which it will supply the details at the express request of the CLIENT.` },
-          { kind: 'p', text: `OFFICIENCE shall only be held responsible for its employees for work carried out by the latter under the completion of the present General Terms and solely in the event that any negligence can be held against OFFICIENCE or its staff.` },
-          { kind: 'p', text: `For the duration of the Services, the CLIENT shall safeguard all its equipment and facilities including that which is made available to OFFICIENCE employees in order to complete the work set out in the Contract. It is the CLIENT’s responsibility to insure themselves against any risk and direct or indirect damages that could affect such equipment and facilities. Therefore, OFFICIENCE shall be released from all responsibility for any damage that the provider’s employees may unintentionally cause during completion of the work, unless there is a proven case of gross negligence on their part.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '19',
-    title: 'ENTIRE AGREEMENT',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `These General Terms concluded between OFFICIENCE and the CLIENT, as well as their appendices, express the full obligations of both parties. No other reference or document (general terms etc.) shall give rise to obligations hereunder, unless they are the subject of an amendment signed by both Parties. This shall also include, but is not limited to: terms specified on invoices, commercial documents or any letters sent directly or indirectly by one party to another. No other technical, marketing or sales document of any kind or any correspondence prior to the signing of the Contract shall generate obligations under the aforementioned Contract. The two parties shall explicitly agree that all existing provisions in any previous contract pertaining to the same object as the present General Terms are invalidated and superseded by the provisions of these General Terms.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '20',
-    title: 'GENERAL PROVISIONS',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `No exercise or enforcement by either Party of any right or remedy under these Terms and Conditions will preclude the enforcement by such Party of any other right or remedy under these Terms and Conditions.` },
-          { kind: 'p', text: `OFFICIENCE will be free to sub-contract all or some of the obligations under the Contract. OFFICIENCE hereby represents and warrants that it has sufficient expertise in new communication technologies to design and implement these services for the CLIENT under optimal conditions.` },
-          { kind: 'p', text: `All notifications, communications and formal notices provided for under the General Terms shall be deemed to be validly delivered to OFFICIENCE if sent by registered letter with an acknowledgement of receipt to the following address:` },
-          { kind: 'address', lines: [`16A Le Hong Phong, Ward 12, District 10, Ho Chi Minh City, Vietnam`] },
-          { kind: 'p', text: `Such notification shall take effect on the day on which the registered letter is first received.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '21',
-    title: 'TRANSFER OF RISK AND OWNERSHIP',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `The transfer of risk of the Deliverables shall take place from OFFICIENCE to the CLIENT at the time of the physical transfer of the Deliverables to the CLIENT.` },
-          { kind: 'p', text: `The transfer of ownership of the Deliverables shall take place when the Deliverables in question have been paid for.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '22',
-    title: 'TERMINATION OF THE CONTRACT',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `Failure by either party to meet any of the obligations in the present agreement not remedied within 30 days following the registered letter with acknowledgement of receipt notifying the claimed defects, shall entitle the other party to terminate the contract without prejudice to any claims for damages and compensation. If the termination is due to failure by OFFICIENCE, the latter shall return to the CLIENT all documents in its possession regarding work carried out under these General Terms.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '23',
-    title: 'DISPUTE RESOLUTION',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `Any issue of general contract law shall be interpreted solely in accordance with the laws of Vietnam, without reference to any conflict of laws principles.` },
-          { kind: 'p', text: `Prior to any legal action, the parties undertake to negotiate an amicable agreement in a spirit of loyalty and good faith in the event of any dispute relating to this Contract, including regarding its validity. The Party seeking to begin the negotiation process shall inform the other party by registered letter with acknowledgment of receipt setting out the details of the dispute.` },
-          { kind: 'p', text: `If, after a period of two months, the parties cannot reach an agreement, the dispute shall be submitted to the competent court referred to below.` },
-          { kind: 'p', text: `Exclusive jurisdiction is assigned to the competent court in Ho Chi Minh City for their validity, interpretation, implementation or termination, whether or not there are multiple respondents, or recourse under warranty, request or appeals procedures.` },
+          { kind: 'p', text: `Welcome to Officience. These Terms of Use ("Terms") govern your access to and use of our website and services, which include the content, features, and tools available on or through https://www.officience.com (the "Website"). By using or interacting with the Website, you acknowledge that you have read, understood, and agreed to be bound by these Terms, as well as our Privacy Policy. If you do not agree to these Terms, we kindly ask that you refrain from using the Website.` },
+          { kind: 'p', text: `Please be aware that we may update or modify these Terms from time to time. Any changes will be effective immediately upon posting on this page. It is important for you to review these Terms periodically to stay informed of any updates. Your continued use of the Website after any modifications signifies your acceptance of the revised Terms.` },
         ],
       },
     ],
   },
   {
     id: '',
-    title: '',
+    title: 'Definitions',
     clauses: [
       {
         blocks: [
-          { kind: 'p', text: `General Terms and Conditions – Officience, 2025.` },
+          { kind: 'p', lead: 'Company:', text: `Refers to Officience (referred to as "We", "Us", or "Our").` },
+          { kind: 'p', lead: 'User:', text: `Refers to anyone who accesses, browses, or interacts with the Website (referred to as "You" or "Your").` },
+          { kind: 'p', lead: 'Service(s):', text: `Refers to the products, content, interactive multi-step forms, and tools provided by Officience through the Website.` },
+          { kind: 'p', lead: 'User Submissions:', text: `Refers to any and all information, text, graphics, resumes/CVs, portfolio links, company details, and other materials submitted, uploaded, or provided by the User through the Website's interactive forms (including but not limited to Business Requirements, Career Applications, Co-working Requests, and Partnership Inquiries).` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Use of the Service',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `By accessing and using the Website, you agree to use it in accordance with these Terms and for lawful, legitimate purposes only. You are fully responsible for all activities and data transmitted through your interaction with the Website.` },
+        ],
+      },
+      {
+        heading: 'Prohibited Conduct',
+        blocks: [
+          { kind: 'p', text: `You may not use the Website or its Services to:` },
+          { kind: 'ul', items: [
+            `Engage in illegal activities, violate any local or international laws, or promote fraudulent schemes.`,
+            `Harass, harm, defame, or defraud other users, organizations, or the Company.`,
+            `Distribute, upload, or transmit harmful code, viruses, malware, or Trojan horses through any submission forms or file upload fields.`,
+            `Misuse, tamper with, or attempt to gain unauthorized access to the Website's infrastructure, restricted features, content, or operational tools.`,
+          ] },
+        ],
+      },
+      {
+        heading: 'Form Submissions and Data Accuracy',
+        blocks: [
+          { kind: 'p', text: `Whenever you interact with our multi-step inquiry forms, you expressly agree to the following provisions:` },
+          { kind: 'p', lead: 'Accuracy and Truthfulness:', text: `You must provide true, accurate, current, and complete information. You are strictly prohibited from impersonating any person or entity, creating false identities, or misrepresenting your professional role, academic credentials, company affiliation, or authority to act on behalf of a business.` },
+          { kind: 'p', lead: 'Third-Party Rights:', text: `You warrant that you own or possess all necessary rights, licenses, and consents to upload and share any documents, portfolios, text, or links (such as LinkedIn and GitHub profiles). Your submissions must not violate or infringe upon the intellectual property, privacy, or publicity rights of any third party.` },
+          { kind: 'p', lead: 'Right to Screen and Reject:', text: `Officience reserves the right, at its sole discretion, to review, decline, or delete any User Submission that we deem false, incomplete, inappropriate, or in violation of these Terms, without prior notice.` },
+        ],
+      },
+      {
+        heading: 'No Contractual or Employment Relationship',
+        blocks: [
+          { kind: 'p', text: `The submission of any inquiry or application through our Website—including but not limited to submitting business requirements, applying for a career or internship position, requesting co-working space, or proposing a partnership model—does not create, imply, or constitute a binding business contract, formal partnership, joint venture, or employment agreement between You and Officience. All official business engagements or employment appointments are strictly subject to the execution of separate, mutually signed written legal contracts (e.g., Master Services Agreements, Employment Contracts, Non-Disclosure Agreements).` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Company Content and Media',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `Our Website may display photos, videos, corporate updates, social media posts, and other media materials (collectively, "Company Content") to showcase Officience's culture and updates.` },
+          { kind: 'p', lead: 'Intellectual Property:', text: `All Company Content displayed on this Website is the exclusive property of Officience or its licensors and is protected by copyright and other intellectual property laws. You may not download, copy, reproduce, or redistribute any photos, videos, or text for commercial purposes without our prior written consent.` },
+          { kind: 'p', lead: 'Third-Party Media:', text: `If we share or embed media posts, links, or content from third-party social media platforms, such content remains subject to the terms and privacy policies of those respective platforms.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Limited License',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `All content on this Website, including but not limited to text, images, videos, software, trademarks, patents, and other intellectual property, is the property of Officience or its licensors and is protected by intellectual property laws worldwide. By using this Website, you agree to comply with all applicable intellectual property laws.` },
+          { kind: 'p', text: `Officience grants you a limited, non-exclusive, non-transferable, and revocable license to access and use the Website for personal, non-commercial purposes only. You may not:` },
+          { kind: 'ul', items: [
+            `Modify, copy, reproduce, distribute, transmit, display, or sell any content from the Website without prior written consent from Officience.`,
+            `Use any part of the Website to create derivative works, websites, or services without prior written consent.`,
+            `Use the Website or any of its content to develop a competing website or service, whether directly or indirectly.`,
+          ] },
+          { kind: 'p', text: `In cases where software or other downloadable materials are made available on the Website, any use of such materials will be governed by the specific license terms, conditions, and notices provided with them.` },
+          { kind: 'p', text: `Violation of any part of this Limited License will result in the immediate termination of any rights granted to you without prior notice. Officience reserves the right to take legal action for any violations.` },
+          { kind: 'p', text: `Officience maintains the integrity and accuracy of the content provided on the Website. You are solely responsible for the use you make of the Website and its content, including ensuring that your activities comply with these Terms of Use. Officience is not responsible for any consequences arising from your use of the Website.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Violation Actions',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `Officience reserves the right to suspend or terminate your access to the Website if you violate these Terms. Such actions may include disabling your account, restricting your access, or pursuing legal remedies if necessary.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Limited Liability',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `By using the Officience website and services, you agree that your use is at your own risk. To the maximum extent permitted by law, Officience and its affiliates disclaim all liability for any direct, indirect, incidental, special, consequential, or exemplary damages, including, but not limited to, loss of profits, data, or other intangible losses resulting from:` },
+          { kind: 'ul', items: [
+            `Your use or inability to use the Website or its features.`,
+            `Technical malfunctions or errors in the content provided.`,
+            `Unauthorized access to, or alteration of, your data or communications.`,
+            `Any third-party actions or statements related to the Website.`,
+          ] },
+          { kind: 'p', text: `Officience is not responsible for any loss, damage, or harm, including damage to your devices or data loss, resulting from downloading or acquiring materials from the Website.` },
+          { kind: 'p', text: `You agree to indemnify Officience from any claims, losses, or expenses arising from your violation of these Terms or use of the Website.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Links to Other Websites',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `The Officience website may contain links to third-party websites that are not operated by us. These external websites have their own terms of use and privacy policies, which you should review before interacting with them. We do not control the content or operations of these third-party sites and, therefore, cannot be held responsible for their content, accuracy, or any issues that may arise from using these websites.` },
+          { kind: 'p', text: `These links are provided for your convenience and reference only. Officience does not endorse, approve, or take responsibility for the products, services, or content offered on these external sites. We do not guarantee the safety, security, or accuracy of any linked content, nor do we accept responsibility for any damage or loss resulting from your use of these third-party sites.` },
+          { kind: 'p', text: `By accessing these external links, you understand and agree that Officience is not liable for any direct or indirect consequences, including loss or damage, arising from your use of the content, products, or services provided on these external websites.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Disclaimer of Warranty',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `You understand and agree that your use of the Officience website is solely at your own risk. While we take reasonable steps to maintain and update the Website, it is provided "as is" and "as available" without any warranties, express or implied.` },
+          { kind: 'p', text: `To the fullest extent permitted by law, Officience disclaims all warranties, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not guarantee that the Website will be uninterrupted, error-free, secure, or free from harmful components.` },
+          { kind: 'p', text: `The content on this Website is provided for informational purposes only and should not be interpreted as professional or technical advice. Officience assumes no responsibility for keeping the Website's information up to date, accurate, or complete.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Changes to These Terms of Use',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `Officience may update these Terms from time to time. Any changes will be posted on this page, and the "Last Updated" date will be revised accordingly. You are encouraged to review these Terms periodically. Continued use of the Website after changes are made constitutes your acceptance of the new Terms.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Copyright Notice',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `© 2026 Officience. All rights reserved. Officience respects the intellectual property rights of others and expects users to do the same.` },
+          { kind: 'p', text: `This Website is provided by Officience as a service for informational purposes only and should not be considered legal, financial, or professional advice. If you require legal advice, please consult a qualified professional.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Contact Information',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `If you have any questions or concerns about these Terms, please contact us:` },
+          { kind: 'ul', items: [
+            `By email: engage@officience.com`,
+            `By visiting: https://www.officience.com`,
+          ] },
         ],
       },
     ],
@@ -414,262 +222,260 @@ export const TERMS_SECTIONS: LegalSection[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Privacy Policy (migrated unchanged from the previous Terms modal)
+// Privacy Policy — Officience (verbatim from draft)
 // ─────────────────────────────────────────────────────────────────────────────
 export const PRIVACY_SECTIONS: LegalSection[] = [
   {
     id: '',
-    title: 'General Information',
+    title: '',
     clauses: [
       {
         blocks: [
-          { kind: 'p', text: `Your privacy is of utmost importance to Officience Co., Ltd.` },
-          { kind: 'p', text: `This privacy policy (the "Policy") describes the Personal Data which Officience collects about you through your use of the Platforms. It also sets out how Officience uses, discloses and protects this data.` },
+          { kind: 'p', text: `Last updated: 1 June 2026` },
+          { kind: 'p', text: `This Privacy Policy describes Our policies and procedures on the collection, use, and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You.` },
+          { kind: 'p', text: `We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.` },
         ],
       },
     ],
   },
   {
     id: '',
-    title: 'Scope of this Policy',
+    title: 'Interpretation and Definitions',
     clauses: [
       {
+        heading: '1.1. Interpretation',
         blocks: [
-          { kind: 'p', text: `This Policy applies to all Personal Data processed online by Officience through all its websites, applications and domains, which include but are not limited to the following: www.officience.com` },
+          { kind: 'p', text: `The words in which the initial letter is capitalized have meanings defined under the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in the plural.` },
+        ],
+      },
+      {
+        heading: '1.2. Definitions',
+        blocks: [
+          { kind: 'p', text: `For the purposes of this Privacy Policy:` },
+          { kind: 'p', lead: 'Account', text: `means a unique account created for You to access our Service or parts of our Service.` },
+          { kind: 'p', lead: 'Company', text: `(referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to Officience, 16A Le Hong Phong Street, Ward 12, District 10, Ho Chi Minh City` },
+          { kind: 'p', lead: 'Cookies', text: `are small files that are placed on Your computer, mobile device, or any other device by a website, containing the details of Your browsing history on that website among its many uses.` },
+          { kind: 'p', lead: 'Country', text: `refers to Vietnam.` },
+          { kind: 'p', lead: 'Device', text: `means any device that can access the Service such as a computer, a cellphone, or a digital tablet.` },
+          { kind: 'p', lead: 'Personal Data', text: `is any information that relates to an identified or identifiable individual.` },
+          { kind: 'p', lead: 'Service', text: `refers to the Website.` },
+          { kind: 'p', lead: 'Service Provider', text: `means any natural or legal person who processes the data on behalf of the Company. It refers to third-party companies or individuals employed by the Company to facilitate the Service, to provide the Service on behalf of the Company, to perform services related to the Service, or to assist the Company in analyzing how the Service is used.` },
+          { kind: 'p', lead: 'Usage Data', text: `refers to data collected automatically, either generated by the use of the Service or from the Service infrastructure itself (for example, the duration of a page visit).` },
+          { kind: 'p', lead: 'Website', text: `refers to Officience, accessible from https://officience.com.` },
+          { kind: 'p', lead: 'You', text: `mean the individual accessing or using the Service, or the company, or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.` },
         ],
       },
     ],
   },
   {
-    id: '1',
-    title: 'Definitions',
+    id: '',
+    title: 'Collecting and Using Your Personal Data',
     clauses: [
       {
+        heading: 'Personal Data',
         blocks: [
-          { kind: 'p', text: `For the purposes of this Policy:` },
-          { kind: 'p', lead: 'Personal Data', text: `means any information relating to an identified or identifiable natural person, where an identifiable natural person is one who can be identified, directly or indirectly, in particular by reference to an identifier such as a name, an identification number, location data, an online identifier or to one or more factors specific to the physical, physiological, genetic, mental, economic, cultural or social identity of that natural person; and` },
-          { kind: 'p', lead: 'Process, processed and processing', text: `means any operation or set of operations which is performed on Personal Data or on sets of Personal Data, whether or not by automated means, such as collection, recording, organisation, structuring, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, restriction, erasure or destruction.` },
+          { kind: 'p', text: `While using Our Service, We may ask You to provide Us with certain personally identifiable information that can be used to contact or identify You, or to evaluate your specific requests submitted through our interactive multi-step forms. Personally identifiable information may include, but is not limited to:` },
+          { kind: 'p', lead: 'Identity & Contact Information:', text: `First name, last name, work or personal email address, and phone number.` },
+          { kind: 'p', lead: 'Professional & Employment Application Data:', text: `Professional experience, employment history, desired position (such as Design/UX, Front-end, Back-end, Data/AI, QA, BPO), portfolio URLs, LinkedIn profile URL, and any information contained in uploaded files (including CVs and resumes in PDF format).` },
+          { kind: 'p', lead: 'Academic Data:', text: `Name of University/School attended and expected or actual graduation year.` },
+          { kind: 'p', lead: 'Business & Organization Data:', text: `Company or organization name, organization type (including Independent, Agency, Startup, SME, Enterprise, Social Venture), and your specific job role or title.` },
+          { kind: 'p', lead: 'Project & Financial Request Data:', text: `Technology services of interest, business challenges or objectives you are trying to solve, estimated project timelines, and expected budget ranges.` },
+          { kind: 'p', lead: 'Workspace Preferences:', text: `Preferred co-working location (Ho Chi Minh City, Paris, or both), intended rental duration (Daily, Weekly, Monthly, or Long-term), and your team size.` },
+          { kind: 'p', lead: 'Partnership & Collaboration Data:', text: `Preferred partnership or delivery models (including Referral, Subcontracting, and Co-delivery).` },
         ],
       },
-    ],
-  },
-  {
-    id: '2',
-    title: 'Personal Data Collected by Officience',
-    clauses: [
       {
+        heading: 'Usage Data',
         blocks: [
-          { kind: 'p', text: `Officience will NOT collect Personal Data about an individual including any following mentioned categories, except contact email address which it reasonably considers necessary for the relevant purposes underlying such processing.` },
-          { kind: 'p', text: `Examples of your Personal Data which may NOT be collected by us:` },
+          { kind: 'p', text: `Usage Data is collected automatically when using the Service.` },
+          { kind: 'p', text: `Usage Data may include information such as Your Device's Internet Protocol address (e.g. IP address), browser type, browser version, the pages of our Service that You visit, the time and date of Your visit, the time spent on those pages, unique device identifiers and other diagnostic data.` },
+          { kind: 'p', text: `When You access the Service by or through a mobile device, We may collect certain information automatically, including, but not limited to, the type of mobile device You use, Your mobile device's unique ID, the IP address of Your mobile device, Your mobile operating system, the type of mobile Internet browser You use, unique device identifiers and other diagnostic data.` },
+          { kind: 'p', text: `We may also collect information that Your browser sends whenever You visit our Service or when You access the Service by or through a mobile device.` },
+        ],
+      },
+      {
+        heading: 'Tracking Technologies and Cookies',
+        blocks: [
+          { kind: 'p', text: `We use cookies and similar tracking technologies to track the activity on Our Service and store certain information. Tracking technologies used are beacons, tags, and scripts to collect and track information and to improve and analyze Our Service. The technologies We use may include:` },
+          { kind: 'p', lead: 'Cookies or Browser Cookies.', text: `A cookie is a small file placed on Your Device. You can instruct Your browser to refuse all Cookies or to indicate when a cookie is being sent. However, if You do not accept Cookies, You may not be able to use some parts of our Service. Unless you have adjusted Your browser setting so that it will refuse cookies, our Service may use Cookies.` },
+          { kind: 'p', lead: 'Flash Cookies.', text: `Certain features of our Service may use local stored objects (or Flash cookies) to collect and store information about Your preferences or Your activity on our Service. Flash Cookies are not managed by the same browser settings as those used for Browser Cookies. For more information on how You can delete Flash Cookies, please read "Where can I change the settings for disabling, or deleting local shared objects?" available at https://helpx.adobe.com/flash-player/kb/disable-local-shared-objects-flash.html` },
+          { kind: 'p', lead: 'Web Beacons.', text: `Certain sections of our Service and our emails may contain small electronic files known as web beacons (also referred to as clear gifs, pixel tags, and single-pixel gifs) that permit the Company, for example, to count users who have visited those pages or opened an email and for other related website statistics (for example, recording the popularity of a certain section and verifying system and server integrity).` },
+          { kind: 'p', text: `Cookies can be "Persistent" or "Session" Cookies. Persistent Cookies remain on Your personal computer or mobile device when You go offline, while Session Cookies are deleted as soon as You close Your web browser.` },
+          { kind: 'p', text: `We use both Session and Persistent Cookies for the purposes set out below:` },
+          { kind: 'p', lead: 'Necessary / Essential Cookies', text: `` },
           { kind: 'ul', items: [
-            `Your name, telephone number, mailing address, transaction details and any other information which you have provided to us in any forms you may have submitted to us or in other forms of interaction with you; and`,
-            `Information about your usage of and interaction with the Platforms, including traffic data, location data, the originating domain name of your internet service provider, statistics on page views, cookies and IP addresses.`,
+            `Type: Session Cookies`,
+            `Administered by: Us`,
+            `Purpose: These cookies are essential to provide You with services available through the Website and to enable You to use some of its features. They help to authenticate users and prevent fraudulent use of user accounts. Without these Cookies, the services that You have asked for cannot be provided, and We only use these Cookies to provide You with those services.`,
           ] },
+          { kind: 'p', lead: 'Cookies Policy / Notice Acceptance Cookies', text: `` },
+          { kind: 'ul', items: [
+            `Type: Persistent Cookies`,
+            `Administered by: Us`,
+            `Purpose: These Cookies identify if users have accepted the use of cookies on the Website.`,
+          ] },
+          { kind: 'p', lead: 'Functionality Cookies', text: `` },
+          { kind: 'ul', items: [
+            `Type: Persistent Cookies`,
+            `Administered by: Us`,
+            `Purpose: These cookies allow us to remember choices You make when You use the Website, such as remembering your login details or language preference. The purpose of these cookies is to provide You with a more personal experience and to avoid You having to re-enter your preferences every time You use the Website.`,
+          ] },
+          { kind: 'p', text: `For more information about the cookies we use and your choices regarding cookies, please visit our Cookies Policy or the Cookies section of our Privacy Policy.` },
         ],
       },
     ],
   },
   {
-    id: '3',
-    title: 'How We Collect Your Personal Data',
+    id: '',
+    title: 'Use of Your Personal Data',
     clauses: [
       {
         blocks: [
-          { kind: 'p', text: `We use different methods to collect data about you, including the following:` },
-          { kind: 'p', lead: 'Direct interactions.', text: `You may give us your Personal Data by filling in forms or by corresponding with us by post, phone, email, chatbot or otherwise. We may also directly collect Personal Data in other ways, including when:` },
-          { kind: 'ul', items: [
-            `You apply for our products or services;`,
-            `You create an account on our Platforms;`,
-            `You subscribe to our service or publications;`,
-            `You request marketing to be sent to you;`,
-            `You enter a competition, promotion or survey;`,
-            `You give us feedback;`,
-            `You log on to Wi-Fi at our premises;`,
-            `You use mobile or web applications developed by us;`,
-            `You submit your resume or an application, or participate in interviews or testing, for employment or contracting opportunities with Officience.`,
-          ] },
-          { kind: 'p', lead: 'Automated technologies or interactions.', text: `As you interact with our Platforms, we may automatically collect technical data about your equipment, browsing actions and patterns. We collect this data by using cookies, server logs and other similar technologies.` },
-          { kind: 'p', lead: 'Third parties or publicly available sources.', text: `We may receive Personal Data about you from various third parties and public sources, including financial and transaction data from providers of technical, payment and delivery services.` },
+          { kind: 'p', text: `The Company may use Personal Data for the following purposes:` },
+          { kind: 'p', lead: 'To provide, maintain, and monitor our Service:', text: `Including evaluating and tracking the usage and technical performance of our Website.` },
+          { kind: 'p', lead: 'To manage Your Account:', text: `To manage Your registration as a user of the Service and grant access to specific functionalities reserved for registered users.` },
+          { kind: 'p', lead: 'To evaluate and fulfill Business Requests:', text: `To process your project requirements, analyze your business challenges, estimate project scopes, and provide tailored technological consulting, quotes, and service proposals.` },
+          { kind: 'p', lead: 'To process Employment & Internship Applications:', text: `To review your qualifications, evaluate submitted CVs, resumes, and portfolios, verify academic and professional credentials, and manage communication throughout the recruitment process.` },
+          { kind: 'p', lead: 'To manage Co-working Space Inquiries:', text: `To assess availability, manage desk or office reservations, coordinate logistics based on your team size and preferred location, and facilitate onboarding to our physical workspaces.` },
+          { kind: 'p', lead: 'To establish Partnerships & Collaborations:', text: `To evaluate organizational profiles for potential strategic alliances, subcontractor arrangements, or referral networks.` },
+          { kind: 'p', lead: 'To contact You:', text: `To communicate with You by email, telephone calls, SMS, or other equivalent forms of electronic communication regarding updates, informative announcements, or security alerts related to our services and contract implementation.` },
+          { kind: 'p', lead: 'To provide marketing and promotional updates:', text: `To send you news, special offers, and general information about other services, events, or resources we offer that are similar to those you have already inquired about, unless You have opted out of receiving such communications.` },
+          { kind: 'p', lead: 'To manage and attend to Your requests:', text: `To process, answer, and manage any general inquiries or messages You send to Us.` },
+          { kind: 'p', lead: 'For business transfers:', text: `To evaluate or conduct a merger, divestiture, restructuring, reorganization, dissolution, or other sale or transfer of some or all of Our assets, where Personal Data held by Us is among the transferred assets.` },
+          { kind: 'p', lead: 'For data analysis and improvement:', text: `To identify usage trends, determine the effectiveness of our promotional campaigns, and evaluate and enhance our Website, services, marketing strategies, and your overall user experience.` },
         ],
       },
     ],
   },
   {
-    id: '4',
-    title: 'How We Use Your Personal Data',
+    id: '',
+    title: 'Retention of Your Personal Data',
     clauses: [
       {
         blocks: [
-          { kind: 'p', text: `Your Personal Data is generally processed by us as necessary for purposes directly related to our functions and activities. This includes any one or more of the following purposes:` },
-          { kind: 'ul', items: [
-            `To provide you with services and to help us develop, improve, manage and administer the services we provide to you, including services provided on and through our Platforms and Wi-Fi services;`,
-            `To help us verify your identity for the purposes of processing and administering any membership application or registration;`,
-            `To send you notifications and marketing messages in relation to our promotional events, offers, opportunities, products, benefits and programmes;`,
-            `To conduct marketing activities including market research, customer profiling, customer insights and targeted marketing activities;`,
-            `To carry out profiling and statistical analysis to improve the services provided to you;`,
-            `To inform you of changes to our programmes, policies, terms and conditions, Platform updates and other administrative information;`,
-            `To conduct surveys, questionnaires and requests for feedback;`,
-            `To respond to your queries, requests, feedback and complaints;`,
-            `For promotional and publicity purposes, including to record or take photographs of participants at events or functions organised, hosted or participated in by Officience;`,
-            `To meet the requirements of any applicable laws/regulations, enforceable governmental request or court order;`,
-            `To detect, prevent or otherwise address security or technical issues in connection with services provided through the Platforms; and/or`,
-            `To fulfil such other purpose as may be specified in a data protection and privacy notice given to you at the time your Personal Data is collected.`,
-          ] },
+          { kind: 'p', text: `The Company will retain Your Personal Data only for as long as is necessary for the purposes set out in this Privacy Policy. We will retain and use Your Personal Data to the extent necessary to comply with our legal obligations (for example, if we are required to retain your data to comply with applicable laws), resolve disputes, and enforce our legal agreements and policies.` },
+          { kind: 'p', text: `The Company will also retain Usage Data for internal analysis purposes. Usage Data is generally retained for a shorter period of time, except when this data is used to strengthen the security or to improve the functionality of Our Service, or We are legally obligated to retain this data for longer time periods.` },
         ],
       },
     ],
   },
   {
-    id: '5',
+    id: '',
+    title: 'Transfer of Your Personal Data',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `Your information, including Personal Data, is processed at the Company's operating offices and in any other places where the parties involved in the processing are located. It means that this information may be transferred to — and maintained on — computers located outside of Your state, province, country, or other governmental jurisdiction where the data protection laws may differ from those of Your jurisdiction.` },
+          { kind: 'p', text: `Your consent to this Privacy Policy followed by Your submission of such information represents Your agreement to that transfer.` },
+          { kind: 'p', text: `The Company will take all steps reasonably necessary to ensure that Your data is treated securely and in accordance with this Privacy Policy and no transfer of Your Personal Data will take place to an organization or a country unless there are adequate controls in place including the security of Your data and other personal information.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
     title: 'Disclosure of Your Personal Data',
     clauses: [
       {
+        heading: '3.1. Business Transactions',
         blocks: [
-          { kind: 'p', text: `In carrying out one or more of the purposes set out above, we may need to disclose your Personal Data to one or more of the following third parties:` },
+          { kind: 'p', text: `If the Company is involved in a merger, acquisition, or asset sale, Your Personal Data may be transferred. We will provide notice before Your Personal Data is transferred and becomes subject to a different Privacy Policy.` },
+        ],
+      },
+      {
+        heading: '3.2. Law enforcement',
+        blocks: [
+          { kind: 'p', text: `As a technology outsourcing company, Officience processes your Personal Data based on distinct, transparent legal grounds depending on the nature of your interaction through our survey forms. Our primary objective in gathering this data is to better understand your specific business demands, technical challenges, and operational needs to deliver highly customized solutions.` },
+          { kind: 'p', text: `We rely on the following legal bases under applicable data protection laws (including the EU GDPR and Vietnam's Decree No. 13/2023/ND-CP):` },
+          { kind: 'p', lead: 'Consent:', text: `We process your data when you explicitly grant us permission by voluntarily filling out and submitting our multi-step inquiry forms. You have the right to withdraw this consent at any time.` },
+          { kind: 'p', lead: 'Performance of a Contract or Pre-contractual Measures:', text: `For Clients, Partners, and Co-working Inquirers, processing your information is necessary to take steps at your request prior to entering into a formal business contract, Master Services Agreement, or lease agreement.` },
+          { kind: 'p', lead: 'Legitimate Interests:', text: `We process your data when it is necessary for the legitimate business interests pursued by Officience, such as analyzing survey data to deeply understand market demands, improve our technological services, and tailor our B2B consultancies.` },
+          { kind: 'p', lead: 'Legitimate Recruitment and Pre-employment Purposes:', text: `For Job and Internship Candidates, processing your credentials and CVs is necessary to assess your suitability for open positions prior to establishing any potential employment relationship.` },
+          { kind: 'p', lead: 'Compliance with Legal Obligations:', text: `We may process your data when it is required to comply with statutory legal requirements or regulatory audits.` },
+        ],
+      },
+      {
+        heading: '3.3. Other legal requirements',
+        blocks: [
+          { kind: 'p', text: `The Company may disclose Your Personal Data in the good faith belief that such action is necessary to:` },
           { kind: 'ul', items: [
-            `Our engagement team and/or agents;`,
-            `Our authorised service providers such as marketing partners and web analysis companies, and their business partners;`,
-            `Our auditors and professional advisors;`,
-            `Our business partners;`,
-            `Law enforcement agencies;`,
-            `Any person to whom disclosure is permitted or required by any applicable laws/regulations, enforceable governmental request or court order; and/or`,
-            `Any companies comprised in our group.`,
+            `Comply with a legal obligation`,
+            `Protect and defend the rights or property of the Company`,
+            `Prevent or investigate possible wrongdoing in connection with the Service`,
+            `Protect the personal safety of users of the Service or the public`,
+            `Protect against legal liability`,
           ] },
-          { kind: 'p', text: `We impose strict obligations on the third parties mentioned above with which we share your Personal Data to maintain the integrity and security of that data.` },
-          { kind: 'p', text: `We only allow the said third parties to use your Personal Data for specified purposes and in accordance with our instructions.` },
+        ],
+      },
+      {
+        heading: '3.4. Security of Your Personal Data',
+        blocks: [
+          { kind: 'p', text: `The security of Your Personal Data is important to Us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect Your Personal Data, we cannot guarantee its absolute security.` },
+        ],
+      },
+      {
+        heading: "3.5. Children's Privacy",
+        blocks: [
+          { kind: 'p', text: `Our Service does not address anyone under the age of 13. We do not knowingly collect personally identifiable information from anyone under the age of 13. If You are a parent or guardian and You are aware that Your child has provided Us with Personal Data, please Contact Us. If We become aware that We have collected Personal Data from anyone under the age of 13 without verification of parental consent, We take steps to remove that information from Our servers.` },
+          { kind: 'p', text: `If We need to rely on consent as a legal basis for processing Your information and Your country requires consent from a parent, We may require Your parent's consent before We collect and use that information.` },
+        ],
+      },
+      {
+        heading: '3.6. Links to Other Websites',
+        blocks: [
+          { kind: 'p', text: `Our Service may contain links to other websites that are not operated by Us. If You click on a third-party link, You will be directed to that third party's site. We strongly advise You to review the Privacy Policy of every site You visit.` },
+          { kind: 'p', text: `We have no control over and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services.` },
+        ],
+      },
+      {
+        heading: '3.7. Changes to this Privacy Policy',
+        blocks: [
+          { kind: 'p', text: `We may update Our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.` },
+          { kind: 'p', text: `We will let You know via email and/or a prominent notice on Our Service, prior to the change becoming effective and update the "Last Updated" date at the top of this Privacy Policy.` },
+          { kind: 'p', text: `You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.` },
         ],
       },
     ],
   },
   {
-    id: '6',
-    title: 'Legal Basis for Processing Your Personal Data',
+    id: '',
+    title: 'International Data Transfers',
     clauses: [
       {
         blocks: [
-          { kind: 'p', text: `The legal basis for the processing of your Personal Data will generally fall under one or more of the following:` },
+          { kind: 'p', text: `Officience operates globally, with offices and operations in Vietnam and France. By submitting your information through our Website, you acknowledge and agree that your Personal Data may be transferred to, stored, and processed in countries outside of your residency. We ensure that all such cross-border transfers comply with applicable local regulations (including EU GDPR and Vietnam's Decree 13) by implementing strict contractual safeguards and security standards.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Your Privacy Rights',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `Regardless of your location, Officience respects your statutory privacy rights. You have the right to:` },
+          { kind: 'p', lead: 'Access and Portability:', text: `Request a copy of your Personal Data currently held by us.` },
+          { kind: 'p', lead: 'Correction:', text: `Request the correction of incomplete or inaccurate data.` },
+          { kind: 'p', lead: 'Erasure (Right to be Forgotten):', text: `Request the deletion of your Personal Data from our systems, subject to legal retention requirements.` },
+          { kind: 'p', lead: 'Withdraw Consent:', text: `Withdraw your consent to data processing (such as opting out of marketing emails) at any time.` },
+          { kind: 'p', lead: 'Restriction and Objection:', text: `Object to or restrict the processing of your data for specific purposes.` },
+          { kind: 'p', text: `To exercise any of these rights, please contact us at engage@officience.com.` },
+        ],
+      },
+    ],
+  },
+  {
+    id: '',
+    title: 'Contact Us',
+    clauses: [
+      {
+        blocks: [
+          { kind: 'p', text: `If you have any questions about this Privacy Policy, You can contact us:` },
           { kind: 'ul', items: [
-            `It is necessary for the performance of Officience's contractual relationship with you, which is regulated by the applicable terms and conditions governing the use of the Platforms and by the specific forms collecting your data;`,
-            `It is necessary for our legitimate interests;`,
-            `It is necessary to comply with our legal obligations;`,
-            `It is authorised under any applicable law or regulations; and/or`,
-            `You are deemed to have consented to such processing under any applicable law or regulations.`,
+            `By email: engage@officience.com`,
+            `By visiting this page on our website: https://www.officience.com`,
           ] },
-          { kind: 'p', text: `Please note that we may process your Personal Data for more than one lawful ground depending on the specific purpose(s) for which we are using your data. Please contact us if you need details about the specific legal ground(s) we are relying on to process your Personal Data.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '7',
-    title: 'Consent',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `Where the processing of your Personal Data does not fall under one of the bases set out above, we will obtain express written consent from you for such processing by methods or means which include making you sign a form or check a box.` },
-          { kind: 'p', text: `You can withdraw such express consent at any time by contacting our data protection officer at the contact details set out in Section 14 of this Policy.` },
-          { kind: 'p', text: `Depending on the extent to which you withdraw consent to the processing of your Personal Data by us, such withdrawal of consent may result in our inability to provide the relevant services to you and may be considered as a termination by you of any agreement between Officience and you. Officience's legal rights and remedies are expressly reserved in such an event.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '8',
-    title: 'Links to Third-Party Websites',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `We may provide links to third-party websites on the Platforms. Your use of such third-party websites will be subject to their privacy policies and is not covered by this Policy. We encourage you to read the privacy policies on the other websites you visit. As we cannot control or be responsible for the policies of other sites we may link to, or the use of any data you may share with them, you access these third-party websites at your own risk.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '9',
-    title: 'Keeping Your Personal Data Secure',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `We will use reasonable technical and procedural measures to safeguard your Personal Data, for example by:` },
-          { kind: 'ul', items: [
-            `Ensuring that access to any personal account you have with us is controlled by a password and username which are unique to you;`,
-            `Storing your Personal Data on secured servers; and`,
-            `Restricting access to Personal Data on a 'need to know' basis.`,
-          ] },
-          { kind: 'p', text: `Whilst we will use all reasonable efforts to safeguard your Personal Data, please note that the use of the internet and/or our Platforms cannot be made entirely secure and we therefore are unable to guarantee the security or integrity of any Personal Data which is transferred from you or to you via the Platforms.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '10',
-    title: 'Access to Personal Data',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `Whilst we will take reasonable steps to accurately record your Personal Data, we require that you provide accurate and complete Personal Data, and update such Personal Data with us from time to time.` },
-          { kind: 'p', text: `You may request access to, and correction of your Personal Data held by us by contacting us at the contact details set out in Section 14 of this Policy. All requests for access and/or correction will be processed within a reasonable time except where we refuse such requests in accordance with any applicable laws or regulations. In some situations, you may be able to access and correct your personal information directly through our Platforms.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '11',
-    title: 'Further Rights of Data Subjects in the European Union ("EU")',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `If you are a data subject in the EU, you may contact us to exercise the following further rights:` },
-          { kind: 'ul', items: [
-            `Request for the erasure of your Personal Data;`,
-            `Request for the restriction of processing of your Personal Data;`,
-            `Object to the processing of your Personal Data; and/or`,
-            `Request to transfer your personal Data to you or a third-party.`,
-          ] },
-          { kind: 'p', text: `You also have the right to lodge a complaint with the relevant EU supervisory authority if we have contravened any applicable laws or regulations.` },
-          { kind: 'p', text: `All requests made to us in exercising the rights above will be processed within a reasonable time except where we refuse such requests in accordance with any applicable laws or regulations.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '12',
-    title: 'Data Retention',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `We will cease to retain your Personal Data when the purposes for which we collected your Personal Data have ceased and/or when we are no longer required to continue retaining your Personal Data for any legal or business purposes.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '13',
-    title: 'Changes to This Policy',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `We may amend this Policy (including the Cookies Policy) from time to time. The updated versions will be posted on our Platforms and date stamped so that you are aware of when the Policy was last updated. If we make significant amendments to the Policy, we will notify you in advance and allow you the opportunity to review the revised Policy prior to such changes taking effect. We also recommend that you check the relevant websites or sections of the Platforms regularly for any updates.` },
-        ],
-      },
-    ],
-  },
-  {
-    id: '14',
-    title: 'How to Contact Us',
-    clauses: [
-      {
-        blocks: [
-          { kind: 'p', text: `We welcome your feedback, comments and any questions that you may have.` },
-          { kind: 'p', text: `If you wish to contact us, please write to us at the address below referencing 'Privacy Policy':` },
-          { kind: 'address', lines: [
-            `Data Protection Officer`,
-            `Officience Co., Ltd`,
-            `16A Le Hong Phong, Ward 15, District 10,`,
-            `Ho Chi Minh City, Viet Nam, 700000`,
-          ] },
-          { kind: 'p', text: `Or email data.protection@officience.com referencing 'Privacy Policy'.` },
-          { kind: 'p', text: `Alternatively, for specific queries, you can send us an email at: Contact@officience.com` },
         ],
       },
     ],
