@@ -78,16 +78,19 @@ const Capabilities: React.FC = () => {
               className="snap-center shrink-0 w-[82%] sm:w-auto sm:shrink bg-bg-default rounded-fig-xs shadow-fig-xs p-[24px] sm:p-[32px] flex flex-col justify-between gap-[32px] sm:h-full"
             >
               <div className="flex flex-col gap-[32px]">
-                {/* Icon — 70px (Data 64px) */}
-                <img
-                  src={service.imageUrl}
-                  alt={service.title}
-                  width={service.iconSize}
-                  height={service.iconSize}
-                  className="object-contain shrink-0"
-                  style={{ width: service.iconSize, height: service.iconSize }}
-                  loading="lazy"
-                />
+                {/* Icon — 70px (Data 64px). Reserve a uniform 70px band so every card's
+                    title starts at the same baseline regardless of the icon's own size. */}
+                <div className="flex items-start h-[70px] shrink-0">
+                  <img
+                    src={service.imageUrl}
+                    alt={service.title}
+                    width={service.iconSize}
+                    height={service.iconSize}
+                    className="object-contain"
+                    style={{ width: service.iconSize, height: service.iconSize }}
+                    loading="lazy"
+                  />
+                </div>
 
                 {/* Content */}
                 <div className="flex flex-col gap-[16px]">
