@@ -5,7 +5,7 @@ const R2 = 'https://pub-37210447316445838bf89f8613ac9ea5.r2.dev';
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '6';
+const ASSET_VERSION = '7';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 export const ASSETS = {
