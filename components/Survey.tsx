@@ -226,6 +226,13 @@ const TextArea: React.FC<{
   />
 );
 
+// Card wrapper for each step's content. MUST be module-scope: defining it inside
+// Survey makes it a new component type on every keystroke, which remounts the whole
+// panel (inputs included) and drops focus after a single character.
+const Panel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="bg-bg-default rounded-fig-xs p-[20px] md:p-[24px] flex flex-col gap-[20px]">{children}</div>
+);
+
 // ---------------------------------------------------------------------------
 // SURVEY
 // ---------------------------------------------------------------------------
@@ -340,10 +347,6 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
         }
       : { title: 'Inquiry Details', subtitle: 'Tell us about yourself. We read every application carefully.' };
   };
-
-  const Panel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <div className="bg-bg-default rounded-fig-xs p-[20px] md:p-[24px] flex flex-col gap-[20px]">{children}</div>
-  );
 
   const renderStep = () => {
     if (branch === 'work' && step === 0) {
