@@ -58,3 +58,6 @@ officience/
 - Remote: `github.com/ClaimhSolair/officience-landing.git`
 - Branch: `main` (auto-deploys to Vercel)
 - Domain: officience.com
+
+## Plan Mode Rule
+If a system reminder indicates Plan Mode is active (at any point in a session, including mid-session recurrences), treat it as a hard stop: do not edit files, run non-readonly commands, dispatch subagents that write/execute, or commit/push — regardless of prior approvals given earlier in the conversation. Surface the conflict to the user explicitly and wait for them to say the mode has changed to go-ahead before resuming any execution. Do not infer from past successful tool calls that the restriction no longer applies — ask instead of guessing.
