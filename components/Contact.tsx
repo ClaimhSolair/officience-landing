@@ -81,8 +81,8 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => {
           {/* Contact Content: header (left) + form (right) */}
           <div className="flex flex-col lg:flex-row gap-[clamp(32px,4vw,48px)] items-stretch">
 
-            {/* Header — bottom-aligned. Mobile sizes per Figma 2284:2172 (28/14); desktop unchanged. */}
-            <div className="flex-1 flex flex-col justify-end gap-[20px]">
+            {/* Header — top-aligned (Figma 2202:5139). Mobile sizes per Figma 2284:2172 (28/14); desktop unchanged. */}
+            <div className="flex-1 flex flex-col justify-start gap-[20px]">
               <h2 className="t-display-xl text-text-default max-md:!text-[28px] max-md:!leading-[36px]">Let’s Build Together</h2>
               <p className="t-subtitle text-subtitle max-w-[660px] max-md:!text-[14px] max-md:!leading-[22px]">
                 Ready to scale? Fill out our quick requirement survey to get started.
