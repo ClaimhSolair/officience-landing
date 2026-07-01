@@ -403,7 +403,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
             </div>
           </div>
           <div>
-            <QLabel>Anything else you'd like us to know?</QLabel>
+            <QLabel>4. Anything else you'd like us to know?</QLabel>
             <TextArea placeholder="Tell us about your project requirements..." k="notes" rows={3} answers={answers} set={set} />
           </div>
         </Panel>
