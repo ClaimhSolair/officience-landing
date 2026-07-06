@@ -14,8 +14,9 @@ tsconfig.tsbuildinfo
 .DS_Store
 .vscode/
 
-# Local tooling / agent state
-.claude/
+# Local tooling / agent state (but keep the shared Figma adapter in git)
+.claude/*
+!.claude/figma-adapter.md
 .superpowers/
 
 # Local asset backups (originals kept locally, not in repo)
