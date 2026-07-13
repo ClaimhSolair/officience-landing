@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
+import { track } from '@vercel/analytics';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Survey from './components/Survey';
@@ -26,6 +29,30 @@ function App() {
 
   const openTerms = () => setIsTermsOpen(true);
   const closeTerms = () => setIsTermsOpen(false);
+
+  useEffect(() => {
+    const sections = ['capabilities', 'clients', 'approach', 'why-us', 'contact'];
+    const tracked = new Set<string>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !tracked.has(entry.target.id)) {
+            tracked.add(entry.target.id);
+            track('section_view', { section: entry.target.id });
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleSurveyComplete = (data: Record<string, string>) => {
     setSurveyData(data);
@@ -76,10 +103,13 @@ function App() {
       />
 
       {/* Terms & Conditions Modal */}
-      <TermsConditions 
-        isOpen={isTermsOpen} 
-        onClose={closeTerms} 
+      <TermsConditions
+        isOpen={isTermsOpen}
+        onClose={closeTerms}
       />
+
+      <Analytics />
+      <SpeedInsights />
     </div>
   );
 }

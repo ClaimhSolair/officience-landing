@@ -10,8 +10,8 @@ export const Section: React.FC<SectionProps> = ({ id, className = '', children }
       className={`w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] relative ${className}`}
     >
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
         viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >

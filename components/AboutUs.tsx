@@ -1,305 +1,435 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { X, MapPin, Heart, Globe, Zap, Users, Star } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 
 interface AboutUsProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenSurvey: () => void;
 }
 
-const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose, onOpenSurvey }) => {
+const R2 = 'https://pub-4f84cf40db4548bdaa61d64bc4aeba8a.r2.dev';
+
+/* ── tiny SVG person (reused for stats) ── */
+const PersonIcon = ({ color }: { color: string }) => (
+  <svg viewBox="0 0 20 28" className="w-[28px] h-[35px]">
+    <circle cx="10" cy="7" r="5" fill={color} />
+    <path d="M1 26c0-5 4-9 9-9s9 4 9 9" fill={color} />
+  </svg>
+);
+
+const AboutUs: React.FC<AboutUsProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
-  const handleLetTalk = () => {
-    onClose();
-    // Small delay to allow the modal close animation to start/finish before opening the survey
-    setTimeout(() => {
-      onOpenSurvey();
-    }, 300);
-  };
-
-  const causes = [
-    { icon: <Heart className="text-off-red" />, title: "Creating Shared Value" },
-    { icon: <Zap className="text-off-yellow" />, title: "Open Knowledge" },
-    { icon: <Globe className="text-primary" />, title: "Sustainability" },
-    { icon: <Globe className="text-blue-400" />, title: "Positive Globalization" },
-    { icon: <Star className="text-off-pink" />, title: "Developing Vietnam" },
-  ];
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+          />
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-      >
-        {/* Header */}
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 sticky top-0 z-10">
-           <h2 className="text-2xl font-bold text-gray-900 uppercase tracking-tight">Who We Are</h2>
-           <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500">
-             <X size={24} />
-           </button>
-        </div>
-
-        {/* Scrollable Content */}
-        <div className="overflow-y-auto custom-scrollbar">
-          
-          {/* Hero Section */}
-          <div className="relative h-64 md:h-80 bg-primary overflow-hidden flex items-center justify-center text-center px-6">
-            <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center mix-blend-overlay"></div>
-            <div className="relative z-10">
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-4">Officience</h1>
-              <p className="text-xl md:text-2xl text-white/90 font-light font-body">The full stack data company</p>
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="relative bg-white w-full max-w-5xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+          >
+            {/* ─── Sticky Header ─── */}
+            <div className="sticky top-0 z-10 bg-[#1F49BF] px-8 py-5 flex justify-between items-center">
+              <h2
+                className="font-sans font-bold text-white"
+                style={{ fontSize: 'clamp(22px, 3vw, 32px)' }}
+              >
+                About Officience
+              </h2>
+              <button
+                onClick={onClose}
+                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 transition-colors text-white flex items-center justify-center"
+              >
+                <X size={20} />
+              </button>
             </div>
-          </div>
 
-          <div className="p-8 md:p-12 space-y-16">
-            
-            {/* Intro & Map Concept */}
-            <div className="text-center">
-              <h3 className="text-3xl font-bold text-gray-900 mb-6">Tailor-made solutions to support your growth</h3>
-              <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 max-w-4xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center text-left">
-                  <div className="space-y-4">
+            {/* ─── Scrollable Body ─── */}
+            <div className="flex-1 overflow-y-auto bg-[#F7F7F7]">
+
+              {/* ════════ SECTION 1 — WHO WE ARE ════════ */}
+              <section className="bg-white">
+                <div
+                  className="bg-[#1F49BF] text-white px-8 py-4 font-sans font-bold"
+                  style={{ fontSize: 'clamp(18px, 2.5vw, 30px)' }}
+                >
+                  Officience – Solutions To Support Your Growth
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-7 items-stretch px-8 py-6">
+                  <div className="flex-1 flex items-center py-4">
+                    <p className="text-sm text-gray-800 leading-[1.8] italic">
+                      <strong className="italic font-bold">Officience</strong> is a global IT player
+                      born in Paris (2006). Since 20 years, our 270+ talented doers provide solutions
+                      to empower international businesses. We analyze, design, and code with AI —
+                      bringing Vietnamese agility to speed up your growth.
+                    </p>
+                  </div>
+                  <div className="md:flex-[0_0_48%]">
+                    <img
+                      src={`${R2}/Office_view.png`}
+                      alt="Officience Office — F Central"
+                      className="w-full h-full object-cover block"
+                      style={{ aspectRatio: '16/9' }}
+                    />
+                  </div>
+                </div>
+              </section>
+
+              {/* ════════ SECTION 2 — MAP + BULLETS + CAUSES ════════ */}
+              <section className="bg-white px-8 py-8">
+                <div className="flex flex-col md:flex-row gap-7 items-start">
+                  <div className="flex-1">
                     <ul className="space-y-3">
-                      <li className="flex items-start gap-3">
-                        <div className="mt-1 w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                        <span className="text-lg text-gray-700">Global IT player born in Vietnam (2006)</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="mt-1 w-2 h-2 rounded-full bg-off-yellow flex-shrink-0" />
-                        <span className="text-lg text-gray-700">Small teams, people magic <span className="text-off-yellow">♥</span></span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="mt-1 w-2 h-2 rounded-full bg-off-red flex-shrink-0" />
-                        <span className="text-lg text-gray-700">Dedicated to our 5 Causes, we bring Vietnamese agility to international businesses with impact at heart.</span>
-                      </li>
+                      {[
+                        'Made in Vietnam – the faster tech hub in ASEAN (+6.5% yearly)',
+                        'Serving 50+ corporates across 12 countries inc. FR, USA, SGP, JPN',
+                        'Small teams, people magic 💚',
+                        'Dedicated to our 5 Causes, with impact at heart',
+                      ].map((text, i) => (
+                        <li key={i} className="flex items-start gap-3 text-sm text-gray-800 leading-[1.7] font-medium">
+                          <span className="w-2 h-2 bg-[#1F49BF] rounded-full flex-shrink-0 mt-[7px]" />
+                          {text}
+                        </li>
+                      ))}
                     </ul>
                   </div>
-                  
-                  {/* Locations Visualization */}
-                  <div className="relative h-48 bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-center">
-                    <div className="absolute inset-0 opacity-10 bg-[url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg')] bg-contain bg-center bg-no-repeat"></div>
-                    <div className="flex flex-wrap justify-center gap-3 relative z-10">
-                      {['San Francisco', 'Paris', 'Ho Chi Minh', 'Singapore'].map((city) => (
-                        <span key={city} className="flex items-center gap-1 bg-white shadow-sm border border-gray-200 px-3 py-1 rounded-full text-xs font-bold text-gray-600">
-                          <MapPin size={12} className="text-off-red" /> {city}
-                        </span>
+                  <div className="md:flex-[0_0_50%]">
+                    <img
+                      src={`${R2}/location%20map.png`}
+                      alt="Global Presence"
+                      className="w-full h-auto"
+                      style={{ aspectRatio: '16/9' }}
+                    />
+                  </div>
+                </div>
+
+                {/* 5 Causes */}
+                <div className="flex flex-wrap justify-between gap-3 mt-7">
+                  {[
+                    { img: 'Social%20Entrepreneurship.png', label: 'Social Entrepreneurship' },
+                    { img: 'Sharing%20Knowledge.png', label: 'Sharing Knowledge' },
+                    { img: 'Sustainability.png', label: 'Sustainability' },
+                    { img: 'Tech%20for%20Good.png', label: 'Tech for Good' },
+                    { img: 'Developing%20Vietnam.png', label: 'Developing Vietnam' },
+                  ].map((c) => (
+                    <div key={c.label} className="text-center flex-1 min-w-[80px]">
+                      <img
+                        src={`${R2}/${c.img}`}
+                        alt={c.label}
+                        className="w-[52px] h-[52px] object-contain mx-auto mb-1.5"
+                      />
+                      <span className="text-[11px] text-gray-600 font-semibold leading-tight block">
+                        {c.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* ════════ SECTION 3 — SOFT POWER / TEAM ════════ */}
+              <section className="bg-white">
+                {/* Title bar with "Meet our team" on right */}
+                <div
+                  className="bg-[#1F49BF] text-white px-8 py-4 font-sans font-bold flex justify-between items-center"
+                  style={{ fontSize: 'clamp(18px, 2.5vw, 24px)' }}
+                >
+                  <span>SOFT POWER MADE IN VIETNAM</span>
+                  <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                    Meet our team
+                    <div className="w-9 h-9 bg-[#1F49BF] border-2 border-white/40 rounded-full flex items-center justify-center">
+                      <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-5 px-8 py-5">
+                  {/* Left 65% — stats + diagrams (all centered) */}
+                  <div className="md:flex-[0_0_65%] flex flex-col items-center justify-center">
+                    {/* Stats row */}
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center mb-3">
+                      {/* 220 members */}
+                      <div>
+                        <div className="flex flex-wrap gap-[1px]">
+                          {Array.from({ length: 7 }).map((_, i) => (
+                            <PersonIcon key={`o${i}`} color="#F39C12" />
+                          ))}
+                        </div>
+                        <div className="flex items-baseline gap-1.5 mt-1">
+                          <span className="font-sans text-[35px] font-extrabold text-gray-900">220</span>
+                          <span className="text-[18px] text-gray-500">members</span>
+                        </div>
+                      </div>
+
+                      <span className="text-[19px] text-gray-400 font-medium">with</span>
+
+                      {/* 2/3 women */}
+                      <div>
+                        <div className="flex flex-wrap gap-[1px]">
+                          {[...Array(4)].map((_, i) => (
+                            <PersonIcon key={`t${i}`} color="#5BC0BE" />
+                          ))}
+                          {[...Array(2)].map((_, i) => (
+                            <PersonIcon key={`g${i}`} color="#ccc" />
+                          ))}
+                        </div>
+                        <div className="flex items-baseline gap-1.5 mt-1">
+                          <span className="font-sans text-[35px] font-extrabold text-gray-900">2/3</span>
+                          <span className="text-[18px] text-gray-500">women</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Diagrams */}
+                    <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                      <img
+                        src={`${R2}/Cosmic.png`}
+                        alt="Cosmic Values"
+                        className="max-h-[200px] object-contain"
+                      />
+                      <img
+                        src={`${R2}/3%20core.jpg`}
+                        alt="Purpose, Autonomy, Mastery"
+                        className="max-h-[200px] object-contain"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right 35% — portrait + quote */}
+                  <div className="flex-1 flex flex-col gap-2.5 items-center">
+                    <img
+                      src={`${R2}/Team.jpg`}
+                      alt="Team portrait"
+                      className="w-3/4 rounded-[10px]"
+                    />
+                    <div className="text-xs text-gray-800 leading-relaxed border-l-[3px] border-[#c0392b] pl-2.5">
+                      From Paris to Ho Chi Minh City
+                      <br />
+                      <strong className="text-[#1F49BF]">stylish &amp; energetic :)</strong>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* ════════ SECTION 4 — FULL STACK SERVICES ════════ */}
+              <section className="bg-[#F7F7F7]">
+                {/* Title bar with ISO badge */}
+                <div
+                  className="bg-[#1F49BF] text-white px-8 py-4 font-sans font-bold flex justify-between items-center"
+                  style={{ fontSize: 'clamp(18px, 2.5vw, 24px)' }}
+                >
+                  <span>FULL STACK SERVICES</span>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={`${R2}/ISO.png`}
+                      alt="ISO 27001"
+                      className="h-11 bg-white rounded-md p-1"
+                    />
+                    <span className="bg-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide">
+                      Coming soon
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 px-8 py-6">
+                  {[
+                    {
+                      icon: 'Creative%20Tribe.png',
+                      name: 'Creative Tribe',
+                      desc: 'Simply design & present your business online.',
+                      tags: ['Brand Identity', 'UX/UI', 'Pro-images', 'Motion'],
+                    },
+                    {
+                      icon: 'IT%20Craft.png',
+                      name: 'IT Craft',
+                      desc: 'Leverage your business with software & automation.',
+                      tags: ['Website', 'Easy-commerce', 'Mobile apps', 'Enterprise apps'],
+                    },
+                    {
+                      icon: 'Crunch.png',
+                      name: 'Crunch',
+                      desc: 'Build, process & scale your data factory.',
+                      tags: ['Entry', 'Collect', 'Process', 'Support'],
+                    },
+                    {
+                      icon: 'Analytics.png',
+                      name: 'Analytics',
+                      desc: 'Streamline operations and let your data perform.',
+                      tags: ['Standardize', 'Analyze', 'Drive', 'Innovate'],
+                    },
+                    {
+                      icon: 'IT%20Super.png',
+                      name: 'IT Super',
+                      desc: 'Keeping your tech stable & supervised.',
+                      tags: ['System', 'Service', 'Support', 'Supervision'],
+                    },
+                    {
+                      icon: 'People%20Operations.png',
+                      name: 'People Operations',
+                      desc: 'Unearthing Viet gems for your dream team.',
+                      tags: ['HR operation', 'Social hiring', 'Culture', 'Viet talents'],
+                    },
+                  ].map((svc) => (
+                    <div
+                      key={svc.name}
+                      className="bg-white rounded-2xl p-[18px] border border-gray-200 transition-all hover:shadow-lg hover:-translate-y-0.5"
+                    >
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <img
+                          src={`${R2}/${svc.icon}`}
+                          alt=""
+                          className="w-10 h-10 object-contain flex-shrink-0"
+                        />
+                        <h4 className="text-sm font-bold text-gray-900 font-sans">{svc.name}</h4>
+                      </div>
+                      <p className="text-xs text-gray-600 leading-relaxed mb-2.5 font-semibold">
+                        {svc.desc}
+                      </p>
+                      <div className="flex flex-wrap gap-[5px]">
+                        {svc.tags.map((t) => (
+                          <span
+                            key={t}
+                            className="text-[10px] px-2 py-[3px] bg-[#f0f4ff] text-[#1F49BF] rounded-md font-bold"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* ════════ SECTION 5 — BORN & RAISED IN PARIS ════════ */}
+              <section className="bg-white">
+                <div
+                  className="bg-[#1F49BF] text-white px-8 py-4 font-sans font-bold"
+                  style={{ fontSize: 'clamp(18px, 2.5vw, 24px)' }}
+                >
+                  BORN &amp; RAISED IN PARIS
+                </div>
+
+                <div className="px-8 py-7">
+                  <div className="flex flex-col md:flex-row gap-7 items-center mb-6">
+                    <div className="flex-1">
+                      <h3
+                        className="font-sans font-extrabold text-gray-300 mb-2.5"
+                        style={{ fontSize: '50px' }}
+                      >
+                        Officience
+                      </h3>
+                      <p className="text-[25px] text-gray-800 leading-relaxed">
+                        Digital Services Company
+                        <br />
+                        at the heart of the French Tech ecosystem
+                      </p>
+                    </div>
+                    <div className="md:flex-[0_0_48%]">
+                      <img
+                        src={`${R2}/France%20render1.png`}
+                        alt="Station F — Paris"
+                        className="w-full rounded-xl"
+                      />
+                      <p className="text-[13px] text-gray-500 leading-[1.7] italic mt-3">
+                        In Paris, <em>'les Eco-workers du 47'</em> gather our network of{' '}
+                        <strong className="font-bold text-gray-800">400+ consultants</strong>{' '}
+                        dedicated to innovation. Design, tech, data, product, infrastructure,
+                        organisation, coaching – ready to start with you.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Partner logos — 2-row stacked left */}
+                  <div className="flex flex-col items-start gap-5">
+                    <div className="flex gap-8 items-center">
+                      {[
+                        { file: 'image23.png', alt: 'Women in Tech' },
+                        { file: 'image26.png', alt: 'Le Wagon' },
+                      ].map((p) => (
+                        <img
+                          key={p.file}
+                          src={`${R2}/${p.file}`}
+                          alt={p.alt}
+                          className="h-[52px] w-auto object-contain opacity-90 hover:opacity-100 transition-opacity"
+                        />
+                      ))}
+                    </div>
+                    <div className="flex gap-8 items-center">
+                      {[
+                        { file: 'image24.png', alt: 'Campus Cyber' },
+                        { file: 'image25.png', alt: 'Passerelles Numériques' },
+                        { file: 'image27.png', alt: 'Silicon Sentier' },
+                      ].map((p) => (
+                        <img
+                          key={p.file}
+                          src={`${R2}/${p.file}`}
+                          alt={p.alt}
+                          className="h-[52px] w-auto object-contain opacity-90 hover:opacity-100 transition-opacity"
+                        />
                       ))}
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
-              {/* 5 Causes */}
-              <div className="flex flex-wrap justify-center gap-6 mt-12">
-                {causes.map((c, idx) => (
-                  <div key={idx} className="flex flex-col items-center gap-2 w-32">
-                    <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center shadow-sm">
-                      {c.icon}
+              {/* ════════ SECTION 6 — OUR CLIENTS ════════ */}
+              <section className="bg-[#F7F7F7]">
+                <div
+                  className="bg-[#1F49BF] text-white px-8 py-4 font-sans font-bold"
+                  style={{ fontSize: 'clamp(18px, 2.5vw, 24px)' }}
+                >
+                  OUR CLIENTS – You're In Good Company
+                </div>
+
+                <div className="px-8 py-6">
+                  <div className="flex flex-col md:flex-row gap-6 items-start">
+                    {/* Team working photo */}
+                    <div className="md:flex-[0_0_40%] rounded-2xl overflow-hidden">
+                      <img
+                        src={`${R2}/Office%20render%201.png`}
+                        alt="Team working"
+                        className="w-full h-auto rounded-2xl"
+                      />
                     </div>
-                    <span className="text-xs font-bold text-gray-500 uppercase text-center leading-tight">{c.title}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Soft Power Section */}
-            <div>
-              <div className="text-center mb-10">
-                <h3 className="text-3xl font-bold text-gray-900">Soft Power made in Vietnam</h3>
-                <p className="text-secondary mt-2">Our culture is our strongest asset.</p>
-              </div>
-
-              {/* Stats Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                  <div className="bg-white border border-gray-100 rounded-2xl p-8 flex flex-col justify-center items-center shadow-sm relative overflow-hidden">
-                     <div className="relative z-10 text-center">
-                        <div className="text-7xl font-bold text-gray-900 tracking-tighter mb-2">270</div>
-                        <div className="text-xl font-medium text-gray-500 uppercase tracking-widest">Members</div>
-                        <div className="mt-4 flex gap-2 justify-center">
-                           <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
-                           <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
-                           <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                    {/* Client logo grid */}
+                    <div className="flex-1 grid grid-cols-3 md:grid-cols-4 gap-2.5">
+                      {Array.from({ length: 19 }, (_, i) => i + 29).map((n) => (
+                        <div
+                          key={n}
+                          className="bg-white border border-gray-200 rounded-[10px] p-2 flex items-center justify-center h-[52px] hover:shadow-md transition-shadow"
+                        >
+                          <img
+                            src={`${R2}/image${n}.png`}
+                            alt="Client"
+                            className="max-w-full max-h-full object-contain"
+                          />
                         </div>
-                     </div>
+                      ))}
+                    </div>
                   </div>
-
-                  <div className="bg-white border border-gray-100 rounded-2xl p-8 flex items-center justify-center shadow-sm relative overflow-hidden">
-                     <div className="flex items-center gap-10">
-                        {/* Static Donut Chart */}
-                        <div className="relative w-40 h-40">
-                           <svg viewBox="0 0 36 36" className="w-full h-full rotate-[-90deg]">
-                              <path className="text-gray-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3.8" />
-                              <path 
-                                className="text-primary" 
-                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                strokeWidth="3.8" 
-                                strokeDasharray="66, 100"
-                                strokeLinecap="round" 
-                              />
-                           </svg>
-                           <div className="absolute inset-0 flex items-center justify-center flex-col text-primary">
-                              <span className="text-4xl font-bold">2/3</span>
-                           </div>
-                        </div>
-                        <div className="flex flex-col">
-                           <span className="text-3xl font-bold text-gray-900">Women</span>
-                           <span className="text-gray-500 text-base">Empowering leadership</span>
-                        </div>
-                     </div>
-                  </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                
-                {/* COSMIC Visualization */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-8 md:p-12 flex flex-col items-center justify-center min-h-[500px]">
-                   
-                   <div className="relative w-full max-w-[320px] aspect-square mx-auto flex items-center justify-center select-none">
-                      {/* Rings SVG */}
-                      <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full">
-                          {/* Inner Guide Circle */}
-                          <circle cx="200" cy="200" r="100" fill="none" stroke="#F3F4F6" strokeWidth="2" />
-                          {/* Outer Guide Ring */}
-                          <circle cx="200" cy="200" r="150" fill="none" stroke="#F3F4F6" strokeWidth="2" strokeDasharray="6 6" />
-                          
-                          {/* Decorative Arcs */}
-                          {/* Top Right Green Arc */}
-                          <path d="M 200 50 A 150 150 0 0 1 350 200" fill="none" stroke="#10B981" strokeWidth="2" strokeDasharray="4 4" className="opacity-50" />
-                          {/* Bottom Left Purple Arc */}
-                          <path d="M 200 350 A 150 150 0 0 1 50 200" fill="none" stroke="#8B5CF6" strokeWidth="2" strokeDasharray="4 4" className="opacity-50" />
-                      </svg>
-
-                      {/* Center */}
-                      <div className="z-10 bg-white rounded-full w-28 h-28 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.05)] border border-gray-50">
-                          <span className="text-3xl font-bold text-gray-900">Cosmic</span>
-                      </div>
-
-                      {/* Nodes & Labels */}
-                      
-                      {/* Commitment - Top Center */}
-                      <div className="absolute top-[12%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-                           <div className="w-3 h-3 rounded-full bg-green-500 ring-4 ring-white"></div>
-                           <span className="text-lg font-bold text-gray-700 bg-white/80 px-3 rounded-full">Commitment</span>
-                      </div>
-
-                      {/* Care - Right Top */}
-                      <div className="absolute top-[30%] right-[5%] flex flex-col items-center gap-1">
-                           <span className="text-lg font-bold text-gray-700 bg-white/80 px-3 rounded-full">Care</span>
-                           <div className="w-2 h-2 rounded-full bg-green-300 ring-4 ring-white"></div>
-                      </div>
-
-                      {/* Innovation - Right Bottom */}
-                      <div className="absolute bottom-[35%] right-[0%] flex items-center gap-2">
-                           <div className="w-3 h-3 rounded-full bg-gray-900 ring-4 ring-white"></div>
-                           <span className="text-lg font-bold text-gray-700 bg-white/80 px-3 rounded-full">Innovation</span>
-                      </div>
-
-                      {/* Merit - Bottom Center */}
-                      <div className="absolute bottom-[12%] left-1/2 -translate-x-1/2 flex flex-col-reverse items-center gap-2">
-                           <div className="w-2 h-2 rounded-full bg-gray-400 ring-4 ring-white"></div>
-                           <span className="text-lg font-bold text-gray-700 bg-white/80 px-3 rounded-full">Merit</span>
-                      </div>
-
-                      {/* Open & Sincere - Left */}
-                      <div className="absolute top-1/2 left-[-5%] -translate-y-1/2 flex flex-col items-center gap-1">
-                           <span className="text-lg font-bold text-gray-700 bg-white/80 px-3 rounded-full text-center leading-tight">Open &<br/>Sincere</span>
-                           <div className="w-3 h-3 rounded-full bg-gray-900 ring-4 ring-white"></div>
-                      </div>
-                   </div>
                 </div>
-
-                {/* At Core Visualization (Scaled up 50%) */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-8 md:p-12 flex flex-col items-center justify-center min-h-[500px]">
-                   
-                   {/* 
-                     Triangle Centering Logic:
-                     Container w-full max-w-[450px] aspect-square (Significantly larger than before)
-                     Top Vertex: 50%, 15%
-                     Bottom Left Vertex: 20%, 75%
-                     Bottom Right Vertex: 80%, 75%
-                   */}
-                   <div className="relative w-full max-w-[450px] aspect-square mx-auto flex items-center justify-center select-none">
-                      
-                      {/* Connecting Lines Layer with Gradients */}
-                      <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                          <defs>
-                            <linearGradient id="grad-purpose-autonomy" x1="50%" y1="15%" x2="20%" y2="75%" gradientUnits="userSpaceOnUse">
-                              <stop offset="0%" stopColor="#4AAEB3" />
-                              <stop offset="100%" stopColor="#FB8C70" />
-                            </linearGradient>
-                            <linearGradient id="grad-autonomy-mastery" x1="20%" y1="75%" x2="80%" y2="75%" gradientUnits="userSpaceOnUse">
-                              <stop offset="0%" stopColor="#FB8C70" />
-                              <stop offset="100%" stopColor="#FACC5F" />
-                            </linearGradient>
-                            <linearGradient id="grad-mastery-purpose" x1="80%" y1="75%" x2="50%" y2="15%" gradientUnits="userSpaceOnUse">
-                              <stop offset="0%" stopColor="#FACC5F" />
-                              <stop offset="100%" stopColor="#4AAEB3" />
-                            </linearGradient>
-                          </defs>
-
-                          {/* Purpose to Autonomy */}
-                          <line x1="50%" y1="15%" x2="20%" y2="75%" stroke="url(#grad-purpose-autonomy)" strokeWidth="16" strokeLinecap="round" />
-                          
-                          {/* Autonomy to Mastery */}
-                          <line x1="20%" y1="75%" x2="80%" y2="75%" stroke="url(#grad-autonomy-mastery)" strokeWidth="16" strokeLinecap="round" />
-                          
-                          {/* Mastery to Purpose */}
-                          <line x1="80%" y1="75%" x2="50%" y2="15%" stroke="url(#grad-mastery-purpose)" strokeWidth="16" strokeLinecap="round" />
-                      </svg>
-
-                      {/* Center: Passion (No Background) */}
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                          <span className="text-xl font-extrabold text-gray-900 tracking-tight">Passion</span>
-                      </div>
-
-                      {/* Top: Purpose (Increased size) */}
-                      <div className="absolute top-[15%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-[#4AAEB3] flex items-center justify-center shadow-lg ring-4 ring-white z-20">
-                          <span className="text-sm font-bold text-white">Purpose</span>
-                      </div>
-
-                      {/* Bottom Left: Autonomy (Increased size) */}
-                      <div className="absolute top-[75%] left-[20%] -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-[#FB8C70] flex items-center justify-center shadow-lg ring-4 ring-white z-20">
-                          <span className="text-sm font-bold text-white">Autonomy</span>
-                      </div>
-
-                      {/* Bottom Right: Mastery (Increased size) */}
-                      <div className="absolute top-[75%] left-[80%] -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-[#FACC5F] flex items-center justify-center shadow-lg ring-4 ring-white z-20">
-                          <span className="text-sm font-bold text-white">Mastery</span>
-                      </div>
-                   </div>
-                </div>
-              </div>
+              </section>
             </div>
 
-            {/* CTA */}
-            <div className="bg-gray-900 rounded-2xl p-10 text-center">
-              <h3 className="text-2xl font-bold text-white mb-4">Ready to experience our people magic?</h3>
-              <button 
-                onClick={handleLetTalk} 
-                className="bg-primary hover:bg-white hover:text-primary text-white font-bold py-4 px-10 text-lg rounded-full transition-all transform hover:scale-105"
-              >
-                Let's talk
-              </button>
-            </div>
-
-          </div>
+          </motion.div>
         </div>
-      </motion.div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 };
 
