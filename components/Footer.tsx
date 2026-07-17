@@ -42,8 +42,8 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
         />
         <div className="w-full h-px bg-white/30" />
         <div className="flex justify-between gap-4 items-start">
-          {/* Links — left-aligned stack, ≥44px tap rows */}
-          <div className="flex flex-col text-[15px]">
+          {/* Links — left-aligned stack, ≥44px tap rows. Font sized to match copyright (12px). */}
+          <div className="flex flex-col text-[12px]">
             <button onClick={onOpenTerms} className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity">
               Terms &amp; Conditions
             </button>
