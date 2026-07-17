@@ -28,8 +28,8 @@ const officeColumns: Office[][] = [
     {
       city: 'Hochiminh City, Vietnam',
       subOffices: [
-        { name: 'OffyPlex', address: '16A Le Hong Phong Street, Ward 12. District 10, HCMC' },
-        { name: 'CrunchBase', address: '262/18 Huynh Van Banh Street, Ward 11, Phu Nhuan District, HCMC' },
+        { name: 'OffyPlex', address: '16A Le Hong Phong Street, Hoa Hung Ward, Ho Chi Minh City' },
+        { name: 'CrunchBase', address: '262/18 Huynh Van Banh Street, Phu Nhuan Ward, Ho Chi Minh City' },
       ],
     },
   ],

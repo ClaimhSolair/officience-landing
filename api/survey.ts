@@ -3,8 +3,9 @@
 // (LinkedIn, GitHub, etc.) in the "portfolio" field — no file uploads are accepted.
 //
 // Delivery model: the function logs in to Google Workspace SMTP AS contact@officience.com and
-// sends the submission TO contact@officience.com (the mailbox emails itself). IT's forwarding
-// rules on that mailbox then distribute it to the relevant teams, who reply to the visitor
+// sends the submission TO a recipient chosen by the survey flow (see CATEGORY_ROUTES): talent
+// inquiries → jobs@, co-working → hr@, everything else (incl. Flow 1 "Work with Officience",
+// partnership, and other inquiries) → contact@officience.com. Teams reply to the visitor
 // directly (the visitor's address is set as reply-to). This keeps mail on Officience's own
 // Google infra and needs NO DNS changes (Google handles SPF/DKIM for Workspace mail).
 //
@@ -21,7 +22,8 @@
 // Optional overrides (defaults are fine):
 //   SMTP_HOST   — default smtp.gmail.com
 //   SMTP_PORT   — default 465 (SSL). For 587 (STARTTLS), set 587 (secure becomes false).
-//   SURVEY_TO   — recipient, default contact@officience.com
+//   SURVEY_TO   — fallback recipient for flows not matched by CATEGORY_ROUTES,
+//                 default contact@officience.com
 //   MAIL_FROM   — From header, default "Officience Website <contact@officience.com>"
 
 import { createTransport } from 'nodemailer';
@@ -29,6 +31,17 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const DEFAULT_TO = 'contact@officience.com';
 const DEFAULT_FROM = 'Officience Website <contact@officience.com>';
+
+// Per-flow recipient routing. Keys MUST match the CATEGORY_CARDS labels in
+// components/Survey.tsx (they arrive verbatim in the "category" field). Categories
+// not listed here — plus Flow 1 ("Work with Officience") which sends no category —
+// fall through to SURVEY_TO / DEFAULT_TO (contact@officience.com).
+const CATEGORY_ROUTES: Record<string, string> = {
+  Internship: 'jobs@officience.com',
+  'Full-time career': 'jobs@officience.com',
+  'Co-working space': 'hr@officience.com',
+  // 'Partnership & referral' and 'Other inquiries' → default (contact@officience.com)
+};
 
 // Honeypot field name — must match the hidden input rendered in components/Survey.tsx.
 const HONEYPOT_FIELD = 'company_website';
@@ -205,7 +218,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     <table style="border-collapse:collapse;font-size:14px;">${rows}</table>
   </div>`;
 
-  const to = process.env.SURVEY_TO || DEFAULT_TO;
+  const to = CATEGORY_ROUTES[fields.get('category') ?? ''] || process.env.SURVEY_TO || DEFAULT_TO;
   const from = process.env.MAIL_FROM || DEFAULT_FROM;
   const port = Number(process.env.SMTP_PORT) || 465;
 

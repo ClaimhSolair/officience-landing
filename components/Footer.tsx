@@ -1,4 +1,5 @@
 import React from 'react';
+import { Mail, Phone } from 'lucide-react';
 import { ASSETS } from '../assets';
 
 const LOGO_URL = ASSETS.footer.logo;
@@ -7,20 +8,28 @@ const BANNER_URL = ASSETS.footer.banner;
 const CAREER_URL = 'https://www.linkedin.com/company/officience/jobs/';
 const ABOUT_URL = 'https://demo.officience.com/';
 
+const EMAIL = 'engage@officience.com';
+const PHONE_DISPLAY = '+84 28 3862 0055';
+const PHONE_TEL = '+842838620055';
+
 interface FooterProps {
   onOpenTerms: () => void;
 }
 
 const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
+  // Order matches Figma footer (2933:2080): LinkedIn, Facebook, TikTok, YouTube.
   const socials = [
-    { href: 'https://www.facebook.com/Officience', label: 'Facebook', icon: ASSETS.footer.facebook },
-    { href: 'https://www.youtube.com/@officienceinvietnam', label: 'YouTube', icon: ASSETS.footer.youtube },
     { href: 'https://www.linkedin.com/company/officience/', label: 'LinkedIn', icon: ASSETS.footer.linkedin },
+    { href: 'https://www.facebook.com/Officience', label: 'Facebook', icon: ASSETS.footer.facebook },
+    { href: 'https://www.tiktok.com/@officience', label: 'TikTok', icon: ASSETS.footer.tiktok },
+    { href: 'https://www.youtube.com/@officienceinvietnam', label: 'YouTube', icon: ASSETS.footer.youtube },
   ];
 
   return (
     <footer className="relative bg-bg-primary flex flex-col gap-[32px] overflow-hidden">
-      {/* Mobile footer (<768px) — logo, then link stack (left) + socials & copyright (right).
+      {/* Mobile footer (<768px) — logo, links + copyright row, then a full-width
+          socials + contact block (a 4th social icon no longer fits the narrow right
+          column, so contact info stacks full-width below).
           Faint full-bleed watermark is rendered as a footer-level sibling below. */}
       <div className="md:hidden w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] pt-[40px] flex flex-col gap-[24px] font-body text-white">
         <img
@@ -32,7 +41,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
           referrerPolicy="no-referrer"
         />
         <div className="w-full h-px bg-white/30" />
-        <div className="flex justify-between gap-4">
+        <div className="flex justify-between gap-4 items-start">
           {/* Links — left-aligned stack, ≥44px tap rows */}
           <div className="flex flex-col text-[15px]">
             <button onClick={onOpenTerms} className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity">
@@ -48,17 +57,28 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
               We’re Hiring
             </a>
           </div>
-          {/* Socials (top) + copyright (below), right-aligned */}
-          <div className="flex flex-col items-end gap-4 shrink-0">
-            <div className="flex gap-[16px] items-center">
-              {socials.map(({ href, label, icon }) => (
-                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
-                   className="hover:opacity-80 transition-opacity">
-                  <img src={icon} alt={label} width={28} height={28} className="w-[28px] h-[28px]" />
-                </a>
-              ))}
-            </div>
-            <span className="text-[12px] text-right">© {new Date().getFullYear()} Officience, All rights reserved</span>
+          {/* Copyright — right-aligned, wraps on narrow screens */}
+          <span className="text-[12px] text-right">© {new Date().getFullYear()} Officience, All rights reserved</span>
+        </div>
+        {/* Socials (top) + contact info (below), full width */}
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-[16px] items-center">
+            {socials.map(({ href, label, icon }) => (
+              <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+                 className="hover:opacity-80 transition-opacity">
+                <img src={icon} alt={label} width={28} height={28} className="w-[28px] h-[28px]" />
+              </a>
+            ))}
+          </div>
+          <div className="flex flex-col gap-[8px] text-[14px] leading-[22px]">
+            <a href={`mailto:${EMAIL}`} className="inline-flex items-center gap-[8px] hover:opacity-80 transition-opacity">
+              <Mail className="w-[18px] h-[18px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+              <span>{EMAIL}</span>
+            </a>
+            <a href={`tel:${PHONE_TEL}`} className="inline-flex items-center gap-[8px] hover:opacity-80 transition-opacity">
+              <Phone className="w-[18px] h-[18px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+              <span>{PHONE_DISPLAY}</span>
+            </a>
           </div>
         </div>
       </div>
@@ -66,8 +86,8 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
       {/* Footer Content (≥768px) */}
       <div className="hidden md:flex w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] pt-[clamp(40px,5vw,64px)] flex-col gap-[32px]">
 
-        {/* Top: logo + social icons */}
-        <div className="flex flex-col gap-6 sm:flex-row items-center justify-between">
+        {/* Top: logo (left) + socials & contact info (right) */}
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start justify-between">
           <img
             src={LOGO_URL}
             alt="Officience — 20 Years Anniversary"
@@ -77,13 +97,25 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
             referrerPolicy="no-referrer"
           />
 
-          <div className="flex gap-[20px] items-center">
-            {socials.map(({ href, label, icon }) => (
-              <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
-                 className="hover:opacity-80 transition-opacity flex items-center justify-center">
-                <img src={icon} alt={label} width={45} height={45} className="w-[48px] h-[48px] md:w-[45px] md:h-[45px]" />
+          <div className="flex flex-col items-center sm:items-end gap-[28px]">
+            <div className="flex gap-[14px] items-center">
+              {socials.map(({ href, label, icon }) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+                   className="hover:opacity-80 transition-opacity flex items-center justify-center">
+                  <img src={icon} alt={label} width={45} height={45} className="w-[48px] h-[48px] md:w-[45px] md:h-[45px]" />
+                </a>
+              ))}
+            </div>
+            <div className="flex flex-col items-center sm:items-end gap-[8px] font-body text-white text-[16px] leading-[26px]">
+              <a href={`mailto:${EMAIL}`} className="inline-flex items-center gap-[8px] hover:opacity-80 transition-opacity">
+                <Mail className="w-[20px] h-[20px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                <span>{EMAIL}</span>
               </a>
-            ))}
+              <a href={`tel:${PHONE_TEL}`} className="inline-flex items-center gap-[8px] hover:opacity-80 transition-opacity">
+                <Phone className="w-[20px] h-[20px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                <span>{PHONE_DISPLAY}</span>
+              </a>
+            </div>
           </div>
         </div>
 
