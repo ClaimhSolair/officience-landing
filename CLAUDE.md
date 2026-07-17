@@ -49,6 +49,15 @@ officience/
 - Skip via X button or clicking backdrop
 - Mobile breakpoint: `window.innerWidth < 768`
 
+## Survey Email Routing
+- Survey submissions POST to `api/survey.ts` (Vercel Node function; **does not run under Vite** — e2e only on a Vercel deploy).
+- Recipient is chosen per flow via `CATEGORY_ROUTES` (keyed on the `category` field, which must match the `CATEGORY_CARDS` labels in `Survey.tsx`):
+  - Internship, Full-time career → `jobs@officience.com`
+  - Co-working space → `hr@officience.com`
+  - Work with Officience (Flow 1), Partnership & referral, Other inquiries → `contact@officience.com` (via `SURVEY_TO` env, else `DEFAULT_TO`)
+- `SURVEY_TO` env now only overrides the **fallback** recipient (the contact@ flows), not the jobs@/hr@ routes.
+- SMTP always authenticates as `SMTP_USER` (contact@officience.com) and sends TO the routed address; visitor's email is set as reply-to.
+
 ## Commands
 - `npm run dev` - Start dev server (or `npx vite --host`)
 - `npm run build` - Production build to `dist/`
