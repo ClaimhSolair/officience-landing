@@ -122,21 +122,40 @@
         },
       }
     </script>
-    <!-- Google tag (gtag.js) — GA4 stream "Officience" -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R8R4KL5WGL"></script>
+    <!-- Consent Mode v2 — defaults MUST be set before the Google tag loads.
+         analytics_storage stays denied until the visitor accepts via the cookie
+         banner (components/CookieConsent.tsx persists the choice in localStorage).
+         Microsoft Clarity sets cookies too, so it only loads after consent. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      (function () {
+        var stored = null;
+        try { stored = localStorage.getItem('officience_cookie_consent'); } catch (e) {}
+        gtag('consent', 'default', {
+          ad_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied',
+          analytics_storage: stored === 'granted' ? 'granted' : 'denied',
+          functionality_storage: 'granted',
+          security_storage: 'granted'
+        });
+        window.__loadClarity = function () {
+          if (window.__clarityLoaded) return;
+          window.__clarityLoaded = true;
+          (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window, document, "clarity", "script", "wx2e7ibo04");
+        };
+        if (stored === 'granted') window.__loadClarity();
+      })();
       gtag('js', new Date());
       gtag('config', 'G-R8R4KL5WGL');
     </script>
-    <script type="text/javascript">
-      (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", "wx2e7ibo04");
-    </script>
+    <!-- Google tag (gtag.js) — GA4 stream "Officience" -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R8R4KL5WGL"></script>
     <style>
       html {
         scroll-behavior: smooth;

@@ -13,6 +13,7 @@ import Footer from './components/Footer';
 import WhyOfficience from './components/WhyOfficience';
 import TermsConditions from './components/TermsConditions';
 import SplashScreen from './components/SplashScreen';
+import CookieConsent from './components/CookieConsent';
 import type { SurveyBranch } from './components/Contact';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
   const [surveyBranch, setSurveyBranch] = useState<SurveyBranch>('work');
   const [, setSurveyData] = useState<Record<string, string> | null>(null);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [termsTab, setTermsTab] = useState<'terms' | 'privacy'>('terms');
 
   const openSurvey = (branch: SurveyBranch = 'work') => {
     setSurveyBranch(branch);
@@ -27,7 +29,10 @@ function App() {
   };
   const closeSurvey = () => setIsSurveyOpen(false);
 
-  const openTerms = () => setIsTermsOpen(true);
+  const openTerms = (tab: 'terms' | 'privacy' = 'terms') => {
+    setTermsTab(tab);
+    setIsTermsOpen(true);
+  };
   const closeTerms = () => setIsTermsOpen(false);
 
   useEffect(() => {
@@ -89,7 +94,7 @@ function App() {
           <div style={{ backgroundColor: '#1F49BF' }}>
             <WhyOfficience />
             <Contact onOpenSurvey={openSurvey} />
-            <Footer onOpenTerms={openTerms} />
+            <Footer onOpenTerms={() => openTerms('terms')} />
           </div>
         </main>
       </div>
@@ -106,7 +111,11 @@ function App() {
       <TermsConditions
         isOpen={isTermsOpen}
         onClose={closeTerms}
+        initialTab={termsTab}
       />
+
+      {/* Cookie consent banner (Google Consent Mode v2) */}
+      <CookieConsent onOpenPrivacy={() => openTerms('privacy')} />
 
       <Analytics />
       <SpeedInsights />

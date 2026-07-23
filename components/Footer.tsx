@@ -47,6 +47,12 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
             <button onClick={onOpenTerms} className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity">
               Terms &amp; Conditions
             </button>
+            <button
+              onClick={() => window.dispatchEvent(new Event('officience:cookie-settings'))}
+              className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity"
+            >
+              Cookie Settings
+            </button>
             <a href={ABOUT_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
               About us
             </a>
@@ -128,6 +134,12 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
           <div className="flex flex-wrap justify-center gap-x-[clamp(20px,2vw,40px)]">
             <button onClick={onOpenTerms} className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
               Terms &amp; Conditions
+            </button>
+            <button
+              onClick={() => window.dispatchEvent(new Event('officience:cookie-settings'))}
+              className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap"
+            >
+              Cookie Settings
             </button>
             <a href={ABOUT_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
               About us

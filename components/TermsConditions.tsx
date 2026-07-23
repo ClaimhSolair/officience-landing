@@ -11,6 +11,8 @@ import {
 interface TermsConditionsProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Tab shown when the modal opens (defaults to Terms). */
+  initialTab?: Tab;
 }
 
 type Tab = 'terms' | 'privacy';
@@ -112,13 +114,13 @@ const LegalDocument: React.FC<{ sections: LegalSection[] }> = ({ sections }) => 
   </div>
 );
 
-const TermsConditions: React.FC<TermsConditionsProps> = ({ isOpen, onClose }) => {
-  const [tab, setTab] = useState<Tab>('terms');
+const TermsConditions: React.FC<TermsConditionsProps> = ({ isOpen, onClose, initialTab = 'terms' }) => {
+  const [tab, setTab] = useState<Tab>(initialTab);
 
-  // Reset to the Terms tab on open, lock background scroll, close on Esc.
+  // Reset to the requested tab on open, lock background scroll, close on Esc.
   useEffect(() => {
     if (!isOpen) return;
-    setTab('terms');
+    setTab(initialTab);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
@@ -129,7 +131,7 @@ const TermsConditions: React.FC<TermsConditionsProps> = ({ isOpen, onClose }) =>
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, initialTab]);
 
   const active = TABS.find((t) => t.key === tab) ?? TABS[0];
 
