@@ -26,12 +26,6 @@
       "headers": [
         { "key": "X-Robots-Tag", "value": "index, follow" }
       ]
-    },
-    {
-      "source": "/((?!assets|favicon).*)",
-      "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
-      ]
     }
   ]
 }
