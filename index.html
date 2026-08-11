@@ -149,7 +149,21 @@
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
           })(window, document, "clarity", "script", "wx2e7ibo04");
         };
-        if (stored === 'granted') window.__loadClarity();
+        window.__loadMatomo = function () {
+          if (window.__matomoLoaded) return;
+          window.__matomoLoaded = true;
+          var _paq = window._paq = window._paq || [];
+          _paq.push(['trackPageView']);
+          _paq.push(['enableLinkTracking']);
+          (function() {
+            var u = "https://matomo.officience.com/";
+            _paq.push(['setTrackerUrl', u + 'matomo.php']);
+            _paq.push(['setSiteId', '4']);
+            var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+            g.async = true; g.src = u + 'matomo.js'; s.parentNode.insertBefore(g, s);
+          })();
+        };
+        if (stored === 'granted') { window.__loadClarity(); window.__loadMatomo(); }
       })();
       gtag('js', new Date());
       gtag('config', 'G-R8R4KL5WGL');

@@ -9,6 +9,7 @@ declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
     __loadClarity?: () => void;
+    __loadMatomo?: () => void;
   }
 }
 
@@ -44,7 +45,10 @@ const CookieConsent: React.FC<CookieConsentProps> = ({ onOpenPrivacy }) => {
     window.gtag?.('consent', 'update', {
       analytics_storage: granted ? 'granted' : 'denied',
     });
-    if (granted) window.__loadClarity?.();
+    if (granted) {
+      window.__loadClarity?.();
+      window.__loadMatomo?.();
+    }
     setVisible(false);
   }, []);
 
