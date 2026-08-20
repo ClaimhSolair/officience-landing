@@ -1,10 +1,11 @@
-import React, { Suspense, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import MenuOverlay from './components/MenuOverlay';
 import Survey from './components/Survey';
 import SplashScreen from './components/SplashScreen';
 import CookieConsent from './components/CookieConsent';
@@ -29,8 +30,14 @@ const Layout: React.FC = () => {
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
   const [surveyBranch, setSurveyBranch] = useState<SurveyBranch>('work');
   const [, setSurveyData] = useState<Record<string, string> | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pageRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
+
+  // A route change while the menu is open would leave it covering the new page.
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   const openSurvey = (branch: SurveyBranch = 'work') => {
     setSurveyBranch(branch);
@@ -49,7 +56,7 @@ const Layout: React.FC = () => {
       <div ref={pageRef} className="flex-1 relative isolate flex flex-col min-h-screen">
         <div className="absolute inset-0 -z-10 overflow-hidden bg-background" />
 
-        <Header onOpenSurvey={openSurvey} />
+        <Header onOpenMenu={() => setIsMenuOpen(true)} isMenuOpen={isMenuOpen} />
 
         {/* Per-page rhythm lives in the page, not here — see pages/HomePage.tsx. */}
         <main className="relative z-10 flex-grow flex flex-col">
@@ -62,6 +69,10 @@ const Layout: React.FC = () => {
 
         <Footer />
       </div>
+
+      {/* Outside the page wrapper on purpose: the menu marks that wrapper inert
+          while it is open, and would disable itself if it lived inside. */}
+      <MenuOverlay isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} backgroundRef={pageRef} />
 
       <Survey
         isOpen={isSurveyOpen}

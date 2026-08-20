@@ -52,6 +52,11 @@
       tailwind.config = {
         theme: {
           extend: {
+            screens: {
+              // The third artboard. Sizes step up here (header, logo, buttons);
+              // gutters don't — the 1792px content cap already yields 64px at 1920.
+              '3xl': '1920px',
+            },
             fontFamily: {
               sans: ['Lexend', 'sans-serif'],
               body: ['Montserrat', 'sans-serif'],
@@ -85,6 +90,7 @@
               'sec-500': '#DD3C57',
               'sec-200': '#FF9FAE',
               'pri-500': '#1F49BF',
+              'pri-300': '#3C8DFB',
               'pri-50': '#ECF4FF',
               'org-500': '#FD941D',
               'org-200': '#FED29F',
@@ -216,9 +222,17 @@
     <!-- Google tag (gtag.js) — GA4 stream "Officience" -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-R8R4KL5WGL"></script>
     <style>
+      /* Anchor targets clear the sticky header, whose height is a fixed value
+         per artboard: 69 / 113 / 119px at 390 / 1440 / 1920. */
       html {
-        scroll-padding-top: 100px;
+        scroll-padding-top: 69px;
         scrollbar-width: none;
+      }
+      @media (min-width: 1024px) {
+        html { scroll-padding-top: 113px; }
+      }
+      @media (min-width: 1920px) {
+        html { scroll-padding-top: 119px; }
       }
       /* Anchor scrolling animates only for visitors who haven't asked for less motion. */
       @media (prefers-reduced-motion: no-preference) {
@@ -235,21 +249,24 @@
         display: none;
       }
       /* The rules above hide every scrollbar in the document. Surfaces that need a
-         visible one (the overlay menu's scrolling panel) opt back in with .menu-scroll. */
+         visible one (the overlay menu's scrolling panel) opt back in with .menu-scroll.
+         Figma draws a 10px fully-rounded bar (node 3275:2472). Firefox can only
+         approximate it: `scrollbar-width: thin` ignores the width and the radius. */
       .menu-scroll {
         scrollbar-width: thin;
-        scrollbar-color: #C6C6C6 transparent;
+        scrollbar-color: #B1D1FD #3C8DFB;
       }
       .menu-scroll::-webkit-scrollbar {
         display: block;
-        width: 6px;
+        width: 10px;
       }
       .menu-scroll::-webkit-scrollbar-track {
-        background: transparent;
+        background-color: #3C8DFB;
+        border-radius: 999px;
       }
       .menu-scroll::-webkit-scrollbar-thumb {
-        background-color: #C6C6C6;
-        border-radius: 3px;
+        background-color: #B1D1FD;
+        border-radius: 999px;
       }
       /* ---- LEGACY typography tokens (July-2026 scale) ----
          Frozen verbatim: every component still on the old design consumes these.

@@ -6,10 +6,15 @@ Project instance for the `figma-to-code` skill. Everything project-specific the 
 
 - File key: `cplHg0LeeRaYKPdvSJK37E` ("Officience.com 2026") — MCP server: `http://127.0.0.1:3845/mcp`
 - URL `node-id=3129-3829` → tool format `3129:3829` (dash → colon).
-- `get_design_context` **times out** on this file (every node tried). Work from
-  `get_metadata` (exact geometry) + `get_variable_defs` (bound tokens: type styles,
-  colours, spacing, radii) + `get_screenshot`. Between them you get everything the
-  reference code would have given you, and the variable dump is more authoritative.
+- `get_design_context` times out on any sizeable subtree, but **works on small leaf
+  nodes** — and that is how assets come out of this file (see below). For structure
+  and values use `get_metadata` (exact geometry) + `get_variable_defs` (bound tokens:
+  type styles, colours, spacing, radii) + `get_screenshot`; the variable dump is more
+  authoritative than generated code anyway.
+- On a container node `get_design_context` often returns the wrapper with its children
+  elided — still useful, because the wrapper carries the auto-layout gap (e.g. the
+  header lockup came back as `flex gap-[12.069px] items-center`). Drill to the leaf
+  for the asset itself.
 - In a `Font(...)` descriptor the `style:` field is unreliable — Display-xl reads
   `style: Regular` while its bound `weight:` is Bold/700. **Trust `weight:`.**
 
@@ -24,6 +29,30 @@ Project instance for the `figma-to-code` skill. Everything project-specific the 
 - Buttons component: instance `3275:2504` → base `3552:2330` (336×56: 16px padding block, 24px line box, 8px gap, 24px icon, square corners)
 
 ## Assets
+
+### Getting them out of Figma (standing procedure — do this, don't improvise)
+
+1. `get_design_context` on the **leaf** node that holds the artwork. It returns
+   constants pointing at the local MCP asset server, e.g.
+   `const imgGroup = "http://localhost:3845/assets/<hash>.svg"`. Both SVG and PNG
+   come through the same way. Large subtrees time out — go leaf by leaf.
+2. Download each one, e.g.
+   `Invoke-WebRequest -Uri <url> -OutFile assets-src/<section>/<name>.svg -UseBasicParsing`.
+   The hashes are per-session, so re-run step 1 rather than reusing an old URL.
+3. Run new SVGs through the `preserveAspectRatio` fixer and spot-check the viewBox.
+4. Commit the file with its section, then upload (approval-gated) and bump `ASSET_VERSION`.
+
+**What this cannot export:** live text inside artwork. Figma keeps it as text nodes,
+so a lockup whose wording is type comes out as separate vectors plus bare strings.
+Reconstructing small type (8–10px) in HTML is not worth the fidelity risk — ask for a
+flattened SVG export with text outlined instead.
+
+Outstanding export request: **the white brand lockup** (header logo). Nodes
+`3552:2941` (flower + "officience"), `3552:2977` (the "20" mark) export cleanly, but
+"YEARS" / "ANNIVERSARY" are live text. Until a flattened SVG arrives, `Header.tsx`
+renders the old blue PNG inverted with `filter: brightness(0) invert(1)` — correct
+height and colour, but the artwork is 2.51:1 against Figma's 2.38:1, so it sits about
+8px too wide at 1440.
 
 - Source folder: `assets-src/` (relative paths become R2 object keys)
 - Drop folder for user exports: any root folder agreed per task (left untracked)
@@ -109,7 +138,15 @@ backgrounds go on the parent so they stay full-bleed.
   - `preview_screenshot` hangs (framer rAF never settles) — use `preview_eval` geometry + `preview_snapshot`.
   - Preview tab is `document.hidden` → rAF frozen → framer `AnimatePresence mode="wait"` modals (Survey) can't advance past step 0.
   - Preview **and the local Chrome** report `prefers-reduced-motion: reduce`. Wiring is verifiable; motion is not. Turn Windows animations on to review motion.
-  - Chrome on Windows will not resize below ~500px wide — use device emulation for 390.
+  - **Chrome's window here cannot leave ~1526 CSS px** (1920 display at 125% scaling),
+    in either direction — `resize_window` reports success and nothing changes. So:
+    - **For 390 (and any narrow width): load the page into an iframe of that width.**
+      Media queries follow the iframe's viewport, it is same-origin so its DOM measures
+      normally, and it is faithful enough to have caught a real breakpoint bug.
+      `f.src='/'; f.width='390'; f.height='844'` then read `f.contentDocument`.
+    - For 1920, the layout cannot be seen at all. Verify by reading the generated rules:
+      walk `document.styleSheets` for a `MEDIA_RULE` whose `conditionText` contains 1920
+      and assert the declarations. Confirms values, not appearance.
   - Overflow: compare against `document.documentElement.clientWidth`, not `window.innerWidth`.
   - The survey email function (`api/survey.ts`, Node runtime) does NOT run under `vite` — e2e only on a Vercel deploy.
   - Vercel `SMTP_USER`/`SMTP_PASS` are branch-filtered to `redesign/2026`; any other branch's preview 500s on submit until they are re-scoped. Rate limit is 5 requests / 10 min / IP.

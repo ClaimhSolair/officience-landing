@@ -1,185 +1,84 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import React from 'react';
+import { Mail, Menu } from 'lucide-react';
 import { ASSETS } from '../assets';
+import Container from './ui/Container';
+import { scrollToSection } from './navigation';
 
 const LOGO_URL = ASSETS.header.logo;
 
-interface NavLink {
-  label: string;
-  href: string;
-  external?: boolean;
-}
-
-const navItems: NavLink[] = [
-  { label: 'What we do', href: '#capabilities' },     // → Capabilities "What We Do"
-  { label: 'People Trust Us', href: '#clients' },     // → ClientStories "People Trust Us"
-  { label: 'Our Approach', href: '#approach' },       // → HowWeEngage "Our Approach"
-  { label: 'Why choose us', href: '#why-us' },        // → WhyOfficience "Why Choose Us"
-];
-
 interface HeaderProps {
-  onOpenSurvey: () => void;
+  onOpenMenu: () => void;
+  isMenuOpen: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenSurvey }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Lock body scroll while the mobile menu is open (restore on close).
-  useEffect(() => {
-    if (!isMobileMenuOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isMobileMenuOpen]);
-
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    setIsMobileMenuOpen(false);
-
-    const targetId = href.replace('#', '');
-    if (!targetId) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+/**
+ * Solid blue bar, fixed height per artboard (69 / 113 / 119px at 390 / 1440 /
+ * 1920 — Figma 3133:6748, 3275:2336, 3137:1822). The heights are the logo
+ * lockup plus its vertical padding, so nothing here scales with the viewport;
+ * `scroll-padding-top` in index.html mirrors the same three values.
+ *
+ * All navigation lives in the overlay menu — the bar itself carries only the
+ * logo, the contact CTA, and the hamburger. The menu is rendered by the layout
+ * rather than here, so it sits outside the region it makes inert.
+ */
+const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
+  const goToContact = () => scrollToSection('contact');
 
   return (
-    <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        isMobileMenuOpen
-          ? 'bg-bg-secondary shadow-fig-exsm'
-          : isScrolled
-            ? 'bg-[#F7F7F7]/70 backdrop-blur-md shadow-fig-exsm'
-            : 'bg-bg-secondary'
-      }`}
-    >
-      {/* Figma: px-100 py-24, content-width, items-center justify-between */}
-      <div className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] py-[8px] flex items-center justify-between">
-        {/* Logo Area — FIXED logo height (no vw scaling, so header is identical at every window width):
-            72px desktop / 56px mobile. With py-8 the header is a steady ~88px on desktop. */}
-        <a
-          href="#"
-          onClick={(e) => handleNavClick(e, '#')}
-          className="flex items-center shrink-0"
-          aria-label="Officience home"
-        >
-          <img
-            src={LOGO_URL}
-            alt="Officience — 20 Years Anniversary"
-            width={182}
-            height={72.5}
-            className="h-[56px] md:h-[72px] w-auto object-contain"
-            referrerPolicy="no-referrer"
-          />
-        </a>
+      <header className="sticky top-0 z-50 bg-bg-primary">
+        <Container className="h-[69px] lg:h-[113px] 3xl:h-[119px] flex items-center justify-between gap-fig-16">
+          {/* The lockup art is a single blue-on-transparent PNG shared with the
+              old header; on this blue bar it is inverted to solid white rather
+              than shipping a second copy of the same artwork. */}
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="flex items-center shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            aria-label="Officience home"
+          >
+            <img
+              src={LOGO_URL}
+              alt="Officience — 20 Years Anniversary"
+              className="h-[37px] lg:h-[65px] 3xl:h-[71px] w-auto object-contain [filter:brightness(0)_invert(1)]"
+              referrerPolicy="no-referrer"
+            />
+          </a>
 
-        {/* Desktop Nav — Figma: gap-40 between menu and CTA */}
-        <nav className="hidden lg:flex items-center gap-[40px]">
-          {/* Menu — Montserrat Regular 20px, color #0f1219, gap-36 */}
-          <div className="flex items-center gap-[36px] font-body text-text-default text-[clamp(16px,1.2vw,20px)] leading-[28px] whitespace-nowrap">
-            {navItems.map((item) => (
-              item.external ? (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-text-primary transition-colors"
-                >
-                  {item.label}
-                </a>
-              ) : (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
-                  className="hover:text-text-primary transition-colors"
-                >
-                  {item.label}
-                </a>
-              )
-            ))}
+          {/* Mobile puts the contact affordance before the hamburger and shrinks
+              it to an icon; desktop reverses the order and spells it out. */}
+          <div className="flex items-center gap-fig-8 lg:gap-fig-32">
+            <button
+              type="button"
+              onClick={goToContact}
+              aria-label="Contact us"
+              className="lg:hidden h-[32px] w-[32px] inline-flex items-center justify-center rounded-fig-xs border border-white text-white hover:bg-white/10 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <Mail className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenMenu}
+              aria-label="Open menu"
+              aria-expanded={isMenuOpen}
+              className="h-[32px] w-[32px] lg:h-[48px] lg:w-[48px] 3xl:h-[56px] 3xl:w-[56px] inline-flex items-center justify-center text-white hover:bg-white/10 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <Menu className="h-[26px] w-[26px] lg:h-[32px] lg:w-[32px] 3xl:h-[36px] 3xl:w-[36px]" strokeWidth={2} />
+            </button>
+
+            <button
+              type="button"
+              onClick={goToContact}
+              className="hidden lg:inline-flex w-[224px] 3xl:w-[336px] h-[56px] items-center justify-center bg-surface text-text-primary font-sans text-btn-md hover:bg-bg-secondary active:bg-pri-50 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              Contact Us
+            </button>
           </div>
-
-          {/* CTA — square blue button, py-12 so it matches the 48px logo (96px compact header), Lexend SemiBold 20px, shadow ex-sm */}
-          <a
-            href="#contact"
-            onClick={(e) => handleNavClick(e, '#contact')}
-            className="bg-bg-primary text-white px-[32px] py-[12px] font-sans font-semibold text-[clamp(16px,1.2vw,20px)] leading-[24px] shadow-fig-exsm hover:bg-blue-800 transition-colors whitespace-nowrap"
-          >
-            Contact Us
-          </a>
-        </nav>
-
-        {/* Mobile Toggle — p-3 gives a ~56px tap target; -mr-3 keeps the icon edge-aligned */}
-        <button
-          className="lg:hidden text-text-default p-3 -mr-3"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
-          aria-expanded={isMobileMenuOpen}
-        >
-          {isMobileMenuOpen ? <X size={32} /> : <Menu size={32} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu — slide/fade in; ≥48px tap rows; body scroll locked while open */}
-      {isMobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 px-6 py-4 flex flex-col space-y-2 shadow-2xl h-screen overflow-y-auto rounded-b-3xl"
-        >
-          {navItems.map((item) => (
-            item.external ? (
-              <a
-                key={item.label}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block py-3 px-2 rounded-lg text-xl font-medium text-gray-900 hover:text-primary hover:bg-gray-50 font-body transition-colors"
-              >
-                {item.label}
-              </a>
-            ) : (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
-                className="block py-3 px-2 rounded-lg text-xl font-medium text-gray-900 hover:text-primary hover:bg-gray-50 font-body transition-colors"
-              >
-                {item.label}
-              </a>
-            )
-          ))}
-          <a
-            href="#contact"
-            onClick={(e) => handleNavClick(e, '#contact')}
-            className="mt-2 bg-bg-primary text-white w-full text-center py-4 text-xl font-sans font-semibold shadow-fig-exsm rounded-fig-m"
-          >
-            Contact Us
-          </a>
-        </motion.div>
-      )}
-    </header>
+        </Container>
+      </header>
   );
 };
 

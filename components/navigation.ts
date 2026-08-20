@@ -28,10 +28,13 @@ const BROCHURE_URL = 'https://demo.officience.com/brochure';
 export const EXTERNAL = {
   career: 'https://www.linkedin.com/company/officience/jobs/',
   linkedin: 'https://www.linkedin.com/company/officience/',
-  brochureDesign: `${BROCHURE_URL}/creative-tribe`,
-  brochureTech: `${BROCHURE_URL}/it-craft`,
-  brochureData: `${BROCHURE_URL}/crunch`,
-  brochureCrunch: `${BROCHURE_URL}/analytics`,
+  // Named after the brochure slug, not the menu label — the menu calls the
+  // analytics unit "Data" and the data-engineering unit "Crunch", which is the
+  // opposite pairing to what the slugs suggest.
+  brochureCreativeTribe: `${BROCHURE_URL}/creative-tribe`,
+  brochureItCraft: `${BROCHURE_URL}/it-craft`,
+  brochureAnalytics: `${BROCHURE_URL}/analytics`,
+  brochureCrunch: `${BROCHURE_URL}/crunch`,
 } as const;
 
 export type NavTarget =
@@ -42,6 +45,8 @@ export type NavTarget =
 
 export interface NavItem {
   label: string;
+  /** Second line under a service label in the overlay menu. */
+  description?: string;
   target: NavTarget;
   /**
    * Set when the design points somewhere that doesn't exist yet. The item still
@@ -53,38 +58,68 @@ export interface NavItem {
 }
 
 /**
- * The overlay menu, as one table. Built in step 1 against Figma node 3275:2328.
+ * The overlay menu, in the order and wording Figma node 3275:2328 draws.
+ *
+ * The service children fill two columns down-then-across: items 0/2/4/6 in the
+ * left column, 1/3/5 in the right.
  */
 export const MENU: NavItem[] = [
-  { label: 'About Us', target: { kind: 'section', id: 'about' } },
   {
     label: 'Services',
     target: { kind: 'section', id: 'capabilities' },
     children: [
-      { label: 'Design & Digital Experience', target: { kind: 'external', href: EXTERNAL.brochureDesign } },
-      { label: 'Software & Web Development', target: { kind: 'external', href: EXTERNAL.brochureTech } },
-      { label: 'Data Engineering & Processing', target: { kind: 'external', href: EXTERNAL.brochureData } },
-      { label: 'Business Intelligence & Analytics', target: { kind: 'external', href: EXTERNAL.brochureCrunch } },
       {
-        label: 'Rizlum',
-        target: { kind: 'section', id: 'capabilities' },
-        unresolved: 'No Rizlum page or brochure exists yet — destination pending from the team.',
+        label: 'Design',
+        description: 'Design & Digital Experience',
+        target: { kind: 'external', href: EXTERNAL.brochureCreativeTribe },
       },
       {
-        label: 'HR Services',
+        label: 'Tech',
+        description: 'Software & Web Development',
+        target: { kind: 'external', href: EXTERNAL.brochureItCraft },
+      },
+      {
+        label: 'Data',
+        description: 'Business Intelligence & Analytics',
+        target: { kind: 'external', href: EXTERNAL.brochureAnalytics },
+      },
+      {
+        label: 'Crunch',
+        description: 'Data Engineering & Processing',
+        target: { kind: 'external', href: EXTERNAL.brochureCrunch },
+      },
+      {
+        label: 'Rizlum',
+        description: 'Trusted AI for business',
         target: { kind: 'section', id: 'capabilities' },
-        unresolved: 'No HR Services destination exists yet — pending from the team.',
+        unresolved: 'No Rizlum destination exists yet — the team will supply one.',
+      },
+      {
+        label: 'HR',
+        description: 'People Operations',
+        target: { kind: 'section', id: 'capabilities' },
+        unresolved: 'No HR destination exists yet — the team will supply one.',
       },
       {
         label: 'ITS',
+        description: 'Offy IT Super',
         target: { kind: 'section', id: 'capabilities' },
-        unresolved: 'No ITS destination exists yet — pending from the team.',
+        unresolved: 'No ITS destination exists yet — the team will supply one.',
       },
     ],
   },
   { label: 'Work', target: { kind: 'section', id: 'proven-results' } },
   { label: 'Career', target: { kind: 'external', href: EXTERNAL.career } },
+  { label: 'About Us', target: { kind: 'section', id: 'about' } },
 ];
+
+/** Social links in the overlay menu footer, in the order Figma draws them. */
+export const SOCIALS = [
+  { label: 'LinkedIn', href: EXTERNAL.linkedin },
+  { label: 'Facebook', href: 'https://www.facebook.com/Officience' },
+  { label: 'TikTok', href: 'https://www.tiktok.com/@officience' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@officienceinvietnam' },
+] as const;
 
 /** "View All Work" on the Proven Results deck. */
 export const VIEW_ALL_WORK: NavItem = {
