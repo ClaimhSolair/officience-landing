@@ -1,80 +1,69 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { ASSETS } from '../assets';
+import { ArrowUpRight } from 'lucide-react';
+import Container from './ui/Container';
+import Button from './ui/Button';
+import { scrollToSection } from './navigation';
 
-const milestones = [
-  { value: '20', label: 'Years milestone' },
-  { value: '200+', label: 'Special Talents' },
-  { value: '6', label: 'Global Offices' },
-  { value: '500+', label: 'Projects Done' },
-];
+const HEADLINE_LEAD = 'Full-stack';
+const HEADLINE_REST = 'data solutions to empower your business.';
+const SUBTITLE =
+  "We're architects of visual identities — Crafting unique brands that stand out from the noise.";
 
-// Each icon group SVG is an 800×160 strip of 5 colored 160×160 tiles. Render it as a
-// static, full-width repeating band (no animation) — background-size `auto 100%` scales
-// the strip to the row height and tiles it horizontally to fill any viewport width.
-const IconRow: React.FC<{ src: string }> = ({ src }) => (
-  <div
-    className="w-full h-[clamp(88px,9.2vw,160px)] bg-repeat-x"
-    style={{ backgroundImage: `url(${src})`, backgroundSize: 'auto 100%' }}
-    aria-hidden="true"
-  />
-);
+/**
+ * Figma 3187:3985 (390) · 3396:3227 (1440) · 3144:2249 (1920).
+ *
+ * A blue full-bleed band. Desktop puts the headline and the CTA column on one
+ * bottom-aligned row at opposite ends of the content width; mobile stacks them.
+ *
+ * The headline is deliberately two type styles: the first word is Display-xl
+ * (86/95 bold) in salmon, the remainder Size/7xl (75/86 semibold) in white.
+ * That mix is what produces the 353px block the artboard draws — a single size
+ * cannot.
+ *
+ * Nothing here fades in. This headline is the largest text above the fold and
+ * therefore the LCP element; animating it from opacity 0 postpones the page's
+ * first meaningful paint by the length of the animation.
+ */
+const Hero: React.FC = () => (
+  <section className="bg-bg-primary">
+    {/* Two levels on purpose: the outer box owns the band's height and centres
+        its contents vertically, the inner row bottom-aligns the headline against
+        the CTA column the way the artboard does. */}
+    {/* The row lands at xl, not lg. The artboard's two columns are 755 + 448 =
+        1203px wide; at 1024 there is only ~976px of content width, so they would
+        shrink and squeeze the headline. Below 1280 they stack, at the desktop
+        type sizes. */}
+    <Container className="flex items-center py-fig-40 lg:min-h-[742px] lg:py-0 3xl:min-h-[875px]">
+      <div className="flex w-full flex-col items-center gap-fig-24 xl:flex-row xl:items-end xl:justify-between xl:gap-fig-32">
+        <h1 className="w-full font-sans text-white lg:w-[755px] 3xl:w-[1000px]">
+          {/* The separating space lives inside a sized span. Left bare between
+              the two spans it renders at the h1's inherited size and the words
+              very nearly touch. */}
+          <span className="text-h2 text-sec-200 lg:text-display-xl lg:font-bold">{HEADLINE_LEAD}</span>
+          <span className="text-h2 lg:text-display-lg">{` ${HEADLINE_REST}`}</span>
+        </h1>
 
-const Hero: React.FC = () => {
-  return (
-    <section className="relative flex flex-col overflow-hidden">
-      {/* Content Area — Figma: gap-32 between title and subtitle, centered */}
-      <div className="w-full max-w-content mx-auto flex flex-col items-center text-center px-[clamp(24px,7vw,100px)] pb-[clamp(48px,7vw,80px)]">
-
-        {/* Title — Display-xl (Lexend Bold 86/95/-3%), primary blue, max 1182 */}
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-          className="t-display-xl text-text-primary max-w-[1182px]"
-        >
-          Full-stack data solutions to empower your business.
-        </motion.h1>
-
-        {/* Subtitle — Subtitle (Montserrat 24/32), #5a5a5a, max 820, gap-32 from title */}
-        <motion.p
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8 }}
-          className="t-subtitle text-subtitle max-w-[820px] mt-[32px]"
-        >
-          We analyze, design, and code with AI — bringing Vietnamese agility to speed up your growth.
-        </motion.p>
-
-        {/* Milestones bar — gap-80; value Display-md #0f1219, label H4 Lexend Medium #4b4d53 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-[clamp(48px,6vw,80px)] grid grid-cols-2 gap-x-6 gap-y-8 md:flex md:items-start md:justify-center md:gap-[80px]"
-        >
-          {milestones.map((m) => (
-            <div key={m.label} className="flex flex-col items-center text-center gap-[4px]">
-              <span className="t-display-md text-text-default">{m.value}</span>
-              <span className="t-h4 text-link">{m.label}</span>
-            </div>
-          ))}
-        </motion.div>
+        <div className="flex w-full flex-col items-start gap-fig-24 lg:w-[448px] lg:gap-fig-32 3xl:w-[500px]">
+          <p className="font-body font-medium text-[14px] leading-[22px] text-white lg:text-subtitle-1 lg:font-normal">
+            {SUBTITLE}
+          </p>
+          {/* Button-md at 390, Button-lg from 1440 up — the artboards step the
+              label size as well as the icon gap. */}
+          <Button
+            variant="secondary"
+            size="lg"
+            radius="m"
+            onDark
+            onClick={() => scrollToSection('contact')}
+            className="w-[336px] max-w-full self-center border-transparent shadow-fig-xs lg:w-full lg:self-auto lg:gap-fig-14 lg:text-btn-lg"
+            icon={<ArrowUpRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
+          >
+            Contact Us
+          </Button>
+        </div>
       </div>
-
-      {/* Icon band — two static rows of 160px tiles, no animation, no row gap */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 1 }}
-        className="w-full flex flex-col"
-        aria-hidden="true"
-      >
-        <IconRow src={ASSETS.hero.iconsRow1} />
-        <IconRow src={ASSETS.hero.iconsRow2} />
-      </motion.div>
-    </section>
-  );
-};
+    </Container>
+  </section>
+);
 
 export default Hero;

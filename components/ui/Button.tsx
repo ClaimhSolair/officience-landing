@@ -17,13 +17,13 @@ import { Link } from 'react-router-dom';
  *              white via `onDark` where the button sits on #1F49BF
  *   disabled   50% opacity, pointer events off
  *
- * Corner radius is 0: the component screenshot (node 3552:2330) shows square
- * corners. One constant, so it is one edit if a section proves otherwise.
+ * Corner radius varies by where the button is used, and both values are drawn:
+ * the header CTA (3552:2994) is square, the hero CTA (3137:1866) is 8px.
  */
-const RADIUS = 'rounded-none';
+const RADIUS = { none: 'rounded-none', m: 'rounded-fig-m' } as const;
 
 type Variant = 'primary' | 'secondary' | 'tertiary';
-type Size = 'md' | 'lg';
+type Size = 'md' | 'lg' | 'xl';
 
 const VARIANT: Record<Variant, string> = {
   primary:
@@ -37,6 +37,8 @@ const VARIANT: Record<Variant, string> = {
 const SIZE: Record<Size, string> = {
   md: 'h-[48px] px-fig-20 gap-fig-8 text-btn-md',
   lg: 'h-[56px] px-fig-24 gap-fig-8 text-btn-md',
+  /** The hero CTA: same height, but Button-lg type and a wider icon gap. */
+  xl: 'h-[56px] px-fig-24 gap-fig-14 text-btn-lg',
 };
 
 interface CommonProps {
@@ -45,6 +47,7 @@ interface CommonProps {
   size?: Size;
   /** Sitting on the blue background: switch the focus ring to white. */
   onDark?: boolean;
+  radius?: keyof typeof RADIUS;
   className?: string;
   /** Rendered after the label, at 24×24 in the Figma component. */
   icon?: React.ReactNode;
@@ -62,6 +65,7 @@ const Button: React.FC<ButtonProps & { disabled?: boolean; type?: 'button' | 'su
   variant = 'primary',
   size = 'lg',
   onDark = false,
+  radius = 'none',
   className = '',
   icon,
   to,
@@ -71,8 +75,8 @@ const Button: React.FC<ButtonProps & { disabled?: boolean; type?: 'button' | 'su
   type = 'button',
 }) => {
   const classes = [
-    'inline-flex items-center justify-center whitespace-nowrap font-sans transition-colors',
-    RADIUS,
+    'inline-flex items-center justify-center whitespace-nowrap font-sans transition-colors motion-reduce:transition-none',
+    RADIUS[radius],
     VARIANT[variant],
     SIZE[size],
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',

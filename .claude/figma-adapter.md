@@ -47,12 +47,31 @@ so a lockup whose wording is type comes out as separate vectors plus bare string
 Reconstructing small type (8–10px) in HTML is not worth the fidelity risk — ask for a
 flattened SVG export with text outlined instead.
 
-Outstanding export request: **the white brand lockup** (header logo). Nodes
-`3552:2941` (flower + "officience"), `3552:2977` (the "20" mark) export cleanly, but
-"YEARS" / "ANNIVERSARY" are live text. Until a flattened SVG arrives, `Header.tsx`
-renders the old blue PNG inverted with `filter: brightness(0) invert(1)` — correct
-height and colour, but the artwork is 2.51:1 against Figma's 2.38:1, so it sits about
-8px too wide at 1440.
+### Backlog — assets the team owes us
+
+Both are shipped-around, not blocking. Revisit when the files arrive.
+
+1. **The white brand lockup** (header logo). `3552:2941` (flower + "officience") and
+   `3552:2977` (the "20" mark) export cleanly, but "YEARS" / "ANNIVERSARY" are live
+   text. Until a flattened SVG (text outlined) arrives, `Header.tsx` renders the old
+   blue PNG inverted with `filter: brightness(0) invert(1)` — right height and colour,
+   but the artwork is 2.51:1 against Figma's 2.38:1, so it sits ~8px too wide at 1440.
+2. **The hero's five floating 3D shapes.** They render in Figma and survive
+   `contentsOnly`, but no level of `get_metadata` or `get_design_context` will list
+   them — no node id, no asset, no coordinates. The team is sending the files
+   separately. `Hero.tsx` ships without them. Placements measured off the 1440
+   screenshot, as fractions of the hero box (left / top, width as % of hero width):
+
+   | Shape | left | top | width |
+   |---|---|---|---|
+   | green leaf | 19.1% | 1.5% | 7.0% |
+   | pink asterisk | 58.6% | 9.2% | 9.8% |
+   | yellow ring | 48.0% | 50.7% | 9.6% |
+   | blue star disc | 23.2% | 74.9% | 9.8% |
+   | pink striped ellipse | 79.3% | 77.3% | 8.6% |
+
+   They are decorative: give them `aria-hidden`, `pointer-events-none`,
+   `decoding="async"` and no `loading="lazy"` above the fold.
 
 - Source folder: `assets-src/` (relative paths become R2 object keys)
 - Drop folder for user exports: any root folder agreed per task (left untracked)

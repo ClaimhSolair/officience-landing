@@ -22,6 +22,9 @@ const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 export const ASSETS = {
   header: { logo: a('/header/logo.png') },
+  // Exported from Figma 3137:1875 — one path set, all fills #1F49BF, so the
+  // petals are knock-outs that show whatever sits behind them.
+  brand: { flower: a('/brand/officience-flower.svg') },
   hero: {
     iconsRow1: a('/hero/icons-group-1.svg'),
     iconsRow2: a('/hero/icons-group-2.svg'),
