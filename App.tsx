@@ -1,27 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useRef, useState } from 'react';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { MotionConfig } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
-import { track } from '@vercel/analytics';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './components/Header';
-import Hero from './components/Hero';
-import Survey from './components/Survey';
-import HowWeEngage from './components/HowWeEngage';
-import ClientStories from './components/ClientStories';
-import Capabilities from './components/Capabilities';
-import Contact from './components/Contact';
 import Footer from './components/Footer';
-import WhyOfficience from './components/WhyOfficience';
-import TermsConditions from './components/TermsConditions';
+import Survey from './components/Survey';
 import SplashScreen from './components/SplashScreen';
 import CookieConsent from './components/CookieConsent';
-import type { SurveyBranch } from './components/Contact';
+import ScrollManager from './components/ScrollManager';
+import ErrorBoundary from './components/ErrorBoundary';
+import { ROUTES } from './components/navigation';
+import HomePage from './pages/HomePage';
+import type { SurveyBranch } from './types';
 
-function App() {
+// Legal copy is long and rarely read — it leaves the home bundle.
+const LegalPage = React.lazy(() => import('./pages/LegalPage'));
+
+export interface LayoutContext {
+  openSurvey: (branch?: SurveyBranch) => void;
+}
+
+/**
+ * The shell every route renders inside: header, footer, and the overlays that
+ * must survive navigation (survey, cookie banner, analytics).
+ */
+const Layout: React.FC = () => {
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
   const [surveyBranch, setSurveyBranch] = useState<SurveyBranch>('work');
   const [, setSurveyData] = useState<Record<string, string> | null>(null);
-  const [isTermsOpen, setIsTermsOpen] = useState(false);
-  const [termsTab, setTermsTab] = useState<'terms' | 'privacy'>('terms');
+  const pageRef = useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
 
   const openSurvey = (branch: SurveyBranch = 'work') => {
     setSurveyBranch(branch);
@@ -29,98 +38,60 @@ function App() {
   };
   const closeSurvey = () => setIsSurveyOpen(false);
 
-  const openTerms = (tab: 'terms' | 'privacy' = 'terms') => {
-    setTermsTab(tab);
-    setIsTermsOpen(true);
-  };
-  const closeTerms = () => setIsTermsOpen(false);
-
-  useEffect(() => {
-    const sections = ['capabilities', 'clients', 'approach', 'why-us', 'contact'];
-    const tracked = new Set<string>();
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !tracked.has(entry.target.id)) {
-            tracked.add(entry.target.id);
-            track('section_view', { section: entry.target.id });
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    sections.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const handleSurveyComplete = (data: Record<string, string>) => {
-    setSurveyData(data);
-  };
-
   return (
     <div className="bg-background min-h-screen w-full box-border flex flex-col font-sans text-gray-900 selection:bg-yellow-400 selection:text-black">
-      
-      {/* Splash Screen */}
-      <SplashScreen />
-      
-      {/* Main Card Container */}
-      <div className="flex-1 relative isolate flex flex-col min-h-screen">
-        
-        {/* Background Layer */}
-        <div className="absolute inset-0 -z-10 overflow-hidden bg-background">
-           {/* Blob animation removed */}
-        </div>
+      <ScrollManager />
 
-        {/* Content */}
-        <Header 
-          onOpenSurvey={openSurvey} 
-        />
-        
-        {/* Figma order: Hero → Services → Approach → Testimonials → Why Us → Contact → Footer.
-            120px vertical rhythm between top-region sections (clamp-anchored). */}
-        <main className="relative z-10 flex-grow flex flex-col gap-[clamp(56px,9vw,120px)] pt-[clamp(56px,9vw,120px)]">
-          <Hero />
-          <Capabilities />
-          <HowWeEngage onOpenSurvey={openSurvey} />
-          <ClientStories />
+      {/* Splash is a home-page welcome, not a site-wide interstitial. */}
+      {pathname === ROUTES.home && <SplashScreen />}
 
-          {/* Blue background wrapper for bottom sections (Figma: Why Us frame contains Why Us + Contact + Footer) */}
-          <div style={{ backgroundColor: '#1F49BF' }}>
-            <WhyOfficience />
-            <Contact onOpenSurvey={openSurvey} />
-            <Footer onOpenTerms={() => openTerms('terms')} />
-          </div>
+      {/* Stacking context for the whole page; overlays below sit above it. */}
+      <div ref={pageRef} className="flex-1 relative isolate flex flex-col min-h-screen">
+        <div className="absolute inset-0 -z-10 overflow-hidden bg-background" />
+
+        <Header onOpenSurvey={openSurvey} />
+
+        {/* Per-page rhythm lives in the page, not here — see pages/HomePage.tsx. */}
+        <main className="relative z-10 flex-grow flex flex-col">
+          <ErrorBoundary>
+            <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+              <Outlet context={{ openSurvey } satisfies LayoutContext} />
+            </Suspense>
+          </ErrorBoundary>
         </main>
+
+        <Footer />
       </div>
 
-      {/* Survey Modal */}
       <Survey
         isOpen={isSurveyOpen}
         onClose={closeSurvey}
-        onComplete={handleSurveyComplete}
+        onComplete={setSurveyData}
         initialBranch={surveyBranch}
       />
 
-      {/* Terms & Conditions Modal */}
-      <TermsConditions
-        isOpen={isTermsOpen}
-        onClose={closeTerms}
-        initialTab={termsTab}
-      />
-
       {/* Cookie consent banner (Google Consent Mode v2) */}
-      <CookieConsent onOpenPrivacy={() => openTerms('privacy')} />
+      <CookieConsent />
 
       <Analytics />
       <SpeedInsights />
     </div>
   );
-}
+};
+
+const App = () => (
+  // Every framer-motion animation in the tree collapses for visitors who ask
+  // their OS for reduced motion.
+  <MotionConfig reducedMotion="user">
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<HomePage />} />
+        <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
+        <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />
+        <Route path="*" element={<Navigate to={ROUTES.home} replace />} />
+      </Route>
+    </Routes>
+  </MotionConfig>
+);
 
 export default App;

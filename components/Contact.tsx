@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { ASSETS } from '../assets';
 
-export type SurveyBranch = 'work' | 'category';
+import type { SurveyBranch } from '../types';
 
 interface ContactProps {
   onOpenSurvey: (branch: SurveyBranch) => void;

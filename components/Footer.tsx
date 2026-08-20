@@ -1,6 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Mail, Phone } from 'lucide-react';
 import { ASSETS } from '../assets';
+import { ROUTES } from './navigation';
 
 const LOGO_URL = ASSETS.footer.logo;
 const BANNER_URL = ASSETS.footer.banner;
@@ -12,11 +14,7 @@ const EMAIL = 'engage@officience.com';
 const PHONE_DISPLAY = '+84 28 3862 0055';
 const PHONE_TEL = '+842838620055';
 
-interface FooterProps {
-  onOpenTerms: () => void;
-}
-
-const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
+const Footer: React.FC = () => {
   // Order matches Figma footer (2933:2080): LinkedIn, Facebook, TikTok, YouTube.
   const socials = [
     { href: 'https://www.linkedin.com/company/officience/', label: 'LinkedIn', icon: ASSETS.footer.linkedin },
@@ -44,9 +42,9 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
         <div className="flex justify-between gap-4 items-start">
           {/* Links — left-aligned stack, ≥44px tap rows. Font sized to match copyright (12px). */}
           <div className="flex flex-col text-[12px]">
-            <button onClick={onOpenTerms} className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity">
+            <Link to={ROUTES.terms} className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity">
               Terms &amp; Conditions
-            </button>
+            </Link>
             <button
               onClick={() => window.dispatchEvent(new Event('officience:cookie-settings'))}
               className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity"
@@ -56,9 +54,9 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
             <a href={ABOUT_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
               About us
             </a>
-            <a href="#capabilities" className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
+            <Link to={`${ROUTES.home}#capabilities`} className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
               Our Services
-            </a>
+            </Link>
             <a href={CAREER_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
               We’re Hiring
             </a>
@@ -132,9 +130,9 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
         <div className="flex flex-col gap-4 md:flex-row items-center justify-between font-body text-white text-[18px]">
           <span className="text-center md:text-left">© {new Date().getFullYear()} Officience, All rights reserved</span>
           <div className="flex flex-wrap justify-center gap-x-[clamp(20px,2vw,40px)]">
-            <button onClick={onOpenTerms} className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
+            <Link to={ROUTES.terms} className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
               Terms &amp; Conditions
-            </button>
+            </Link>
             <button
               onClick={() => window.dispatchEvent(new Event('officience:cookie-settings'))}
               className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap"
@@ -144,9 +142,9 @@ const Footer: React.FC<FooterProps> = ({ onOpenTerms }) => {
             <a href={ABOUT_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
               About us
             </a>
-            <a href="#capabilities" className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
+            <Link to={`${ROUTES.home}#capabilities`} className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
               Our Services
-            </a>
+            </Link>
             <a href={CAREER_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
               We’re Hiring
             </a>

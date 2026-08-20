@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ROUTES } from './navigation';
 
 // Persisted visitor choice; index.html reads the same key on load to set
 // Consent Mode defaults and decide whether Clarity may load.
@@ -13,10 +15,6 @@ declare global {
   }
 }
 
-interface CookieConsentProps {
-  onOpenPrivacy: () => void;
-}
-
 const readStored = (): string | null => {
   try {
     return localStorage.getItem(CONSENT_KEY);
@@ -25,7 +23,7 @@ const readStored = (): string | null => {
   }
 };
 
-const CookieConsent: React.FC<CookieConsentProps> = ({ onOpenPrivacy }) => {
+const CookieConsent: React.FC = () => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -72,12 +70,12 @@ const CookieConsent: React.FC<CookieConsentProps> = ({ onOpenPrivacy }) => {
             We use analytics cookies to understand how visitors use our site
             and to improve your experience. They are only set if you accept.
             Learn more in our{' '}
-            <button
-              onClick={onOpenPrivacy}
+            <Link
+              to={ROUTES.privacy}
               className="underline text-text-primary hover:opacity-80 transition-opacity"
             >
               Privacy Policy
-            </button>
+            </Link>
             .
           </p>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-fig-8 mt-fig-16">

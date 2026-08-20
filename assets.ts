@@ -1,6 +1,17 @@
-// Redesign assets hosted on the Cloudflare R2 "redesign" bucket.
-// Source files live in /assets-src and are uploaded via `npm run upload-assets`.
-const R2 = 'https://pub-37210447316445838bf89f8613ac9ea5.r2.dev';
+// Image origins on Cloudflare R2. Source files live in /assets-src and are
+// published with `npm run upload-assets`.
+//
+//   PRODUCTION — serves every image on officience.com today. READ-ONLY for the
+//   Sept-2026 redesign: uploads overwrite objects in place, with no cache
+//   header and no deploy gate, so writing here would change the live site.
+const R2_PRODUCTION = 'https://pub-37210447316445838bf89f8613ac9ea5.r2.dev';
+//   STAGING — receives every Sept-2026 asset. Becomes the production origin at
+//   merge (a URL flip, no copy), leaving R2_PRODUCTION intact as the rollback.
+const R2_STAGING = 'https://pub-767c5aebf4a841a595fec5daeb08d3b4.r2.dev';
+
+// Switch to R2_STAGING once the bucket is seeded with the current /assets-src set.
+// Flipping before the seed upload 404s every image on the branch preview.
+const R2 = R2_PRODUCTION;
 
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.

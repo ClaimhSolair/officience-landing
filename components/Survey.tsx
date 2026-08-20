@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, Check, AlertCircle } from 'lucide-react';
-import type { SurveyBranch } from './Contact';
+import type { SurveyBranch } from '../types';
 
 interface SurveyProps {
   isOpen: boolean;

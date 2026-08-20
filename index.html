@@ -37,15 +37,17 @@
     }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preload" href="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Element_header.png" as="image">
+    <!-- Legacy bucket: SplashScreen art only. Keep the preconnect while the splash ships. -->
     <link rel="preconnect" href="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev" crossorigin>
+    <!-- Sept-2026 staging bucket: serves every image in the redesign (see assets.ts). -->
+    <link rel="preconnect" href="https://pub-767c5aebf4a841a595fec5daeb08d3b4.r2.dev" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/lexend/v26/wlpwgwvFAVdoq2_v-6QU.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/lexend/v26/wlpwgwvFAVdoq2_v9KQU4Wc.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WZhyzbi.woff2" as="font" type="font/woff2" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
@@ -78,18 +80,59 @@
               'off-red': '#DD3C57',
               'off-pink': '#FFBFC7',
               'off-yellow': '#FFCE00',
-              'off-orange': '#FD941D'
+              'off-orange': '#FD941D',
+              // --- Sept-2026 system colors (Figma "System Colors/*") ---
+              'sec-500': '#DD3C57',
+              'sec-200': '#FF9FAE',
+              'pri-500': '#1F49BF',
+              'pri-50': '#ECF4FF',
+              'org-500': '#FD941D',
+              'org-200': '#FED29F',
+              'green-200': '#A5E5C8',
+              'green-100': '#CAF2E0',
+              'dpink-100': '#FAC5DE',
+              'black-950': '#0F1219',
+              'black-900': '#1B1E25',
+              'gray-fig-50': '#F7F7F7',
+              // Semantic/Border — "Outline Field" fails 3:1 as a non-text boundary,
+              // so it is decorative only; input borders use a darker value.
+              'border-field': '#C6C6C6',
+              'border-frame': '#E5E5E5'
+            },
+            // --- Sept-2026 type scale. One entry per Figma text style, with
+            //     line-height / letter-spacing / weight baked in, so a style can be
+            //     swapped per breakpoint (`text-h1 lg:text-display-sm`) — which is
+            //     exactly how the artboards work: fixed px per style, discrete swaps
+            //     between 390 and 1440+, never fluid interpolation.
+            //     Family is the one thing left out: font-sans = Lexend, font-body = Montserrat.
+            fontSize: {
+              'display-xl': ['86px', { lineHeight: '95px', letterSpacing: '-0.03em', fontWeight: '700' }],
+              'display-md': ['64px', { lineHeight: '74px', letterSpacing: '-0.03em', fontWeight: '500' }],
+              'display-sm': ['50px', { lineHeight: '58px', letterSpacing: '0', fontWeight: '500' }],
+              'h1': ['36px', { lineHeight: '44px', letterSpacing: '0', fontWeight: '500' }],
+              'h2': ['28px', { lineHeight: '40px', letterSpacing: '0', fontWeight: '600' }],
+              'h3': ['24px', { lineHeight: '28px', letterSpacing: '0', fontWeight: '600' }],
+              'h4': ['20px', { lineHeight: '28px', letterSpacing: '0', fontWeight: '500' }],
+              'subtitle-1': ['24px', { lineHeight: '36px', letterSpacing: '0', fontWeight: '400' }],
+              'subtitle-2': ['28px', { lineHeight: '36px', letterSpacing: '0', fontWeight: '400' }],
+              'body-xl': ['20px', { lineHeight: '28px', letterSpacing: '0', fontWeight: '400' }],
+              'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0', fontWeight: '500' }],
+              'btn-md': ['16px', { lineHeight: '24px', letterSpacing: '0', fontWeight: '500' }],
+              'btn-lg': ['20px', { lineHeight: '24px', letterSpacing: '0', fontWeight: '600' }],
             },
             // --- Figma spacing scale (px) ---
             spacing: {
-              'fig-4': '4px', 'fig-8': '8px', 'fig-12': '12px', 'fig-16': '16px',
-              'fig-20': '20px', 'fig-32': '32px', 'fig-40': '40px', 'fig-48': '48px',
-              'fig-64': '64px', 'fig-80': '80px', 'fig-96': '96px', 'fig-100': '100px',
-              'fig-120': '120px', 'fig-160': '160px',
+              'fig-2': '2px', 'fig-4': '4px', 'fig-6': '6px', 'fig-8': '8px',
+              'fig-12': '12px', 'fig-14': '14px', 'fig-16': '16px', 'fig-20': '20px',
+              'fig-24': '24px', 'fig-28': '28px', 'fig-32': '32px', 'fig-40': '40px',
+              'fig-48': '48px', 'fig-56': '56px', 'fig-64': '64px', 'fig-80': '80px',
+              'fig-96': '96px', 'fig-100': '100px', 'fig-116': '116px', 'fig-120': '120px',
+              'fig-146': '146px', 'fig-160': '160px',
             },
             borderRadius: {
               'fig-xs': '4px',
               'fig-m': '8px',
+              'fig-l': '12px',
             },
             boxShadow: {
               'fig-xs': '0 1px 2px 0 #0000000D',
@@ -97,6 +140,8 @@
             },
             maxWidth: {
               'content': '1720px',
+              // Sept-2026: 1920 artboard minus 64px gutters. Content stops growing here.
+              'content-2': '1792px',
             },
             animation: {
               'fade-in': 'fadeIn 1s ease-out forwards',
@@ -172,9 +217,14 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-R8R4KL5WGL"></script>
     <style>
       html {
-        scroll-behavior: smooth;
         scroll-padding-top: 100px;
         scrollbar-width: none;
+      }
+      /* Anchor scrolling animates only for visitors who haven't asked for less motion. */
+      @media (prefers-reduced-motion: no-preference) {
+        html {
+          scroll-behavior: smooth;
+        }
       }
       body {
         background-color: #F7F7F7;
@@ -184,7 +234,28 @@
       ::-webkit-scrollbar {
         display: none;
       }
-      /* ---- Figma typography tokens (clamp-anchored: exact at desktop, fluid below) ---- */
+      /* The rules above hide every scrollbar in the document. Surfaces that need a
+         visible one (the overlay menu's scrolling panel) opt back in with .menu-scroll. */
+      .menu-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #C6C6C6 transparent;
+      }
+      .menu-scroll::-webkit-scrollbar {
+        display: block;
+        width: 6px;
+      }
+      .menu-scroll::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .menu-scroll::-webkit-scrollbar-thumb {
+        background-color: #C6C6C6;
+        border-radius: 3px;
+      }
+      /* ---- LEGACY typography tokens (July-2026 scale) ----
+         Frozen verbatim: every component still on the old design consumes these.
+         The Sept-2026 scale lives in tailwind.config.fontSize as `text-*` utilities
+         (text-display-xl, text-h1 … text-btn-lg) so styles can swap per breakpoint.
+         Delete this block at cleanup, once no component references a .t-* class. */
       /* Lexend headings */
       .t-display-xl {
         font-family: 'Lexend', sans-serif; font-weight: 700;

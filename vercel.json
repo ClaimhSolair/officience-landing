@@ -26,6 +26,18 @@
       "headers": [
         { "key": "X-Robots-Tag", "value": "index, follow" }
       ]
+    },
+    {
+      "source": "/terms-of-use",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, follow" }
+      ]
+    },
+    {
+      "source": "/privacy-policy",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, follow" }
+      ]
     }
   ]
 }
