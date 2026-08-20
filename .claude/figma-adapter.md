@@ -166,6 +166,21 @@ backgrounds go on the parent so they stay full-bleed.
     - For 1920, the layout cannot be seen at all. Verify by reading the generated rules:
       walk `document.styleSheets` for a `MEDIA_RULE` whose `conditionText` contains 1920
       and assert the declarations. Confirms values, not appearance.
+  - **`loading="lazy"` never fires in this Chrome profile.** Confirmed directly: an
+    eager image loads, an otherwise identical lazy one pinned at `top:100px` in the
+    viewport stays `complete: false` indefinitely. Nothing to fix in the markup — but
+    it means lazy imagery is invisible to verification until you force it:
+    `[...document.images].forEach(i => { if (i.loading === 'lazy') { const s = i.src; i.loading = 'eager'; i.src = ''; i.src = s; } })`
+    then wait a few seconds. Do this in the iframe's `contentDocument` too.
+  - Screenshots race the paint on a long document — if a region comes back blank,
+    scroll the element into view, wait, and shoot again rather than concluding it broke.
+    A tab that has timed out on `screenshot` a few times can wedge its renderer; open a
+    fresh tab rather than fighting it.
+  - `srcset` picks a **cached larger candidate** over fetching a smaller one, so a
+    narrow viewport may report the desktop file. To test selection honestly, add a
+    unique cache-busting param to every candidate.
+  - Cross-origin `fetch()` to the r2.dev host fails CORS; `<img>` is unaffected. Don't
+    read a failed `fetch` as a broken asset.
   - Overflow: compare against `document.documentElement.clientWidth`, not `window.innerWidth`.
   - The survey email function (`api/survey.ts`, Node runtime) does NOT run under `vite` — e2e only on a Vercel deploy.
   - Vercel `SMTP_USER`/`SMTP_PASS` are branch-filtered to `redesign/2026`; any other branch's preview 500s on submit until they are re-scoped. Rate limit is 5 requests / 10 min / IP.

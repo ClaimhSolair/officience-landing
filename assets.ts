@@ -25,6 +25,17 @@ export const ASSETS = {
   // Exported from Figma 3137:1875 — one path set, all fills #1F49BF, so the
   // petals are knock-outs that show whatever sits behind them.
   brand: { flower: a('/brand/officience-flower.svg') },
+  icons: { eyebrow: a('/icons/eyebrow-mark.svg') },
+  // Story-card photography, exported from Figma and re-encoded as WebP q80 at
+  // two widths. Cards 2 and 3 top out at 1024 because that is all the Figma
+  // originals hold — they upscale slightly in a 1792px card.
+  about: {
+    cards: [
+      { small: a('/about/card-1-900.webp'), large: a('/about/card-1-1800.webp'), largeWidth: 1800 },
+      { small: a('/about/card-2-900.webp'), large: a('/about/card-2-1024.webp'), largeWidth: 1024 },
+      { small: a('/about/card-3-900.webp'), large: a('/about/card-3-1024.webp'), largeWidth: 1024 },
+    ],
+  },
   hero: {
     iconsRow1: a('/hero/icons-group-1.svg'),
     iconsRow2: a('/hero/icons-group-2.svg'),

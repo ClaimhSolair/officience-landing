@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { track } from '@vercel/analytics';
 import Hero from '../components/Hero';
 import FlowerDivider from '../components/FlowerDivider';
+import AboutUs from '../components/AboutUs';
 import Capabilities from '../components/Capabilities';
 import HowWeEngage from '../components/HowWeEngage';
 import ClientStories from '../components/ClientStories';
@@ -50,6 +51,7 @@ const HomePage: React.FC = () => {
           padding that the not-yet-rebuilt sections below still rely on. */}
       <Hero />
       <FlowerDivider />
+      <AboutUs />
 
       {/* Figma order: Services → Approach → Testimonials → Why Us → Contact → Footer.
           120px vertical rhythm between top-region sections (clamp-anchored). Lives here

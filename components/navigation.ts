@@ -28,6 +28,8 @@ const BROCHURE_URL = 'https://demo.officience.com/brochure';
 export const EXTERNAL = {
   career: 'https://www.linkedin.com/company/officience/jobs/',
   linkedin: 'https://www.linkedin.com/company/officience/',
+  /** Where the footer's "About us" has always pointed. */
+  about: 'https://demo.officience.com/',
   // Named after the brochure slug, not the menu label — the menu calls the
   // analytics unit "Data" and the data-engineering unit "Crunch", which is the
   // opposite pairing to what the slugs suggest.
@@ -120,6 +122,13 @@ export const SOCIALS = [
   { label: 'TikTok', href: 'https://www.tiktok.com/@officience' },
   { label: 'YouTube', href: 'https://www.youtube.com/@officienceinvietnam' },
 ] as const;
+
+/** The About Us section's text link. */
+export const DISCOVER_OUR_STORY: NavItem = {
+  label: 'Discover Our Story',
+  target: { kind: 'external', href: EXTERNAL.about },
+  unresolved: 'No dedicated story page exists — points at the legacy about site for now.',
+};
 
 /** "View All Work" on the Proven Results deck. */
 export const VIEW_ALL_WORK: NavItem = {
