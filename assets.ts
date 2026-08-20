@@ -9,9 +9,10 @@ const R2_PRODUCTION = 'https://pub-37210447316445838bf89f8613ac9ea5.r2.dev';
 //   merge (a URL flip, no copy), leaving R2_PRODUCTION intact as the rollback.
 const R2_STAGING = 'https://pub-767c5aebf4a841a595fec5daeb08d3b4.r2.dev';
 
-// Switch to R2_STAGING once the bucket is seeded with the current /assets-src set.
-// Flipping before the seed upload 404s every image on the branch preview.
-const R2 = R2_PRODUCTION;
+// Seeded with the full /assets-src set on 2026-08-20 and verified reachable, so
+// the branch now serves its images from staging. R2_PRODUCTION stays named above
+// as the rollback target: reverting this one line restores the live origin.
+const R2 = R2_STAGING;
 
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
