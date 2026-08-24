@@ -30,6 +30,8 @@ export const EXTERNAL = {
   linkedin: 'https://www.linkedin.com/company/officience/',
   /** Where the footer's "About us" has always pointed. */
   about: 'https://demo.officience.com/',
+  /** The catch-all brochure index behind "View All Brochure". */
+  brochureIndex: BROCHURE_URL,
   // Named after the brochure slug, not the menu label — the menu calls the
   // analytics unit "Data" and the data-engineering unit "Crunch", which is the
   // opposite pairing to what the slugs suggest.

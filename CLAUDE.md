@@ -30,7 +30,7 @@ officience/
   components/
     Header.tsx         # Sticky nav bar
     Hero.tsx           # Hero section with tagline
-    Capabilities.tsx   # "What We Do" - 4 service cards
+    Capabilities.tsx   # "Our Services" - 4 ruled list rows, brochure links
     ClientStories.tsx  # Testimonial carousel
     HowWeEngage.tsx    # "Our Approach" engagement section
     WhyOfficience.tsx  # "Why Choose Us" section

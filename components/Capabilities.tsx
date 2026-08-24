@@ -1,131 +1,194 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import { ASSETS } from '../assets';
-import CarouselDots from './ui/CarouselDots';
+import Container from './ui/Container';
+import Button from './ui/Button';
+import SectionBadge from './ui/SectionBadge';
+import { EXTERNAL } from './navigation';
 
-const BROCHURE_URL = 'https://demo.officience.com/brochure';
+/**
+ * Figma 3137:1931 (1920) and 3187:4345 (390).
+ *
+ * Four services on a shared rule. Desktop splits each row in two: the name and
+ * its one-line promise on the left, the offering list and the brochure link
+ * right-aligned in a 350px rail. At 390 those four pieces stack in one column
+ * and the type drops a whole step — 64px titles become 24px, the promise turns
+ * grey, the offerings shrink to 12px.
+ *
+ * The rules differ between the two frames: 1920 draws one above every row, so a
+ * rule also separates the header from the first service; 390 draws them only
+ * between rows. Both are reproduced.
+ */
 
-const services = [
+interface Service {
+  title: string;
+  /** The single line under the name. */
+  promise: string;
+  offerings: string[];
+  brochure: string;
+}
+
+/**
+ * Copy follows the 1920 artboard, which wins wherever the two frames disagree —
+ * and they disagree in several places, all listed in the Step 4 checkpoint.
+ * Order is the artboards': analytics comes before data engineering, the reverse
+ * of the 20th-anniversary build.
+ */
+const SERVICES: Service[] = [
   {
-    imageUrl: ASSETS.services.design,
-    iconSize: 70,
     title: 'Design & Digital Experience',
-    desc: 'Design the look and experience of your brand and digital products.',
-    bullets: ['UX/UI design', 'Web design', 'Branding & visual identity', 'Product design'],
-    url: `${BROCHURE_URL}/creative-tribe`,
+    promise: 'Design the look and experience of your brand and digital products.',
+    offerings: ['Product design', 'Branding & visual identity', 'UX/UI design', 'Web design'],
+    brochure: EXTERNAL.brochureCreativeTribe,
   },
   {
-    imageUrl: ASSETS.services.software,
-    iconSize: 70,
     title: 'Software & Web Development',
-    desc: 'Build the technology behind your business.',
-    bullets: ['Web applications', 'Mobile apps', 'SaaS platforms', 'E-commerce platforms', 'Enterprise tools', 'System integration'],
-    url: `${BROCHURE_URL}/it-craft`,
+    promise: 'Build the technology behind your business.',
+    offerings: [
+      'Web applications',
+      'E-commerce platforms',
+      'SaaS platforms',
+      'Mobile apps',
+      'System integrations',
+    ],
+    brochure: EXTERNAL.brochureItCraft,
   },
   {
-    imageUrl: ASSETS.services.data,
-    iconSize: 64,
-    title: 'Data Engineering & Processing',
-    desc: 'Manage & process data to support your business operations.',
-    bullets: ['Data entry and processing', 'Data cleaning and enrichment', 'Process outsourcing', 'Workflow support', 'CRM and operational data management'],
-    url: `${BROCHURE_URL}/crunch`,
-  },
-  {
-    imageUrl: ASSETS.services.bi,
-    iconSize: 70,
     title: 'Business Intelligence & Analytics',
-    desc: 'Turn your data into business insights.',
-    bullets: ['Business intelligence dashboards', 'Data analytics', 'Forecasting models', 'AI & machine learning', 'Automation solutions'],
-    url: `${BROCHURE_URL}/analytics`,
+    promise: 'Turn your data into business insights.',
+    offerings: [
+      'Data analytics',
+      'Business intelligence dashboards',
+      'Automation solutions',
+      'AI & Machine Learning',
+    ],
+    brochure: EXTERNAL.brochureAnalytics,
+  },
+  {
+    title: 'Data Engineering & Processing',
+    promise: 'Manage and process data to support your business operations.',
+    offerings: [
+      'Data entry & processing',
+      'Data cleaning and enrichment',
+      'CRM management',
+      'Process outsourcing',
+    ],
+    brochure: EXTERNAL.brochureCrunch,
   },
 ];
 
-const Capabilities: React.FC = () => {
-  const trackRef = useRef<HTMLDivElement>(null);
-  return (
-    <section id="capabilities" className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)]">
-      {/* Services Section: gap-48 between header and list */}
-      <div className="flex flex-col gap-[clamp(32px,4vw,48px)]">
-
-        {/* Header — title+subtitle (left), General Brochure CTA (right) */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div className="flex flex-col gap-[20px] md:max-w-[578px]">
-            <h2 className="t-display-xl text-text-default">What We Do</h2>
-            <p className="t-subtitle text-subtitle">
-              Comprehensive solutions tailored to your needs
-            </p>
-          </div>
-
-          <a
-            href={BROCHURE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="self-start inline-flex items-center gap-[8px] bg-[#1F49BF] hover:bg-[#000086] active:bg-[#000050] text-white px-[24px] py-[16px] shadow-fig-xs transition-colors whitespace-nowrap shrink-0"
-          >
-            <span className="t-button text-[clamp(15px,4.5vw,20px)]">View General Brochure</span>
-            <ArrowUpRight size={24} strokeWidth={2} />
-          </a>
+const Capabilities: React.FC = () => (
+  <section id="capabilities" className="bg-bg-secondary">
+    <Container className="flex flex-col gap-fig-40 py-fig-32 lg:gap-fig-100 lg:py-fig-100">
+      {/* Header. Two columns from lg — name on the left, the promise and the
+          catch-all brochure right-aligned on the right. */}
+      <div className="flex flex-col gap-fig-24 lg:flex-row lg:items-start lg:justify-between lg:gap-fig-32">
+        <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
+          <SectionBadge>What We Do</SectionBadge>
+          {/* 86px over a 74px line box, which is Display-xl's size on Display-md's
+              leading — an override the artboard draws directly, not a named style. */}
+          <h2 className="font-sans text-h1 text-text-default lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
+            Our Services
+          </h2>
         </div>
 
-        {/* Service cards — mobile: scroll-snap swipe carousel (peek + dots); sm+: restore exact 2-up/4-up grid */}
-        <div
-          ref={trackRef}
-          className="flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] gap-[clamp(20px,2vw,32px)] items-stretch sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
-        >
-          {services.map((service, idx) => (
+        <div className="flex flex-col gap-fig-24 lg:items-end lg:gap-fig-32">
+          <p className="font-body text-body-md text-subtitle lg:text-right lg:text-subtitle-1">
+            Comprehensive solutions tailored to your needs
+          </p>
+
+          <Button
+            href={EXTERNAL.brochureIndex}
+            size="lg"
+            radius="none"
+            className="w-[336px] max-w-full self-center shadow-fig-xs lg:w-auto lg:self-auto lg:gap-fig-14 lg:rounded-fig-m lg:text-btn-lg"
+            icon={
+              <>
+                {/* The artboards use different arrows for the same button: a
+                    straight one at 390, a diagonal at 1920. */}
+                <ArrowRight
+                  className="h-[24px] w-[24px] shrink-0 lg:hidden"
+                  strokeWidth={2}
+                  aria-hidden="true"
+                />
+                <ArrowUpRight
+                  className="hidden h-[24px] w-[24px] shrink-0 lg:block"
+                  strokeWidth={2}
+                  aria-hidden="true"
+                />
+              </>
+            }
+          >
+            View All Brochure
+          </Button>
+        </div>
+      </div>
+
+      <ul className="flex flex-col">
+        {SERVICES.map((service, i) => {
+          const first = i === 0;
+          const last = i === SERVICES.length - 1;
+          return (
+          <li
+            key={service.title}
+            /* 1920 rules every row, including the first; 390 only rules between. */
+            className={`border-border-field ${first ? 'border-t-0 lg:border-t' : 'border-t'}`}
+          >
+            {/* At 390 a rule sits in 32px of air — the row's own 16px of padding
+                plus the 16px the artboard's list puts between row and rule — so
+                only the two outer edges of the list get the bare 16. */}
             <div
-              key={idx}
-              className="snap-center shrink-0 w-[82%] sm:w-auto sm:shrink bg-bg-default rounded-fig-xs shadow-fig-xs p-[24px] sm:p-[32px] flex flex-col justify-between gap-[32px] sm:h-full"
+              className={`flex flex-col gap-fig-20 px-fig-16 lg:flex-row lg:items-start lg:justify-between lg:gap-fig-32 lg:px-0 lg:pb-fig-48 lg:pt-fig-64 ${
+                first ? 'pt-fig-16' : 'pt-fig-32'
+              } ${last ? 'pb-fig-16' : 'pb-fig-32'}`}
             >
-              <div className="flex flex-col gap-[32px]">
-                {/* Icon — 70px (Data 64px). Reserve a uniform 70px band so every card's
-                    title starts at the same baseline regardless of the icon's own size. */}
-                <div className="flex items-start h-[70px] shrink-0">
-                  <img
-                    src={service.imageUrl}
-                    alt={service.title}
-                    width={service.iconSize}
-                    height={service.iconSize}
-                    className="object-contain"
-                    style={{ width: service.iconSize, height: service.iconSize }}
-                    loading="lazy"
-                  />
-                </div>
-
-                {/* Content */}
-                <div className="flex flex-col gap-[16px]">
-                  <div className="flex flex-col gap-[12px]">
-                    <h3 className="t-h2 text-text-default">{service.title}</h3>
-                    <p className="t-body-lg text-text-default">{service.desc}</p>
-                  </div>
-
-                  <ul className="t-body-lg text-text-default list-disc pl-[24px] space-y-0">
-                    {service.bullets.map((b) => (
-                      <li key={b}>{b}</li>
-                    ))}
-                  </ul>
-                </div>
+              {/* Name + promise. The column takes the slack up to 800px, which
+                  leaves the artboard's 642px trough at 1920 and closes it as the
+                  viewport narrows. */}
+              <div className="flex flex-col gap-fig-12 lg:flex-1 lg:gap-fig-100 lg:max-w-[800px]">
+                <h3 className="font-sans text-h3 text-text-primary lg:text-display-md">
+                  {service.title}
+                </h3>
+                <p className="font-body text-body-md text-subtitle lg:text-subtitle-2 lg:text-text-default">
+                  {service.promise}
+                </p>
               </div>
 
-              {/* Per-card brochure text link */}
-              <a
-                href={service.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-[8px] py-3 sm:py-0 font-sans font-semibold text-[16px] leading-[24px] text-[#1F49BF] hover:text-[#63A4FC] active:text-[#000086] hover:gap-[12px] transition-all"
-              >
-                View brochure
-                <ArrowRight size={20} strokeWidth={2} />
-              </a>
-            </div>
-          ))}
-        </div>
+              {/* Offerings + brochure link, in a fixed rail so the four buttons
+                  line up down the section. */}
+              <div className="flex flex-col gap-fig-12 lg:w-[350px] lg:shrink-0 lg:gap-fig-100">
+                <ul className="flex flex-col gap-fig-2 font-body text-caption text-subtitle lg:gap-fig-4 lg:text-right lg:text-body-xl">
+                  {service.offerings.map((offering) => (
+                    <li key={offering}>{offering}</li>
+                  ))}
+                </ul>
 
-        {/* Mobile pagination dots (hidden once the grid is restored at sm) */}
-        <CarouselDots containerRef={trackRef} count={services.length} className="sm:hidden -mt-2" />
-      </div>
-    </section>
-  );
-};
+                <Button
+                  href={service.brochure}
+                  variant="secondary"
+                  size="lg"
+                  radius="m"
+                  className="w-full shadow-fig-xs lg:w-[350px] lg:text-btn-lg"
+                  icon={
+                    <ArrowRight
+                      className="h-[20px] w-[20px] shrink-0"
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    />
+                  }
+                >
+                  View Brochure
+                  {/* All four links read "View Brochure"; name the service for
+                      anyone listing links out of context. */}
+                  <span className="sr-only"> — {service.title}</span>
+                </Button>
+              </div>
+            </div>
+          </li>
+          );
+        })}
+      </ul>
+    </Container>
+  </section>
+);
 
 export default Capabilities;

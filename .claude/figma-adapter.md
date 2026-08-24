@@ -27,6 +27,10 @@ Project instance for the `figma-to-code` skill. Everything project-specific the 
 - Overlay menu `3275:2328` · headline/hero 1440 `3396:3227` · Proven Results expanded state `2943:1579`
 - Survey set `2822:6528` (~25 frames) · Terms page `2922:1887` · Privacy page `2927:3153` (both under `2927:3151`)
 - Buttons component: instance `3275:2504` → base `3552:2330` (336×56: 16px padding block, 24px line box, 8px gap, 24px icon, square corners)
+- Per-section (390), as they get built: About `3187:4452` · Services `3187:4345`
+- Services button instances — 1920: `3137:1939` primary / `3137:1959` outline; 390: `3187:4359` primary / `3187:4371` outline. Worth reading per section: the
+  same logical button is drawn with different radius, padding, type step and even
+  a different arrow between the two artboards.
 
 ## Assets
 
@@ -72,6 +76,28 @@ Both are shipped-around, not blocking. Revisit when the files arrive.
 
    They are decorative: give them `aria-hidden`, `pointer-events-none`,
    `decoding="async"` and no `loading="lazy"` above the fold.
+
+### Backlog — copy and design questions for the team
+
+- **Our Services, 390 vs 1920.** The mobile frame is behind the desktop one, so the
+  build follows 1920 throughout (per the plan's "desktop wins"). Waiting on a ruling:
+  BI & Analytics' mobile offering list is a verbatim copy of Software & Web
+  Development's; Software's mobile list says "Enterprise tools" where desktop says
+  "SaaS platforms"; Data Engineering is titled "Data Engineering" on mobile and carries
+  a different promise line and two extra offerings; the mobile subtitle ends in a full
+  stop and the desktop one does not.
+- **"View All Brochure" corner radius** is 8px at 1920 and 0 at 390, for the same
+  button. Built as drawn. Likely an oversight rather than intent.
+- **The 390 eyebrow chip is drawn at two sizes.** About Us `3147:6973` is px-8/py-2/26px
+  tall; Services `3187:4349` is px-12/py-4/30px. `ui/SectionBadge` follows About Us
+  everywhere, so the Services mobile chip is 4px short of its frame. Needs a ruling on
+  which is canonical — two adjacent sections differing by 4px reads as accidental.
+- **The overlay menu names seven service units, Our Services lists four.** Rizlum, HR
+  and ITS appear nowhere in the Services section on either artboard, and the four rows
+  cover Design / Tech / Data / Crunch only. Either the section is missing three rows or
+  the three menu items belong somewhere else. Related: those three still have no
+  destination (`unresolved` in `components/navigation.ts`; render per design for now,
+  redirect later).
 
 - Source folder: `assets-src/` (relative paths become R2 object keys)
 - Drop folder for user exports: any root folder agreed per task (left untracked)
@@ -182,6 +208,21 @@ backgrounds go on the parent so they stay full-bleed.
   - Cross-origin `fetch()` to the r2.dev host fails CORS; `<img>` is unaffected. Don't
     read a failed `fetch` as a broken asset.
   - Overflow: compare against `document.documentElement.clientWidth`, not `window.innerWidth`.
+  - **1px borders measure 0.8px** and 2px outlines 1.6px — the 125% display scaling
+    snaps them to whole device pixels. A section whose rows each carry a rule comes out
+    0.8px per rule taller than the artboard. Not a defect; don't chase it.
+  - **`:focus-visible` does not match a programmatic `.focus()`** unless the last real
+    interaction was the keyboard, and a non-matching element reports
+    `outline-style: none` with `outline-color: currentColor` — which reads as a white
+    focus ring on any white-text button. Press a real Tab first, then probe, or you will
+    "find" an invisible-focus-ring bug that does not exist.
+  - Long `javascript_tool` scripts sometimes come back `[BLOCKED: Cookie/query string
+    data]`. Split the probe into smaller calls; walking `document.styleSheets` seems to
+    provoke it.
+  - **Google Fonts' Lexend runs ~6% wider than Figma's copy**: "View All Brochure" at
+    SemiBold 20px measures 176.8px here against the 167px the artboard implies, so every
+    hug-width button lands ~10px wider than its Figma frame. Font-version difference,
+    not a padding error — check the padding/gap/icon numbers instead of the total width.
   - The survey email function (`api/survey.ts`, Node runtime) does NOT run under `vite` — e2e only on a Vercel deploy.
   - Vercel `SMTP_USER`/`SMTP_PASS` are branch-filtered to `redesign/2026`; any other branch's preview 500s on submit until they are re-scoped. Rate limit is 5 requests / 10 min / IP.
 - Tailwind Play CDN generates classes on demand: a class injected by script needs a
@@ -193,6 +234,13 @@ backgrounds go on the parent so they stay full-bleed.
 - Overlay menu gets a scoped `.menu-scroll` scrollbar: `index.html` kills scrollbars
   globally (`scrollbar-width: none` + `::-webkit-scrollbar{display:none}`), and
   Firefox can only approximate the drawn one via `scrollbar-width: thin`.
+- UI glyphs come from **Lucide, not the Figma Iconly set** (the plan's asset policy).
+  Iconly's are filled shapes, Lucide's are stroked, so arrows read a little lighter:
+  `ArrowRight` for Iconly "Arrow - Right", `ArrowUpRight` for Iconly "Made_call".
+- `ui/SectionBadge` is one size everywhere, matching the About Us eyebrow
+  (px-8 / py-2 / 26px tall at 390). The Services 390 eyebrow is drawn 12/4/30 instead —
+  the two sections disagree in the file, and one shared primitive wins until the team
+  says which is canonical.
 - Footer keeps a "Cookie Settings" link and gains "Privacy Policy", neither of which
   the Figma footer draws — compliance requirement (Privacy link pending step-10 sign-off).
 
