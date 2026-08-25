@@ -3,7 +3,14 @@ import { Link } from 'react-router-dom';
 import Container from './ui/Container';
 import { ASSETS } from '../assets';
 import { FOOTER_COMPANY, FOOTER_LEGAL, ROUTES, SOCIALS, type NavItem } from './navigation';
-import { MailIcon, PhoneIcon } from './ui/FooterIcons';
+import {
+  FacebookIcon,
+  LinkedInIcon,
+  MailIcon,
+  PhoneIcon,
+  TikTokIcon,
+  YouTubeIcon,
+} from './ui/FooterIcons';
 
 /**
  * Figma 3151:2509 (1920) and 3153:14667 (390).
@@ -14,8 +21,9 @@ import { MailIcon, PhoneIcon } from './ui/FooterIcons';
  * bucket — so the footer still carries 20th-anniversary branding, consistent
  * with the decision to leave the splash art alone.
  *
- * The mail and phone glyphs are inlined (`ui/FooterIcons`); the four social
- * marks come from the bucket, which is where MenuOverlay already gets them.
+ * The mail, phone and four social glyphs are all inlined (`ui/FooterIcons`), taken
+ * from this footer's own frame. MenuOverlay still draws the bucket set from its own
+ * frame.
  *
  * The two column headings are drawn in different styles at 390 — "Company" in
  * Montserrat Bold 14/22 and "Our friends" in Lexend Medium 16/24 — and the
@@ -26,12 +34,12 @@ const PHONE_DISPLAY = '+84 28 3862 0055';
 const PHONE_TEL = '+842838620055';
 const COPYRIGHT = '© 2026 Officience, All rights reserved';
 
-/** The bucket set MenuOverlay already uses, keyed by the label in `SOCIALS`. */
-const SOCIAL_ICONS: Record<string, string> = {
-  LinkedIn: ASSETS.footer.linkedin,
-  Facebook: ASSETS.footer.facebook,
-  TikTok: ASSETS.footer.tiktok,
-  YouTube: ASSETS.footer.youtube,
+/** The footer's own Figma glyphs, keyed by the label in `SOCIALS`. */
+const SOCIAL_ICONS: Record<string, React.FC<{ className?: string }>> = {
+  LinkedIn: LinkedInIcon,
+  Facebook: FacebookIcon,
+  TikTok: TikTokIcon,
+  YouTube: YouTubeIcon,
 };
 
 /** Every footer destination already lives in `navigation.ts`; this just renders one. */
@@ -158,6 +166,7 @@ const Footer: React.FC = () => (
 
             <ul className="flex items-center lg:gap-[2.13px]">
               {SOCIALS.map((social) => {
+                const Glyph = SOCIAL_ICONS[social.label];
                 return (
                   <li key={social.label}>
                     <a
@@ -167,15 +176,7 @@ const Footer: React.FC = () => (
                       aria-label={social.label}
                       className={`flex items-center justify-center ${LINK_HOVER}`}
                     >
-                      <img
-                        src={SOCIAL_ICONS[social.label]}
-                        alt=""
-                        aria-hidden="true"
-                        className="h-[28.86px] w-[28.86px] lg:h-[40.49px] lg:w-[40.49px]"
-                        loading="lazy"
-                        decoding="async"
-                        referrerPolicy="no-referrer"
-                      />
+                      <Glyph className="h-[28.86px] w-[28.86px] lg:h-[40.49px] lg:w-[40.49px]" />
                     </a>
                   </li>
                 );
