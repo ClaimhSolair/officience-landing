@@ -60,17 +60,17 @@ const HomePage: React.FC = () => {
       <ClientStories />
       <LogoMarquee />
 
-      {/* Figma order: Services → Approach → Testimonials → Why Us → Contact → Footer.
-          120px vertical rhythm between top-region sections (clamp-anchored). Lives here
-          rather than on the layout's <main> so legal pages don't inherit the padding.
-          Rebuilt sections leave this wrapper as they land — they carry their own
-          padding, and stacking it on the clamp gap would double the seam. */}
-      <div className="flex flex-col gap-[clamp(56px,9vw,120px)]">
-        {/* Blue background wrapper for bottom sections (Figma: Why Us frame contains Why Us + Contact + Footer) */}
-        <div style={{ backgroundColor: '#1F49BF' }}>
-          <WhyOfficience />
-          <Contact onOpenSurvey={openSurvey} />
-        </div>
+      {/* Figma order: Services → Approach → Proven Results → Testimonials → logo
+          wall → Why Us → Contact → Footer. Every section above carries its own
+          vertical padding now, so the clamp-gap wrapper the July build used for
+          rhythm here is gone — stacking it on top would double each seam. */}
+      <WhyOfficience />
+
+      {/* Why Choose Us now paints its own blue, so the wrapper is down to the
+          one section still on the July build. Both are #1F49BF, so the seam
+          between them stays invisible until Contact is rebuilt. */}
+      <div style={{ backgroundColor: '#1F49BF' }}>
+        <Contact onOpenSurvey={openSurvey} />
       </div>
     </>
   );

@@ -34,7 +34,7 @@ officience/
     ClientStories.tsx  # "People Trust Us" - 3 fixed quote cards, no carousel
     LogoMarquee.tsx    # Client logo wall - looping greyscale marquee, colour on hover
     HowWeEngage.tsx    # "Our Approach" - 3 ruled steps with inline pinwheel marks
-    WhyOfficience.tsx  # "Why Choose Us" section
+    WhyOfficience.tsx  # "Why Choose Us" - 4 values in a crosshair, inlined pinwheel
     Contact.tsx        # Contact section with survey entry points
     Footer.tsx         # Footer with social links
     SplashScreen.tsx   # Once-per-day splash (home route only)

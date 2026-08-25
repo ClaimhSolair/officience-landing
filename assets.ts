@@ -123,7 +123,6 @@ export const ASSETS = {
     { name: 'saur Guadeloupe', url: a('/clients/saur.webp'), w: 221.58, h: 112.64 },
     { name: 'abaca', url: a('/clients/abaca.webp'), w: 204, h: 79.23 },
   ] satisfies ClientLogo[],
-  whyus: { centerIcon: a('/whyus/center-icon.svg') },
   contact: { pin: a('/contact/pin.svg') },
   footer: {
     logo: a('/footer/logo.png'),

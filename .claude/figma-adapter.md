@@ -328,3 +328,33 @@ double-gutter and compact-88px divergences are retired with the old header.
   logos desaturated (Figma uses a luminosity blend, the build uses a greyscale filter)
   and the design draws no touch equivalent. Phones therefore see the greyscale band
   throughout, which is the resting state as drawn.
+
+#### Why Choose Us (step 8)
+
+- **The pink titles are 3.92:1 on the blue.** Secondary/200 `#FF9FAE` on BG/Primary
+  `#1F49BF`. That clears AA for the 64px desktop titles (large text needs 3:1) but
+  misses the 4.5:1 that the **20px mobile titles** need — Talents and Value-Driven only.
+  White copy on the same blue is 7.6:1 and fine. Needs a ruling: nudge the pink darker
+  on 390 only, or accept. Built as drawn.
+- **The 390 item descriptions are 10px** (Caption-sm-regular) — the body copy of a whole
+  section, and the second 10px in the design after the testimonial role line. Same
+  ruling needed.
+- **The crosshair is drawn ~30px left of the page centre.** The rules cross at x≈930.8
+  where the content column centres on 960 — and the group's own bounding box centres on
+  960 exactly, so the offset is inside the artwork, not the layout. Built centred on the
+  column; reverting is one class.
+- **The gutter either side of the centre line is drawn at two values** — 68px on the
+  left, 61px on the right, for what reads as one gutter. Built symmetric at 64 (Space
+  64, the average). Flag if the asymmetry was intended.
+- **Item titles are 64px on a 58px line-height** — negative leading, and no such pair
+  exists in the type scale (Display-md is the same 64px on 74px). Built as a per-section
+  override rather than a new named style, since nothing else uses it.
+- **The 390 frame carries four per-item icons that are switched off** — `Design_black`,
+  `Data_black`, `IT_black` and `Intersect`, all 13.29px, `visible: false`. Not built.
+  Confirm they are meant to stay hidden rather than having been lost.
+- **The pinwheel is backed by a shape filled `#1F49BF`** — the section's own background,
+  so it paints nothing. Dropped when inlining, the same no-op as the Approach marks'
+  clip path.
+- **Both rules are `#F7F7F7`, not white.** They read as white against the blue but are
+  BG/Secondary, and reproducing that keeps them consistent with the page's other rules.
+- **International's description has a trailing space** in Figma. Trimmed.
