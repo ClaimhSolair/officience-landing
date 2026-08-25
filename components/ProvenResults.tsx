@@ -156,7 +156,7 @@ const ProvenResults: React.FC = () => {
 
           {/* The 390 frame has no blurb at all — not different wording, none.
               Hidden rather than dropped, so restoring it is one class. */}
-          <p className="hidden font-body text-subtitle lg:block lg:w-[600px] lg:shrink-0 lg:text-subtitle-1">
+          <p className="hidden font-body text-subtitle lg:block lg:w-[600px] lg:min-w-0 lg:text-subtitle-1">
             Crafting solutions for global innovators. See our latest chapters.
           </p>
         </Container>

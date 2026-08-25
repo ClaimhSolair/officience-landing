@@ -9,9 +9,14 @@ import ApproachMark, { type MarkName } from './ui/ApproachMark';
  * Three steps, each opened by a vertical rule: a number, a pinwheel mark, then
  * the step's name and what happens in it. Desktop lays them in a row and aligns
  * the three text blocks to a common line — which is why the mark sits in a
- * fixed-height slot rather than being followed by a plain gap. At 390 the steps
- * stack and the marks do get a plain gap, because the artboard stops aligning
- * them there.
+ * fixed-height slot rather than being followed by a plain gap.
+ *
+ * The row starts at md, not lg: Figma only draws 390 and 1920, and taking the 390
+ * stack all the way to 1023 left three full-width steps on a tablet where three
+ * columns fit comfortably. The mark keeps a fixed slot at md for the same reason it
+ * has one at lg — Engage's mark is 105px where the other two are 100, so without it
+ * the three text blocks start on different lines. Below md the steps stack and the
+ * marks get a plain gap, as the 390 artboard draws them.
  *
  * Nothing here is interactive: the artboards draw no CTA in this section, so the
  * survey entry points live only in Connect With Us.
@@ -63,7 +68,7 @@ const HowWeEngage: React.FC = () => (
           </h2>
         </div>
 
-        <p className="font-body text-body-md text-subtitle lg:w-[600px] lg:shrink-0 lg:text-subtitle-1">
+        <p className="font-body text-body-md text-subtitle lg:w-[600px] lg:min-w-0 lg:text-subtitle-1">
           How we transform your vision into seamless digital reality with agile speed.
         </p>
       </div>
@@ -71,16 +76,16 @@ const HowWeEngage: React.FC = () => (
       {/* Steps. `items-start` is load-bearing: each rule is its own step's
           height, and the artboard draws the third one shorter because Run's
           copy is shorter. Stretching them would flatten that. */}
-      <ol className="flex flex-col gap-fig-40 lg:flex-row lg:items-start lg:gap-fig-120">
+      <ol className="flex flex-col gap-fig-40 md:flex-row md:items-start md:gap-fig-24 lg:gap-fig-120">
         {STEPS.map((step) => (
           <li
             key={step.number}
             /* At 390 the rules run past the copy: the artboard gives its three
                steps 340/350/350px regardless of how much text each holds, so the
                rule length is a constant, not a consequence. One min-height says
-               that; Engage ends up 10px longer than drawn. From lg the rule is
-               the content's own height again. */
-            className="flex min-h-[350px] flex-col border-l border-border-field pl-fig-40 lg:min-h-0 lg:flex-1 lg:pl-fig-32"
+               that; Engage ends up 10px longer than drawn. From md the steps sit
+               in a row and the rule is the content's own height again. */
+            className="flex min-h-[350px] flex-col border-l border-border-field pl-fig-40 md:min-h-0 md:flex-1 md:pl-fig-24 lg:pl-fig-32"
           >
             <p
               aria-hidden="true"
@@ -90,7 +95,7 @@ const HowWeEngage: React.FC = () => (
             </p>
 
             {/* Fixed slot from lg so all three text blocks start on one line. */}
-            <div className="mt-fig-24 lg:mt-fig-32 lg:h-[169px]">
+            <div className="mt-fig-24 md:h-[105px] lg:mt-fig-32 lg:h-[169px]">
               <ApproachMark name={step.mark} className={step.markClass} />
             </div>
 

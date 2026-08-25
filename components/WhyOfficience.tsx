@@ -90,7 +90,7 @@ const WhyOfficience: React.FC = () => (
             Why Choose Us
           </h2>
         </div>
-        <p className="mt-fig-24 font-body text-body-md text-white lg:mt-[18px] lg:w-[572px] lg:shrink-0 lg:text-subtitle-1">
+        <p className="mt-fig-24 font-body text-body-md text-white lg:mt-[18px] lg:w-[572px] lg:min-w-0 lg:text-subtitle-1">
           Connect with our AI-first teams, accessible globally, and launch your project immediately
           &ndash; we start in 24 hours!
         </p>

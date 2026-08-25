@@ -48,14 +48,21 @@ const TESTIMONIALS = [
 
 const ClientStories: React.FC = () => (
   <section id="clients" className="bg-bg-secondary">
-    {/* 1920 lays the two columns out at 600 / 146 / 847 from the 64px gutter,
-        which the content column reproduces exactly at that width and lets
-        collapse proportionally below it — there is no artboard between 390 and
-        1920 to hold the fixed widths to. */}
-    <Container className="flex flex-col gap-fig-24 py-fig-32 lg:flex-row lg:items-start lg:gap-fig-64 lg:py-fig-100 3xl:gap-fig-146">
+    {/* 1920 lays the two columns out at 600 / 146 / 847 inside the 1792 content
+        width. The 146px gap belongs at lg, not 3xl: a maximised 1920x1080 browser
+        reports about 1910px of viewport, so 3xl (1920px) never fires there and the
+        cards used to sit 82px left of the artboard. Fixed step rather than a
+        percentage, because breakpoints in this project swap values instead of
+        interpolating them. */}
+    <Container className="flex flex-col gap-fig-24 py-fig-32 lg:flex-row lg:items-start lg:gap-fig-146 lg:py-fig-100">
+      {/* The heading is nowrap only from 2xl. Figma lets it overrun its own column
+          — 632px of text in a 600px frame — which is fine at 1920 because the cards
+          start 114px further right, but between lg and 2xl the column shrinks with
+          the viewport while the 86px type does not, and the heading ran straight
+          over the cards. Below 2xl it wraps inside its column instead. */}
       <div className="flex flex-col items-start gap-fig-8 lg:w-[35%] lg:max-w-[600px] lg:shrink-0 lg:gap-fig-16">
         <SectionBadge>Client Review</SectionBadge>
-        <h2 className="font-sans text-h1 text-text-default lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
+        <h2 className="font-sans text-h1 text-text-default lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em] 2xl:whitespace-nowrap">
           People Trust Us
         </h2>
       </div>
