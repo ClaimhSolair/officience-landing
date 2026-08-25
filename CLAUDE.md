@@ -93,8 +93,43 @@ Upload with `npm run upload-assets` (approval-gated, and it re-uploads *all* of 
 - Remote: `github.com/ClaimhSolair/officience-landing.git`
 - Branch: `main` (auto-deploys to Vercel)
 - Domain: officience.com
-- Sept-2026 redesign work happens on `redesign/sept-2026` (cut from `main` at `2b0088d`). Merge `main` in at every checkpoint boundary. `main` stays untouched until an explicitly approved merge.
+- Sept-2026 redesign work: steps 0-13 are on `redesign/sept-2026` (cut from `main` at `2b0088d`) up to `c2e57bd`; the 2026-08-26 device-review fixes continue on `claude/branch-progress-check-dadbb2`, which is the current head and 4 commits further on. Merge `main` in at every checkpoint boundary. `main` stays untouched until an explicitly approved merge.
 - git commit/push and R2 uploads require explicit user approval, every time.
+
+## Responsive Rules
+From a device review that found the same section broken three times. Follow literally.
+- **Never pair a fixed pixel dimension with a fluid one.** A fixed height on a fluid width makes the box aspect a function of the viewport: `h-[220px]` gave ratio 1.63 at 390 but **4.50 at 1023**, so `object-cover` discarded 70% of the picture on a tablet; `h-[860px]` gave 1.43 at 1280 against 2.08 at 1920, so the same photo looked squeezed on a scaled laptop. Use `aspect-[w/h]` per breakpoint so every width inside a breakpoint is proportionally identical.
+- **A maximised 1920x1080 browser reports ~1910px of viewport**, so `3xl:` (1920px) never fires there. Never put a desktop-critical value behind `3xl:` alone — it belongs at `lg:`/`xl:`, with `3xl:` reserved for genuine >=1920 steps.
+- **Artboard-fixed geometry does not survive narrower widths.** Figma's fixed insets, padding and `whitespace-nowrap` are correct only at the artboard width. Before applying them at `lg:`, compute whether the content fits the column at 1024 — if not, move the treatment up a breakpoint (`xl:`/`2xl:`) rather than letting it overflow. Worked examples: the About caption band needs `xl:`, the Client Review heading needs `2xl:whitespace-nowrap`.
+- **`body { overflow-x: hidden }` hides overflow from visual review.** A screenshot will happily certify a layout that is silently truncating copy (235px of it, in one case). Measure.
+
+## Verification Procedure — layout changes
+A screenshot is not verification. Do this before reporting any layout/responsive change as done.
+1. Probe the **real page in an iframe** at **375 / 390 / 768 / 1024 / 1280 / 1440 / 1536 / 1920**. Window resizing is unreliable — it silently no-ops when maximised, and window borders push `innerWidth` just below the breakpoint you are targeting. Set the iframe width instead, and use `outline` not `border` so it does not eat pixels.
+2. Assert at every width:
+   - no leaf element's right edge exceeds the viewport, **after excluding ancestors that clip** (`overflow-x` hidden/clip/auto/scroll) — otherwise off-canvas drawers and the logo marquee give false positives;
+   - every `aspect-ratio` box reports the **same ratio** within a breakpoint;
+   - no absolutely positioned band needs more height than it has (`max(child.scrollHeight) + padding <= height`).
+3. Check the state you were **not** told about. A bug reported at one width usually lives at the others too.
+4. Traps: `document.hidden === true` freezes rAF and blanks screenshots — check it first. `loading="lazy"` never fires for offscreen images, so set `loading='eager'` before measuring. A fresh HMR reload can paint a blank image briefly — re-read before concluding. Long CDP evaluations time out around 45s, so probe two or three widths per call.
+
+## Figma Fidelity Rules
+- **`get_design_context` omits `object-fit`.** Infer the fill mode from `get_screenshot`, and check it **per node** — the About section alone uses a manual crop, a full stretch, and a 1.4-1.7x zoom crop across three sibling cards.
+- **Different framing per breakpoint is art direction, and `srcset` cannot express it** (srcset only varies resolution). Use `<picture>` with a media source, and bake the crop into the file at the artboard's box aspect so `object-fit` is a no-op and CSS distorts nothing.
+- **Reproduce what the artboard draws, including its mistakes, and flag them.** Never silently "improve" the design — deviating is the user's call, and users sometimes diverge from their own designs deliberately.
+- Node IDs, per-section rulings and open questions live in `.claude/figma-adapter.md`. **Read its index before changing a section**; the numbered rulings record decisions already taken — do not re-litigate or "fix" them back.
+
+## Asset & Cache Rules
+- **Bump `ASSET_VERSION` before the upload that overwrites an existing key — once.** `r2.dev` sends no `Cache-Control`, so changing bytes under an already-served `?v=N` leaves the browser serving the stale file into the new layout. That cost three bumps in one session.
+- Verify fresh bytes with a **never-used `?cb=<guid>`**, never with `?v=N`.
+- `npm run upload-assets` re-uploads **all** of `assets-src/`. `.env` does not exist in a worktree: copy it from the parent checkout and force `R2_BUCKET=redesignsept2026` — the parent's says `redesign`, which is **production**.
+- Never run a white-key / background-removal pass over white-on-transparent artwork: it has nothing to key and destroys the logo.
+- Trim transparent margins and size exports to ~2-3x their **displayed** size. An asset that reproduces a padded Figma image box wastes its resolution on empty space and reads as blurry.
+
+## Working Rules
+- **Do not offer a choice built on an unverified premise.** If an option asserts a fact ("identical composition", "no visual change", "same framing"), verify it first or say in the option that it is unverified. An approval inherits the framing of the question, so a wrong premise makes the user's "yes" mean something they did not agree to.
+- **Treat your own earlier flags as binding findings.** Re-read what you recorded about a breakpoint or node before changing it. A broad goal ("make it fully visible") is exactly what steamrolls a narrow, correct, already-documented constraint — and that regression is invisible to you and obvious to the user.
+- When a new fix contradicts a prior flag, **the contradiction is the decision** — surface it, do not resolve it silently in favour of the newer goal.
 
 ## Plan Mode Rule
 If a system reminder indicates Plan Mode is active (at any point in a session, including mid-session recurrences), treat it as a hard stop: do not edit files, run non-readonly commands, dispatch subagents that write/execute, or commit/push — regardless of prior approvals given earlier in the conversation. Surface the conflict to the user explicitly and wait for them to say the mode has changed to go-ahead before resuming any execution. Do not infer from past successful tool calls that the restriction no longer applies — ask instead of guessing.
