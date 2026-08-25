@@ -93,6 +93,44 @@ Both are shipped-around, not blocking. Revisit when the files arrive.
    They are decorative: give them `aria-hidden`, `pointer-events-none`,
    `decoding="async"` and no `loading="lazy"` above the fold.
 
+### Backlog — open items awaiting a ruling (index)
+
+Everything below is **built as drawn** and flagged; none of it blocks the next step. This
+index exists because the detail now spans several per-step sections. Grouped by the kind
+of decision, not by section.
+
+**Legibility / accessibility — one ruling covers each group**
+1. **10px body copy in three places at 390**: the testimonial role line, the Why Us item
+   descriptions, and the Contact option descriptions. Nothing else on the page goes below
+   12px.
+2. **Secondary/200 pink on the blue is 3.92:1** — fine for the 64px Why Us titles (large
+   text needs 3:1), short of the 4.5:1 the 20px mobile titles need.
+
+**Copy that reads as a slip rather than a decision**
+3. **The Diana client logo drops the "AI"** from the company's name.
+4. **"Vietnam_OffyPlex" / "Vietnam_CrunchBase"** as visible city labels.
+5. **Three office addresses lost commas** against the live site, each exactly where Figma
+   wraps the line.
+6. **The 390 testimonial frame repeats the second quote** in the third card; 1920 carries
+   the real one, which is what shipped.
+7. **"has become" (1920) vs "had become" (390)**; 1920 shipped.
+8. **Our Services 390-vs-1920 conflicts** — see that section for the four of them.
+
+**Design details that differ between the two artboards for no evident reason**
+9. Author name switches Lexend -> Montserrat between 1920 and 390 (testimonials).
+10. Card radius and shadow differ between frames (testimonials: 12+shadow vs 4+none).
+11. The eyebrow chip is 8/2 on About Us and 12/4 on every other 390 section.
+12. "View All Brochure" radius is 8 at 1920 and 0 at 390.
+13. The Contact form panel's radius is 6px, which is not in the radius scale.
+14. The Contact card is on 74px gutters where every other section uses 64.
+
+**Assets still owed by the team**
+15. The five hero 3D shapes, and the white brand lockup with text outlined.
+16. Higher-resolution About cards 2 and 3, and the IOGA original (its crop upscales 1.4x).
+
+**Destinations not yet specified**
+17. Rizlum / HR / ITS, View All Work, and Discover Our Story have no targets.
+
 ### Backlog — copy and design questions for the team
 
 - **Our Services, 390 vs 1920.** The mobile frame is behind the desktop one, so the
@@ -358,3 +396,39 @@ double-gutter and compact-88px divergences are retired with the old header.
 - **Both rules are `#F7F7F7`, not white.** They read as white against the blue but are
   BG/Secondary, and reproducing that keeps them consistent with the page's other rules.
 - **International's description has a trailing space** in Figma. Trimmed.
+
+#### Connect With Us (step 9)
+
+- **"Vietnam_OffyPlex" and "Vietnam_CrunchBase" are drawn as the city labels.** The
+  underscore reads like a layer name that leaked into copy, and it renders verbatim on
+  both artboards. Built as drawn — the recommendation is "OffyPlex, Vietnam" / "CrunchBase,
+  Vietnam", or restoring the July grouping under one "Ho Chi Minh City, Vietnam" heading.
+- **Three addresses lost commas** against the live site: France reads "Sébastopol 75001
+  Paris" (was "Sébastopol, 75001, Paris"), USA "Dover Delaware" (was "Dover, Delaware"),
+  Singapore "#04-08 Singapore" (was "#04-08, Singapore"). Each dropped comma sits exactly
+  where Figma wraps the line, so they look like authoring artefacts. Built as drawn.
+- **The offices flatten from a grouped 3-column list to six peers.** Both artboards draw
+  six, so the July `officeColumns` nesting and its bold sub-labels are gone.
+- **The card sits on 74px gutters** at 1772px wide, where every other section uses the
+  1792px content column on 64px. Reproduced rather than snapped to the column, so
+  `Contact` deliberately does not use `ui/Container`.
+- **The form panel's radius is 6px**, which is not in the radius scale (xs 4, m 8, l 12) —
+  it is Space 6 used as a radius. Built as drawn.
+- **The desktop office columns hug their content** (432/446/394 and 434/443/394) on a fixed
+  160px gutter, leaving 52px of slack in the 1644px frame. Built as equal thirds on the
+  same 160px gutter with the address capped at Figma's 383px so the wrapping matches;
+  columns 2 and 3 land ~9px and ~5px right of the artboard.
+- **The 390 option descriptions are 10px** — the third 10px in the design, after the
+  testimonial role and the Why Us descriptions. One ruling should cover all three.
+- **The 390 second option row is 80px against Figma's 62.** Figma keeps "Internship,
+  co-working, partnership & more." on one line with `nowrap` in a 218px slot; the web
+  Montserrat renders wide enough that forcing it would risk overflow, so it wraps to two
+  lines. That difference is the whole 20px by which the mobile section overruns.
+- **The blurb is desktop-only** — the 390 frame drops "Our global teams across strategic
+  locations…" entirely. Hidden rather than deleted.
+- **The chevron is drawn at two optical weights** — a light glyph inside a 32px shadowed
+  button at 390, a heavier bare glyph at 1920. Both ship and swap at the breakpoint.
+- **The heading changes from "Let's Build Together" to "Connect With Us"**, hard-broken
+  after "Connect" at 1920 and on one line at 390.
+- The blue wrapper HomePage carried since July is now gone: Why Us and Contact each paint
+  their own `Semantic/BG/Primary`, and `Footer` already set `bg-bg-primary` itself.

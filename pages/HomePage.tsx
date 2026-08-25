@@ -66,12 +66,7 @@ const HomePage: React.FC = () => {
           rhythm here is gone — stacking it on top would double each seam. */}
       <WhyOfficience />
 
-      {/* Why Choose Us now paints its own blue, so the wrapper is down to the
-          one section still on the July build. Both are #1F49BF, so the seam
-          between them stays invisible until Contact is rebuilt. */}
-      <div style={{ backgroundColor: '#1F49BF' }}>
-        <Contact onOpenSurvey={openSurvey} />
-      </div>
+      <Contact onOpenSurvey={openSurvey} />
     </>
   );
 };

@@ -35,7 +35,7 @@ officience/
     LogoMarquee.tsx    # Client logo wall - looping greyscale marquee, colour on hover
     HowWeEngage.tsx    # "Our Approach" - 3 ruled steps with inline pinwheel marks
     WhyOfficience.tsx  # "Why Choose Us" - 4 values in a crosshair, inlined pinwheel
-    Contact.tsx        # Contact section with survey entry points
+    Contact.tsx        # "Connect With Us" - survey entry rows + 6 offices, own blue
     Footer.tsx         # Footer with social links
     SplashScreen.tsx   # Once-per-day splash (home route only)
     Survey.tsx         # Contact survey modal
