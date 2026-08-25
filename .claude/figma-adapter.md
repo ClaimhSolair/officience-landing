@@ -69,29 +69,33 @@ flattened SVG export with text outlined instead.
 
 ### Backlog — assets the team owes us
 
-Both are shipped-around, not blocking. Revisit when the files arrive.
+One left. The hero shapes below were delivered on 2026-08-26 and are now in the build.
 
 1. **The white brand lockup** (header logo). `3552:2941` (flower + "officience") and
    `3552:2977` (the "20" mark) export cleanly, but "YEARS" / "ANNIVERSARY" are live
    text. Until a flattened SVG (text outlined) arrives, `Header.tsx` renders the old
    blue PNG inverted with `filter: brightness(0) invert(1)` — right height and colour,
    but the artwork is 2.51:1 against Figma's 2.38:1, so it sits ~8px too wide at 1440.
-2. **The hero's five floating 3D shapes.** They render in Figma and survive
-   `contentsOnly`, but no level of `get_metadata` or `get_design_context` will list
-   them — no node id, no asset, no coordinates. The team is sending the files
-   separately. `Hero.tsx` ships without them. Placements measured off the 1440
-   screenshot, as fractions of the hero box (left / top, width as % of hero width):
+2. ~~**The hero's five floating 3D shapes.**~~ **RESOLVED 2026-08-26.** Still
+   unaddressable in Figma — no node id, no asset, no coordinates, in either artboard,
+   and `Rectangle 3` behind them is a flat fill — so the placement remains *measured
+   off the 1440 render*, not read from it. The team delivered five 1080x1080 PNGs
+   (~915kB) to `hero/` in the staging bucket; they are trimmed and re-encoded to
+   380px WebP (~101kB total) in `assets-src/hero/`, and `SHAPE_PLACEMENT` in
+   `Hero.tsx` is now the source of truth for their positions.
 
-   | Shape | left | top | width |
-   |---|---|---|---|
-   | green leaf | 19.1% | 1.5% | 7.0% |
-   | pink asterisk | 58.6% | 9.2% | 9.8% |
-   | yellow ring | 48.0% | 50.7% | 9.6% |
-   | blue star disc | 23.2% | 74.9% | 9.8% |
-   | pink striped ellipse | 79.3% | 77.3% | 8.6% |
+   **The one correction worth remembering:** the left/top fractions hold, but sizing
+   the shapes as a *percentage of band width* does not. The band's height is pinned
+   (742px, 875 at 3xl) while its width follows the viewport, so a width-relative
+   size that is right at 1440 overshoots by 1920 — the asterisk reached 187px against
+   the artboard's 141px, and the star grew until it clipped through the bottom of the
+   band. The widths are therefore pinned to their 1440 pixel values (leaf 101,
+   asterisk 141, ring 138, star 141, ellipse 124). Note also that the **1920 artboard
+   draws no shapes at all**, so anything above 1440 extrapolates the 1440 composition.
 
-   They are decorative: give them `aria-hidden`, `pointer-events-none`,
-   `decoding="async"` and no `loading="lazy"` above the fold.
+   They are decorative: `aria-hidden`, `pointer-events-none`, `decoding="async"` and
+   no `loading="lazy"` above the fold. Hidden below `xl`, where the hero stacks into
+   one column and a shape would land on the headline.
 
 ### Backlog — open items awaiting a ruling (index)
 
@@ -125,11 +129,95 @@ of decision, not by section.
 14. The Contact card is on 74px gutters where every other section uses 64.
 
 **Assets still owed by the team**
-15. The five hero 3D shapes, and the white brand lockup with text outlined.
-16. Higher-resolution About cards 2 and 3, and the IOGA original (its crop upscales 1.4x).
+15. The white brand lockup with text outlined. (The five hero 3D shapes were
+    delivered 2026-08-26 and are in the build.)
+16. Higher-resolution About cards 2 and 3 **for the desktop framing**, and the IOGA
+    original (its crop upscales 1.4x). Investigated 2026-08-26 and still owed, with a
+    useful finding: the **390** fills are backed by 3480-4096px originals (that is
+    where the mobile crops in ruling 18 come from), but the **1920** fills are
+    separate, separately-processed **1024px** copies showing a tighter framing — not
+    crops of those originals. A template match over the originals scored only
+    0.61 and got worse under refinement, so the desktop composition cannot be
+    reproduced from them; re-exporting would silently change the framing. Desktop
+    cards 2 and 3 therefore still upscale 1.75x into the 1792px box. Ask the team for
+    the desktop crops at source resolution rather than deriving them.
 
 **Destinations not yet specified**
 17. Rizlum / HR / ITS, View All Work, and Discover Our Story have no targets.
+
+**Ruled on, recorded so it is not "fixed" back**
+18. **The About photos are art-directed: the two artboards FRAME them differently.**
+    This is the single most re-worked thing in the redesign; read it before touching
+    `AboutUs.tsx`.
+    - **1920** stretches the whole frame into the 1792x860 box. Sources are 1.33 and
+      1.50 against a 2.08 box, so people render 1.57x and 1.39x wide. A cover-crop
+      instead cuts their heads off. Ruled 2026-08-26: match the artboard — hence
+      `lg:object-fill` on cards 2 and 3. Card 1 is a manual crop in Figma (a milder
+      6% squeeze) and keeps `object-cover` with a tuned position.
+    - **390** does something different in kind: it **zoom-crops** each photo 1.44x /
+      1.52x / 1.70x past what `object-fit: cover` would use, then offsets it. Serving
+      one file to both breakpoints therefore cannot work — it was what left the phone
+      view visibly stretched. `srcset` only varies resolution, so the fix is
+      `<picture>` with a `(min-width: 1024px)` source, and mobile files that carry
+      Figma's crop **baked in at exactly the artboard box aspect** (358/220, and
+      358/237 on card 3, whose mobile photo is drawn 237 tall). `object-cover` is then
+      a no-op below lg and CSS distorts nothing — measured distortion 1.000.
+    - Card 1's mobile fill carries a **0.915 horizontal squeeze in Figma itself**
+      (`size-[157.9%]` resolves against different bases for width and height).
+      Reproduced in the file rather than corrected.
+    - Mobile crop windows, in original-source pixels, so nobody re-derives them:
+      card 1 `(593,570) 2204x1239` of 3480x1957 · card 2 `(1392,767) 2688x1651` of
+      4080x3072 · card 3 `(756,315) 2407x1603` of 4096x2730.
+19. **The footer's social glyphs come from Figma, not the bucket.** `3129:3568` draws
+    each mark at its own size inside a shared 38x38 box (LinkedIn 13.89x14.79, TikTok
+    16.51x19.05, Facebook and YouTube filling the frame). The earlier decision to
+    reuse MenuOverlay's bucket set was overruled 2026-08-26: that set normalised every
+    mark to one 45.385 square, which rendered LinkedIn small and Facebook oversized.
+    They are inlined in `ui/FooterIcons.tsx`. **MenuOverlay keeps the bucket set** —
+    its own frame draws those.
+20. **Rizlum's partner tile, rebuilt twice on 2026-08-26.** The original was
+    horizontally stretched 1.61x (artwork ratio 7.74 against the source's 4.80) and
+    filled only 27% of its canvas height instead of 44%, almost certainly by the
+    white-key background pass — the logo is white-on-transparent, so that pass had
+    nothing to key and mangled it. **Do not run a white-key pass over this file.**
+
+    Reproducing Figma's padded `object-cover` box was still not enough: it leaves the
+    logo occupying 145x30 of a 203x69 canvas, i.e. only ~2x effective resolution for
+    the artwork and a 73px-wide render, which reads as blurry. The file is now
+    **tight-cropped to the artwork at 320x67** (every pixel is logo, ~3x the display
+    size) and drawn at 105x21.9 rather than Figma's 73x15.2, to carry the same visual
+    weight as its sibling tiles. The one source is a YouTube-thumbnail frame whose
+    artwork tops out at 897x187, so that is the ceiling until a real logo arrives.
+
+**The responsive lesson worth keeping (2026-08-26)**
+21. **A fixed height on a fluid width is the bug.** Every fidelity complaint from the
+    26 Aug device review traced back to one shape of mistake: a pixel value that is
+    correct at one artboard width and silently wrong at every other.
+    - **About photos.** `h-220` / `lg:h-860` made the box aspect a function of the
+      viewport: 1.63 at 390 but **4.50 by 1023**, so an `object-cover` threw away 70%
+      of the picture on a tablet; and 1.43 at 1280 against 2.08 at 1920, so the same
+      photo looked horizontally squeezed on a scaled laptop. Fixed with two constant
+      ratios — `aspect-[358/220]`, `lg:aspect-[1792/860]`.
+    - **Overlay bands and nowrap headings.** The About caption band's insets are the
+      artboard's fixed 200/60/176, which at 1024 leaves a 576px band whose copy needs
+      288px of height — it spilled over the photo, so the overlay now starts at `xl`.
+      Likewise three `lg:w-[600px] lg:shrink-0` blurbs and the 86px nowrap headings
+      beside them needed ~1130px inside a 976px column: 235px of copy was being
+      silently truncated by `body { overflow-x: hidden }`, with no scrollbar to show
+      it. The blurbs now carry `lg:min-w-0` so they shrink, and Client Review's
+      heading is `2xl:whitespace-nowrap` — Figma lets it overrun its column by 32px,
+      which is safe at 1920 but ran it straight over the cards below 1440.
+    - **Check for this by measuring, not looking.** Probe a real page in an iframe at
+      375/768/1024/1280/1440/1536/1920 and assert three things: no leaf element's
+      right edge exceeds the width once clipping ancestors are excluded, every
+      aspect-ratio box reports the same ratio within a breakpoint, and no absolutely
+      positioned band needs more height than it has. `body` clips the evidence, so a
+      screenshot will not show you the overflow.
+22. **Our Approach is a row from md, not lg.** Figma draws only 390 and 1920, and
+    taking the 390 stack all the way to 1023 left three full-width steps on a tablet
+    where three columns fit. The mark keeps a fixed slot at md as well as lg, because
+    Engage's mark is 105px where the other two are 100 and the text blocks would
+    otherwise start on different lines.
 
 ### Backlog — copy and design questions for the team
 
