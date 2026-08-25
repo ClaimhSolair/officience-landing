@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, Check, AlertCircle } from 'lucide-react';
+import { ROUTES } from './navigation';
 import type { SurveyBranch } from '../types';
 
 interface SurveyProps {
@@ -68,18 +69,27 @@ const PROGRESS_LABELS: Record<SurveyBranch, [string, string, string]> = {
 // ---------------------------------------------------------------------------
 // PRIMITIVES
 // ---------------------------------------------------------------------------
+/**
+ * Figma "Bar Steps" 3316:2401. The inactive label and the inactive bar are two
+ * different greys — Text/Subtitle-2 #A0A0A0 for the word, Border/Outline-Field
+ * #C6C6C6 for the rule — where the July build used one for both.
+ */
 const ProgressBar: React.FC<{ labels: [string, string, string]; current: number }> = ({ labels, current }) => (
-  <div className="flex gap-[12px] flex-1">
+  <div className="flex flex-1 gap-[8px]">
     {labels.map((label, i) => (
-      <div key={label} className="flex-1 flex flex-col gap-[8px]">
+      <div key={label} className="flex flex-1 flex-col gap-[4px]">
         <span
-          className={`font-body font-bold text-[10px] leading-[14px] uppercase tracking-[0.04em] ${
-            i <= current ? 'text-primary' : 'text-subtitle'
+          className={`font-body font-bold text-[10px] uppercase leading-[14px] ${
+            i <= current ? 'text-primary' : 'text-subtitle-2'
           }`}
         >
           {i + 1}. {label}
         </span>
-        <div className={`h-[4px] rounded-full transition-colors ${i <= current ? 'bg-primary' : 'bg-gray-fig-100'}`} />
+        <div
+          className={`h-[4px] rounded-full transition-colors motion-reduce:transition-none ${
+            i <= current ? 'bg-primary' : 'bg-border-field'
+          }`}
+        />
       </div>
     ))}
   </div>
@@ -119,10 +129,12 @@ const ChipGroup: React.FC<{
           key={opt}
           type="button"
           onClick={() => toggle(opt)}
-          className={`px-[14px] py-[12px] sm:py-[6px] rounded-fig-xs border font-body text-[14px] leading-[20px] transition-colors ${
+          /* Figma draws 12/6. The mobile row keeps 12px of vertical padding so the
+             chip clears a 44px tap target — an accepted divergence, not a miss. */
+          className={`rounded-fig-xs border px-[12px] py-[12px] font-body text-[14px] leading-[20px] transition-colors motion-reduce:transition-none sm:py-[6px] ${
             selected(opt)
-              ? 'border-primary bg-[#ecf4ff] text-primary font-bold'
-              : 'border-[#c6c6c6] text-text-default hover:border-primary'
+              ? 'border-primary bg-[#ecf4ff] font-bold text-primary'
+              : 'border-border-field font-medium text-subtitle hover:border-primary'
           }`}
         >
           {opt}
@@ -226,6 +238,38 @@ const TextArea: React.FC<{
   />
 );
 
+/**
+ * The consent row, drawn on the last input step of both branches (Figma
+ * 2809:2247 and 2818:3232). It gates submission, and it is stored in `answers`
+ * like any other field so it travels in the payload — a consent nobody records
+ * is not worth collecting.
+ */
+const ConsentCheck: React.FC<{ checked: boolean; onChange: (v: boolean) => void }> = ({
+  checked,
+  onChange,
+}) => (
+  <label className="flex min-h-[44px] cursor-pointer items-start gap-[12px] sm:min-h-0 sm:items-center">
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => onChange(e.target.checked)}
+      className="mt-[2px] h-[16px] w-[16px] shrink-0 accent-primary sm:mt-0"
+    />
+    <span className="font-body text-[14px] leading-[20px] text-text-default">
+      I confirm that I have read and accepted the{' '}
+      {/* Deliberately a new tab: navigating in place would discard a part-filled form. */}
+      <a href={ROUTES.terms} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+        Terms of Use
+      </a>{' '}
+      and{' '}
+      <a href={ROUTES.privacy} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+        Privacy Policy
+      </a>{' '}
+      of Officience.
+    </span>
+  </label>
+);
+
 // Card wrapper for each step's content. MUST be module-scope: defining it inside
 // Survey makes it a new component type on every keystroke, which remounts the whole
 // panel (inputs included) and drops focus after a single character.
@@ -273,6 +317,10 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
   const hasMulti = (k: string) => Array.isArray(answers[k]) && answers[k].length > 0;
 
   const isStepValid = (): boolean => {
+    // Drawn on the last input step of both branches, so it gates both. Checked
+    // up front rather than in each of the five step bodies — a per-branch check
+    // is one edit away from a flow that submits without consent.
+    if (step === 1 && answers['consent'] !== 'Yes') return false;
     if (branch === 'work') {
       if (step === 0) return filled('iAm') && hasMulti('services') && hasMulti('solve');
       return filled('timeline') && filled('budget') && filled('name') && validEmail() && filled('company');
@@ -523,7 +571,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
         initial={{ opacity: 0, scale: 0.97, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.97, y: 16 }}
-        className="relative bg-bg-secondary w-full max-w-[800px] rounded-fig-m shadow-fig-xs overflow-hidden flex flex-col max-h-[90vh]"
+        className="relative bg-bg-secondary w-full max-w-[968px] rounded-fig-m shadow-fig-xs overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Honeypot: hidden from humans; bots that fill it get silently dropped server-side. */}
         <input
@@ -577,7 +625,24 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
                   <h2 className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">{title}</h2>
                   <p className="font-body text-[14px] leading-[20px] text-subtitle">{subtitle}</p>
                 </div>
-                {renderStep()}
+                {(() => {
+                  const content = renderStep();
+                  if (!isLastInputStep || !React.isValidElement(content)) return content;
+                  // Every step body returns a <Panel>, and Figma puts the consent
+                  // row inside that white card. Appending it to the panel's
+                  // children keeps one definition of a required legal control.
+                  const el = content as React.ReactElement<{ children?: React.ReactNode }>;
+                  return React.cloneElement(
+                    el,
+                    {},
+                    ...React.Children.toArray(el.props.children),
+                    <ConsentCheck
+                      key="consent"
+                      checked={answers['consent'] === 'Yes'}
+                      onChange={(v) => set('consent', v ? 'Yes' : '')}
+                    />,
+                  );
+                })()}
               </motion.div>
             </AnimatePresence>
           )}
@@ -605,13 +670,19 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
             </>
           ) : (
             <>
-              <button
-                onClick={step === 0 ? onClose : () => setStep((p) => p - 1)}
-                disabled={isSubmitting}
-                className="inline-flex items-center min-h-[48px] sm:min-h-0 px-2 -ml-2 sm:px-0 sm:ml-0 font-sans font-medium text-[16px] leading-[24px] text-primary hover:opacity-70 transition-opacity disabled:opacity-50"
-              >
-                {step === 0 ? 'Cancel' : 'Back'}
-              </button>
+              {/* Figma shows no Cancel on the first step — the close X is the way
+                  out there — and only draws Back once there is somewhere to go. */}
+              {step === 0 ? (
+                <span />
+              ) : (
+                <button
+                  onClick={() => setStep((p) => p - 1)}
+                  disabled={isSubmitting}
+                  className="inline-flex items-center min-h-[48px] sm:min-h-0 px-2 -ml-2 sm:px-0 sm:ml-0 font-sans font-medium text-[16px] leading-[24px] text-primary hover:opacity-70 transition-opacity disabled:opacity-50"
+                >
+                  Back
+                </button>
+              )}
               <button
                 onClick={handleNext}
                 disabled={!valid || isSubmitting}

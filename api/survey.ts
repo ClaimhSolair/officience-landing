@@ -109,6 +109,7 @@ const FIELD_LABELS: Record<string, string> = {
   duration: 'Duration',
   teamSize: 'Team size',
   partnershipModel: 'Partnership model',
+  consent: 'Accepted Terms & Privacy',
   notes: 'Additional notes',
   mind: 'Message',
 };

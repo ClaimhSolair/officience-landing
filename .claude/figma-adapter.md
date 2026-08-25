@@ -464,3 +464,43 @@ double-gutter and compact-88px divergences are retired with the old header.
   step-10 note about regenerating favicon.ico / icons/* / logo-512 applies then, not now.
 - The mail and phone glyphs are inlined; every other footer vector was already a bucket
   asset or is a partner tile.
+
+#### Survey (step 11) — in progress
+
+The July build was already made from an earlier cut of these same frames, so this is a
+refinement, not a rebuild. Deltas applied: modal 800 -> 968; progress bar to 8/4 gaps with
+two distinct greys (Text/Subtitle-2 `#A0A0A0` for the inactive word, Border/Outline-Field
+`#C6C6C6` for the inactive rule — the July build used one grey for both); chips to Figma's
+12/6 with Medium `#5A5A5A` text; no Cancel on the first step.
+
+- **A required consent checkbox is new** and appears on the last input step of BOTH
+  branches (2809:2247 and 2818:3232): "I confirm that I have read and accepted the Terms of
+  Use and Privacy Policy of Officience." It gates submission and is recorded in the payload
+  (`consent: 'Accepted Terms & Privacy'` added to `FIELD_LABELS`) — a consent nobody records
+  is not worth collecting. Its links open in a new tab so a part-filled form survives.
+- **Figma's category picker drops "Full-time career"**, one of the five cards, and the one
+  that (with Internship) routes to `jobs@`. Dropping it would leave full-time applicants no
+  path at all. **Kept, flagged** — the design's four rows are four *detail forms*, and
+  Intern/Full-time have always shared one, so this reads as a lost card rather than a
+  decision. Needs a ruling.
+- **Figma's Internship card description is the wrong copy** — "Build or improve a
+  website/app", lifted from the work flow's solve options. The build's own line is kept.
+- **The completed screen carries two misspellings** — "Transmission competed!" and "3
+  bussiness days" — plus a lowercase "officience". The build already spells all three
+  correctly and keeps doing so.
+- **Figma labels the send button "Next step"** on the last input step, where the build says
+  "Submit". Kept as "Submit": that click sends an email, and "Next step" understates an
+  irreversible action. Same category as the typos — reproducing it would ship something
+  worse for no design gain.
+- **"What bring you here?"** on the picker is missing its "s", and duplicates the Contact
+  section's own "What brings you here?".
+- The chip keeps 12px of vertical padding at 390 (Figma draws 6) so it clears a 44px tap
+  target — an accepted divergence, as elsewhere.
+
+**Not yet verified, and not verifiable here.** `document.hidden` is true in this Chrome
+profile, so rAF is frozen: framer's `AnimatePresence mode="wait"` never finishes the exit
+animation, the incoming panel never mounts, and every screenshot comes back blank. Confirmed
+working through the DOM: step-0 gate, the Back button appearing at step 1, the "Submit"
+label, and the primary button disabled at step 1. **The consent checkbox's own rendering and
+its isolated gate need a real, focused browser.** Live e2e additionally needs the Vercel
+SMTP env re-scope and a preview deploy — `api/survey.ts` does not run under Vite.
