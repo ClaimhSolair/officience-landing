@@ -93,7 +93,8 @@ Upload with `npm run upload-assets` (approval-gated, and it re-uploads *all* of 
 - Remote: `github.com/ClaimhSolair/officience-landing.git`
 - Branch: `main` (auto-deploys to Vercel)
 - Domain: officience.com
-- Sept-2026 redesign work: steps 0-13 are on `redesign/sept-2026` (cut from `main` at `2b0088d`) up to `c2e57bd`; the 2026-08-26 device-review fixes continue on `claude/branch-progress-check-dadbb2`, which is the current head and 4 commits further on. Merge `main` in at every checkpoint boundary. `main` stays untouched until an explicitly approved merge.
+- All Sept-2026 redesign work belongs on `redesign/sept-2026` (cut from `main` at `2b0088d`). Merge `main` in at every checkpoint boundary. `main` stays untouched until an explicitly approved merge.
+- **A `claude/*` worktree branch is a staging area, not a destination.** `redesign/sept-2026` is checked out in the `officience-redesign-2026-7e23e2` worktree, so a session running in any other worktree *cannot* check it out and will quietly pile commits onto its own throwaway branch instead — which is how five commits ended up on `claude/branch-progress-check-dadbb2`. Before the session ends, land them: `git -C <redesign-worktree> merge --ff-only <claude-branch>`. Never write a commit count into this file; it is wrong on the next commit — ask git.
 - git commit/push and R2 uploads require explicit user approval, every time.
 
 ## Responsive Rules
