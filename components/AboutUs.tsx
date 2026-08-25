@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { ASSETS } from '../assets';
+import { ASSETS, srcSetOf } from '../assets';
 import Container from './ui/Container';
 import SectionBadge from './ui/SectionBadge';
 import { DISCOVER_OUR_STORY, EXTERNAL } from './navigation';
@@ -12,6 +12,27 @@ import { DISCOVER_OUR_STORY, EXTERNAL } from './navigation';
  * full-width photo cards. The desktop cards lay the caption over the photo in
  * an inset tinted band; at 390 the same band sits below the image instead,
  * because a 358px-wide overlay would bury the picture.
+ *
+ * The photo box is sized by **aspect ratio, not a fixed height**. A fixed height
+ * against a fluid width makes the box aspect a function of the viewport: h-220 gave
+ * 1.63 at 390 but 4.50 by 1023, so a cover-crop threw away 70% of the picture on a
+ * tablet, and h-860 gave 1.43 at 1280 against 2.08 at 1920, so the same photo looked
+ * horizontally squeezed on a scaled laptop. Constant ratios per breakpoint — 358/220
+ * (358/237 on card 3) from the 390 frame, 1792/860 from the 1920 frame — make every
+ * width inside a breakpoint proportionally identical.
+ *
+ * The two artboards **frame** these photos differently, not merely size them
+ * differently, so this is art direction and needs <picture>; srcset only varies
+ * resolution. 1920 stretches the whole frame into its 1792x860 box (sources of 1.33
+ * and 1.50 against a 2.08 box, where a cover-crop would cut the subjects' heads off
+ * — ruled 2026-08-26: match the artboard and accept that people render wide). 390
+ * instead zoom-crops each photo 1.4-1.7x past what object-fit: cover would use and
+ * offsets it, which is why trying to serve one file to both ends in a stretch on the
+ * phone. The mobile files carry that crop baked in at exactly the artboard's box
+ * aspect, so object-cover is a no-op there and CSS distorts nothing.
+ *
+ * Card 1's mobile fill is drawn with a 0.915 horizontal squeeze in Figma — that is
+ * the artboard's, reproduced in the file rather than corrected.
  */
 
 /** Emphasised opening, then the remainder in grey. */
@@ -30,8 +51,15 @@ interface StoryCard {
   body: string;
   /** Band tint. Each card gets its own. */
   tint: string;
-  /** object-position for the crop the artboard draws. */
-  focus: string;
+  /**
+   * The complete object-fit treatment. Written out per card rather than composed
+   * from a shared base, because object-fit is one CSS property and two unprefixed
+   * Tailwind utilities for it would collide on stylesheet order, not on the order
+   * they appear in the class list.
+   */
+  fit: string;
+  /** The 390 box aspect. Card 3's photo is drawn 237 tall where the others are 220. */
+  aspect: string;
   alt: string;
 }
 
@@ -40,21 +68,24 @@ const STORY_CARDS: StoryCard[] = [
     title: '20 Years of Delivery',
     body: "Since 2006, we've completed hundreds of projects for clients across Europe, Asia and beyond",
     tint: 'bg-pri-100',
-    focus: 'object-[49%_64%]',
+    fit: 'object-cover object-[49%_64%]',
+    aspect: 'aspect-[358/220]',
     alt: 'Officience team members gathered around a meeting-room table',
   },
   {
     title: 'Shared Value',
     body: "Our model is built on mutual growth. We empower our technical units so they can empower your vision. It's a cosmic cycle of technical excellence.",
     tint: 'bg-green-100',
-    focus: 'object-bottom',
+    fit: 'object-cover lg:object-fill',
+    aspect: 'aspect-[358/220]',
     alt: 'Officience colleagues working together',
   },
   {
     title: 'Global Reach',
     body: 'Connect with our teams in Vietnam, France, USA, Japan, Singapore.',
     tint: 'bg-sec-100',
-    focus: 'object-bottom',
+    fit: 'object-cover lg:object-fill',
+    aspect: 'aspect-[358/237]',
     alt: 'Officience team collaborating across offices',
   },
 ];
@@ -103,30 +134,40 @@ const AboutUs: React.FC = () => (
           return (
             <article
               key={card.title}
-              className="overflow-hidden rounded-fig-xs bg-bg-secondary lg:rounded-fig-l"
+              className="overflow-hidden rounded-fig-xs bg-bg-secondary xl:rounded-fig-l"
             >
               <div className="relative">
-                <img
-                  src={img.large}
-                  srcSet={`${img.small} 900w, ${img.large} ${img.largeWidth}w`}
-                  sizes="(min-width: 1920px) 1792px, (min-width: 1024px) calc(100vw - 48px), calc(100vw - 32px)"
-                  alt={card.alt}
-                  className={`h-[220px] w-full object-cover ${card.focus} lg:h-[860px]`}
-                  loading="lazy"
-                  decoding="async"
-                  referrerPolicy="no-referrer"
-                />
+                <picture>
+                  <source
+                    media="(min-width: 1024px)"
+                    srcSet={`${img.small} 900w, ${img.large} ${img.largeWidth}w`}
+                    sizes="(min-width: 1920px) 1792px, calc(100vw - 48px)"
+                  />
+                  <img
+                    src={img.mobile[img.mobile.length - 1].url}
+                    srcSet={srcSetOf(img.mobile)}
+                    sizes="calc(100vw - 32px)"
+                    alt={card.alt}
+                    className={`block w-full ${card.aspect} lg:aspect-[1792/860] ${card.fit}`}
+                    loading="lazy"
+                    decoding="async"
+                    referrerPolicy="no-referrer"
+                  />
+                </picture>
 
-                {/* One band, two positions: stacked under the photo at 390,
-                    floating over it from lg — inset 200px each side and 60px
-                    from the bottom, as the artboard draws it. */}
+                {/* One band, two positions: stacked under the photo, or floating over
+                    it — inset 200px each side and 60px from the bottom, as the artboard
+                    draws it. The overlay starts at xl, not lg. Its geometry is the
+                    artboard's fixed pixels, so at 1024 the band is only 576px wide and
+                    its copy needs 288px of height against a fixed 176 — it spilled over
+                    the photo. At 1280 it fits with 104px to spare. */}
                 <div
-                  className={`flex flex-col gap-fig-8 p-fig-16 lg:absolute lg:bottom-[60px] lg:left-[200px] lg:right-[200px] lg:h-[176px] lg:flex-row lg:items-center lg:justify-between lg:gap-fig-32 lg:rounded-fig-xs lg:p-0 lg:px-fig-64 ${card.tint}`}
+                  className={`flex flex-col gap-fig-8 p-fig-16 xl:absolute xl:bottom-[60px] xl:left-[200px] xl:right-[200px] xl:h-[176px] xl:flex-row xl:items-center xl:justify-between xl:gap-fig-32 xl:rounded-fig-xs xl:p-0 xl:px-fig-64 ${card.tint}`}
                 >
-                  <h3 className="font-sans font-semibold text-btn-lg text-text-primary lg:whitespace-nowrap lg:font-medium lg:text-h1">
+                  <h3 className="font-sans font-semibold text-btn-lg text-text-primary xl:whitespace-nowrap xl:font-medium xl:text-h1">
                     {card.title}
                   </h3>
-                  <p className="font-body text-caption text-text-primary lg:w-[405px] lg:text-right lg:font-sans lg:font-medium lg:text-btn-md">
+                  <p className="font-body text-caption text-text-primary xl:w-[405px] xl:text-right xl:font-sans xl:font-medium xl:text-btn-md">
                     {card.body}
                   </p>
                 </div>

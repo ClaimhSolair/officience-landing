@@ -17,7 +17,7 @@ const R2 = R2_STAGING;
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '9';
+const ASSET_VERSION = '12';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 /** One `srcset` candidate: a URL and the intrinsic width it was encoded at. */
@@ -45,14 +45,60 @@ export const ASSETS = {
   // petals are knock-outs that show whatever sits behind them.
   brand: { flower: a('/brand/officience-flower.svg') },
   icons: { eyebrow: a('/icons/eyebrow-mark.svg') },
-  // Story-card photography, exported from Figma and re-encoded as WebP q80 at
-  // two widths. Cards 2 and 3 top out at 1024 because that is all the Figma
-  // originals hold — they upscale slightly in a 1792px card.
+  // The hero's five floating 3D shapes. Delivered by the team as 1080x1080 PNGs
+  // (~915kB all told) after Figma proved unable to export them; trimmed to their
+  // artwork and re-encoded WebP q88 at 380px, which is 2x the widest slot a 1920
+  // hero gives them. They sit above the fold, so the weight matters.
+  hero: {
+    shapes: {
+      leaf: a('/hero/leaf.webp'),
+      asterisk: a('/hero/asterisk.webp'),
+      ring: a('/hero/ring.webp'),
+      star: a('/hero/star.webp'),
+      ellipse: a('/hero/ellipse.webp'),
+    },
+  },
+  // Story-card photography. Two independent sets, because the artboards frame
+  // these photos differently rather than merely at different sizes — art
+  // direction, which srcset cannot express, hence <picture> in AboutUs.
+  //
+  //   small/large  the 1920 treatment: the whole frame, which the desktop card
+  //                stretches into its 1792x860 box. Cards 2 and 3 top out at
+  //                1024 and upscale in that box.
+  //   mobile       the 390 treatment: Figma zoom-crops each photo 1.4-1.7x past
+  //                what object-fit: cover would use and offsets it, so the crop
+  //                window is baked into the file at exactly the artboard's box
+  //                aspect. Cut from the 3480-4096px originals behind the mobile
+  //                fills — far larger than the desktop exports above.
   about: {
     cards: [
-      { small: a('/about/card-1-900.webp'), large: a('/about/card-1-1800.webp'), largeWidth: 1800 },
-      { small: a('/about/card-2-900.webp'), large: a('/about/card-2-1024.webp'), largeWidth: 1024 },
-      { small: a('/about/card-3-900.webp'), large: a('/about/card-3-1024.webp'), largeWidth: 1024 },
+      {
+        small: a('/about/card-1-900.webp'),
+        large: a('/about/card-1-1800.webp'),
+        largeWidth: 1800,
+        mobile: [
+          { url: a('/about/card-1-mobile-800.webp'), w: 800 },
+          { url: a('/about/card-1-mobile-1600.webp'), w: 1600 },
+        ],
+      },
+      {
+        small: a('/about/card-2-900.webp'),
+        large: a('/about/card-2-1024.webp'),
+        largeWidth: 1024,
+        mobile: [
+          { url: a('/about/card-2-mobile-800.webp'), w: 800 },
+          { url: a('/about/card-2-mobile-1600.webp'), w: 1600 },
+        ],
+      },
+      {
+        small: a('/about/card-3-900.webp'),
+        large: a('/about/card-3-1024.webp'),
+        largeWidth: 1024,
+        mobile: [
+          { url: a('/about/card-3-mobile-800.webp'), w: 800 },
+          { url: a('/about/card-3-mobile-1600.webp'), w: 1600 },
+        ],
+      },
     ],
   },
   // Proven Results project shots. Each is cropped to the window the artboard
@@ -137,7 +183,11 @@ export const ASSETS = {
     partners: [
       { name: 'Offinity', url: a('/footer/partners/offinity.svg'), w: 83.15, h: 24.157 },
       { name: 'Officonnect', url: a('/footer/partners/officonnect.webp'), w: 113.235, h: 32.12 },
-      { name: 'Rizlum', url: a('/footer/partners/rizlum.webp'), w: 101.505, h: 34.51 },
+      // Tight-cropped to the artwork and exported at 3x, unlike its siblings: the
+      // only source is a YouTube-thumbnail frame, so Figma's own padded 94x32 image
+      // box left the logo at ~2x and reading as blurry. Sized to its siblings'
+      // visual weight rather than Figma's noticeably smaller 53%-of-tile placement.
+      { name: 'Rizlum', url: a('/footer/partners/rizlum.webp'), w: 105, h: 21.9 },
       { name: 'OpenReal', url: a('/footer/partners/openreal.webp'), w: 90.724, h: 21.645 },
       { name: 'Uniques', url: a('/footer/partners/uniques.webp'), w: 80.099, h: 20.706 },
     ],
