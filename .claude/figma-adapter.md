@@ -112,10 +112,11 @@ Both are shipped-around, not blocking. Revisit when the files arrive.
 - **"We're COSMIC." no longer expands the acronym.** The 20th-anniversary copy spelled
   it out (Caring, Openness & Sincerity, Merit, Innovation, Commitment); both Sept-2026
   artboards cut it, and nothing else on the page defines it.
-- **The 390 eyebrow chip is drawn at two sizes.** About Us `3147:6973` is px-8/py-2/26px
-  tall; Services `3187:4349` is px-12/py-4/30px. `ui/SectionBadge` follows About Us
-  everywhere, so the Services mobile chip is 4px short of its frame. Needs a ruling on
-  which is canonical — two adjacent sections differing by 4px reads as accidental.
+- **The 390 eyebrow chip is drawn at two sizes.** Every 390 section is px-12/py-4/30px
+  — Services `3187:4349`, Approach, Proven Results, Testimonials, Why Us, Contact —
+  except About Us `3147:6973` at px-8/py-2/26px. `ui/SectionBadge` follows the majority,
+  so the About Us chip renders 4px taller than its frame. Needs a ruling on which is
+  canonical — one section differing by 4px reads as accidental.
 - **The overlay menu names seven service units, Our Services lists four.** Rizlum, HR
   and ITS appear nowhere in the Services section on either artboard, and the four rows
   cover Design / Tech / Data / Crunch only. Either the section is missing three rows or
@@ -288,3 +289,42 @@ double-gutter and compact-88px divergences are retired with the old header.
 - git commit/push and R2 uploads: only on explicit user approval, every time.
 - Plan Mode rule: see `CLAUDE.md` — any Plan Mode signal is a hard stop on execution.
 - Never write to the production bucket (`pub-37210447…`) during the redesign.
+
+#### People Trust Us + the client wall (step 7)
+
+- **The Diana logo drops "AI".** The wall's asset reads "Diana" as a stacked mark over
+  wordmark; the live site's is "Diana AI", set horizontally. Renaming a client is more
+  likely an asset slip than a decision. Built as drawn — the recommendation is to put
+  the live asset back.
+- **Two more logos are cut down from the live set**: Passerelles Numeriques is the
+  circle mark alone, without the "Passerelles numeriques / Un passeport pour la vie"
+  wordmark, and abaca drops "Photo/Video Agency". Both read as a deliberate mark-only
+  treatment at small size — unlike Diana, neither changes the company's name. Confirm.
+- **The twelfth logo tile is `saur` a second time**, drawn at 191.8x88.9 where its first
+  appearance is 221.6x112.6. Read as the designer showing the loop wrapping rather than
+  a twelfth client. Built with the eleven real logos and a duplicated track — confirm
+  nobody is missing from the wall.
+- **The 390 frame repeats the second quote in the third card.** L. Lemaire is credited
+  with "I really appreciate the team's availability & responsiveness."; 1920 carries the
+  real one, "Without you, I just could not work.". Built from 1920.
+- **"has become" (1920) vs "had become" (390)** in the first quote. Built from 1920.
+- **The author's name changes typeface between frames** — Lexend Medium 20/28 at 1920,
+  Montserrat Bold 14/22 at 390. Every other name on the page stays in one family across
+  breakpoints, so this may be a detached component rather than intent. Built as drawn.
+- **The card is drawn as two different objects**: 12px radius with Shadow-sm at 1920,
+  4px radius and no shadow at all at 390. Built as drawn.
+- **The 390 role line is 10px** (Caption-sm-regular). Nothing else on the page goes below
+  12px, and 10px is small on a real handset. Needs a ruling.
+- **The 1920 quote column stops 199px short.** Header 600 + 146 gap + cards 847 = 1593
+  from the 64px gutter, inside a 1792px content column, so the cards end at x=1657 with
+  the column running to 1856. Built as drawn, left-aligned.
+- **Shadow-sm is Black/950 at full opacity again**, as in Proven Results — a hard 1px
+  edge rather than a soft lift. Rendered faithfully via `shadow-fig-sm`.
+- **Neither frame specifies the wall's movement.** Figma draws a track far wider than the
+  artboard and clips it. The motion is taken from the live site on the user's
+  instruction: leftward travel, new logos entering from the right, continuous loop,
+  paused under the pointer. The edge fade is the same carry-over — Figma clips hard.
+- **Full colour is a hover state, so touch never reaches it.** Both frames leave the
+  logos desaturated (Figma uses a luminosity blend, the build uses a greyscale filter)
+  and the design draws no touch equivalent. Phones therefore see the greyscale band
+  throughout, which is the resting state as drawn.

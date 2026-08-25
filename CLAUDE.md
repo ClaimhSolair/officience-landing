@@ -31,7 +31,8 @@ officience/
     Header.tsx         # Sticky nav bar
     Hero.tsx           # Hero section with tagline
     Capabilities.tsx   # "Our Services" - 4 ruled list rows, brochure links
-    ClientStories.tsx  # Testimonial carousel
+    ClientStories.tsx  # "People Trust Us" - 3 fixed quote cards, no carousel
+    LogoMarquee.tsx    # Client logo wall - looping greyscale marquee, colour on hover
     HowWeEngage.tsx    # "Our Approach" - 3 ruled steps with inline pinwheel marks
     WhyOfficience.tsx  # "Why Choose Us" section
     Contact.tsx        # Contact section with survey entry points

@@ -328,13 +328,20 @@
       .marquee-track:hover {
         animation-play-state: paused;
       }
-      /* Client logos: greyed by default, reveal true color on hover (others stay grey) */
+      /* Client logos: greyed by default, reveal true color on hover (others stay
+         grey). Gated on a real pointer — on touch :hover latches after a tap and
+         leaves one logo stuck in colour until something else is tapped. */
       .client-logo {
         filter: grayscale(1);
         transition: filter 0.3s ease;
       }
-      .client-logo:hover {
-        filter: grayscale(0);
+      @media (hover: hover) {
+        .client-logo:hover {
+          filter: grayscale(0);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .client-logo { transition: none; }
       }
     </style>
   </head>

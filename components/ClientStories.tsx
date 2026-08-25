@@ -1,123 +1,107 @@
-import React, { useRef } from 'react';
+import React from 'react';
+import Container from './ui/Container';
+import SectionBadge from './ui/SectionBadge';
 import { ASSETS } from '../assets';
-import CarouselDots from './ui/CarouselDots';
 
-const testimonials = [
+/**
+ * Figma 3151:2378 (1920) and 3137:2470 (390).
+ *
+ * Three quotes on a fixed stack — neither artboard draws a carousel, so this is
+ * the one deck on the page with no controls. 1920 sets the header beside the
+ * quotes in a 600px column and gives the stack 847px; 390 puts the header above
+ * and the cards run the full content width.
+ *
+ * The card is drawn twice with real differences, all reproduced below:
+ *
+ *   card      390: 4px radius, no shadow      1920: 12px radius, Shadow-sm
+ *   quote     Montserrat Medium 14/20         Montserrat Regular 20/28
+ *   name      Montserrat Bold 14/22           Lexend Medium 20/28
+ *   role      Montserrat Regular 10/16        Montserrat Medium 14/22
+ *   avatar    36px                            52px
+ *
+ * The family swap on the name is the artboards', not a simplification: 390 keeps
+ * the author in the body face where 1920 promotes it to the heading face.
+ */
+const TESTIMONIALS = [
   {
-    quote: '"I really appreciate the team’s availability & responsiveness."',
-    name: 'Mr. Leurette',
-    role: 'Program Director - Orange',
-    image: ASSETS.testimonials.authors[0],
-    bordered: true,
-  },
-  {
-    quote: '"Officience had become our main partner and I don’t regret it a single day."',
+    // 390 writes "had become"; 1920 writes "has". Following 1920 — it is the
+    // frame the copy was set in, and the tense is right.
+    quote: '"Officience has become our main partner and I don\u2019t regret it a single day."',
     name: 'Dr. Jean Marcel Guillon',
     role: 'FV Hospital',
     image: ASSETS.testimonials.authors[1],
-    bordered: false,
   },
   {
-    quote: '“ Without you, I just could not work.”',
+    quote: '"I really appreciate the team\u2019s availability & responsiveness."',
+    name: 'Mr. Leurette',
+    role: 'Program Director - Orange',
+    image: ASSETS.testimonials.authors[0],
+  },
+  {
+    // The 390 frame repeats the second quote here; 1920 carries the real one.
+    quote: '\u201cWithout you, I just could not work.\u201d',
     name: 'L. Lemaire',
     role: 'Director of Sales',
     image: ASSETS.testimonials.authors[2],
-    bordered: false,
   },
 ];
 
-const ClientStories: React.FC = () => {
-  const trackRef = useRef<HTMLDivElement>(null);
-  return (
-    <section id="clients" className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)]">
-      {/* Section: gap-64, centered */}
-      <div className="flex flex-col gap-[clamp(40px,5vw,64px)] items-center">
+const ClientStories: React.FC = () => (
+  <section id="clients" className="bg-bg-secondary">
+    {/* 1920 lays the two columns out at 600 / 146 / 847 from the 64px gutter,
+        which the content column reproduces exactly at that width and lets
+        collapse proportionally below it — there is no artboard between 390 and
+        1920 to hold the fixed widths to. */}
+    <Container className="flex flex-col gap-fig-24 py-fig-32 lg:flex-row lg:items-start lg:gap-fig-64 lg:py-fig-100 3xl:gap-fig-146">
+      <div className="flex flex-col items-start gap-fig-8 lg:w-[35%] lg:max-w-[600px] lg:shrink-0 lg:gap-fig-16">
+        <SectionBadge>Client Review</SectionBadge>
+        <h2 className="font-sans text-h1 text-text-default lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
+          People Trust Us
+        </h2>
+      </div>
 
-        {/* Header — centered, gap-20 */}
-        <div className="flex flex-col gap-[20px] items-center text-center max-w-[1400px]">
-          <h2 className="t-display-xl text-text-default">People Trust Us</h2>
-          <p className="t-subtitle text-subtitle">Success stories across different domains</p>
-        </div>
+      <ul className="flex w-full flex-col gap-fig-20 lg:max-w-[847px] lg:flex-1 lg:gap-fig-100">
+        {TESTIMONIALS.map((t) => (
+          <li
+            key={t.name}
+            /* Both frames fix the card height — 174 at 390, 200 at 1920 — while
+               their own contents measure a couple of pixels more. A min-height
+               keeps the stack's rhythm without clipping the role's descenders,
+               and squares up the third card, whose quote is a line shorter than
+               the other two and would otherwise sit 20px low. */
+            className="flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:gap-fig-20 lg:rounded-fig-l lg:p-fig-40 lg:shadow-fig-sm"
+          >
+            <p className="font-body text-body-md text-text-default lg:text-body-xl">{t.quote}</p>
+            <hr className="w-full border-0 border-t border-border-frame" />
 
-        {/* Testimonials — mobile: scroll-snap swipe carousel (peek + dots); md+: restore exact grid (card1 517px) */}
-        <div
-          ref={trackRef}
-          className="w-full flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] gap-[24px] items-stretch md:grid md:grid-cols-3 md:overflow-visible"
-        >
-          {testimonials.map((t, idx) => (
-            <div
-              key={idx}
-              className="snap-center shrink-0 w-[85%] md:w-auto md:shrink bg-bg-default rounded-fig-m shadow-fig-xs flex flex-col gap-[20px] p-[24px] md:p-[36px]"
-            >
+            <div className="flex items-center gap-fig-8 lg:gap-fig-12">
+              {/* The name sits next to the portrait, so the portrait repeating it
+                  as alt text would double it up for a screen reader. */}
               <img
-                src={ASSETS.testimonials.quote}
+                src={t.image}
                 alt=""
                 aria-hidden="true"
-                width={40}
-                height={40}
-                className="rotate-180"
-                style={{ width: 40, height: 40 }}
+                width={52}
+                height={52}
+                className="h-[36px] w-[36px] shrink-0 rounded-full object-cover lg:h-[52px] lg:w-[52px]"
+                loading="lazy"
+                decoding="async"
+                referrerPolicy="no-referrer"
               />
-              <p className="t-body-xl text-text-default flex-grow">{t.quote}</p>
-
-              <div className="flex items-center gap-[12px]">
-                <img
-                  src={t.image}
-                  alt={t.name}
-                  width={60}
-                  height={60}
-                  className={`w-[60px] h-[60px] rounded-full object-cover shrink-0 ${t.bordered ? 'border border-[#e8e8e8]' : ''}`}
-                  loading="lazy"
-                />
-                <div className="flex flex-col gap-[4px]">
-                  <p className="t-h3 text-text-default">{t.name}</p>
-                  <p className="t-body-xl text-subtitle">{t.role}</p>
-                </div>
+              <div className="flex flex-col lg:gap-[4px]">
+                <p className="font-body font-bold text-[14px] leading-[22px] text-text-default lg:font-sans lg:text-h4">
+                  {t.name}
+                </p>
+                <p className="font-body text-[10px] leading-[16px] text-subtitle lg:text-[14px] lg:font-medium lg:leading-[22px]">
+                  {t.role}
+                </p>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Mobile pagination dots (hidden once the grid is restored at md) */}
-        <CarouselDots containerRef={trackRef} count={testimonials.length} className="md:hidden -mt-4" />
-
-        {/* Client logos — marquee. Sources are trimmed to their content bbox, then each is
-            fit into a uniform box (max-height + max-width, aspect preserved) so logos read at
-            a consistent optical size. Track contains the set duplicated twice for a seamless loop.
-            Edge fade: a mask gradient dissolves the logos into the section background at both
-            ends (desktop + mobile), so they glide in/out instead of hard-clipping at the edge. */}
-        <div
-          className="w-full overflow-hidden"
-          style={{
-            WebkitMaskImage:
-              'linear-gradient(to right, transparent 0, #000 clamp(32px,8vw,96px), #000 calc(100% - clamp(32px,8vw,96px)), transparent 100%)',
-            maskImage:
-              'linear-gradient(to right, transparent 0, #000 clamp(32px,8vw,96px), #000 calc(100% - clamp(32px,8vw,96px)), transparent 100%)',
-          }}
-        >
-          <div className="flex w-max marquee-track animate-marquee items-center">
-            {[...ASSETS.clients, ...ASSETS.clients].map((src, i) => (
-              <img
-                key={i}
-                src={src}
-                alt="Client logo"
-                loading="lazy"
-                className="client-logo shrink-0 object-contain"
-                style={{
-                  height: 'auto',
-                  width: 'auto',
-                  maxHeight: 'clamp(40px,4vw,54px)',
-                  maxWidth: 'clamp(150px,16vw,200px)',
-                  marginLeft: 'clamp(28px,3.5vw,48px)',
-                  marginRight: 'clamp(28px,3.5vw,48px)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </section>
+);
 
 export default ClientStories;

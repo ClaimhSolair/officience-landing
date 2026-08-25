@@ -26,6 +26,15 @@ export interface ImageSource {
   w: number;
 }
 
+/** One client logo, at the pixel size the 1920 artboard draws it. */
+export interface ClientLogo {
+  /** Brand name — the image's alt text, so it has to read as the company. */
+  name: string;
+  url: string;
+  w: number;
+  h: number;
+}
+
 /** `srcset` string from a candidate list, widest last. */
 export const srcSetOf = (sources: ImageSource[]) =>
   sources.map((s) => `${s.url} ${s.w}w`).join(', ');
@@ -85,7 +94,35 @@ export const ASSETS = {
       a('/testimonials/author-3.png'),
     ],
   },
-  clients: Array.from({ length: 11 }, (_, i) => a(`/clients/logo-${i + 1}.png`)),
+  /**
+   * The client wall, exported from the Figma marquee (3137:2138) at 2x the size
+   * each logo is drawn at. Every crop keeps the transparent padding of its Figma
+   * frame, so rendering at `w` x `h` reproduces the artboard's optical balance
+   * with no per-logo nudging — the marquee only has to scale the pair.
+   *
+   * Figma lays out twelve tiles, but the twelfth is `saur` a second time, drawn
+   * at a different size: the designer showing the loop wrapping, not a twelfth
+   * client. The marquee duplicates its own track, so only the eleven real logos
+   * live here.
+   */
+  clients: [
+    { name: 'Orange', url: a('/clients/orange.webp'), w: 140.79, h: 140.5 },
+    { name: '50inTech', url: a('/clients/50intech.webp'), w: 198.72, h: 78.52 },
+    { name: 'Mailjet', url: a('/clients/mailjet.webp'), w: 186.92, h: 87.53 },
+    { name: 'ENGIE', url: a('/clients/engie.webp'), w: 177.43, h: 62.95 },
+    {
+      name: 'Passerelles Numeriques',
+      url: a('/clients/passerelles-numeriques.webp'),
+      w: 134.66,
+      h: 129.88,
+    },
+    { name: 'Alibaba', url: a('/clients/alibaba.webp'), w: 152.46, h: 84.52 },
+    { name: 'Auchan', url: a('/clients/auchan.webp'), w: 227.14, h: 90.24 },
+    { name: 'Diana', url: a('/clients/diana.webp'), w: 165.97, h: 110.65 },
+    { name: 'b-process', url: a('/clients/b-process.webp'), w: 283.74, h: 88.57 },
+    { name: 'saur Guadeloupe', url: a('/clients/saur.webp'), w: 221.58, h: 112.64 },
+    { name: 'abaca', url: a('/clients/abaca.webp'), w: 204, h: 79.23 },
+  ] satisfies ClientLogo[],
   whyus: { centerIcon: a('/whyus/center-icon.svg') },
   contact: { pin: a('/contact/pin.svg') },
   footer: {
