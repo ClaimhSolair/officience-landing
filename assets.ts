@@ -17,8 +17,18 @@ const R2 = R2_STAGING;
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '8';
+const ASSET_VERSION = '9';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
+
+/** One `srcset` candidate: a URL and the intrinsic width it was encoded at. */
+export interface ImageSource {
+  url: string;
+  w: number;
+}
+
+/** `srcset` string from a candidate list, widest last. */
+export const srcSetOf = (sources: ImageSource[]) =>
+  sources.map((s) => `${s.url} ${s.w}w`).join(', ');
 
 export const ASSETS = {
   header: { logo: a('/header/logo.png') },
@@ -40,6 +50,26 @@ export const ASSETS = {
     iconsRow1: a('/hero/icons-group-1.svg'),
     iconsRow2: a('/hero/icons-group-2.svg'),
   },
+  // Proven Results project shots. Each is cropped to the window the artboard
+  // actually shows — Figma scales and offsets these fills, so a straight export
+  // is mostly off-frame — then re-encoded WebP q80 at the widths the crop can
+  // honestly carry. IOGA yields only 419px for a 587px slot; the others are
+  // fine at 1x and short of a 2x screen. Originals are on the team's list.
+  works: {
+    ioga: [{ url: a('/works/ioga-419.webp'), w: 419 }],
+    cmp: [
+      { url: a('/works/cmp-600.webp'), w: 600 },
+      { url: a('/works/cmp-677.webp'), w: 677 },
+    ],
+    lab: [
+      { url: a('/works/lab-600.webp'), w: 600 },
+      { url: a('/works/lab-924.webp'), w: 924 },
+    ],
+    funpass: [
+      { url: a('/works/funpass-600.webp'), w: 600 },
+      { url: a('/works/funpass-736.webp'), w: 736 },
+    ],
+  } satisfies Record<string, ImageSource[]>,
   services: {
     design: a('/services/design.svg'),
     software: a('/services/software.svg'),

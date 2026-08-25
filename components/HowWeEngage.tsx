@@ -1,72 +1,112 @@
 import React from 'react';
-import { ASSETS } from '../assets';
+import Container from './ui/Container';
+import SectionBadge from './ui/SectionBadge';
+import ApproachMark, { type MarkName } from './ui/ApproachMark';
 
-const MASCOT_URL = ASSETS.approach.mascot;
+/**
+ * Figma 3144:3723 (1920) and 3137:2432 (390).
+ *
+ * Three steps, each opened by a vertical rule: a number, a pinwheel mark, then
+ * the step's name and what happens in it. Desktop lays them in a row and aligns
+ * the three text blocks to a common line — which is why the mark sits in a
+ * fixed-height slot rather than being followed by a plain gap. At 390 the steps
+ * stack and the marks do get a plain gap, because the artboard stops aligning
+ * them there.
+ *
+ * Nothing here is interactive: the artboards draw no CTA in this section, so the
+ * survey entry points live only in Connect With Us.
+ */
 
-const steps = [
+interface Step {
+  number: string;
+  name: string;
+  body: string;
+  mark: MarkName;
+  /** The marks are drawn at different sizes; Engage's is the largest. */
+  markClass: string;
+}
+
+const STEPS: Step[] = [
   {
-    num: '01',
-    title: 'Engage',
-    desc: 'Meet our engagers to understand your pain points, find solutions, and build a roadmap together. We are COSMIC - guided by our core values of Caring, Openness & Sincerity, Merit, Innovation, Commitment.',
+    number: '01',
+    name: 'Engage',
+    body: "Meet our engagers to understand your pain points, find solutions, and build a roadmap together. We're COSMIC.",
+    mark: 'engage',
+    markClass: 'h-[105px] w-[105px] lg:h-[169px] lg:w-[169px]',
   },
   {
-    num: '02',
-    title: 'Collaborate',
-    desc: 'Execute your project in agile mode - with proximity, transparency, and productivity. Small teams, people magic.',
+    number: '02',
+    name: 'Collaborate',
+    body: 'Execute your project in agile mode — with proximity, transparency, and productivity. Small teams, people magic.',
+    mark: 'collaborate',
+    markClass: 'h-[100px] w-[100px] lg:h-[140px] lg:w-[140px]',
   },
   {
-    num: '03',
-    title: 'Run',
-    desc: 'Roll-out in production, adopt the products, and support your users.\nPeople first, tech second.',
+    number: '03',
+    name: 'Run',
+    body: 'Roll-out in production, adopt the products, and support your users. People first, tech second.',
+    mark: 'run',
+    markClass: 'h-[100px] w-[100px] lg:h-[140px] lg:w-[140px]',
   },
 ];
 
-// onOpenSurvey kept for API compatibility (Figma has no CTA in this section).
-interface HowWeEngageProps {
-  onOpenSurvey?: () => void;
-}
-
-const HowWeEngage: React.FC<HowWeEngageProps> = () => {
-  return (
-    <section id="approach" className="w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)]">
-      {/* Figma: flex gap-80, items-start */}
-      <div className="flex flex-col lg:flex-row gap-[clamp(40px,5vw,80px)] items-start">
-
-        {/* Left: header + mascot image (Figma 600px column) */}
-        <div className="w-full lg:w-[600px] shrink-0 flex flex-col gap-[clamp(32px,4vw,48px)]">
-          <div className="flex flex-col gap-[20px]">
-            <h2 className="t-display-xl text-text-default">Our Approach</h2>
-            <p className="t-subtitle text-subtitle">This is how we work</p>
-          </div>
-          <img
-            src={MASCOT_URL}
-            alt="Officience mascots"
-            width={600}
-            height={312}
-            className="w-full max-w-[600px] h-auto object-contain"
-            loading="lazy"
-          />
+const HowWeEngage: React.FC = () => (
+  <section id="approach" className="bg-bg-secondary">
+    <Container className="flex flex-col gap-fig-32 py-fig-32 lg:gap-fig-146 lg:py-fig-100">
+      {/* Header. The blurb sits bottom-aligned against the title at desktop,
+          in a 600px block flush with the content edge. */}
+      <div className="flex flex-col gap-fig-24 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32">
+        <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
+          <SectionBadge>How We Work</SectionBadge>
+          <h2 className="font-sans text-h1 text-text-default lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
+            Our Approach
+          </h2>
         </div>
 
-        {/* Right: 3 step cards (Figma: gap-40, rounded-8, px-40 py-32) */}
-        <div className="w-full lg:flex-1 flex flex-col gap-[clamp(24px,3vw,40px)]">
-          {steps.map((step) => (
-            <div
-              key={step.num}
-              className="bg-bg-default rounded-fig-m shadow-fig-xs flex flex-col gap-[16px] px-[clamp(24px,3vw,40px)] py-[32px]"
+        <p className="font-body text-body-md text-subtitle lg:w-[600px] lg:shrink-0 lg:text-subtitle-1">
+          How we transform your vision into seamless digital reality with agile speed.
+        </p>
+      </div>
+
+      {/* Steps. `items-start` is load-bearing: each rule is its own step's
+          height, and the artboard draws the third one shorter because Run's
+          copy is shorter. Stretching them would flatten that. */}
+      <ol className="flex flex-col gap-fig-40 lg:flex-row lg:items-start lg:gap-fig-120">
+        {STEPS.map((step) => (
+          <li
+            key={step.number}
+            /* At 390 the rules run past the copy: the artboard gives its three
+               steps 340/350/350px regardless of how much text each holds, so the
+               rule length is a constant, not a consequence. One min-height says
+               that; Engage ends up 10px longer than drawn. From lg the rule is
+               the content's own height again. */
+            className="flex min-h-[350px] flex-col border-l border-border-field pl-fig-40 lg:min-h-0 lg:flex-1 lg:pl-fig-32"
+          >
+            <p
+              aria-hidden="true"
+              className="font-sans font-semibold text-[24px] leading-[32px] text-subtitle lg:text-h2"
             >
-              <h3 className="t-h2 text-text-primary">
-                {step.num}. {step.title}
+              {step.number}
+            </p>
+
+            {/* Fixed slot from lg so all three text blocks start on one line. */}
+            <div className="mt-fig-24 lg:mt-fig-32 lg:h-[169px]">
+              <ApproachMark name={step.mark} className={step.markClass} />
+            </div>
+
+            <div className="mt-fig-24 flex flex-col gap-fig-8 lg:mt-fig-116 lg:gap-fig-24">
+              <h3 className="font-sans text-h3 text-text-primary lg:text-display-sm">
+                {step.name}
               </h3>
-              <p className="t-body-lg text-text-default whitespace-pre-line">
-                {step.desc}
+              <p className="font-body text-body-lg text-text-default lg:text-subtitle-2">
+                {step.body}
               </p>
             </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
+          </li>
+        ))}
+      </ol>
+    </Container>
+  </section>
+);
 
 export default HowWeEngage;

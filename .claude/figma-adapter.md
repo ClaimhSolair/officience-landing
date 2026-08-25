@@ -27,7 +27,12 @@ Project instance for the `figma-to-code` skill. Everything project-specific the 
 - Overlay menu `3275:2328` · headline/hero 1440 `3396:3227` · Proven Results expanded state `2943:1579`
 - Survey set `2822:6528` (~25 frames) · Terms page `2922:1887` · Privacy page `2927:3153` (both under `2927:3151`)
 - Buttons component: instance `3275:2504` → base `3552:2330` (336×56: 16px padding block, 24px line box, 8px gap, 24px icon, square corners)
-- Per-section (390), as they get built: About `3187:4452` · Services `3187:4345`
+- Per-section (390) — the whole artboard, enumerated once so nobody has to dump it again:
+  Header `3133:6748` (y 0) · Hero `3187:3985` (69) · flower band `3147:6893` (417) ·
+  About `3187:4452` (939) · Services `3187:4345` (2610) · Approach `3137:2432` (4290) ·
+  Proven Results `3137:2448` (5652) · Testimonials `3137:2470` (6174) ·
+  Logo slide `3153:8647` (6906, drawn **738px wide** — wider than the artboard) ·
+  Why Us `3153:8671` (7066) · Contact `3153:8745` (7572) · Footer `3153:14667` (8488)
 - Services button instances — 1920: `3137:1939` primary / `3137:1959` outline; 390: `3187:4359` primary / `3187:4371` outline. Worth reading per section: the
   same logical button is drawn with different radius, padding, type step and even
   a different arrow between the two artboards.
@@ -45,6 +50,17 @@ Project instance for the `figma-to-code` skill. Everything project-specific the 
    The hashes are per-session, so re-run step 1 rather than reusing an old URL.
 3. Run new SVGs through the `preserveAspectRatio` fixer and spot-check the viewBox.
 4. Commit the file with its section, then upload (approval-gated) and bump `ASSET_VERSION`.
+
+**Inline vs bucket.** Small flat-filled vectors (a few paths, under ~2 kB) go inline as
+a TSX component — no upload gate, no extra requests, and the section cannot render a
+broken image. The three Our Approach marks cost 1.8 kB gzipped for all three, against
+three R2 round trips. Reserve the bucket for photography and for art big or complex
+enough that the markup would dominate the file.
+
+**Masks are often no-ops.** A node named "Clip path group" exports as a mask SVG plus a
+fill SVG. Open the mask first: if it is a single full-bounds rectangle (Approach's
+Collaborate mark was `M140 0H0V140H140V0Z`), it clips nothing — keep the fill and drop
+the mask entirely rather than reproducing a `mask-image`.
 
 **What this cannot export:** live text inside artwork. Figma keeps it as text nodes,
 so a lockup whose wording is type comes out as separate vectors plus bare strings.
@@ -88,6 +104,14 @@ Both are shipped-around, not blocking. Revisit when the files arrive.
   stop and the desktop one does not.
 - **"View All Brochure" corner radius** is 8px at 1920 and 0 at 390, for the same
   button. Built as drawn. Likely an oversight rather than intent.
+- **Our Approach, 390 vs 1920.** The mobile blurb drops "with agile speed" ("How we
+  transform your vision into seamless digital reality."); desktop copy is used at both.
+  Mobile step frames are 340/350/350 tall regardless of their copy, so the rules run
+  past the text — reproduced as a single 350px min-height, which makes Engage's rule
+  10px longer than drawn.
+- **"We're COSMIC." no longer expands the acronym.** The 20th-anniversary copy spelled
+  it out (Caring, Openness & Sincerity, Merit, Innovation, Commitment); both Sept-2026
+  artboards cut it, and nothing else on the page defines it.
 - **The 390 eyebrow chip is drawn at two sizes.** About Us `3147:6973` is px-8/py-2/26px
   tall; Services `3187:4349` is px-12/py-4/30px. `ui/SectionBadge` follows About Us
   everywhere, so the Services mobile chip is 4px short of its frame. Needs a ruling on
@@ -185,13 +209,16 @@ backgrounds go on the parent so they stay full-bleed.
   - Preview **and the local Chrome** report `prefers-reduced-motion: reduce`. Wiring is verifiable; motion is not. Turn Windows animations on to review motion.
   - **Chrome's window here cannot leave ~1526 CSS px** (1920 display at 125% scaling),
     in either direction — `resize_window` reports success and nothing changes. So:
-    - **For 390 (and any narrow width): load the page into an iframe of that width.**
-      Media queries follow the iframe's viewport, it is same-origin so its DOM measures
-      normally, and it is faithful enough to have caught a real breakpoint bug.
-      `f.src='/'; f.width='390'; f.height='844'` then read `f.contentDocument`.
-    - For 1920, the layout cannot be seen at all. Verify by reading the generated rules:
-      walk `document.styleSheets` for a `MEDIA_RULE` whose `conditionText` contains 1920
-      and assert the declarations. Confirms values, not appearance.
+    - **Load the page into an iframe of the width you want to test — including widths
+      WIDER than the window.** Media queries follow the iframe's viewport, it is
+      same-origin so its DOM measures normally, and it has caught real breakpoint bugs.
+      `f.style.width='390px'` for mobile; **`f.style.width='1920px'` genuinely works** —
+      inside it `matchMedia('(min-width:1920px)').matches` is true, the Container
+      resolves to 1792 with 64px gutters, and every geometry read is valid. The frame
+      just overflows the window horizontally, which measurement does not care about.
+      Screenshots only show the leftmost ~1526px, so shoot in sections or measure
+      instead. This replaces the old stylesheet-walking workaround, which confirmed
+      declared values but never layout.
   - **`loading="lazy"` never fires in this Chrome profile.** Confirmed directly: an
     eager image loads, an otherwise identical lazy one pinned at `top:100px` in the
     viewport stays `complete: false` indefinitely. Nothing to fix in the markup — but
@@ -237,10 +264,14 @@ backgrounds go on the parent so they stay full-bleed.
 - UI glyphs come from **Lucide, not the Figma Iconly set** (the plan's asset policy).
   Iconly's are filled shapes, Lucide's are stroked, so arrows read a little lighter:
   `ArrowRight` for Iconly "Arrow - Right", `ArrowUpRight` for Iconly "Made_call".
-- `ui/SectionBadge` is one size everywhere, matching the About Us eyebrow
-  (px-8 / py-2 / 26px tall at 390). The Services 390 eyebrow is drawn 12/4/30 instead —
-  the two sections disagree in the file, and one shared primitive wins until the team
-  says which is canonical.
+- `ui/SectionBadge` steps its padding by breakpoint: 12/4 (30px tall) at 390, 8/2 (32px)
+  from lg. Every 390 section is drawn at 12/4 **except About Us `3147:6973`**, which is
+  8/2 — so the majority wins and the About Us chip renders 4px taller than its frame.
+  Desktop is 8/2 everywhere, no conflict.
+- **Our Approach columns are equal thirds** (`flex-1` + 120px gap) where the artboard
+  draws 533.33 / 533.33 / 485 — those widths are Figma hug artifacts, not a grid. Line
+  counts come out identical to the artboard at 1920 (4/4/3); the only visible effect is
+  the 2nd and 3rd rules sitting 16px and 32px left of where Figma puts them.
 - Footer keeps a "Cookie Settings" link and gains "Privacy Policy", neither of which
   the Figma footer draws — compliance requirement (Privacy link pending step-10 sign-off).
 

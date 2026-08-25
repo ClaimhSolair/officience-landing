@@ -32,7 +32,7 @@ officience/
     Hero.tsx           # Hero section with tagline
     Capabilities.tsx   # "Our Services" - 4 ruled list rows, brochure links
     ClientStories.tsx  # Testimonial carousel
-    HowWeEngage.tsx    # "Our Approach" engagement section
+    HowWeEngage.tsx    # "Our Approach" - 3 ruled steps with inline pinwheel marks
     WhyOfficience.tsx  # "Why Choose Us" section
     Contact.tsx        # Contact section with survey entry points
     Footer.tsx         # Footer with social links
@@ -43,7 +43,7 @@ officience/
     ScrollManager.tsx  # Scroll position and hash targets on route change
     ErrorBoundary.tsx  # Recovers from stale lazy chunks after a redeploy
     navigation.ts      # Every nav destination, in one table
-    ui/                # Container, Button, CarouselDots
+    ui/                # Container, Button, SectionBadge, ApproachMark, CarouselDots
 ```
 
 ## Key Patterns

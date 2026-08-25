@@ -23,7 +23,7 @@ import { Link } from 'react-router-dom';
 const RADIUS = { none: 'rounded-none', m: 'rounded-fig-m' } as const;
 
 type Variant = 'primary' | 'secondary' | 'tertiary';
-type Size = 'md' | 'lg' | 'xl';
+type Size = 'md' | 'lg' | 'xl' | 'icon';
 
 const VARIANT: Record<Variant, string> = {
   primary:
@@ -39,6 +39,17 @@ const SIZE: Record<Size, string> = {
   lg: 'h-[56px] px-fig-24 gap-fig-8 text-btn-md',
   /** The hero CTA: same height, but Button-lg type and a wider icon gap. */
   xl: 'h-[56px] px-fig-24 gap-fig-14 text-btn-lg',
+  /**
+   * Square, label-less — the carousel arrows. This has to be a size rather than
+   * `className="w-[56px] px-0"` on top of another one: Tailwind orders utilities
+   * by stylesheet position, not by where they sit in the class attribute, so a
+   * later `px-0` still loses to `px-fig-24` and the glyph gets squeezed into
+   * whatever the padding leaves (a 24px arrow rendered 6px wide).
+   *
+   * Give the glyph an accessible name with an `sr-only` child; being absolutely
+   * positioned it adds no layout of its own.
+   */
+  icon: 'h-[56px] w-[56px] p-0 gap-0',
 };
 
 interface CommonProps {
