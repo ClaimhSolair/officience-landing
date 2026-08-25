@@ -72,8 +72,11 @@
               'text-default': '#0F1219',
               'text-primary': '#1F49BF',
               subtitle: '#5A5A5A',
-              // Semantic/Text/Subtitle-2 — the survey's inactive step labels.
-              'subtitle-2': '#A0A0A0',
+              // Semantic/Text/Subtitle-2 — the survey's inactive step labels. NOT named
+              // `subtitle-2`: the fontSize scale already owns that key, and Tailwind feeds
+              // both scales from the `text-` prefix, so one class would set a colour AND a
+              // 28px size. That collision shipped once and put 28px type in a 40px bar.
+              'gray-fig-400': '#A0A0A0',
               link: '#4B4D53',
               'text-muted': '#4B4D53',
               'bg-default': '#FFFFFF',
@@ -156,28 +159,17 @@
               'fig-exsm': '0 1.5px 10px 0 #E5E5E5',
             },
             maxWidth: {
-              'content': '1720px',
               // Sept-2026: 1920 artboard minus 64px gutters. Content stops growing here.
               'content-2': '1792px',
             },
             animation: {
-              'fade-in': 'fadeIn 1s ease-out forwards',
               'marquee': 'marquee 40s linear infinite',
-              'marquee-reverse': 'marqueeReverse 40s linear infinite',
             },
             keyframes: {
-              fadeIn: {
-                '0%': { opacity: '0', transform: 'translateY(10px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              },
               // Track must contain the content duplicated twice; -50% loops seamlessly.
               marquee: {
                 '0%': { transform: 'translateX(0)' },
                 '100%': { transform: 'translateX(-50%)' },
-              },
-              marqueeReverse: {
-                '0%': { transform: 'translateX(-50%)' },
-                '100%': { transform: 'translateX(0)' },
               },
             }
           },
@@ -285,47 +277,7 @@
          (text-display-xl, text-h1 … text-btn-lg) so styles can swap per breakpoint.
          Delete this block at cleanup, once no component references a .t-* class. */
       /* Lexend headings */
-      .t-display-xl {
-        font-family: 'Lexend', sans-serif; font-weight: 700;
-        font-size: clamp(30px, 6vw, 86px); line-height: 1.105; letter-spacing: -0.03em;
-      }
-      .t-display-md {
-        font-family: 'Lexend', sans-serif; font-weight: 600;
-        font-size: clamp(24px, 4vw, 50px); line-height: 1.16; letter-spacing: 0;
-      }
-      .t-h2 {
-        font-family: 'Lexend', sans-serif; font-weight: 600;
-        font-size: clamp(20px, 2.5vw, 32px); line-height: 1.25; letter-spacing: 0;
-      }
-      .t-h3 {
-        font-family: 'Lexend', sans-serif; font-weight: 600;
-        font-size: clamp(18px, 2vw, 24px); line-height: 1.333; letter-spacing: 0;
-      }
-      .t-h4 {
-        font-family: 'Lexend', sans-serif; font-weight: 500;
-        font-size: clamp(16px, 1.4vw, 20px); line-height: 1.4; letter-spacing: 0;
-      }
-      .t-button {
-        font-family: 'Lexend', sans-serif; font-weight: 600;
-        font-size: 16px; line-height: 1.5; letter-spacing: 0;
-      }
       /* Montserrat body */
-      .t-subtitle {
-        font-family: 'Montserrat', sans-serif; font-weight: 400;
-        font-size: clamp(18px, 1.6vw, 24px); line-height: 1.333; letter-spacing: 0;
-      }
-      .t-body-xl {
-        font-family: 'Montserrat', sans-serif; font-weight: 400;
-        font-size: clamp(16px, 1.3vw, 20px); line-height: 1.4; letter-spacing: 0;
-      }
-      .t-body-lg {
-        font-family: 'Montserrat', sans-serif; font-weight: 400;
-        font-size: 16px; line-height: 1.625; letter-spacing: 0;
-      }
-      .t-body-lg-bold {
-        font-family: 'Montserrat', sans-serif; font-weight: 700;
-        font-size: 16px; line-height: 1.625; letter-spacing: 0;
-      }
       /* Pause marquee on hover for readability */
       .marquee-track:hover {
         animation-play-state: paused;

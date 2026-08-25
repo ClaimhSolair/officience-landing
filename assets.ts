@@ -55,10 +55,6 @@ export const ASSETS = {
       { small: a('/about/card-3-900.webp'), large: a('/about/card-3-1024.webp'), largeWidth: 1024 },
     ],
   },
-  hero: {
-    iconsRow1: a('/hero/icons-group-1.svg'),
-    iconsRow2: a('/hero/icons-group-2.svg'),
-  },
   // Proven Results project shots. Each is cropped to the window the artboard
   // actually shows — Figma scales and offsets these fills, so a straight export
   // is mostly off-frame — then re-encoded WebP q80 at the widths the crop can
@@ -79,13 +75,6 @@ export const ASSETS = {
       { url: a('/works/funpass-736.webp'), w: 736 },
     ],
   } satisfies Record<string, ImageSource[]>,
-  services: {
-    design: a('/services/design.svg'),
-    software: a('/services/software.svg'),
-    data: a('/services/data.svg'),
-    bi: a('/services/bi.svg'),
-  },
-  approach: { mascot: a('/approach/mascot.png') },
   testimonials: {
     quote: a('/testimonials/quote.svg'),
     authors: [

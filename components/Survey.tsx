@@ -72,7 +72,8 @@ const PROGRESS_LABELS: Record<SurveyBranch, [string, string, string]> = {
 /**
  * Figma "Bar Steps" 3316:2401. The inactive label and the inactive bar are two
  * different greys — Text/Subtitle-2 #A0A0A0 for the word, Border/Outline-Field
- * #C6C6C6 for the rule — where the July build used one for both.
+ * #C6C6C6 for the rule — where the July build used one for both. The colour is
+ * `gray-fig-400`, not `subtitle-2`: that key is already a fontSize.
  */
 const ProgressBar: React.FC<{ labels: [string, string, string]; current: number }> = ({ labels, current }) => (
   <div className="flex flex-1 gap-[8px]">
@@ -80,7 +81,7 @@ const ProgressBar: React.FC<{ labels: [string, string, string]; current: number 
       <div key={label} className="flex flex-1 flex-col gap-[4px]">
         <span
           className={`font-body font-bold text-[10px] uppercase leading-[14px] ${
-            i <= current ? 'text-primary' : 'text-subtitle-2'
+            i <= current ? 'text-primary' : 'text-gray-fig-400'
           }`}
         >
           {i + 1}. {label}

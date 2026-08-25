@@ -62,8 +62,8 @@ class ErrorBoundary extends React.Component<Props, State> {
 
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-[16px] px-[24px] text-center">
-        <h1 className="t-h2 text-text-default">This page didn&apos;t load</h1>
-        <p className="t-body-lg text-text-muted max-w-[480px]">
+        <h1 className="font-sans text-h2 text-text-default">This page didn&apos;t load</h1>
+        <p className="max-w-[480px] font-body text-body-lg text-text-muted">
           Something went wrong while loading this part of the site. Reloading usually fixes it.
         </p>
         <div className="flex flex-wrap gap-[12px] justify-center">

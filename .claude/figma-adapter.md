@@ -504,3 +504,65 @@ working through the DOM: step-0 gate, the Back button appearing at step 1, the "
 label, and the primary button disabled at step 1. **The consent checkbox's own rendering and
 its isolated gate need a real, focused browser.** Live e2e additionally needs the Vercel
 SMTP env re-scope and a preview deploy — `api/survey.ts` does not run under Vite.
+
+#### Legal pages v2 (step 12)
+
+Figma `2922:1887` (Terms) and `2927:3153` (Privacy) — **1440 artboards, and the only pages in
+the redesign with no 390 frame**, so the mobile treatment is the build's own.
+
+- **The section set already matched.** Figma's TOC lists twelve items and `TERMS_SECTIONS`
+  already held exactly those twelve, in order, so the "transcription + diff vs legacy" the
+  plan called for came out clean. The single difference is section 4: Figma's TOC abbreviates
+  "Company Content **&** Media" where the transcribed draft says "**and**". The document's own
+  wording is kept.
+- **The heading is now "Terms of Use"**, not "Terms & Conditions", and a "Last updated: June
+  2026" line joins the hero. The footer link was already relabelled in step 10.
+- Type maps onto the scale with nothing new: hero `display-xl` 86/95, section headings
+  `display-sm` 50/58, body `body-lg` 16/26 — all exact.
+- The hero band is 478 tall around 147px of copy: **124 above, 207 below**. The slack under
+  the title is deliberate in the artboard and is reproduced.
+- **Figma stops the column rule after ~843px**, about the height of the contents card. With
+  the panel sticky the rule runs the full column here, which is what a column divider is for.
+- The contents panel is one list, not two. A separate mobile copy would have put twelve
+  duplicate anchors in the document and let the two states disagree.
+- **Clicking a contents row claims it immediately** rather than waiting for the scroll to
+  settle: whether the click highlighted what you asked for otherwise depended on where the
+  section landed against the spy's line, and one that stopped a pixel low highlighted its
+  predecessor.
+- Scroll position, not IntersectionObserver, decides the current row — legal sections run
+  several screens each, so most of the time no boundary is intersecting anything and an
+  observer simply stops reporting.
+
+#### Cleanup (step 13)
+
+Grep-zero confirmed for all ten legacy `.t-*` classes, `animate-fade-in`,
+`animate-marquee-reverse`, the pre-Sept `max-w-content` token, and `ASSETS.hero` /
+`.services` / `.approach` (their files stay in the bucket). `index.html` lost ~2 kB.
+
+Verified: exactly one `h1` on `/` and it is the hero headline; H1→H2→H3 with no skips; 56
+images with zero broken and zero missing `alt`; the only empty `alt`s are the decorative
+flower and the marquee's duplicate logo copy, which is the intended pattern; JSON-LD
+`sameAs` matches `SOCIALS` exactly; all four routes resolve with correct titles and the
+unknown path redirects to `/`; `vercel.json` still sends `noindex, follow` for both legal
+routes while `/` stays `index, follow`; the sitemap lists only `/`; the legal chunk is still
+split out of the main bundle; canonical and `og:url` stay pinned to `/`.
+
+**Two self-inflicted regressions found and fixed this session — both worth not repeating:**
+
+1. **A colour token named the same as a fontSize token.** Adding `subtitle-2` to `colors`
+   collided with the existing `subtitle-2` in `fontSize`; Tailwind feeds both scales from the
+   `text-` prefix, so one class set a colour AND a 28px size, and the survey's progress
+   labels shipped at 28px in a 40px bar. **Before adding any `colors` key, grep `fontSize`
+   for the same name.** The colour is now `gray-fig-400`.
+2. **A regex with `[^}]*` cannot delete a nested object.** Removing two keyframes that way
+   chopped their middles out and left orphan fragments, which made `tailwind.config` a syntax
+   error — so every custom utility silently died site-wide while core ones like `text-white`
+   kept working. Brace-counting called it "balanced" because the orphans happened to pair up.
+   **Validate the config by executing it (`node -e` on the object literal), not by counting
+   braces.** That is how the repair was confirmed.
+
+Also worth knowing: **injecting a probe element and reading its computed style is not a
+reliable check** of whether a utility exists. The Play CDN generates on scan, and a
+freshly-injected node is often not picked up — it reported 16px for `text-h1` on a page that
+was rendering `text-h1` correctly. Read the real rendered element, or look for the rule in
+`document.styleSheets`.
