@@ -126,9 +126,31 @@ export const ASSETS = {
   footer: {
     logo: a('/footer/logo.png'),
     banner: a('/footer/banner.png'),
+    // Also used by MenuOverlay, which is why the footer reuses these rather
+    // than inlining Figma's own footer marks: the two would otherwise draw
+    // the same four brands at visibly different sizes on one site.
     facebook: a('/footer/facebook.svg'),
     youtube: a('/footer/youtube.svg'),
     linkedin: a('/footer/linkedin.svg'),
     tiktok: a('/footer/tiktok.svg'),
+    /**
+     * The "Our friends" tiles. Sizes are the ones the 1920 artboard draws each
+     * logo at; 390 draws the same five at 0.8136x, which the footer derives from
+     * a single scale rather than restating every pair.
+     *
+     * These are provisional. Figma's underlying files are named
+     * "maxresdefault (3) 1", "Gemini_Generated_Image_…" and "images (9) 1" — a
+     * video thumbnail, an AI generation and a stray download — so they are
+     * stand-ins, not brand assets. Offinity is worse: it is drawn as six loose
+     * vectors rather than one logo, and `offinity.svg` is those six recomposed.
+     * All five want originals from the team.
+     */
+    partners: [
+      { name: 'Offinity', url: a('/footer/partners/offinity.svg'), w: 83.15, h: 24.157 },
+      { name: 'Officonnect', url: a('/footer/partners/officonnect.webp'), w: 113.235, h: 32.12 },
+      { name: 'Rizlum', url: a('/footer/partners/rizlum.webp'), w: 101.505, h: 34.51 },
+      { name: 'OpenReal', url: a('/footer/partners/openreal.webp'), w: 90.724, h: 21.645 },
+      { name: 'Uniques', url: a('/footer/partners/uniques.webp'), w: 80.099, h: 20.706 },
+    ],
   },
 };

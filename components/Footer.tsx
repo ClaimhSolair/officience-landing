@@ -1,178 +1,205 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone } from 'lucide-react';
+import Container from './ui/Container';
 import { ASSETS } from '../assets';
-import { ROUTES } from './navigation';
+import { FOOTER_COMPANY, FOOTER_LEGAL, ROUTES, SOCIALS, type NavItem } from './navigation';
+import { MailIcon, PhoneIcon } from './ui/FooterIcons';
 
-const LOGO_URL = ASSETS.footer.logo;
-const BANNER_URL = ASSETS.footer.banner;
-
-const CAREER_URL = 'https://www.linkedin.com/company/officience/jobs/';
-const ABOUT_URL = 'https://demo.officience.com/';
-
+/**
+ * Figma 3151:2509 (1920) and 3153:14667 (390).
+ *
+ * 1920 sets the brand block against the link columns; 390 stacks every block in
+ * one column on a flat 32px rhythm. The anniversary lockup and the watermark
+ * band are unchanged from the July build — byte-identical files, still in the
+ * bucket — so the footer still carries 20th-anniversary branding, consistent
+ * with the decision to leave the splash art alone.
+ *
+ * The mail and phone glyphs are inlined (`ui/FooterIcons`); the four social
+ * marks come from the bucket, which is where MenuOverlay already gets them.
+ *
+ * The two column headings are drawn in different styles at 390 — "Company" in
+ * Montserrat Bold 14/22 and "Our friends" in Lexend Medium 16/24 — and the
+ * Company links change colour between frames too. Both are reproduced.
+ */
 const EMAIL = 'engage@officience.com';
 const PHONE_DISPLAY = '+84 28 3862 0055';
 const PHONE_TEL = '+842838620055';
+const COPYRIGHT = '© 2026 Officience, All rights reserved';
 
-const Footer: React.FC = () => {
-  // Order matches Figma footer (2933:2080): LinkedIn, Facebook, TikTok, YouTube.
-  const socials = [
-    { href: 'https://www.linkedin.com/company/officience/', label: 'LinkedIn', icon: ASSETS.footer.linkedin },
-    { href: 'https://www.facebook.com/Officience', label: 'Facebook', icon: ASSETS.footer.facebook },
-    { href: 'https://www.tiktok.com/@officience', label: 'TikTok', icon: ASSETS.footer.tiktok },
-    { href: 'https://www.youtube.com/@officienceinvietnam', label: 'YouTube', icon: ASSETS.footer.youtube },
-  ];
+/** The bucket set MenuOverlay already uses, keyed by the label in `SOCIALS`. */
+const SOCIAL_ICONS: Record<string, string> = {
+  LinkedIn: ASSETS.footer.linkedin,
+  Facebook: ASSETS.footer.facebook,
+  TikTok: ASSETS.footer.tiktok,
+  YouTube: ASSETS.footer.youtube,
+};
 
+/** Every footer destination already lives in `navigation.ts`; this just renders one. */
+const NavLink: React.FC<{ item: NavItem; className?: string }> = ({ item, className = '' }) => {
+  const { target, label } = item;
+  if (target.kind === 'external') {
+    return (
+      <a href={target.href} target="_blank" rel="noopener noreferrer" className={className}>
+        {label}
+      </a>
+    );
+  }
+  // No footer entry opens the survey, but NavTarget allows it, so it is handled
+  // rather than cast away.
+  if (target.kind === 'survey') return <span className={className}>{label}</span>;
+  const to = target.kind === 'route' ? target.to : `${ROUTES.home}#${target.id}`;
   return (
-    <footer className="relative bg-bg-primary flex flex-col gap-[32px] overflow-hidden">
-      {/* Mobile footer (<768px) — logo, links + copyright row, then a full-width
-          socials + contact block (a 4th social icon no longer fits the narrow right
-          column, so contact info stacks full-width below).
-          Faint full-bleed watermark is rendered as a footer-level sibling below. */}
-      <div className="md:hidden w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] pt-[40px] flex flex-col gap-[24px] font-body text-white">
-        <img
-          src={LOGO_URL}
-          alt="Officience — 20 Years Anniversary"
-          width={223.5}
-          height={88.5}
-          className="h-[56px] w-auto object-contain"
-          referrerPolicy="no-referrer"
-        />
-        <div className="w-full h-px bg-white/30" />
-        <div className="flex justify-between gap-4 items-start">
-          {/* Links — left-aligned stack, ≥44px tap rows. Font sized to match copyright (12px). */}
-          <div className="flex flex-col text-[12px]">
-            <Link to={ROUTES.terms} className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity">
-              Terms &amp; Conditions
-            </Link>
-            <button
-              onClick={() => window.dispatchEvent(new Event('officience:cookie-settings'))}
-              className="inline-flex items-center min-h-[44px] text-left hover:opacity-80 transition-opacity"
-            >
-              Cookie Settings
-            </button>
-            <a href={ABOUT_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
-              About us
-            </a>
-            <Link to={`${ROUTES.home}#capabilities`} className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
-              Our Services
-            </Link>
-            <a href={CAREER_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] hover:opacity-80 transition-opacity">
-              We’re Hiring
-            </a>
-          </div>
-          {/* Copyright — right-aligned, wraps on narrow screens */}
-          <span className="text-[12px] text-right">© {new Date().getFullYear()} Officience, All rights reserved</span>
-        </div>
-        {/* Socials (top) + contact info (below), full width */}
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-[16px] items-center">
-            {socials.map(({ href, label, icon }) => (
-              <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
-                 className="hover:opacity-80 transition-opacity">
-                <img src={icon} alt={label} width={28} height={28} className="w-[28px] h-[28px]" />
-              </a>
-            ))}
-          </div>
-          <div className="flex flex-col gap-[8px] text-[14px] leading-[22px]">
-            <a href={`mailto:${EMAIL}`} className="inline-flex items-center gap-[8px] hover:opacity-80 transition-opacity">
-              <Mail className="w-[18px] h-[18px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
-              <span>{EMAIL}</span>
-            </a>
-            <a href={`tel:${PHONE_TEL}`} className="inline-flex items-center gap-[8px] hover:opacity-80 transition-opacity">
-              <Phone className="w-[18px] h-[18px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
-              <span>{PHONE_DISPLAY}</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer Content (≥768px) */}
-      <div className="hidden md:flex w-full max-w-content mx-auto px-[clamp(24px,7vw,100px)] pt-[clamp(40px,5vw,64px)] flex-col gap-[32px]">
-
-        {/* Top: logo (left) + socials & contact info (right) */}
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-start justify-between">
-          <img
-            src={LOGO_URL}
-            alt="Officience — 20 Years Anniversary"
-            width={223.5}
-            height={88.5}
-            className="h-[clamp(56px,7vw,88.5px)] w-auto object-contain"
-            referrerPolicy="no-referrer"
-          />
-
-          <div className="flex flex-col items-center sm:items-end gap-[28px]">
-            <div className="flex gap-[14px] items-center">
-              {socials.map(({ href, label, icon }) => (
-                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
-                   className="hover:opacity-80 transition-opacity flex items-center justify-center">
-                  <img src={icon} alt={label} width={45} height={45} className="w-[48px] h-[48px] md:w-[45px] md:h-[45px]" />
-                </a>
-              ))}
-            </div>
-            <div className="flex flex-col items-center sm:items-end gap-[8px] font-body text-white text-[16px] leading-[26px]">
-              <a href={`mailto:${EMAIL}`} className="inline-flex items-center gap-[8px] hover:opacity-80 transition-opacity">
-                <Mail className="w-[20px] h-[20px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
-                <span>{EMAIL}</span>
-              </a>
-              <a href={`tel:${PHONE_TEL}`} className="inline-flex items-center gap-[8px] hover:opacity-80 transition-opacity">
-                <Phone className="w-[20px] h-[20px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
-                <span>{PHONE_DISPLAY}</span>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="w-full h-px bg-white/30" />
-
-        {/* Bottom: copyright + links */}
-        <div className="flex flex-col gap-4 md:flex-row items-center justify-between font-body text-white text-[18px]">
-          <span className="text-center md:text-left">© {new Date().getFullYear()} Officience, All rights reserved</span>
-          <div className="flex flex-wrap justify-center gap-x-[clamp(20px,2vw,40px)]">
-            <Link to={ROUTES.terms} className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
-              Terms &amp; Conditions
-            </Link>
-            <button
-              onClick={() => window.dispatchEvent(new Event('officience:cookie-settings'))}
-              className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap"
-            >
-              Cookie Settings
-            </button>
-            <a href={ABOUT_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
-              About us
-            </a>
-            <Link to={`${ROUTES.home}#capabilities`} className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
-              Our Services
-            </Link>
-            <a href={CAREER_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-[44px] md:min-h-0 px-2 md:px-0 hover:opacity-80 transition-opacity whitespace-nowrap">
-              We’re Hiring
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Decorative banner — Figma aspect 2880/346, full width */}
-      <img
-        src={BANNER_URL}
-        alt=""
-        aria-hidden="true"
-        className="w-full h-auto object-cover hidden md:block"
-        style={{ aspectRatio: '2880 / 346' }}
-        loading="lazy"
-      />
-
-      {/* Mobile watermark — same banner, faded, full-bleed at the footer bottom */}
-      <img
-        src={BANNER_URL}
-        alt=""
-        aria-hidden="true"
-        className="w-full h-auto object-cover opacity-20 md:hidden"
-        style={{ aspectRatio: '2880 / 346' }}
-        loading="lazy"
-      />
-    </footer>
+    <Link to={to} className={className}>
+      {label}
+    </Link>
   );
 };
+
+const LINK_HOVER =
+  'transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none';
+
+const Footer: React.FC = () => (
+  <footer className="bg-bg-primary text-white">
+    {/* 390 opens with 40px of air above the lockup; at 1920 the Contact card's
+        own bottom padding already supplies the gap Figma draws. */}
+    <Container className="flex flex-col gap-fig-32 pt-fig-40 lg:pt-0">
+      <div className="flex flex-col gap-fig-32 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-fig-32">
+          <img
+            src={ASSETS.footer.logo}
+            alt="Officience — 20 Years Anniversary"
+            width={277}
+            height={110}
+            className="h-[63.36px] w-[160px] lg:h-[109.69px] lg:w-[277px]"
+            decoding="async"
+            referrerPolicy="no-referrer"
+          />
+          <address className="flex flex-col gap-[2px] not-italic lg:gap-0">
+            <a href={`mailto:${EMAIL}`} className={`flex items-center gap-px ${LINK_HOVER}`}>
+              <span className="flex h-[32px] w-[32px] shrink-0 items-center justify-center drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)]">
+                <MailIcon className="h-[20px] w-[20px]" />
+              </span>
+              <span className="font-body text-[12px] leading-[20px] lg:text-body-xl">{EMAIL}</span>
+            </a>
+            <a href={`tel:${PHONE_TEL}`} className={`flex items-center gap-px ${LINK_HOVER}`}>
+              <span className="flex h-[32px] w-[32px] shrink-0 items-center justify-center drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)]">
+                <PhoneIcon className="h-[20px] w-[20px]" />
+              </span>
+              <span className="font-body text-[12px] leading-[20px] lg:text-body-xl">
+                {PHONE_DISPLAY}
+              </span>
+            </a>
+          </address>
+        </div>
+
+        <div className="flex gap-[53px] lg:w-[636px] lg:shrink-0 lg:justify-center lg:gap-[100px]">
+          <nav aria-label="Company" className="flex flex-col gap-fig-12 lg:gap-fig-24">
+            <h2 className="font-body font-bold text-[14px] leading-[22px] lg:font-sans lg:text-[20px] lg:font-semibold lg:leading-[24px]">
+              Company
+            </h2>
+            <ul className="flex flex-col gap-[6px] lg:gap-fig-8">
+              {FOOTER_COMPANY.map((item) => (
+                <li key={item.label}>
+                  <NavLink
+                    item={item}
+                    className={`font-body text-[12px] leading-[20px] text-pri-50 lg:text-body-xl lg:text-white ${LINK_HOVER}`}
+                  />
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="flex flex-col gap-fig-12 lg:w-[440px] lg:gap-fig-32">
+            <h2 className="font-sans font-medium text-[16px] leading-[24px] lg:text-[20px] lg:font-semibold">
+              Our friends
+            </h2>
+            {/* Figma gives no destinations for these, so they are images, not
+                links — see the adapter backlog. */}
+            <ul
+              className="grid grid-cols-2 gap-[10.53px] [--partner-scale:0.8136] lg:w-fit lg:grid-cols-3 lg:gap-[12.94px] lg:[--partner-scale:1]"
+            >
+              {ASSETS.footer.partners.map((partner) => (
+                <li
+                  key={partner.name}
+                  className="flex h-[48px] w-[112px] items-center justify-center overflow-hidden rounded-[4px] border border-border-field lg:h-[58.24px] lg:w-[138.04px] lg:rounded-[5.18px]"
+                >
+                  <img
+                    src={partner.url}
+                    alt={partner.name}
+                    className="max-w-none"
+                    style={{
+                      width: `calc(${partner.w}px * var(--partner-scale))`,
+                      height: `calc(${partner.h}px * var(--partner-scale))`,
+                    }}
+                    loading="lazy"
+                    decoding="async"
+                    referrerPolicy="no-referrer"
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-fig-12 lg:gap-fig-16">
+        <hr className="w-full border-0 border-t border-white/30" />
+        <div className="flex flex-col gap-fig-16">
+          <div className="flex items-start justify-between lg:items-center">
+            <div className="flex flex-col font-body text-[12px] leading-[20px] lg:flex-row lg:items-center lg:gap-fig-12 lg:text-body-xl">
+              {/* At 1920 the copyright joins this row between two rules; at 390 it
+                  drops to its own line underneath. */}
+              <span className="hidden lg:inline">{COPYRIGHT}</span>
+              <span aria-hidden="true" className="hidden h-[16px] w-px bg-white/30 lg:block" />
+              <NavLink item={FOOTER_LEGAL[0]} className={LINK_HOVER} />
+              <span aria-hidden="true" className="hidden h-[16px] w-px bg-white/30 lg:block" />
+              <NavLink item={FOOTER_LEGAL[1]} className={LINK_HOVER} />
+            </div>
+
+            <ul className="flex items-center lg:gap-[2.13px]">
+              {SOCIALS.map((social) => {
+                return (
+                  <li key={social.label}>
+                    <a
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.label}
+                      className={`flex items-center justify-center ${LINK_HOVER}`}
+                    >
+                      <img
+                        src={SOCIAL_ICONS[social.label]}
+                        alt=""
+                        aria-hidden="true"
+                        className="h-[28.86px] w-[28.86px] lg:h-[40.49px] lg:w-[40.49px]"
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                      />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <p className="font-body text-[12px] leading-[20px] lg:hidden">{COPYRIGHT}</p>
+        </div>
+      </div>
+
+      {/* The anniversary band. Decorative, and 64px clear of the bar at 1920. */}
+      <img
+        src={ASSETS.footer.banner}
+        alt=""
+        aria-hidden="true"
+        width={1792}
+        height={215}
+        className="h-auto w-full lg:mt-fig-32"
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+      />
+    </Container>
+  </footer>
+);
 
 export default Footer;

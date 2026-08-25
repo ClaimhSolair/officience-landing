@@ -36,7 +36,7 @@ officience/
     HowWeEngage.tsx    # "Our Approach" - 3 ruled steps with inline pinwheel marks
     WhyOfficience.tsx  # "Why Choose Us" - 4 values in a crosshair, inlined pinwheel
     Contact.tsx        # "Connect With Us" - survey entry rows + 6 offices, own blue
-    Footer.tsx         # Footer with social links
+    Footer.tsx         # Footer - brand, Company links, partner tiles, legal row
     SplashScreen.tsx   # Once-per-day splash (home route only)
     Survey.tsx         # Contact survey modal
     CookieConsent.tsx  # Consent banner (Google Consent Mode v2)

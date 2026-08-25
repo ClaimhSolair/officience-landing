@@ -432,3 +432,35 @@ double-gutter and compact-88px divergences are retired with the old header.
   after "Connect" at 1920 and on one line at 390.
 - The blue wrapper HomePage carried since July is now gone: Why Us and Contact each paint
   their own `Semantic/BG/Primary`, and `Footer` already set `bg-bg-primary` itself.
+
+#### Footer (step 10)
+
+- **All five partner logos are placeholders, not brand assets.** Figma's underlying
+  files are named "maxresdefault (3) 1" (a video thumbnail),
+  "Gemini_Generated_Image_jyzumvjyzumvjyzu 1" (an AI generation) and "images (9) 1" (a
+  stray download). Offinity is worse: it is not one logo but six loose vectors, so
+  `offinity.svg` is those six recomposed from their Figma insets. **All five want
+  originals from the team** — this is the drop-folder item the plan anticipated.
+- **The partner tiles have no destinations.** Figma draws them as bordered images with
+  no link, so they ship as images. If they should link out, the URLs are needed.
+- **The two column headings are drawn in different styles at 390** — "Company" in
+  Montserrat Bold 14/22, "Our friends" in Lexend Medium 16/24 — where 1920 sets both in
+  Lexend SemiBold 20/24. Reproduced.
+- **The Company links change colour between frames**: Primary/50 `#ecf4ff` at 390, white
+  at 1920. Reproduced.
+- **The legal row is relabelled** "Terms & Conditions" -> "Terms of Use", and the 390
+  frame stacks the two links vertically with the copyright on its own line beneath, where
+  1920 runs all three inline separated by rules. Both reproduced; the routes are
+  unchanged. The old note in `navigation.ts` claiming Figma omits Privacy Policy is stale
+  and has been corrected — the Sept-2026 footer draws it.
+- **Figma's own footer social marks are drawn at inconsistent relative sizes** — the
+  LinkedIn glyph fills 36% of its 40.494px box where Facebook fills all of it. The build
+  reuses the bucket set MenuOverlay already renders, so the same four brands are not
+  drawn two different ways on one site; measured, they paint at a consistent size.
+- **The footer keeps 20th-anniversary branding.** The lockup and the watermark band are
+  byte-identical to the files already in the bucket, so nothing was re-uploaded and the
+  footer stays consistent with the decision to leave the splash art alone. If the brand
+  moves off the anniversary mark, this and the splash change together — and the plan's
+  step-10 note about regenerating favicon.ico / icons/* / logo-512 applies then, not now.
+- The mail and phone glyphs are inlined; every other footer vector was already a bucket
+  asset or is a partner tile.

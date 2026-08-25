@@ -147,9 +147,13 @@ export const FOOTER_COMPANY: NavItem[] = [
   { label: 'Career', target: { kind: 'external', href: EXTERNAL.career } },
 ];
 
-/** Footer legal row. Figma omits Privacy Policy; kept for compliance. */
+/**
+ * Footer legal row. The Sept-2026 footer draws both entries and labels the first
+ * "Terms of Use", where the July build said "Terms & Conditions" — the route is
+ * unchanged, only the wording.
+ */
 export const FOOTER_LEGAL: NavItem[] = [
-  { label: 'Terms & Conditions', target: { kind: 'route', to: ROUTES.terms } },
+  { label: 'Terms of Use', target: { kind: 'route', to: ROUTES.terms } },
   { label: 'Privacy Policy', target: { kind: 'route', to: ROUTES.privacy } },
 ];
 
