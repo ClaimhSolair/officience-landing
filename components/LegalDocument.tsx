@@ -41,7 +41,7 @@ const linkify = (text: string): React.ReactNode[] => {
 const Block: React.FC<{ block: LegalBlock; muted?: boolean }> = ({ block, muted }) => {
   if (block.kind === 'ul') {
     return (
-      <ul className="list-disc pl-[22px] space-y-[6px] t-body-lg text-text-muted">
+      <ul className="list-disc space-y-[6px] pl-[22px] font-body text-body-lg text-text-muted">
         {block.items.map((item, i) => (
           <li key={i}>{linkify(item)}</li>
         ))}
@@ -50,7 +50,7 @@ const Block: React.FC<{ block: LegalBlock; muted?: boolean }> = ({ block, muted 
   }
   if (block.kind === 'address') {
     return (
-      <div className="bg-bg-default rounded-fig-m p-[16px] t-body-lg text-text-default">
+      <div className="rounded-fig-m bg-bg-default p-[16px] font-body text-body-lg text-text-default">
         {block.lines.map((line, i) => (
           <p key={i} className={i === 0 ? 'font-semibold' : ''}>
             {linkify(line)}
@@ -60,7 +60,7 @@ const Block: React.FC<{ block: LegalBlock; muted?: boolean }> = ({ block, muted 
     );
   }
   return (
-    <p className={`t-body-lg leading-relaxed ${muted ? 'text-subtitle italic' : 'text-text-muted'}`}>
+    <p className={`font-body text-body-lg ${muted ? 'italic text-subtitle' : 'text-text-muted'}`}>
       {block.lead && <strong className="text-text-default">{block.lead} </strong>}
       {linkify(block.text)}
     </p>
@@ -80,7 +80,7 @@ export const sectionHeading = (section: LegalSection): string =>
  * Used by the /terms-of-use and /privacy-policy pages.
  */
 const LegalDocument: React.FC<{ sections: LegalSection[] }> = ({ sections }) => (
-  <div className="flex flex-col gap-[28px]">
+  <div className="flex flex-col gap-fig-40 lg:gap-fig-80">
     {sections.map((section, si) => {
       const heading = sectionHeading(section);
       const isClosing = !section.id && !section.title;
@@ -88,12 +88,12 @@ const LegalDocument: React.FC<{ sections: LegalSection[] }> = ({ sections }) => 
         <section
           key={si}
           id={heading ? sectionAnchor(section, si) : undefined}
-          className="flex flex-col gap-[12px] scroll-mt-[120px]"
+          className="flex flex-col gap-fig-16 scroll-mt-[120px] lg:gap-fig-24"
         >
-          {heading && <h2 className="t-h3 text-text-default">{heading}</h2>}
+          {heading && <h2 className="font-sans text-h2 text-text-default lg:text-display-sm">{heading}</h2>}
           {section.clauses.map((clause, ci) => (
             <div key={ci} className="flex flex-col gap-[10px]">
-              {clause.heading && <h3 className="t-h4 text-text-default">{clause.heading}</h3>}
+              {clause.heading && <h3 className="font-sans text-h4 text-text-default">{clause.heading}</h3>}
               {clause.blocks.map((block, bi) => (
                 <Block key={bi} block={block} muted={isClosing} />
               ))}
