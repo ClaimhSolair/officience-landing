@@ -28,7 +28,9 @@ interface HeaderProps {
  * would give: the lockup and icons are white, and over the light page a mostly
  * transparent bar puts white on near-white. The alpha is applied only where
  * `backdrop-filter` is supported, so browsers without it keep the solid bar
- * instead of a washed-out one.
+ * instead of a washed-out one. A hairline along the bottom edge comes with the
+ * same state: once the bar is translucent it needs an edge of its own, or it
+ * dissolves into whichever pale section happens to be behind it.
  */
 const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   const { pathname } = useLocation();
@@ -43,7 +45,9 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   return (
       <header
         className={`sticky top-0 z-50 bg-bg-primary transition-[background-color,backdrop-filter] motion-reduce:transition-none ${
-          glass ? 'backdrop-blur-md supports-[backdrop-filter]:bg-bg-primary/70' : ''
+          glass
+            ? 'backdrop-blur-md supports-[backdrop-filter]:bg-bg-primary/70 supports-[backdrop-filter]:border-b supports-[backdrop-filter]:border-white/10'
+            : 'border-b border-transparent'
         }`}
         style={{ transitionDuration: `${MS.glass}ms` }}
       >

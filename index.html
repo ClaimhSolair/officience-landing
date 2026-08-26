@@ -300,9 +300,15 @@
       /* Manifesto sweep (item 5). Each character compares its own index with a
          frontier the paragraph publishes once per frame, so the whole sweep is
          one style write instead of one per character. Unset the variable and
-         everything sits lit, which is the reduced-motion and no-JS state. */
+         everything sits lit, which is the reduced-motion and no-JS state.
+
+         The divisor spreads the crossing over four characters instead of one.
+         The reference lights exactly one character at a time, which at its body
+         size is invisible; at our display size a hard edge reads as a cursor
+         wiping across the line. Four is enough to feel like light arriving and
+         short enough to still be a frontier. Divergence recorded in the catalog. */
       .manifesto-char {
-        opacity: clamp(0.2, calc(var(--frontier, 9999) - var(--i)), 1);
+        opacity: clamp(0.2, calc((var(--frontier, 9999) - var(--i)) / 4), 1);
       }
       /* Review override (`?motion=on`). Re-enables the motion that the
          reduced-motion query switches off, for the effects CSS owns rather than

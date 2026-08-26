@@ -19,7 +19,7 @@ import type { LayoutContext } from '../App';
 const tracked = new Set<string>();
 
 const HomePage: React.FC = () => {
-  const { openSurvey } = useOutletContext<LayoutContext>();
+  const { openSurvey, splashDone } = useOutletContext<LayoutContext>();
 
   // No argument: the home page keeps the title written in index.html.
   usePageView();
@@ -51,7 +51,7 @@ const HomePage: React.FC = () => {
       {/* Hero sits flush under the header, and the flower band supplies the
           separation before the next section — so neither takes the rhythm
           padding that the not-yet-rebuilt sections below still rely on. */}
-      <Hero />
+      <Hero splashDone={splashDone} />
       <FlowerDivider />
       <AboutUs />
       <Capabilities />

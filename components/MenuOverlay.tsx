@@ -1,9 +1,10 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
+import { motion, type Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronDown, X } from 'lucide-react';
 import { ASSETS } from '../assets';
 import { setInert, useModalA11y } from '../lib/modal';
-import { CSS_EASE, MS, useMotionEnabled } from '../lib/motion';
+import { CSS_EASE, EASE, MOTION, MS, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
 import { MENU, SOCIALS, useGoToSection, type NavItem, type NavTarget } from './navigation';
 import RollText from './ui/RollText';
 
@@ -46,6 +47,30 @@ const useNavigateTarget = (onClose: () => void) => {
   };
 };
 
+/**
+ * The items follow the panel in rather than being there the moment it opens.
+ * `delayChildren` holds them until the clip has uncovered roughly the top third,
+ * so nothing appears in a region the panel has not reached yet.
+ *
+ * Closing is not the reverse: the items drop out fast and the panel does the
+ * visible work. Leaving should acknowledge the click, not perform for it.
+ */
+const LIST_VARIANTS: Variants = {
+  closed: { transition: { staggerChildren: 0.02, staggerDirection: -1 } },
+  open: { transition: { staggerChildren: STAGGER.tight, delayChildren: 0.12 } },
+};
+
+const ITEM_VARIANTS: Variants = {
+  closed: { y: 12, opacity: 0, transition: { duration: SEC.exit, ease: [...EASE.exit] } },
+  open: { y: 0, opacity: 1, transition: { duration: SEC.menuItem, ease: [...EASE.reveal] } },
+};
+
+/** Reduced motion keeps the cascade's rhythm but drops the travel. */
+const ITEM_VARIANTS_FLAT: Variants = {
+  closed: { opacity: 0, transition: { duration: SEC.exit } },
+  open: { opacity: 1, transition: { duration: SEC.menuItem } },
+};
+
 const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRef }) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -54,6 +79,8 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
   // media query cannot be overridden from script.
   const motionOn = useMotionEnabled();
   const dur = motionOn ? MS.menu : 0;
+  const cascading = motionOn && MOTION.menuCascade;
+  const itemVariants = motionOn ? ITEM_VARIANTS : ITEM_VARIANTS_FLAT;
   const idPrefix = useId();
 
   /**
@@ -130,11 +157,18 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
         aria-modal="true"
         aria-label="Site menu"
         tabIndex={-1}
-        className={`absolute right-0 top-0 h-[100dvh] w-full md:w-[658px] bg-bg-primary
-                    flex flex-col overflow-hidden
-                    transition-transform
-                    ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
-        style={{ transitionDuration: `${dur}ms`, transitionTimingFunction: CSS_EASE.menu }}
+        className="absolute right-0 top-0 h-[100dvh] w-full md:w-[658px] bg-bg-primary
+                    flex flex-col overflow-hidden transition-[clip-path]"
+        style={{
+          // Uncovering from the top-right corner rather than sliding the whole
+          // slab in from the right: the panel grows out of the button that opened
+          // it, so the two read as one gesture. `inset()` takes top/right/bottom/
+          // left, so a fully-inset bottom and left is a zero-area box pinned to
+          // that corner.
+          clipPath: isOpen ? 'inset(0 0 0 0)' : 'inset(0 0 100% 100%)',
+          transitionDuration: `${dur}ms`,
+          transitionTimingFunction: CSS_EASE.menu,
+        }}
       >
         <div className="flex justify-end shrink-0 p-fig-8 lg:pr-[10px] lg:pt-[10px]">
           <button
@@ -143,14 +177,26 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
             aria-label="Close menu"
             className={`h-[44px] w-[44px] lg:h-[56px] lg:w-[56px] inline-flex items-center justify-center text-white hover:bg-white/10 transition-colors motion-reduce:transition-none ${focusRing}`}
           >
-            <X className="h-[28px] w-[28px] lg:h-[32px] lg:w-[32px]" strokeWidth={2.5} />
+            <motion.span
+              className="inline-flex"
+              initial={false}
+              animate={{ rotate: cascading && isOpen ? 0 : -90 }}
+              transition={{ duration: SEC.menu, ease: [...EASE.menu] }}
+            >
+              <X className="h-[28px] w-[28px] lg:h-[32px] lg:w-[32px]" strokeWidth={2.5} />
+            </motion.span>
           </button>
         </div>
 
         {/* Scrolling body. .menu-scroll re-enables the scrollbar that index.html
             hides document-wide, styled to the one Figma draws. */}
         <nav className="menu-scroll flex-1 overflow-y-auto overscroll-contain px-fig-24 lg:px-fig-64 pb-fig-40">
-          <ul className="flex flex-col gap-fig-24 lg:gap-fig-40">
+          <motion.ul
+            className="flex flex-col gap-fig-24 lg:gap-fig-40"
+            variants={cascading ? LIST_VARIANTS : undefined}
+            initial={false}
+            animate={isOpen ? 'open' : 'closed'}
+          >
             {MENU.map((item) => {
               const isExpandable = Boolean(item.children?.length);
               const isExpanded = expanded === item.label;
@@ -159,7 +205,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                 'font-sans font-medium text-white text-h1 lg:text-[64px] lg:leading-[58px] hover:text-pri-100 transition-colors motion-reduce:transition-none';
 
               return (
-                <li key={item.label}>
+                <motion.li key={item.label} variants={cascading ? itemVariants : undefined}>
                   {isExpandable ? (
                     <>
                       <button
@@ -206,10 +252,10 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                   ) : (
                     renderLeaf(item, `block group ${topLevel} ${focusRing}`, <RollText>{item.label}</RollText>)
                   )}
-                </li>
+                </motion.li>
               );
             })}
-          </ul>
+          </motion.ul>
         </nav>
 
         {/* Footer socials — right-aligned, 38px targets 2px apart per Figma. */}

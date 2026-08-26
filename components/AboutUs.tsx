@@ -4,8 +4,9 @@ import { ArrowRight } from 'lucide-react';
 import { ASSETS, srcSetOf } from '../assets';
 import Container from './ui/Container';
 import Odometer from './ui/Odometer';
+import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
-import { MOTION, STICKY_TOP, useMotionEnabled } from '../lib/motion';
+import { MOTION, SEC, STAGGER, STICKY_TOP, useMotionEnabled } from '../lib/motion';
 import { DISCOVER_OUR_STORY, EXTERNAL } from './navigation';
 
 /**
@@ -166,9 +167,14 @@ const StoryCardArticle: React.FC<{
     return 1 - 0.1 * t;
   });
 
+  // Ends at 'center 0.6' rather than dead centre. Running the settle all the way
+  // to the middle of the viewport means the last and most legible part of it —
+  // the arrival at 1.0 — happens while the card is still travelling, and the
+  // reader mostly sees a photo that is already still. Finishing a little early
+  // puts the settle where it can be watched.
   const { scrollYProgress: arrival } = useScroll({
     target: ref,
-    offset: ['start end', 'center center'],
+    offset: ['start end', 'center 0.6'],
   });
   const photoScale = useTransform(arrival, [0, 1], [1.2, 1]);
 
@@ -254,8 +260,14 @@ const AboutUs: React.FC = () => {
       <Container className="flex flex-col gap-fig-64 py-fig-64 lg:gap-fig-100 lg:py-fig-100">
         {/* Manifesto. The badge hugs the left edge while the text block sits on
             the right at desktop; they stack in reading order below xl. */}
-        <div className="flex flex-col gap-fig-24 xl:flex-row xl:items-start xl:justify-between xl:gap-fig-64">
-          <SectionBadge as="h2">About Us</SectionBadge>
+        <Reveal
+          as="div"
+          stagger={STAGGER.base}
+          className="flex flex-col gap-fig-24 xl:flex-row xl:items-start xl:justify-between xl:gap-fig-64"
+        >
+          <RevealChild as="span" y={24} duration={SEC.revealFast}>
+            <SectionBadge as="h2">About Us</SectionBadge>
+          </RevealChild>
 
           <div className="flex flex-col items-start gap-fig-24 xl:w-[1018px]">
             {/* Two-tone at rest, as Figma draws it: the sweep lights each half to
@@ -267,6 +279,7 @@ const AboutUs: React.FC = () => {
             >
               {lead.nodes} {rest.nodes}
             </motion.p>
+            <RevealChild as="span" y={20} duration={SEC.revealFast} className="inline-block">
             <a
               href={DISCOVER_OUR_STORY.target.kind === 'external' ? DISCOVER_OUR_STORY.target.href : EXTERNAL.about}
               target="_blank"
@@ -276,20 +289,29 @@ const AboutUs: React.FC = () => {
               {DISCOVER_OUR_STORY.label}
               <ArrowRight className="h-[20px] w-[20px] shrink-0" strokeWidth={2} aria-hidden="true" />
             </a>
+            </RevealChild>
           </div>
-        </div>
+        </Reveal>
 
         {/* Milestones — two columns at 390, four from lg. */}
-        <ul className="grid grid-cols-2 gap-x-fig-20 gap-y-fig-20 lg:grid-cols-4 lg:gap-x-fig-32">
+        {/* The four arrive left to right, so the row reads as a row rather than
+            as four numbers that happened to appear together. The odometers start
+            their own roll on the same cue. */}
+        <Reveal
+          as="ul"
+          stagger={STAGGER.loose}
+          amount={0.4}
+          className="grid grid-cols-2 gap-x-fig-20 gap-y-fig-20 lg:grid-cols-4 lg:gap-x-fig-32"
+        >
           {MILESTONES.map(({ value, label }) => (
-            <li key={label} className="flex flex-col items-center gap-fig-16 lg:gap-fig-8">
+            <RevealChild as="li" key={label} y={28} duration={SEC.revealFast} className="flex flex-col items-center gap-fig-16 lg:gap-fig-8">
               <span className="font-sans font-medium text-display-sm text-text-primary lg:font-semibold lg:text-[86px] lg:leading-[74px] lg:tracking-[-0.03em]">
                 {MOTION.counters ? <Odometer value={value} /> : value}
               </span>
               <span className="text-center font-body text-body-lg text-subtitle lg:text-body-xl">{label}</span>
-            </li>
+            </RevealChild>
           ))}
-        </ul>
+        </Reveal>
 
         {/* Story cards */}
         <div ref={cardsRef} className="flex flex-col gap-fig-56 lg:gap-fig-64">

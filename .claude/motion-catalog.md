@@ -394,3 +394,85 @@ the manifesto sweep) and the odometer collapse to static. Verified under `reduce
 Approach and Proven Results animate `opacity 0 -> 1` with `tx/ty` pinned at 0, while the flower,
 cards and counters sit at their resting state. A visitor who asked for less motion gets a calm page
 rather than a dead one.
+
+---
+
+# v5 improvement pass (2026-08-27)
+
+The v4 build shipped every item in its conservative form and read as flat: items 8, 9 and 10 had
+become generic fade-ups, one 1000ms duration served every entrance, nothing cascaded *within* a
+section, and five sections had no motion at all. The user reviewed it and rejected it. Four
+decisions followed — full fidelity on 8/9/10 (overriding the earlier sitting picks), coverage for
+all five static sections, menu corner-expand, and light mobile motion.
+
+## Duration tiers replace the single reveal
+
+`revealFast 450` (rows, captions, chips) · `revealBase 700` (cards, blocks — the new default) ·
+`revealSlow 1000` (display-scale only, the measured nexvio value). Plus `exit 220`, `menuItem 350`,
+`suffixPop 180`, and `STAGGER = {tight .045, base .08, loose .12}`. One duration serving every
+transition was the single biggest reason the build read as uniform.
+
+## Reveal v2: the container observes, the children move
+
+v4 observed and translated the *same* element, so a travel large enough to read as movement could
+push that element under its own visibility threshold — which is exactly what left Approach's third
+step invisible and forced the 120px compromise. `Reveal stagger` + `RevealChild` inverts it: the
+wrapper never transforms, so its ratio is honest and the travel is free. The compromise is gone —
+mobile Approach now travels a real 200px, desktop the full measured 350px.
+
+## Item by item
+
+| # | v4 | v5 | Measured |
+|---|---|---|---|
+| 1 | slide-in slab, tempo only | corner-expand clip-path + item cascade | `inset(0 0 100% 100%)` to `inset(0)`; items 0.12 / 0.78 / 0.98 |
+| 2 | glass flip | + hairline along the bottom edge in the glass state | tempo unchanged |
+| 3 | scale only, static at 390 | **spins** -65deg to 0 alongside the scale; mobile 0.75 / -30deg | 0.45/-65 to 0.881/-14.1 to 1.0/0 |
+| 4 | sticky stack | unchanged | scale 1 to 0.905 |
+| 5 | hard one-character frontier | feathered across four characters | 92 spans |
+| 6 | 1.2s / 80ms, a guess | **1.5s / 90ms** plus a suffix pop | by eye |
+| 7 | settles at the card centre | settles at `center 0.6`, so the landing is seen | — |
+| 8 | four rows fading up | **sticky deck**, opaque, 112px peek, covered rows to 0.98 | tops 113/225/337/449 |
+| 9 | 120px timed slide | **pinned procession**, title anchored, 350px scrubbed | 350 to 128.5 to 0, sequential |
+| 10 | manual carousel | **pinned horizontal scrub**, arrows retired at lg | track 0 to -379 to -964 to -1213 |
+| 11 | — | unchanged | — |
+| 12 | instant underline | underline slides in over 200ms | — |
+
+## Coverage module
+
+Hero — the H1 never animates (LCP); its siblings are sequenced after splash dismissal through a new
+`splashDone` boolean on the Layout context, and the five decorative shapes stagger in then drift
+22-58px. ClientStories — header cascade, cards 120ms apart, each rule drawing `scaleX 0 to 1`.
+WhyOfficience — the crosshair draws out from the centre, the pinwheel turns -90deg to 0, and the four
+values arrive from their own quadrants. Contact — card, survey rows, six office rows. Footer — fade
+plus partner tiles.
+
+## Divergences introduced, all deliberate
+
+1. **The flower spins.** moonx scales without rotating. A pinwheel that never turns wastes its metaphor.
+2. **Mobile is no longer static** where the reference is static (the flower). A per-item override of ruling 4.
+3. **The manifesto frontier is feathered** across four characters; reddent's is hard. At display size a hard edge reads as a cursor wiping the line.
+4. **Services rows gained an opaque fill.** Figma draws them on the section background because Figma never draws them overlapping. The fill is what makes covering read.
+5. **The lg arrows are retired** when the deck is pinned. That moves *toward* the artboards, which draw no arrows at any width — but it overrides the 2026-08-24 five-slides-with-arrows contract, so it is a contract change, not only a motion change.
+6. **The pinned deck scales to fit the viewport height.** The card is 800px and a pinned frame on a 900px-tall laptop offers about 674px. At 1920x1080 the deck is 1:1 with the artboard; below that it is proportionally smaller. Transform only, so the approved ratio is never distorted, only reduced. Under scale 0.7 the section falls back to the shipped swipe rail.
+
+## v5 verification (production build, headless 1422x804, rAF gated first: 88 frames/600ms)
+
+| Gate | Result |
+|---|---|
+| `tsc` + `npm run build` | clean; 408.83 kB / 131.62 kB gzip |
+| Page height, motion **off** | **13,287px — identical to the v4 baseline**, so cascades and coverage cost nothing |
+| Page height, motion **on** | 14,537px (**+1,250px**), all of it the two pins (approach +682, work +568) |
+| `section_view` ratios | approach **0.455** · work **0.418** · capabilities 0.381 · clients 0.775 · why-us 0.748 · contact 0.66 — all clear 0.3 |
+| `about` ratio | **0.281 at an 804px viewport — in BOTH motion modes.** Pre-existing, unchanged by v5; it needs a viewport 858px tall to fire. Flagged, not introduced. |
+| Overflow, 375-1920 | no unclipped leaf exceeds the viewport at any width |
+| 1024 `scrollWidth` | 1053px in **both** motion modes — the pre-existing 29px carousel overflow, confirmed again |
+| Anchors | about / capabilities / approach / proven-results / contact all land at **113px**, pins included |
+| LCP | hero H1 **276ms at opacity 1** — unheld, same as v4 |
+| 4x CPU throttle | 2 long tasks (139ms, 109ms) across the full 14,537px walk; **67.9fps** sustained |
+| Reduced motion | rows wait at **opacity 0 with an identity transform** — fade, no travel; flower/cards static at 1.0; counters plain; arrows and swipe rail restored; no sticky anywhere |
+| Mobile 390 | flower 0.906/-11.3deg to 1.0/0deg · Approach unpinned, steps travel a real **200px** · swipe rail and 5 dots intact |
+
+**Open item, flagged not fixed:** while the Services deck is fully stacked, the last row measures
+433px from a top of 449px, so on viewports under about 890px tall its lower edge sits below the fold
+until the deck releases. Nothing is clipped — the row is complete and scrolling reveals it — but on a
+short laptop the fourth "View Brochure" button is briefly out of sight.

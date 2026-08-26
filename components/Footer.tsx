@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Container from './ui/Container';
+import Reveal, { RevealChild } from './ui/Reveal';
+import { MOTION, SEC, STAGGER } from '../lib/motion';
 import { ASSETS } from '../assets';
 import { FOOTER_COMPANY, FOOTER_LEGAL, ROUTES, SOCIALS, type NavItem } from './navigation';
 import {
@@ -71,7 +73,14 @@ const Footer: React.FC = () => (
     {/* 390 opens with 40px of air above the lockup; at 1920 the Contact card's
         own bottom padding already supplies the gap Figma draws. */}
     <Container className="flex flex-col gap-fig-32 pt-fig-40 lg:pt-0">
-      <div className="flex flex-col gap-fig-32 lg:flex-row lg:items-start lg:justify-between">
+      <Reveal
+        as="div"
+        y={28}
+        duration={SEC.revealFast}
+        enabled={MOTION.footer}
+        amount={0.15}
+        className="flex flex-col gap-fig-32 lg:flex-row lg:items-start lg:justify-between"
+      >
         <div className="flex flex-col gap-fig-32">
           <img
             src={ASSETS.footer.logo}
@@ -123,12 +132,19 @@ const Footer: React.FC = () => (
             </h2>
             {/* Figma gives no destinations for these, so they are images, not
                 links — see the adapter backlog. */}
-            <ul
+            <Reveal
+              as="ul"
+              stagger={STAGGER.tight}
+              enabled={MOTION.footer}
+              amount={0.2}
               className="grid grid-cols-2 gap-[10.53px] [--partner-scale:0.8136] lg:w-fit lg:grid-cols-3 lg:gap-[12.94px] lg:[--partner-scale:1]"
             >
               {ASSETS.footer.partners.map((partner) => (
-                <li
+                <RevealChild
+                  as="li"
                   key={partner.name}
+                  y={16}
+                  duration={SEC.revealFast}
                   className="flex h-[48px] w-[112px] items-center justify-center overflow-hidden rounded-[4px] border border-border-field lg:h-[58.24px] lg:w-[138.04px] lg:rounded-[5.18px]"
                 >
                   <img
@@ -143,12 +159,12 @@ const Footer: React.FC = () => (
                     decoding="async"
                     referrerPolicy="no-referrer"
                   />
-                </li>
+                </RevealChild>
               ))}
-            </ul>
+            </Reveal>
           </div>
         </div>
-      </div>
+      </Reveal>
 
       <div className="flex flex-col gap-fig-12 lg:gap-fig-16">
         <hr className="w-full border-0 border-t border-white/30" />

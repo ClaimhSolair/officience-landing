@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -8,9 +8,22 @@ const STORAGE_KEY = "officience_splash_20th";
 const SPLASH_DURATION_DESKTOP = 5000; // 5 seconds for desktop
 const SPLASH_DURATION_MOBILE = 4000; // 4 seconds for mobile
 
-const SplashScreen: React.FC = () => {
+interface SplashScreenProps {
+  /**
+   * Fires once the splash is out of the way — immediately when it is not showing
+   * at all. The hero waits for it, so its entrance is not spent behind a
+   * full-screen overlay on the one visit a day that opens with one.
+   */
+  onDone?: () => void;
+}
+
+const SplashScreen: React.FC<SplashScreenProps> = ({ onDone }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  // Held in a ref so a caller passing an inline arrow cannot re-run the
+  // once-per-day decision below.
+  const doneRef = useRef(onDone);
+  doneRef.current = onDone;
 
   useEffect(() => {
     // Check if mobile
@@ -36,6 +49,7 @@ const SplashScreen: React.FC = () => {
       // Auto-hide after duration
       const timer = setTimeout(() => {
         setIsVisible(false);
+        doneRef.current?.();
       }, duration);
 
       return () => {
@@ -44,6 +58,7 @@ const SplashScreen: React.FC = () => {
       };
     }
 
+    doneRef.current?.();
     return () => {
       window.removeEventListener('resize', checkMobile);
     };
@@ -51,6 +66,7 @@ const SplashScreen: React.FC = () => {
 
   const handleClose = () => {
     setIsVisible(false);
+    doneRef.current?.();
   };
 
   return (

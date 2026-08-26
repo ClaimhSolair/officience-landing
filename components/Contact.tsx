@@ -1,5 +1,7 @@
 import React from 'react';
+import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
+import { MOTION, SEC, STAGGER } from '../lib/motion';
 import type { SurveyBranch } from '../types';
 
 /**
@@ -113,7 +115,13 @@ const Chevron: React.FC = () => (
 const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
   <section id="contact" className="bg-bg-primary">
     <div className="w-full px-fig-16 py-fig-16 lg:px-fig-24 lg:py-fig-120 3xl:px-[74px]">
-      <div className="mx-auto flex w-full max-w-[1772px] flex-col gap-[14px] rounded-fig-xs bg-bg-secondary px-fig-16 py-fig-24 lg:gap-fig-64 lg:rounded-fig-l lg:p-fig-64">
+      <Reveal
+        as="div"
+        y={40}
+        enabled={MOTION.contact}
+        amount={0.15}
+        className="mx-auto flex w-full max-w-[1772px] flex-col gap-[14px] rounded-fig-xs bg-bg-secondary px-fig-16 py-fig-24 lg:gap-fig-64 lg:rounded-fig-l lg:p-fig-64"
+      >
         <div className="flex flex-col gap-fig-24 lg:flex-row lg:items-start lg:gap-fig-24">
           <div className="flex flex-col items-start gap-fig-8 lg:w-[624px] lg:shrink-0 lg:gap-0">
             <SectionBadge>Our Contact</SectionBadge>
@@ -139,13 +147,19 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
               </p>
             </div>
 
-            <div className="flex flex-col gap-fig-12 lg:gap-fig-32">
+            <Reveal as="div" stagger={STAGGER.base} enabled={MOTION.contact} className="flex flex-col gap-fig-12 lg:gap-fig-32">
               {OPTIONS.map((opt) => (
-                <button
+                <RevealChild
+                  as="span"
                   key={opt.branch}
+                  y={20}
+                  duration={SEC.revealFast}
+                  className="block w-full"
+                >
+                <button
                   type="button"
                   onClick={() => onOpenSurvey(opt.branch)}
-                  className="flex items-center justify-between gap-fig-12 rounded-fig-xs border border-gray-fig-100 bg-bg-secondary p-fig-12 text-left transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none lg:p-fig-20"
+                  className="flex w-full items-center justify-between gap-fig-12 rounded-fig-xs border border-gray-fig-100 bg-bg-secondary p-fig-12 text-left transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none lg:p-fig-20"
                 >
                   <span className="flex min-w-0 flex-col lg:gap-[4px]">
                     <span className="font-body font-bold text-[14px] leading-[22px] text-text-primary lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
@@ -157,16 +171,23 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
                   </span>
                   <Chevron />
                 </button>
+                </RevealChild>
               ))}
-            </div>
+            </Reveal>
           </div>
         </div>
 
         {/* 390 pads this block by 16 and runs one column; 1920 drops the padding
             and lays the six out three-up on a 160px gutter. */}
-        <ul className="grid gap-fig-12 p-fig-16 lg:grid-cols-3 lg:gap-x-fig-160 lg:gap-y-fig-48 lg:p-0">
+        <Reveal
+          as="ul"
+          stagger={STAGGER.tight}
+          enabled={MOTION.contact}
+          amount={0.2}
+          className="grid gap-fig-12 p-fig-16 lg:grid-cols-3 lg:gap-x-fig-160 lg:gap-y-fig-48 lg:p-0"
+        >
           {OFFICES.map((office) => (
-            <li key={office.city}>
+            <RevealChild as="li" key={office.city} y={20} duration={SEC.revealFast}>
               <a
                 href={mapsUrl(office.address)}
                 target="_blank"
@@ -179,15 +200,17 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
                   <p className="font-body font-bold text-[14px] leading-[22px] text-text-default group-hover:text-text-primary transition-colors motion-reduce:transition-none lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
                     {office.city}
                   </p>
-                  <p className="font-body text-[12px] leading-[20px] text-subtitle group-hover:underline lg:text-body-xl">
-                    {office.address}
+                  <p className="font-body text-[12px] leading-[20px] text-subtitle lg:text-body-xl">
+                    <span className="bg-gradient-to-r from-current to-current bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-200 group-hover:bg-[length:100%_1px] motion-reduce:transition-none">
+                      {office.address}
+                    </span>
                   </p>
                 </div>
               </a>
-            </li>
+            </RevealChild>
           ))}
-        </ul>
-      </div>
+        </Reveal>
+      </Reveal>
     </div>
   </section>
 );

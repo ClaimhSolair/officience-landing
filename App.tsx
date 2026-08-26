@@ -20,6 +20,8 @@ const LegalPage = React.lazy(() => import('./pages/LegalPage'));
 
 export interface LayoutContext {
   openSurvey: (branch?: SurveyBranch) => void;
+  /** False only while the once-a-day splash is still covering the page. */
+  splashDone: boolean;
 }
 
 /**
@@ -31,12 +33,19 @@ const Layout: React.FC = () => {
   const [surveyBranch, setSurveyBranch] = useState<SurveyBranch>('work');
   const [, setSurveyData] = useState<Record<string, string> | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [splashDone, setSplashDone] = useState(false);
   const pageRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
 
   // A route change while the menu is open would leave it covering the new page.
   useEffect(() => {
     setIsMenuOpen(false);
+  }, [pathname]);
+
+  // The splash only renders on the home route, so everywhere else there is
+  // nothing to wait for.
+  useEffect(() => {
+    if (pathname !== ROUTES.home) setSplashDone(true);
   }, [pathname]);
 
   const openSurvey = (branch: SurveyBranch = 'work') => {
@@ -50,7 +59,7 @@ const Layout: React.FC = () => {
       <ScrollManager />
 
       {/* Splash is a home-page welcome, not a site-wide interstitial. */}
-      {pathname === ROUTES.home && <SplashScreen />}
+      {pathname === ROUTES.home && <SplashScreen onDone={() => setSplashDone(true)} />}
 
       {/* Stacking context for the whole page; overlays below sit above it. */}
       <div ref={pageRef} className="flex-1 relative isolate flex flex-col min-h-screen">
@@ -62,7 +71,7 @@ const Layout: React.FC = () => {
         <main className="relative z-10 flex-grow flex flex-col">
           <ErrorBoundary>
             <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
-              <Outlet context={{ openSurvey } satisfies LayoutContext} />
+              <Outlet context={{ openSurvey, splashDone } satisfies LayoutContext} />
             </Suspense>
           </ErrorBoundary>
         </main>

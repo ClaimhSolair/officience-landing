@@ -1,6 +1,9 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import Container from './ui/Container';
+import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
+import { EASE, MOTION, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
 
 /**
  * Figma 3151:2667 (1920) and 3153:8671 (390).
@@ -78,35 +81,65 @@ const Pinwheel: React.FC<{ className?: string }> = ({ className = '' }) => (
 /** Both rules are drawn in Semantic/BG/Secondary, not white. */
 const RULE = 'bg-[#F7F7F7]';
 
-const WhyOfficience: React.FC = () => (
+const WhyOfficience: React.FC = () => {
+  const motionOn = useMotionEnabled();
+  const animating = motionOn && MOTION.whyUs;
+
+  return (
   <section id="why-us" className="bg-bg-primary">
     <Container className="py-fig-32 lg:pb-fig-160 lg:pt-fig-100">
       {/* 1920 sets the blurb in a 572px column flush with the content column's
           right edge, dropped 18px against the badge. 390 stacks it underneath. */}
-      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between lg:gap-fig-32">
+      <Reveal
+        as="div"
+        stagger={STAGGER.base}
+        enabled={MOTION.whyUs}
+        className="flex flex-col lg:flex-row lg:items-start lg:justify-between lg:gap-fig-32"
+      >
         <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
-          <SectionBadge>Our Value</SectionBadge>
-          <h2 className="font-sans text-h1 text-white lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
-            Why Choose Us
-          </h2>
+          <RevealChild as="span" y={20} duration={SEC.revealFast}>
+            <SectionBadge>Our Value</SectionBadge>
+          </RevealChild>
+          <RevealChild as="span" y={28}>
+            <h2 className="font-sans text-h1 text-white lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
+              Why Choose Us
+            </h2>
+          </RevealChild>
         </div>
-        <p className="mt-fig-24 font-body text-body-md text-white lg:mt-[18px] lg:w-[572px] lg:min-w-0 lg:text-subtitle-1">
+        <RevealChild
+          as="p"
+          y={20}
+          duration={SEC.revealFast}
+          className="mt-fig-24 font-body text-body-md text-white lg:mt-[18px] lg:w-[572px] lg:min-w-0 lg:text-subtitle-1"
+        >
           Connect with our AI-first teams, accessible globally, and launch your project immediately
           &ndash; we start in 24 hours!
-        </p>
-      </div>
+        </RevealChild>
+      </Reveal>
 
       <div className="relative mt-fig-24 pb-[6px] pt-[7px] lg:mt-fig-120 lg:pb-[50px] lg:pt-[45px]">
         {/* The first row is held open so the horizontal rule lands where Figma
             draws it rather than riding up against the copy — `minmax` rather
             than a fixed track, so longer copy pushes the rule down instead of
             colliding with it. The middle track is the rule itself. */}
-        <ul className="grid grid-cols-2 grid-rows-[minmax(83px,auto)_0px_auto] gap-x-[32px] gap-y-[21px] lg:grid-rows-[minmax(158px,auto)_0px_auto] lg:gap-x-[128px] lg:gap-y-[83px]">
+        {/* Each value arrives from its own corner, toward the crossing, so the
+            four of them assemble around the mark instead of stacking into it. */}
+        <Reveal
+          as="ul"
+          stagger={STAGGER.base}
+          enabled={MOTION.whyUs}
+          amount={0.3}
+          className="grid grid-cols-2 grid-rows-[minmax(83px,auto)_0px_auto] gap-x-[32px] gap-y-[21px] lg:grid-rows-[minmax(158px,auto)_0px_auto] lg:gap-x-[128px] lg:gap-y-[83px]"
+        >
           {VALUES.map((value, i) => {
             const left = i % 2 === 0;
+            const top = i < 2;
             return (
-              <li
+              <RevealChild
+                as="li"
                 key={value.title}
+                x={left ? -24 : 24}
+                y={top ? -20 : 20}
                 className={`flex flex-col gap-[3px] lg:gap-fig-8 ${value.width} ${
                   left ? 'justify-self-end text-right' : ''
                 } ${i > 1 ? 'row-start-3' : ''}`}
@@ -121,24 +154,49 @@ const WhyOfficience: React.FC = () => (
                 <p className="font-body text-[10px] font-normal leading-[16px] text-white lg:text-body-xl">
                   {value.body}
                 </p>
-              </li>
+              </RevealChild>
             );
           })}
 
           {/* Row 2 of the grid: the rule, with the mark centred on the crossing.
               Both are decorative, so the item is hidden from the outline. */}
-          <li
+          {/* The crosshair draws itself out from the centre and the mark turns
+              into place on it — the section's own geometry becoming the thing the
+              four values are arranged around. */}
+          <motion.li
             aria-hidden="true"
-            className={`relative col-span-2 row-start-2 mx-auto h-px w-[266px] lg:w-[851px] ${RULE}`}
+            className={`relative col-span-2 row-start-2 mx-auto h-px w-[266px] origin-center lg:w-[851px] ${RULE}`}
+            initial={animating ? { scaleX: 0 } : false}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: SEC.revealSlow, ease: [...EASE.reveal] }}
           >
-            <Pinwheel className="absolute left-1/2 top-1/2 h-[43.21px] w-[43.21px] -translate-x-1/2 -translate-y-1/2 lg:h-[135.71px] lg:w-[135.56px]" />
-          </li>
-        </ul>
+            <motion.span
+              className="absolute left-1/2 top-1/2 block h-[43.21px] w-[43.21px] lg:h-[135.71px] lg:w-[135.56px]"
+              style={{ x: '-50%', y: '-50%' }}
+              initial={animating ? { rotate: -90, scale: 0.6 } : false}
+              whileInView={{ rotate: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: SEC.revealSlow, ease: [...EASE.roll], delay: 0.15 }}
+            >
+              <Pinwheel className="h-full w-full" />
+            </motion.span>
+          </motion.li>
+        </Reveal>
 
-        <span aria-hidden="true" className={`absolute inset-y-0 left-1/2 w-px -translate-x-1/2 ${RULE}`} />
+        <motion.span
+          aria-hidden="true"
+          className={`absolute inset-y-0 left-1/2 w-px origin-center ${RULE}`}
+          style={{ x: '-50%' }}
+          initial={animating ? { scaleY: 0 } : false}
+          whileInView={{ scaleY: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: SEC.revealSlow, ease: [...EASE.reveal] }}
+        />
       </div>
     </Container>
   </section>
-);
+  );
+};
 
 export default WhyOfficience;

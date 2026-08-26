@@ -18,6 +18,10 @@ import { EASE, SEC, useMotionEnabled } from '../../lib/motion';
  * sets a line box tighter than the font size (86px type on 74px leading).
  *
  * Digits carry no descenders, so that tight line box crops nothing.
+ *
+ * Duration is the one number in the catalog that is not measured: salient's roll
+ * renders pre-completed under automation, headed and headless alike, so it was
+ * never captured. `MS.counter` is set by eye against the reference.
  */
 const GLYPHS = Array.from({ length: 50 }, (_, i) => i % 10);
 
@@ -33,6 +37,10 @@ const Odometer: React.FC<OdometerProps> = ({ value }) => {
   // ship 50 glyphs per digit to them either.
   if (!motionOn) return <>{value}</>;
 
+  const digitCount = [...value].filter((ch) => /[0-9]/.test(ch)).length;
+  // The suffix lands after the last digit has stopped, so the number reads as
+  // finished before anything is added to it.
+  const suffixDelay = SEC.counter + (digitCount - 1) * SEC.counterStagger;
   let digitIndex = 0;
 
   return (
@@ -41,7 +49,18 @@ const Odometer: React.FC<OdometerProps> = ({ value }) => {
       <span aria-hidden="true" className="inline-flex">
         {[...value].map((ch, i) => {
           if (!/[0-9]/.test(ch)) {
-            return <span key={`${ch}-${i}`}>{ch}</span>;
+            return (
+              <motion.span
+                key={`${ch}-${i}`}
+                className="inline-block"
+                initial={{ scale: 0, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true, amount: 0.6 }}
+                transition={{ duration: SEC.suffixPop, ease: [...EASE.roll], delay: suffixDelay }}
+              >
+                {ch}
+              </motion.span>
+            );
           }
           const digit = Number(ch);
           const delay = digitIndex * SEC.counterStagger;

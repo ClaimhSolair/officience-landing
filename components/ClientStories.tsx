@@ -1,6 +1,9 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import Container from './ui/Container';
+import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
+import { EASE, MOTION, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
 import { ASSETS } from '../assets';
 
 /**
@@ -46,7 +49,10 @@ const TESTIMONIALS = [
   },
 ];
 
-const ClientStories: React.FC = () => (
+const ClientStories: React.FC = () => {
+  const motionOn = useMotionEnabled();
+
+  return (
   <section id="clients" className="bg-bg-secondary">
     {/* 1920 lays the two columns out at 600 / 146 / 847 inside the 1792 content
         width. The 146px gap belongs at lg, not 3xl: a maximised 1920x1080 browser
@@ -60,17 +66,33 @@ const ClientStories: React.FC = () => (
           start 114px further right, but between lg and 2xl the column shrinks with
           the viewport while the 86px type does not, and the heading ran straight
           over the cards. Below 2xl it wraps inside its column instead. */}
-      <div className="flex flex-col items-start gap-fig-8 lg:w-[35%] lg:max-w-[600px] lg:shrink-0 lg:gap-fig-16">
-        <SectionBadge>Client Review</SectionBadge>
-        <h2 className="font-sans text-h1 text-text-default lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em] 2xl:whitespace-nowrap">
-          People Trust Us
-        </h2>
-      </div>
+      <Reveal
+        as="div"
+        stagger={STAGGER.base}
+        enabled={MOTION.clients}
+        className="flex flex-col items-start gap-fig-8 lg:w-[35%] lg:max-w-[600px] lg:shrink-0 lg:gap-fig-16"
+      >
+        <RevealChild as="span" y={20} duration={SEC.revealFast}>
+          <SectionBadge>Client Review</SectionBadge>
+        </RevealChild>
+        <RevealChild as="span" y={28}>
+          <h2 className="font-sans text-h1 text-text-default lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em] 2xl:whitespace-nowrap">
+            People Trust Us
+          </h2>
+        </RevealChild>
+      </Reveal>
 
-      <ul className="flex w-full flex-col gap-fig-20 lg:max-w-[847px] lg:flex-1 lg:gap-fig-100">
+      <Reveal
+        as="ul"
+        stagger={STAGGER.loose}
+        enabled={MOTION.clients}
+        className="flex w-full flex-col gap-fig-20 lg:max-w-[847px] lg:flex-1 lg:gap-fig-100"
+      >
         {TESTIMONIALS.map((t) => (
-          <li
+          <RevealChild
+            as="li"
             key={t.name}
+            y={40}
             /* Both frames fix the card height — 174 at 390, 200 at 1920 — while
                their own contents measure a couple of pixels more. A min-height
                keeps the stack's rhythm without clipping the role's descenders,
@@ -79,7 +101,16 @@ const ClientStories: React.FC = () => (
             className="flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:gap-fig-20 lg:rounded-fig-l lg:p-fig-40 lg:shadow-fig-sm"
           >
             <p className="font-body text-body-md text-text-default lg:text-body-xl">{t.quote}</p>
-            <hr className="w-full border-0 border-t border-border-frame" />
+            {/* The rule draws itself in from the left once the card has landed,
+                which is what separates the quote from its attribution rather than
+                the two simply appearing together. */}
+            <motion.hr
+              className="w-full origin-left border-0 border-t border-border-frame"
+              initial={motionOn && MOTION.clients ? { scaleX: 0 } : false}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true, amount: 0.6 }}
+              transition={{ duration: SEC.revealFast, ease: [...EASE.reveal], delay: 0.25 }}
+            />
 
             <div className="flex items-center gap-fig-8 lg:gap-fig-12">
               {/* The name sits next to the portrait, so the portrait repeating it
@@ -104,11 +135,12 @@ const ClientStories: React.FC = () => (
                 </p>
               </div>
             </div>
-          </li>
+          </RevealChild>
         ))}
-      </ul>
+      </Reveal>
     </Container>
   </section>
-);
+  );
+};
 
 export default ClientStories;

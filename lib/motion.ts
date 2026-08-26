@@ -6,39 +6,48 @@ import { useReducedMotion } from 'framer-motion';
  * from a per-frame capture of the reference site it names — the derivations and
  * the mobile variants live in `.claude/motion-catalog.md`.
  *
- * Two rules this file exists to enforce:
+ * Three rules this file exists to enforce:
  *  - durations have exactly one home, because `MenuOverlay` times a follow-up
  *    scroll against the panel's own transition and drifts apart otherwise;
  *  - scroll-scrubs need `useReducedMotion()` themselves. `MotionConfig` only
  *    reaches framer-motion's animations, and a MotionValue written by
- *    `useTransform` is not one of them.
+ *    `useTransform` is not one of them;
+ *  - one duration must not serve every transition. A list row and a display
+ *    heading move different distances and carry different weight, so the tiers
+ *    below are chosen by what is moving rather than by habit.
  */
 
 /** Milliseconds are the source; seconds are derived for framer-motion. */
 export const MS = {
   /** oma-genera's panel: 424ms open, 399ms close. One token both ways. */
   menu: 400,
-  /** nexvio's section reveal: ~980ms to rest. */
-  reveal: 1000,
+  /** Menu items cascading in behind the opening panel. */
+  menuItem: 350,
+  /** Small things that should feel immediate: list rows, captions, chips. */
+  revealFast: 450,
+  /** The default entrance — cards, blocks, anything card-sized. */
+  revealBase: 700,
+  /** nexvio's section reveal, ~980ms to rest. Display-scale moments only. */
+  revealSlow: 1000,
+  /** Leaving is faster than arriving: an exit is an acknowledgement, not a show. */
+  exit: 220,
   /** Header glass cross-fade (self-specified — no reference). */
   glass: 300,
   /** oma-genera's label roll, settling by ~400ms. */
   roll: 250,
   /** salient's odometer. Its roll never fired under automation, so this is the
    *  one duration in the catalog calibrated by eye rather than measured. */
-  counter: 1200,
+  counter: 1500,
   /** Per-digit offset, so a multi-digit number lands left to right. */
-  counterStagger: 80,
+  counterStagger: 90,
+  /** The plus on 500+ arriving once the digits have seated. */
+  suffixPop: 180,
 } as const;
 
-export const SEC = {
-  menu: MS.menu / 1000,
-  reveal: MS.reveal / 1000,
-  glass: MS.glass / 1000,
-  roll: MS.roll / 1000,
-  counter: MS.counter / 1000,
-  counterStagger: MS.counterStagger / 1000,
-} as const;
+const toSec = <T extends Record<string, number>>(ms: T): { [K in keyof T]: number } =>
+  Object.fromEntries(Object.entries(ms).map(([k, v]) => [k, v / 1000])) as { [K in keyof T]: number };
+
+export const SEC = toSec(MS);
 
 /** framer-motion bezier arrays. */
 export const EASE = {
@@ -50,6 +59,8 @@ export const EASE = {
   roll: [0.34, 1.56, 0.64, 1],
   /** Long tail — an odometer should arrive fast and coast into place. */
   counter: [0.16, 1, 0.3, 1],
+  /** Accelerating away, for anything leaving the screen. */
+  exit: [0.4, 0, 1, 1],
 } as const;
 
 /** The same curves for CSS transitions, where framer-motion isn't driving. */
@@ -60,14 +71,17 @@ export const CSS_EASE = {
 } as const;
 
 /**
- * The one entrance every timed reveal uses. `once` because a section that
- * re-animates on every pass turns a long page into a flicker reel.
+ * How far apart cascading children start. Tight for menu items and dense lists,
+ * base for a section's own badge/heading/blurb, loose for big cards that each
+ * want a beat of their own.
+ *
+ * Kept under ~120ms, and to about eight children per group: past either, the
+ * last child arrives long after the reader stopped waiting for it.
  */
-export const reveal = {
-  initial: { y: 40, opacity: 0 },
-  whileInView: { y: 0, opacity: 1 },
-  viewport: { once: true, amount: 0.3 },
-  transition: { duration: SEC.reveal, ease: EASE.reveal },
+export const STAGGER = {
+  tight: 0.045,
+  base: 0.08,
+  loose: 0.12,
 } as const;
 
 /**
@@ -76,6 +90,7 @@ export const reveal = {
  */
 export const MOTION = {
   headerGlass: true,
+  menuCascade: true,
   flower: true,
   aboutStack: true,
   photoZoom: true,
@@ -84,14 +99,25 @@ export const MOTION = {
   services: true,
   approach: true,
   work: true,
+  hero: true,
+  clients: true,
+  whyUs: true,
+  contact: true,
+  footer: true,
 } as const;
 
 /**
- * Sticky offset for pinned cards, in the header's own heights. The references
- * all use a round 100px; ours has to clear a bar that is 69 / 113 / 119px tall,
- * so a copied constant would tuck the card under it at two breakpoints.
+ * The header's own heights, which several effects have to clear. The references
+ * all pin against a round 100px; ours is 69 / 113 / 119px, so a copied constant
+ * would tuck a pinned card under the bar at two of our three breakpoints.
  */
+export const HEADER_H = { base: 69, lg: 113, xl3: 119 } as const;
+
+/** Sticky offset for pinned cards, in those same heights. */
 export const STICKY_TOP = 'top-[69px] lg:top-[113px] 3xl:top-[119px]';
+
+/** Viewport height less the header, for a pinned section's inner frame. */
+export const PINNED_H = 'h-[calc(100vh-69px)] lg:h-[calc(100vh-113px)] 3xl:h-[calc(100vh-119px)]';
 
 /**
  * Whether motion should run for this visitor.
