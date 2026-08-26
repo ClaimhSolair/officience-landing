@@ -5,8 +5,15 @@ import { useEffect, useRef, type RefObject } from 'react';
  * a scroll lock that also works on iOS, plus focus containment.
  */
 
+/**
+ * Every `:not([tabindex="-1"])` is load-bearing: an element the author has taken
+ * out of the tab order must not become the initial focus target either. The
+ * survey's honeypot is an off-screen `<input tabindex="-1">`, and without these
+ * clauses it is the first match in the dialog — so opening the survey would send
+ * focus 9999px off the left edge of the page.
+ */
 const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  'a[href]:not([tabindex="-1"]), button:not([disabled]):not([tabindex="-1"]), input:not([disabled]):not([tabindex="-1"]), select:not([disabled]):not([tabindex="-1"]), textarea:not([disabled]):not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])';
 
 // --- Body scroll lock -------------------------------------------------------
 

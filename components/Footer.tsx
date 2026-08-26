@@ -154,14 +154,30 @@ const Footer: React.FC = () => (
         <hr className="w-full border-0 border-t border-white/30" />
         <div className="flex flex-col gap-fig-16">
           <div className="flex items-start justify-between lg:items-center">
-            <div className="flex flex-col font-body text-[12px] leading-[20px] lg:flex-row lg:items-center lg:gap-fig-12 lg:text-body-xl">
+            {/* Wraps as whole phrases from lg. The four items plus the socials need
+                ~1029px and the content column only offers 976 at 1024, so without
+                `flex-wrap` the copyright breaks mid-sentence instead. From xl there
+                is room for the single line the artboard draws. */}
+            <div className="flex flex-col font-body text-[12px] leading-[20px] lg:flex-row lg:flex-wrap lg:items-center lg:gap-fig-12 lg:text-body-xl">
               {/* At 1920 the copyright joins this row between two rules; at 390 it
                   drops to its own line underneath. */}
-              <span className="hidden lg:inline">{COPYRIGHT}</span>
+              <span className="hidden whitespace-nowrap lg:inline">{COPYRIGHT}</span>
               <span aria-hidden="true" className="hidden h-[16px] w-px bg-white/30 lg:block" />
-              <NavLink item={FOOTER_LEGAL[0]} className={LINK_HOVER} />
+              <NavLink item={FOOTER_LEGAL[0]} className={`whitespace-nowrap ${LINK_HOVER}`} />
               <span aria-hidden="true" className="hidden h-[16px] w-px bg-white/30 lg:block" />
-              <NavLink item={FOOTER_LEGAL[1]} className={LINK_HOVER} />
+              <NavLink item={FOOTER_LEGAL[1]} className={`whitespace-nowrap ${LINK_HOVER}`} />
+              <span aria-hidden="true" className="hidden h-[16px] w-px bg-white/30 lg:block" />
+              {/* Not drawn by Figma, and deliberately kept: consent has to be as
+                  easy to withdraw as it was to give, and this is the only way back
+                  to the banner once a choice is stored. CookieConsent listens for
+                  this exact event name. */}
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event('officience:cookie-settings'))}
+                className={`whitespace-nowrap text-left ${LINK_HOVER}`}
+              >
+                Cookie Settings
+              </button>
             </div>
 
             <ul className="flex items-center lg:gap-[2.13px]">

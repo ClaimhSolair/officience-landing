@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Mail, Menu } from 'lucide-react';
 import { ASSETS } from '../assets';
 import Container from './ui/Container';
-import { scrollToSection } from './navigation';
+import { ROUTES, useGoToSection } from './navigation';
 
 const LOGO_URL = ASSETS.header.logo;
 
@@ -22,7 +23,11 @@ interface HeaderProps {
  * rather than here, so it sits outside the region it makes inert.
  */
 const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
-  const goToContact = () => scrollToSection('contact');
+  const { pathname } = useLocation();
+  // Not a bare scroll: the bar is on the legal routes too, where there is no
+  // contact section to scroll to and the button used to do nothing at all.
+  const goToSection = useGoToSection();
+  const goToContact = () => goToSection('contact');
 
   return (
       <header className="sticky top-0 z-50 bg-bg-primary">
@@ -30,11 +35,16 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
           {/* The lockup art is a single blue-on-transparent PNG shared with the
               old header; on this blue bar it is inverted to solid white rather
               than shipping a second copy of the same artwork. */}
-          <a
-            href="/"
+          {/* A real route link, so it works from the legal pages — where the old
+              preventDefault-and-scroll left the logo inert. On the home page there
+              is nowhere to navigate, so it keeps gliding to the top instead. */}
+          <Link
+            to={ROUTES.home}
             onClick={(e) => {
+              if (pathname !== ROUTES.home) return;
               e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+              window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
             }}
             className="flex items-center shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             aria-label="Officience home"
@@ -45,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
               className="h-[37px] lg:h-[65px] 3xl:h-[71px] w-auto object-contain [filter:brightness(0)_invert(1)]"
               referrerPolicy="no-referrer"
             />
-          </a>
+          </Link>
 
           {/* Mobile puts the contact affordance before the hamburger and shrinks
               it to an icon; desktop reverses the order and spells it out. */}

@@ -74,11 +74,14 @@ const Layout: React.FC = () => {
           while it is open, and would disable itself if it lived inside. */}
       <MenuOverlay isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} backgroundRef={pageRef} />
 
+      {/* Same treatment as the menu: rendered outside the page wrapper it makes
+          inert, so it cannot disable itself. */}
       <Survey
         isOpen={isSurveyOpen}
         onClose={closeSurvey}
         onComplete={setSurveyData}
         initialBranch={surveyBranch}
+        backgroundRef={pageRef}
       />
 
       {/* Cookie consent banner (Google Consent Mode v2) */}

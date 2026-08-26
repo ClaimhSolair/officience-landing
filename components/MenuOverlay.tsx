@@ -2,8 +2,8 @@ import React, { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, X } from 'lucide-react';
 import { ASSETS } from '../assets';
-import { useModalA11y } from '../lib/modal';
-import { MENU, SOCIALS, scrollToSection, type NavItem, type NavTarget } from './navigation';
+import { setInert, useModalA11y } from '../lib/modal';
+import { MENU, SOCIALS, useGoToSection, type NavItem, type NavTarget } from './navigation';
 
 interface MenuOverlayProps {
   isOpen: boolean;
@@ -24,18 +24,39 @@ const SOCIAL_ICON: Record<string, string> = {
  * menu on the way out. A section target scrolls rather than navigating, so the
  * panel has to be gone before the scroll starts or the page moves underneath it.
  */
-const useNavigate = (onClose: () => void) => (target: NavTarget) => {
-  onClose();
-  if (target.kind === 'section') {
-    // After the close transition has released the body scroll lock.
-    window.setTimeout(() => scrollToSection(target.id), 320);
-  }
+const useNavigateTarget = (onClose: () => void) => {
+  const goToSection = useGoToSection();
+
+  return (target: NavTarget) => {
+    onClose();
+    if (target.kind === 'section') {
+      // After the close transition has released the body scroll lock. Off the
+      // home page this navigates instead of scrolling, so Work and About Us
+      // reach their sections from the legal routes too.
+      window.setTimeout(() => goToSection(target.id), 320);
+    }
+  };
 };
 
 const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRef }) => {
+  const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState<string | null>('Services');
   const idPrefix = useId();
+
+  /**
+   * Closed, the panel is only translated off-canvas — every link inside it stays
+   * in the tab order, so Tab walks focus into an `aria-hidden` region and off the
+   * side of the screen with nothing visible to show for it. `inert` takes the
+   * whole subtree out of both the tab order and the accessibility tree.
+   *
+   * Declared before `useModalA11y` on purpose: effects run in declaration order,
+   * and the focus it moves into the panel on open would fail against a subtree
+   * that is still inert.
+   */
+  useEffect(() => {
+    setInert(rootRef.current, !isOpen);
+  }, [isOpen]);
 
   useModalA11y({ isOpen, onClose, containerRef: panelRef, backgroundRef });
 
@@ -44,7 +65,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
     if (isOpen) setExpanded('Services');
   }, [isOpen]);
 
-  const go = useNavigate(onClose);
+  const go = useNavigateTarget(onClose);
 
   const renderLeaf = (item: NavItem, className: string, children: React.ReactNode) => {
     if (item.target.kind === 'external') {
@@ -76,6 +97,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
     // persistent rather than modal, and at z-90 it sat on top of the menu and
     // covered two of its items.
     <div
+      ref={rootRef}
       className={`fixed inset-0 z-[95] ${isOpen ? '' : 'pointer-events-none'}`}
       aria-hidden={!isOpen}
     >

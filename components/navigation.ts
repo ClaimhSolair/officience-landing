@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { SurveyBranch } from '../types';
 
 /** Routes served by the SPA. `vercel.json` rewrites every non-api path to index.html. */
@@ -163,4 +164,26 @@ export const scrollToSection = (id: SectionId) => {
   if (!el) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+};
+
+/** A home-page section as a URL, for anything that has to work from another route. */
+export const sectionHref = (id: SectionId) => `${ROUTES.home}#${id}`;
+
+/**
+ * Reaches a home-page section from wherever the reader currently is.
+ *
+ * `scrollToSection` alone only works on `/` — off the home page its
+ * `getElementById` finds nothing and the click silently does nothing at all,
+ * which is what the header CTA and the overlay menu's section items used to do
+ * on the two legal routes. Away from home this navigates to `/#id` instead and
+ * lets `ScrollManager` land the scroll once the page has mounted.
+ */
+export const useGoToSection = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  return (id: SectionId) => {
+    if (pathname === ROUTES.home) scrollToSection(id);
+    else navigate(sectionHref(id));
+  };
 };

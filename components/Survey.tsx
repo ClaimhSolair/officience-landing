@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, Check, AlertCircle } from 'lucide-react';
+import { useModalA11y } from '../lib/modal';
 import { ROUTES } from './navigation';
 import type { SurveyBranch } from '../types';
 
@@ -9,9 +10,22 @@ interface SurveyProps {
   onClose: () => void;
   onComplete: (data: Record<string, string>) => void;
   initialBranch?: SurveyBranch;
+  /** Everything behind the dialog, made inert while it is open. */
+  backgroundRef?: React.RefObject<HTMLElement>;
 }
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/**
+ * The message for an address that has been typed but is not an address. Silence
+ * was the old behaviour: the Submit button greyed out and nothing anywhere said
+ * why, which is indistinguishable from a broken form.
+ */
+const emailError = (value: unknown): string | undefined => {
+  const typed = String(value ?? '');
+  if (!typed || emailRegex.test(typed)) return undefined;
+  return 'Enter a valid email address, e.g. name@domain.com';
+};
 
 // ---------------------------------------------------------------------------
 // CONFIG (faithful to Figma frames 2195:2838 / 3012 / 3513 / 3809 / 2174 / 2309 / 2614)
@@ -39,7 +53,7 @@ const WORK_OPTIONS = {
 
 const CATEGORY_CARDS: Option[] = [
   { label: 'Internship', desc: 'Join the Offy team as a student or fresh grad' },
-  { label: 'Full-time career', desc: "I'm looking for permanent role at Officience" },
+  { label: 'Full-time career', desc: "I'm looking for a permanent role at Officience" },
   { label: 'Co-working space', desc: 'I need a desk or safe workspace in HCMC or Paris' },
   { label: 'Partnership & referral', desc: "Let's collaborate or referral or strategic partnership" },
   { label: 'Other inquiries', desc: 'Something else general questions' },
@@ -62,8 +76,8 @@ const TAG_STYLES: Record<SolveTag, { color: string; background: string }> = {
 };
 
 const PROGRESS_LABELS: Record<SurveyBranch, [string, string, string]> = {
-  work: ['Requirements', 'Expectations', 'Completed'],
-  category: ['Category', 'Detail', 'Completed'],
+  work: ['Requirements', 'Expectations', 'Complete'],
+  category: ['Category', 'Detail', 'Complete'],
 };
 
 // ---------------------------------------------------------------------------
@@ -134,7 +148,10 @@ const ChipGroup: React.FC<{
              chip clears a 44px tap target — an accepted divergence, not a miss. */
           className={`rounded-fig-xs border px-[12px] py-[12px] font-body text-[14px] leading-[20px] transition-colors motion-reduce:transition-none sm:py-[6px] ${
             selected(opt)
-              ? 'border-primary bg-[#ecf4ff] font-bold text-primary'
+              /* White, not the pale blue the option cards use — Figma's Form
+                 Input Chip (3329:2505) fills the selected chip white and carries
+                 the state on the border and the bold blue label. */
+              ? 'border-primary bg-white font-bold text-primary'
               : 'border-border-field font-medium text-subtitle hover:border-primary'
           }`}
         >
@@ -204,9 +221,11 @@ const TextField: React.FC<{
   placeholder: string;
   required?: boolean;
   type?: string;
+  /** Shown under the field and announced; also reddens the border. */
+  error?: string;
   answers: Record<string, any>;
   set: (k: string, v: any) => void;
-}> = ({ label, k, placeholder, required, type = 'text', answers, set }) => (
+}> = ({ label, k, placeholder, required, type = 'text', error, answers, set }) => (
   <label className="flex flex-col gap-[6px]">
     <span className="font-body font-bold text-[14px] leading-[20px] text-text-default">
       {label}
@@ -217,8 +236,16 @@ const TextField: React.FC<{
       placeholder={placeholder}
       value={answers[k] || ''}
       onChange={(e) => set(k, e.target.value)}
-      className="w-full rounded-fig-xs border border-[#c6c6c6] px-[14px] py-[14px] sm:py-[10px] font-body text-[16px] sm:text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary transition-colors"
+      aria-invalid={error ? true : undefined}
+      className={`w-full rounded-fig-xs border px-[14px] py-[14px] sm:py-[10px] font-body text-[16px] sm:text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary transition-colors ${
+        error ? 'border-err' : 'border-[#c6c6c6]'
+      }`}
     />
+    {error && (
+      <span role="alert" className="font-body text-[12px] leading-[16px] text-err">
+        {error}
+      </span>
+    )}
   </label>
 );
 
@@ -281,7 +308,15 @@ const Panel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 // ---------------------------------------------------------------------------
 // SURVEY
 // ---------------------------------------------------------------------------
-const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBranch = 'work' }) => {
+const Survey: React.FC<SurveyProps> = ({
+  isOpen,
+  onClose,
+  onComplete,
+  initialBranch = 'work',
+  backgroundRef,
+}) => {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
   const [branch, setBranch] = useState<SurveyBranch>(initialBranch);
   const [step, setStep] = useState(0); // 0 = first input step, 1 = second input step
   const [answers, setAnswers] = useState<Record<string, any>>({});
@@ -290,6 +325,11 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
   const [error, setError] = useState<string | null>(null);
   // Honeypot: a hidden field humans never fill. The server drops any submission that has it set.
   const [honeypot, setHoneypot] = useState('');
+
+  // Scroll lock, focus trap, Escape to close, focus restored on close. The
+  // survey was the one overlay on the site not using this — Tab walked straight
+  // out of the dialog into the page behind it.
+  useModalA11y({ isOpen, onClose, containerRef: panelRef, backgroundRef });
 
   useEffect(() => {
     if (isOpen) {
@@ -330,7 +370,13 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
     if (step === 0) return filled('category');
     // step 1 detail
     if (isTalent)
-      return filled('name') && validEmail() && hasMulti('positions') && filled('portfolio');
+      return (
+        filled('name') &&
+        validEmail() &&
+        filled('school') &&
+        hasMulti('positions') &&
+        filled('portfolio')
+      );
     if (isCoworking)
       return filled('name') && validEmail() && filled('location') && filled('duration') && filled('teamSize');
     if (isPartnership)
@@ -402,11 +448,11 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
       return (
         <Panel>
           <div>
-            <QLabel required>1. I am a…</QLabel>
+            <QLabel required>I am a…</QLabel>
             <ChipGroup options={WORK_OPTIONS.iAm} value={answers['iAm']} onChange={(v) => set('iAm', v)} />
           </div>
           <div>
-            <QLabel required hint="(Multi-Select)">2. Service I'm interested in</QLabel>
+            <QLabel required hint="(Multi-Select)">Service I'm interested in</QLabel>
             <CardOptions
               options={WORK_OPTIONS.services.map((s) => ({ label: s }))}
               value={answers['services']}
@@ -417,7 +463,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
             />
           </div>
           <div>
-            <QLabel required hint="(Multi-Select)">3. What are you trying to solve ?</QLabel>
+            <QLabel required hint="(Multi-Select)">What are you trying to solve ?</QLabel>
             <CardOptions
               options={WORK_OPTIONS.solve}
               value={answers['solve']}
@@ -435,24 +481,24 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
       return (
         <Panel>
           <div>
-            <QLabel required>1. Timeline</QLabel>
+            <QLabel required>Timeline</QLabel>
             <ChipGroup options={WORK_OPTIONS.timeline} value={answers['timeline']} onChange={(v) => set('timeline', v)} />
           </div>
           <div>
-            <QLabel required>2. Budget Expected</QLabel>
+            <QLabel required>Budget Expected</QLabel>
             <ChipGroup options={WORK_OPTIONS.budget} value={answers['budget']} onChange={(v) => set('budget', v)} />
           </div>
           <div className="flex flex-col gap-[16px]">
-            <QLabel>3. Contact details</QLabel>
+            <QLabel>Contact details</QLabel>
             <div className="grid sm:grid-cols-2 gap-[16px]">
               <TextField label="Name" k="name" placeholder="Full name" required answers={answers} set={set} />
-              <TextField label="Work Email" k="email" type="email" placeholder="name@business.com" required answers={answers} set={set} />
+              <TextField label="Work Email" k="email" type="email" placeholder="name@business.com" required error={emailError(answers['email'])} answers={answers} set={set} />
               <TextField label="Company" k="company" placeholder="Organisation name" required answers={answers} set={set} />
               <TextField label="Phone (Optional)" k="phone" type="tel" placeholder="+84...." answers={answers} set={set} />
             </div>
           </div>
           <div>
-            <QLabel>4. Anything else you'd like us to know?</QLabel>
+            <QLabel>Anything else you'd like us to know?</QLabel>
             <TextArea placeholder="Tell us about your project requirements..." k="notes" rows={3} answers={answers} set={set} />
           </div>
         </Panel>
@@ -462,7 +508,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
     if (branch === 'category' && step === 0) {
       return (
         <Panel>
-          <QLabel>1. What bring you here? We will tailor your next questions just for you</QLabel>
+          <QLabel>What bring you here? We will tailor your next questions just for you</QLabel>
           <CardOptions options={CATEGORY_CARDS} value={answers['category']} onChange={(v) => set('category', v)} columns={1} />
         </Panel>
       );
@@ -479,8 +525,8 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
             </div>
             <div className="grid sm:grid-cols-2 gap-[16px]">
               <TextField label="Full Name" k="name" placeholder="Your full name" required answers={answers} set={set} />
-              <TextField label="Email" k="email" type="email" placeholder="name@domain.com" required answers={answers} set={set} />
-              <TextField label="University / School" k="school" placeholder="e.g. Foreign Trade University, Paris..." answers={answers} set={set} />
+              <TextField label="Email" k="email" type="email" placeholder="name@domain.com" required error={emailError(answers['email'])} answers={answers} set={set} />
+              <TextField label="University / School" k="school" placeholder="e.g. Foreign Trade University, Paris..." required answers={answers} set={set} />
               <TextField label="Expected Graduation" k="graduation" placeholder="e.g. 2027" answers={answers} set={set} />
             </div>
             <div>
@@ -504,7 +550,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
           <>
             <div className="grid sm:grid-cols-2 gap-[16px]">
               <TextField label="Full Name" k="name" placeholder="Your full name" required answers={answers} set={set} />
-              <TextField label="Email" k="email" type="email" placeholder="name@domain.com" required answers={answers} set={set} />
+              <TextField label="Email" k="email" type="email" placeholder="name@domain.com" required error={emailError(answers['email'])} answers={answers} set={set} />
             </div>
             <div>
               <QLabel required>Location</QLabel>
@@ -525,7 +571,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
           <>
             <div className="grid sm:grid-cols-2 gap-[16px]">
               <TextField label="Full Name" k="name" placeholder="Your full name" required answers={answers} set={set} />
-              <TextField label="Email" k="email" type="email" placeholder="name@domain.com" required answers={answers} set={set} />
+              <TextField label="Email" k="email" type="email" placeholder="name@domain.com" required error={emailError(answers['email'])} answers={answers} set={set} />
               <TextField label="Company / Org" k="company" placeholder="Company name" required answers={answers} set={set} />
               <TextField label="Role / Job Title" k="role" placeholder="e.g. Partner Representative" required answers={answers} set={set} />
             </div>
@@ -540,7 +586,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
           <>
             <div className="grid sm:grid-cols-2 gap-[16px]">
               <TextField label="Full Name" k="name" placeholder="Your full name" required answers={answers} set={set} />
-              <TextField label="Email" k="email" type="email" placeholder="name@domain.com" required answers={answers} set={set} />
+              <TextField label="Email" k="email" type="email" placeholder="name@domain.com" required error={emailError(answers['email'])} answers={answers} set={set} />
               <TextField label="Company / Org" k="company" placeholder="Company name" required answers={answers} set={set} />
               <TextField label="Role / Job Title" k="role" placeholder="e.g. Partner Representative" required answers={answers} set={set} />
             </div>
@@ -569,6 +615,11 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
       />
 
       <motion.div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
         initial={{ opacity: 0, scale: 0.97, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.97, y: 16 }}
@@ -598,8 +649,8 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
         <div className="px-[16px] sm:px-[32px] py-[24px] overflow-y-auto">
           {isCompleted ? (
             <div className="flex flex-col gap-[24px]">
-              <h2 className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">
-                {branch === 'work' ? 'Work with officience' : 'Category inquiries'}
+              <h2 id={titleId} className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">
+                {branch === 'work' ? 'Work with Officience' : 'Category inquiries'}
               </h2>
               <div className="bg-bg-default rounded-fig-xs p-[24px] flex flex-col gap-[12px]">
                 <div className="flex items-center gap-[12px]">
@@ -623,7 +674,7 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
                 className="flex flex-col gap-[24px]"
               >
                 <div className="flex flex-col gap-[4px]">
-                  <h2 className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">{title}</h2>
+                  <h2 id={titleId} className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">{title}</h2>
                   <p className="font-body text-[14px] leading-[20px] text-subtitle">{subtitle}</p>
                 </div>
                 {(() => {
@@ -651,7 +702,10 @@ const Survey: React.FC<SurveyProps> = ({ isOpen, onClose, onComplete, initialBra
 
         {/* Error banner */}
         {error && !isCompleted && (
-          <div className="mx-[16px] sm:mx-[32px] mb-[8px] flex items-center gap-[8px] rounded-fig-xs border border-[#f5c2cb] bg-[#fff1f3] px-[16px] py-[10px] text-[#b8253e]">
+          <div
+            role="alert"
+            className="mx-[16px] sm:mx-[32px] mb-[8px] flex items-center gap-[8px] rounded-fig-xs border border-[#f5c2cb] bg-[#fff1f3] px-[16px] py-[10px] text-[#b8253e]"
+          >
             <AlertCircle size={16} className="shrink-0" />
             <span className="font-body text-[14px] leading-[20px]">{error}</span>
           </div>
