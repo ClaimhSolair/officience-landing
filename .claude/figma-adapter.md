@@ -104,11 +104,18 @@ index exists because the detail now spans several per-step sections. Grouped by 
 of decision, not by section.
 
 **Legibility / accessibility — one ruling covers each group**
-1. **10px body copy in three places at 390**: the testimonial role line, the Why Us item
-   descriptions, and the Contact option descriptions. Nothing else on the page goes below
-   12px.
+1. **10px body copy at 390.** Six places, all drawn that way: the testimonial role line,
+   the Why Us item descriptions, the Contact option descriptions, and — added by the
+   2026-08-26 review — the Proven Results tag chips and its "10+ Works" pill
+   (`ProvenResults.tsx`), plus the survey's progress-step labels (`Survey.tsx`). Nothing
+   else on the page goes below 12px. One build-own instance also exists and can be
+   changed without a ruling: LegalToc's mobile "On this page" eyebrow.
 2. **Secondary/200 pink on the blue is 3.92:1** — fine for the 64px Why Us titles (large
-   text needs 3:1), short of the 4.5:1 the 20px mobile titles need.
+   text needs 3:1), short of the 4.5:1 the 20px mobile titles need. Two more Figma-drawn
+   pairs found 2026-08-26, both in the survey: the inactive progress label
+   (Text/Subtitle-2 `#A0A0A0` on BG/Secondary `#F7F7F7`, ~2.4:1 at 10px bold) and the
+   disabled Next button (white on `#D9D9D9`, ~1.6:1). The disabled control is exempt
+   from WCAG 1.4.3, so that one is advisory.
 
 **Copy that reads as a slip rather than a decision**
 3. **The Diana client logo drops the "AI"** from the company's name.
@@ -119,6 +126,12 @@ of decision, not by section.
    the real one, which is what shipped.
 7. **"has become" (1920) vs "had become" (390)**; 1920 shipped.
 8. **Our Services 390-vs-1920 conflicts** — see that section for the four of them.
+8b. **Four survey strings are drawn with slips of their own** and ship verbatim, which
+   sits oddly beside the three typos the build *does* correct (see the Survey section):
+   "What bring you here?" (missing "s", and a near-duplicate of Contact's own "What
+   brings you here?"), "Let's collaborate or referral or strategic partnership",
+   "Something else general questions", and "2-5 peoples" / "+5 peoples". One ruling
+   should cover the set, together with the three already-corrected typos.
 
 **Design details that differ between the two artboards for no evident reason**
 9. Author name switches Lexend -> Montserrat between 1920 and 390 (testimonials).
@@ -401,6 +414,29 @@ backgrounds go on the parent so they stay full-bleed.
   the 2nd and 3rd rules sitting 16px and 32px left of where Figma puts them.
 - Footer keeps a "Cookie Settings" link and gains "Privacy Policy", neither of which
   the Figma footer draws — compliance requirement (Privacy link pending step-10 sign-off).
+  **The Sept-2026 footer rebuild dropped the Cookie Settings link and nobody noticed for
+  six days**, which left `CookieConsent`'s `officience:cookie-settings` listener with no
+  sender and made a stored consent choice impossible to withdraw. Restored 2026-08-26. If
+  the footer is rebuilt again, grep for that event name before shipping — a dispatcher
+  with no listener is a dead click, a listener with no dispatcher is a compliance defect.
+
+**Behaviour Figma does not draw, added 2026-08-26 (do not "simplify" back):**
+
+- **The survey is a real dialog.** It renders through `lib/modal.ts` like every other
+  overlay — scroll lock, focus trap, Escape, focus restored, page behind it inert. It had
+  none of that: Tab walked straight out of the modal into the page. `FOCUSABLE` in
+  `modal.ts` now excludes `[tabindex="-1"]`, without which the survey's off-screen
+  honeypot input is the first match and opening the dialog throws focus off the page.
+- **The overlay menu is `inert` while closed.** Off-canvas is not out of the tab order:
+  its ~15 links stayed reachable inside an `aria-hidden` subtree. The effect that sets it
+  is declared *before* `useModalA11y` on purpose — effects run in declaration order, and
+  focusing into a still-inert subtree fails silently.
+- **Section links work from the legal routes.** `scrollToSection` only ever worked on `/`;
+  off it, `getElementById` returns null and the click does nothing. The header CTA, the
+  header logo and the menu's Work / About Us / Rizlum / HR / ITS items all did nothing on
+  `/terms-of-use` and `/privacy-policy`. They now go through `useGoToSection` in
+  `navigation.ts`, which scrolls on the home page and navigates to `/#id` elsewhere,
+  letting `ScrollManager` land it once the page mounts.
 
 ### Superseded by the Sept-2026 design
 
@@ -574,8 +610,9 @@ two distinct greys (Text/Subtitle-2 `#A0A0A0` for the inactive word, Border/Outl
 - **Figma's Internship card description is the wrong copy** — "Build or improve a
   website/app", lifted from the work flow's solve options. The build's own line is kept.
 - **The completed screen carries two misspellings** — "Transmission competed!" and "3
-  bussiness days" — plus a lowercase "officience". The build already spells all three
-  correctly and keeps doing so.
+  bussiness days" — plus a lowercase "officience" in its heading. The first two were
+  already spelled correctly here; the **lowercase heading was not**, despite this note
+  once claiming all three were. Corrected 2026-08-26 to "Work with Officience".
 - **Figma labels the send button "Next step"** on the last input step, where the build says
   "Submit". Kept as "Submit": that click sends an email, and "Next step" understates an
   irreversible action. Same category as the typos — reproducing it would ship something
@@ -584,6 +621,19 @@ two distinct greys (Text/Subtitle-2 `#A0A0A0` for the inactive word, Border/Outl
   section's own "What brings you here?".
 - The chip keeps 12px of vertical padding at 390 (Figma draws 6) so it clears a 44px tap
   target — an accepted divergence, as elsewhere.
+
+**Corrected 2026-08-26 after a fidelity re-read of the frames.** Four things the build had
+carried over from the July survey rather than read off the Sept frames:
+
+- **The question labels are not numbered.** `2809:2846` / `2809:2247` / `2818:2936` draw
+  "I am a…\*", "Timeline\*", "Contact details" — the "1./2./3." prefixes were July's.
+- **The selected chip is filled white**, not `#ECF4FF`. Figma's Form Input Chip
+  (`3329:2505`, "Agency" selected) carries the state on the border and a bold blue label
+  only. The *option cards* do fill pale blue — those were already right, and the two
+  controls are deliberately different.
+- **"University / School" is required** on `2818:3232` (red asterisk); it was optional
+  here, and is now part of the talent gate.
+- **The third progress word is "COMPLETE"**, not "Completed".
 
 **Not yet verified, and not verifiable here.** `document.hidden` is true in this Chrome
 profile, so rAF is frozen: framer's `AnimatePresence mode="wait"` never finishes the exit
