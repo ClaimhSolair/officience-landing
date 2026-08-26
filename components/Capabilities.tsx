@@ -1,8 +1,10 @@
 import React from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Container from './ui/Container';
+import Reveal from './ui/Reveal';
 import Button from './ui/Button';
 import SectionBadge from './ui/SectionBadge';
+import { MOTION } from '../lib/motion';
 import { EXTERNAL } from './navigation';
 
 /**
@@ -128,8 +130,11 @@ const Capabilities: React.FC = () => (
           const first = i === 0;
           const last = i === SERVICES.length - 1;
           return (
-          <li
+          <Reveal
+            as="li"
             key={service.title}
+            enabled={MOTION.services}
+            delay={i * 0.06}
             /* 1920 rules every row, including the first; 390 only rules between. */
             className={`border-border-field ${first ? 'border-t-0 lg:border-t' : 'border-t'}`}
           >
@@ -183,7 +188,7 @@ const Capabilities: React.FC = () => (
                 </Button>
               </div>
             </div>
-          </li>
+          </Reveal>
           );
         })}
       </ul>

@@ -1,10 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { ASSETS, srcSetOf, type ImageSource } from '../assets';
 import Container from './ui/Container';
 import Button from './ui/Button';
 import SectionBadge from './ui/SectionBadge';
 import CarouselDots from './ui/CarouselDots';
+import Reveal from './ui/Reveal';
+import { EASE, MOTION, SEC, useMotionEnabled } from '../lib/motion';
 import { EXTERNAL, VIEW_ALL_WORK } from './navigation';
 
 /**
@@ -93,6 +96,59 @@ const Tag: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </span>
 );
 
+
+/**
+ * A work card arriving in the horizontal rail — nava-studio's entrance, kept
+ * while our arrows-and-snap carousel stays exactly as it was ruled on
+ * 2026-08-24 (`.claude/motion-catalog.md`, item 10). The reference pins the rail
+ * and scrubs a 2000px track; at 390 it ships no pin at all and keeps only this
+ * per-card arrival, which is the version adapted here.
+ *
+ * `whileInView` reads the real viewport, so a card still off to the right of the
+ * rail simply has not arrived yet and animates when it is scrolled to.
+ */
+const WorkCardMedia: React.FC<{ src: string; srcSet: string; alt: string }> = ({ src, srcSet, alt }) => {
+  const motionOn = useMotionEnabled();
+  const cls = 'h-[220px] w-full object-cover lg:h-[550px]';
+  const common = {
+    src,
+    srcSet,
+    sizes: '(min-width: 1024px) 570px, 240px',
+    alt,
+    loading: 'lazy' as const,
+    decoding: 'async' as const,
+    referrerPolicy: 'no-referrer' as const,
+  };
+
+  if (!MOTION.work) return <img {...common} className={cls} />;
+
+  // Settles at 1, not at the reference's 1.1: our crop is the approved one, so
+  // the zoom may only ever be a way in to it, never a permanent re-frame.
+  // Reduced motion keeps the fade and drops the zoom, for the same reason the
+  // shared reveal does.
+  return (
+    <motion.img
+      {...common}
+      className={cls}
+      initial={motionOn ? { scale: 1.2, opacity: 0.1 } : { opacity: 0.1 }}
+      whileInView={{ scale: 1, opacity: 1 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: SEC.reveal, ease: EASE.reveal }}
+    />
+  );
+};
+
+const WorkCard: React.FC<{ className: string; media: React.ReactNode; children: React.ReactNode }> = ({
+  className,
+  media,
+  children,
+}) => (
+  <Reveal as="article" className={className} enabled={MOTION.work} y={60}>
+    {media}
+    {children}
+  </Reveal>
+);
+
 const ProvenResults: React.FC = () => {
   const trackRef = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
@@ -176,20 +232,17 @@ const ProvenResults: React.FC = () => {
             className="flex snap-x snap-mandatory gap-[22px] overflow-x-auto overscroll-x-contain px-fig-16 scroll-pl-fig-16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:gap-fig-40 lg:px-fig-24 lg:scroll-pl-fig-24 3xl:px-fig-64 3xl:scroll-pl-fig-64"
           >
             {PROJECTS.map((project) => (
-              <article
+              <WorkCard
                 key={project.name}
                 className={`${CARD} ${CARD_H} snap-start overflow-hidden rounded-fig-xs bg-bg-primary shadow-fig-sm lg:rounded-fig-l`}
+                media={
+                  <WorkCardMedia
+                    src={project.image[project.image.length - 1].url}
+                    srcSet={srcSetOf(project.image)}
+                    alt={project.alt}
+                  />
+                }
               >
-                <img
-                  src={project.image[project.image.length - 1].url}
-                  srcSet={srcSetOf(project.image)}
-                  sizes="(min-width: 1024px) 570px, 240px"
-                  alt={project.alt}
-                  className="h-[220px] w-full object-cover lg:h-[550px]"
-                  loading="lazy"
-                  decoding="async"
-                  referrerPolicy="no-referrer"
-                />
 
                 <div className="flex flex-col gap-fig-6 px-fig-16 py-fig-20 lg:gap-fig-16 lg:p-fig-40">
                   <div className="flex flex-wrap items-center gap-[5px] lg:gap-fig-12">
@@ -201,7 +254,7 @@ const ProvenResults: React.FC = () => {
                     {project.name}
                   </h3>
                 </div>
-              </article>
+              </WorkCard>
             ))}
 
             {/* The deck's last slide. Only the 1440 frame draws it, and only at

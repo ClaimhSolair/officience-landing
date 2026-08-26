@@ -704,3 +704,12 @@ reliable check** of whether a utility exists. The Play CDN generates on scan, an
 freshly-injected node is often not picked up — it reported 16px for `text-h1` on a page that
 was rendering `text-h1` correctly. Read the real rendered element, or look for the rule in
 `document.styleSheets`.
+
+
+## Behaviour divergence — office addresses link to Google Maps (2026-08-26)
+
+Each office row in Connect With Us is wrapped in a link to
+`google.com/maps/search/?api=1&query=<address>`, opening in a new tab with an
+`aria-label` naming the office. Figma draws no link here; this is a team request
+carried out during the Sept-2026 motion pass, recorded in the same class as the
+Cookie Settings entry. Hover underlines the address and tints the city.

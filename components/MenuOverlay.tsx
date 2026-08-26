@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, X } from 'lucide-react';
 import { ASSETS } from '../assets';
 import { setInert, useModalA11y } from '../lib/modal';
+import { CSS_EASE, MS, useMotionEnabled } from '../lib/motion';
 import { MENU, SOCIALS, useGoToSection, type NavItem, type NavTarget } from './navigation';
+import RollText from './ui/RollText';
 
 interface MenuOverlayProps {
   isOpen: boolean;
@@ -26,6 +28,7 @@ const SOCIAL_ICON: Record<string, string> = {
  */
 const useNavigateTarget = (onClose: () => void) => {
   const goToSection = useGoToSection();
+  const motionOn = useMotionEnabled();
 
   return (target: NavTarget) => {
     onClose();
@@ -33,7 +36,12 @@ const useNavigateTarget = (onClose: () => void) => {
       // After the close transition has released the body scroll lock. Off the
       // home page this navigates instead of scrolling, so Work and About Us
       // reach their sections from the legal routes too.
-      window.setTimeout(() => goToSection(target.id), 320);
+      //
+      // The wait is the panel's own duration rather than a number of its own:
+      // retuning the transition without retuning this scrolls the page while the
+      // panel is still on screen. With motion off there is no transition left to
+      // wait for.
+      window.setTimeout(() => goToSection(target.id), motionOn ? MS.menu : 0);
     }
   };
 };
@@ -42,6 +50,10 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState<string | null>('Services');
+  // JS rather than `motion-reduce:` so the review override can reach it; a CSS
+  // media query cannot be overridden from script.
+  const motionOn = useMotionEnabled();
+  const dur = motionOn ? MS.menu : 0;
   const idPrefix = useId();
 
   /**
@@ -104,9 +116,10 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-black/40 transition-opacity duration-300 motion-reduce:transition-none ${
+        className={`absolute inset-0 bg-black/40 transition-opacity ${
           isOpen ? 'opacity-100' : 'opacity-0'
         }`}
+        style={{ transitionDuration: `${dur}ms`, transitionTimingFunction: CSS_EASE.menu }}
       />
 
       {/* Panel — 658px at desktop per Figma, full-bleed on small screens where
@@ -119,8 +132,9 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
         tabIndex={-1}
         className={`absolute right-0 top-0 h-[100dvh] w-full md:w-[658px] bg-bg-primary
                     flex flex-col overflow-hidden
-                    transition-transform duration-300 ease-out motion-reduce:transition-none
+                    transition-transform
                     ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        style={{ transitionDuration: `${dur}ms`, transitionTimingFunction: CSS_EASE.menu }}
       >
         <div className="flex justify-end shrink-0 p-fig-8 lg:pr-[10px] lg:pt-[10px]">
           <button
@@ -153,9 +167,9 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                         onClick={() => setExpanded(isExpanded ? null : item.label)}
                         aria-expanded={isExpanded}
                         aria-controls={panelId}
-                        className={`inline-flex items-center gap-fig-12 ${topLevel} ${focusRing}`}
+                        className={`group inline-flex items-center gap-fig-12 ${topLevel} ${focusRing}`}
                       >
-                        {item.label}
+                        <RollText>{item.label}</RollText>
                         <ChevronDown
                           className={`h-[32px] w-[32px] lg:h-[40px] lg:w-[40px] shrink-0 transition-transform duration-200 motion-reduce:transition-none ${
                             isExpanded ? '-rotate-180' : ''
@@ -177,7 +191,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                             `block group ${focusRing}`,
                             <>
                               <span className="block font-sans font-semibold text-white text-h3 group-hover:text-pri-100 transition-colors motion-reduce:transition-none">
-                                {child.label}
+                                <RollText>{child.label}</RollText>
                               </span>
                               {child.description && (
                                 <span className="block mt-fig-6 font-body text-white text-body-md">
@@ -190,7 +204,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                       </div>
                     </>
                   ) : (
-                    renderLeaf(item, `block ${topLevel} ${focusRing}`, item.label)
+                    renderLeaf(item, `block group ${topLevel} ${focusRing}`, <RollText>{item.label}</RollText>)
                   )}
                 </li>
               );

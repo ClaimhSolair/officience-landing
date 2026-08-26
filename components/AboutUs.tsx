@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { ASSETS, srcSetOf } from '../assets';
 import Container from './ui/Container';
+import Odometer from './ui/Odometer';
 import SectionBadge from './ui/SectionBadge';
+import { MOTION, STICKY_TOP, useMotionEnabled } from '../lib/motion';
 import { DISCOVER_OUR_STORY, EXTERNAL } from './navigation';
 
 /**
@@ -90,94 +93,219 @@ const STORY_CARDS: StoryCard[] = [
   },
 ];
 
-const AboutUs: React.FC = () => (
-  <section id="about" className="bg-bg-secondary">
-    <Container className="flex flex-col gap-fig-64 py-fig-64 lg:gap-fig-100 lg:py-fig-100">
-      {/* Manifesto. The badge hugs the left edge while the text block sits on
-          the right at desktop; they stack in reading order below xl. */}
-      <div className="flex flex-col gap-fig-24 xl:flex-row xl:items-start xl:justify-between xl:gap-fig-64">
-        <SectionBadge as="h2">About Us</SectionBadge>
+/**
+ * Splits copy into per-character spans for the scroll sweep, wrapping each word
+ * in an inline-block so a line can only ever break between words. The reference
+ * animates bare characters and consequently breaks them mid-word ("d/eserves");
+ * that is a flaw rather than a feature and is not worth reproducing.
+ *
+ * Each span carries only its index. The frontier is published once per frame as
+ * a CSS variable on the paragraph and every character compares itself against it
+ * in CSS, so a hundred-character sweep costs one style write per frame instead
+ * of a hundred.
+ */
+const scrubbedWords = (text: string, startIndex: number, toneClass: string) => {
+  const nodes: React.ReactNode[] = [];
+  const words = text.split(' ');
+  let index = startIndex;
 
-        <div className="flex flex-col items-start gap-fig-24 xl:w-[1018px]">
-          <p className="font-sans font-semibold text-h3 text-text-default lg:font-medium lg:text-display-sm">
-            {MANIFESTO_LEAD}
-            <span className="text-subtitle">{MANIFESTO_REST}</span>
-          </p>
-          <a
-            href={DISCOVER_OUR_STORY.target.kind === 'external' ? DISCOVER_OUR_STORY.target.href : EXTERNAL.about}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-[44px] items-center gap-fig-8 px-fig-24 font-sans font-semibold text-btn-lg text-text-primary transition-colors hover:text-[#000086] motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            {DISCOVER_OUR_STORY.label}
-            <ArrowRight className="h-[20px] w-[20px] shrink-0" strokeWidth={2} aria-hidden="true" />
-          </a>
-        </div>
-      </div>
-
-      {/* Milestones — two columns at 390, four from lg. */}
-      <ul className="grid grid-cols-2 gap-x-fig-20 gap-y-fig-20 lg:grid-cols-4 lg:gap-x-fig-32">
-        {MILESTONES.map(({ value, label }) => (
-          <li key={label} className="flex flex-col items-center gap-fig-16 lg:gap-fig-8">
-            <span className="font-sans font-medium text-display-sm text-text-primary lg:font-semibold lg:text-[86px] lg:leading-[74px] lg:tracking-[-0.03em]">
-              {value}
-            </span>
-            <span className="text-center font-body text-body-lg text-subtitle lg:text-body-xl">{label}</span>
-          </li>
-        ))}
-      </ul>
-
-      {/* Story cards */}
-      <div className="flex flex-col gap-fig-56 lg:gap-fig-64">
-        {STORY_CARDS.map((card, i) => {
-          const img = ASSETS.about.cards[i];
+  words.forEach((word, w) => {
+    nodes.push(
+      <span key={`w${startIndex}-${w}`} className={`inline-block ${toneClass}`}>
+        {[...word].map((ch, c) => {
+          const i = index;
+          index += 1;
           return (
-            <article
-              key={card.title}
-              className="overflow-hidden rounded-fig-xs bg-bg-secondary xl:rounded-fig-l"
-            >
-              <div className="relative">
-                <picture>
-                  <source
-                    media="(min-width: 1024px)"
-                    srcSet={`${img.small} 900w, ${img.large} ${img.largeWidth}w`}
-                    sizes="(min-width: 1920px) 1792px, calc(100vw - 48px)"
-                  />
-                  <img
-                    src={img.mobile[img.mobile.length - 1].url}
-                    srcSet={srcSetOf(img.mobile)}
-                    sizes="calc(100vw - 32px)"
-                    alt={card.alt}
-                    className={`block w-full ${card.aspect} lg:aspect-[1792/860] ${card.fit}`}
-                    loading="lazy"
-                    decoding="async"
-                    referrerPolicy="no-referrer"
-                  />
-                </picture>
-
-                {/* One band, two positions: stacked under the photo, or floating over
-                    it — inset 200px each side and 60px from the bottom, as the artboard
-                    draws it. The overlay starts at xl, not lg. Its geometry is the
-                    artboard's fixed pixels, so at 1024 the band is only 576px wide and
-                    its copy needs 288px of height against a fixed 176 — it spilled over
-                    the photo. At 1280 it fits with 104px to spare. */}
-                <div
-                  className={`flex flex-col gap-fig-8 p-fig-16 xl:absolute xl:bottom-[60px] xl:left-[200px] xl:right-[200px] xl:h-[176px] xl:flex-row xl:items-center xl:justify-between xl:gap-fig-32 xl:rounded-fig-xs xl:p-0 xl:px-fig-64 ${card.tint}`}
-                >
-                  <h3 className="font-sans font-semibold text-btn-lg text-text-primary xl:whitespace-nowrap xl:font-medium xl:text-h1">
-                    {card.title}
-                  </h3>
-                  <p className="font-body text-caption text-text-primary xl:w-[405px] xl:text-right xl:font-sans xl:font-medium xl:text-btn-md">
-                    {card.body}
-                  </p>
-                </div>
-              </div>
-            </article>
+            <span key={c} className="manifesto-char" style={{ '--i': i } as React.CSSProperties}>
+              {ch}
+            </span>
           );
         })}
+      </span>,
+    );
+    if (w < words.length - 1) {
+      nodes.push(<React.Fragment key={`sp${startIndex}-${w}`}> </React.Fragment>);
+      index += 1;
+    }
+  });
+
+  return { nodes, next: index };
+};
+
+const MANIFESTO_CHARS = MANIFESTO_LEAD.length + 1 + MANIFESTO_REST.trim().length;
+
+/**
+ * One story card. It pins under the header while the next card slides over it,
+ * scaling to 0.90 by the time the group releases, and its photo settles out of a
+ * 1.2x zoom as the card arrives (`.claude/motion-catalog.md`, items 4 and 7).
+ *
+ * The zoom **ends at 1.0**, so the resting frame is exactly the crop the design
+ * approved — only a tighter view is ever shown on the way in. That is why this is
+ * nexvio's zoom-settle rather than archiste's parallax, which needs vertical
+ * overdraw and would have re-cut every photo against a settled ruling.
+ *
+ * Pinning costs no page height: the cards are already stacked in flow, so the
+ * flow height is the runway.
+ */
+const StoryCardArticle: React.FC<{
+  card: StoryCard;
+  index: number;
+  total: number;
+  stack: MotionValue<number>;
+}> = ({ card, index, total, stack }) => {
+  const ref = useRef<HTMLElement>(null);
+  const motionOn = useMotionEnabled();
+  const img = ASSETS.about.cards[index];
+
+  // Every card aims at the same release point, so later ones compress the same
+  // 1.0 -> 0.90 into a shorter runway. That is the reference's behaviour rather
+  // than an approximation of it.
+  const from = index / total;
+  const scale = useTransform(stack, (p) => {
+    const t = Math.min(1, Math.max(0, (p - from) / (1 - from)));
+    return 1 - 0.1 * t;
+  });
+
+  const { scrollYProgress: arrival } = useScroll({
+    target: ref,
+    offset: ['start end', 'center center'],
+  });
+  const photoScale = useTransform(arrival, [0, 1], [1.2, 1]);
+
+  const stacking = motionOn && MOTION.aboutStack;
+  const zooming = motionOn && MOTION.photoZoom;
+
+  return (
+    <motion.article
+      ref={ref}
+      className={`overflow-hidden rounded-fig-xs bg-bg-secondary xl:rounded-fig-l ${
+        stacking ? `sticky ${STICKY_TOP}` : ''
+      }`}
+      style={stacking ? { scale } : undefined}
+    >
+      <div className="relative">
+        <picture>
+          <source
+            media="(min-width: 1024px)"
+            srcSet={`${img.small} 900w, ${img.large} ${img.largeWidth}w`}
+            sizes="(min-width: 1920px) 1792px, calc(100vw - 48px)"
+          />
+          <motion.img
+            src={img.mobile[img.mobile.length - 1].url}
+            srcSet={srcSetOf(img.mobile)}
+            sizes="calc(100vw - 32px)"
+            alt={card.alt}
+            className={`block w-full ${card.aspect} lg:aspect-[1792/860] ${card.fit}`}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            style={zooming ? { scale: photoScale } : undefined}
+          />
+        </picture>
+
+        {/* One band, two positions: stacked under the photo, or floating over
+            it — inset 200px each side and 60px from the bottom, as the artboard
+            draws it. The overlay starts at xl, not lg. Its geometry is the
+            artboard's fixed pixels, so at 1024 the band is only 576px wide and
+            its copy needs 288px of height against a fixed 176 — it spilled over
+            the photo. At 1280 it fits with 104px to spare. */}
+        <div
+          className={`flex flex-col gap-fig-8 p-fig-16 xl:absolute xl:bottom-[60px] xl:left-[200px] xl:right-[200px] xl:h-[176px] xl:flex-row xl:items-center xl:justify-between xl:gap-fig-32 xl:rounded-fig-xs xl:p-0 xl:px-fig-64 ${card.tint}`}
+        >
+          <h3 className="font-sans font-semibold text-btn-lg text-text-primary xl:whitespace-nowrap xl:font-medium xl:text-h1">
+            {card.title}
+          </h3>
+          <p className="font-body text-caption text-text-primary xl:w-[405px] xl:text-right xl:font-sans xl:font-medium xl:text-btn-md">
+            {card.body}
+          </p>
+        </div>
       </div>
-    </Container>
-  </section>
-);
+    </motion.article>
+  );
+};
+
+const AboutUs: React.FC = () => {
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const manifestoRef = useRef<HTMLParagraphElement>(null);
+  const motionOn = useMotionEnabled();
+
+  const { scrollYProgress: stack } = useScroll({
+    target: cardsRef,
+    offset: ['start start', 'end end'],
+  });
+
+  // The frontier crosses the whole string across roughly eight tenths of a
+  // viewport: it starts when the paragraph top is 72% down the screen and
+  // finishes just after that top leaves. Expressed in viewport terms rather than
+  // the reference's characters-per-pixel, which would make our sweep length an
+  // accident of how long this copy happens to be.
+  const { scrollYProgress: sweep } = useScroll({
+    target: manifestoRef,
+    offset: ['start 0.72', 'start -0.09'],
+  });
+  const frontier = useTransform(sweep, [0, 1], [0, MANIFESTO_CHARS + 2]);
+  const sweeping = motionOn && MOTION.manifesto;
+
+  const lead = scrubbedWords(MANIFESTO_LEAD, 0, 'text-text-default');
+  const rest = scrubbedWords(MANIFESTO_REST.trim(), lead.next + 1, 'text-subtitle');
+
+  return (
+    <section id="about" className="bg-bg-secondary">
+      <Container className="flex flex-col gap-fig-64 py-fig-64 lg:gap-fig-100 lg:py-fig-100">
+        {/* Manifesto. The badge hugs the left edge while the text block sits on
+            the right at desktop; they stack in reading order below xl. */}
+        <div className="flex flex-col gap-fig-24 xl:flex-row xl:items-start xl:justify-between xl:gap-fig-64">
+          <SectionBadge as="h2">About Us</SectionBadge>
+
+          <div className="flex flex-col items-start gap-fig-24 xl:w-[1018px]">
+            {/* Two-tone at rest, as Figma draws it: the sweep lights each half to
+                its own approved colour rather than flattening both into one. */}
+            <motion.p
+              ref={manifestoRef}
+              className="font-sans font-semibold text-h3 text-text-default lg:font-medium lg:text-display-sm"
+              style={sweeping ? ({ '--frontier': frontier } as React.CSSProperties) : undefined}
+            >
+              {lead.nodes} {rest.nodes}
+            </motion.p>
+            <a
+              href={DISCOVER_OUR_STORY.target.kind === 'external' ? DISCOVER_OUR_STORY.target.href : EXTERNAL.about}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[44px] items-center gap-fig-8 px-fig-24 font-sans font-semibold text-btn-lg text-text-primary transition-colors hover:text-[#000086] motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              {DISCOVER_OUR_STORY.label}
+              <ArrowRight className="h-[20px] w-[20px] shrink-0" strokeWidth={2} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+
+        {/* Milestones — two columns at 390, four from lg. */}
+        <ul className="grid grid-cols-2 gap-x-fig-20 gap-y-fig-20 lg:grid-cols-4 lg:gap-x-fig-32">
+          {MILESTONES.map(({ value, label }) => (
+            <li key={label} className="flex flex-col items-center gap-fig-16 lg:gap-fig-8">
+              <span className="font-sans font-medium text-display-sm text-text-primary lg:font-semibold lg:text-[86px] lg:leading-[74px] lg:tracking-[-0.03em]">
+                {MOTION.counters ? <Odometer value={value} /> : value}
+              </span>
+              <span className="text-center font-body text-body-lg text-subtitle lg:text-body-xl">{label}</span>
+            </li>
+          ))}
+        </ul>
+
+        {/* Story cards */}
+        <div ref={cardsRef} className="flex flex-col gap-fig-56 lg:gap-fig-64">
+          {STORY_CARDS.map((card, i) => (
+            <StoryCardArticle
+              key={card.title}
+              card={card}
+              index={i}
+              total={STORY_CARDS.length}
+              stack={stack}
+            />
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+};
 
 export default AboutUs;

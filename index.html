@@ -297,6 +297,25 @@
       @media (prefers-reduced-motion: reduce) {
         .client-logo { transition: none; }
       }
+      /* Manifesto sweep (item 5). Each character compares its own index with a
+         frontier the paragraph publishes once per frame, so the whole sweep is
+         one style write instead of one per character. Unset the variable and
+         everything sits lit, which is the reduced-motion and no-JS state. */
+      .manifesto-char {
+        opacity: clamp(0.2, calc(var(--frontier, 9999) - var(--i)), 1);
+      }
+      /* Review override (`?motion=on`). Re-enables the motion that the
+         reduced-motion query switches off, for the effects CSS owns rather than
+         JS. A media query cannot be overridden from script, and a build that
+         only animates on a machine with Windows animation effects enabled is not
+         reviewable. Opt-in through the URL only — nothing infers it, so visitors
+         who asked for less motion still get less motion. */
+      @media (prefers-reduced-motion: reduce) {
+        html[data-motion='on'] { scroll-behavior: smooth; }
+        html[data-motion='on'] .marquee-track { animation: marquee 40s linear infinite; }
+        html[data-motion='on'] .marquee-track:hover { animation-play-state: paused; }
+        html[data-motion='on'] .client-logo { transition: filter 0.3s ease; }
+      }
     </style>
   </head>
   <body>

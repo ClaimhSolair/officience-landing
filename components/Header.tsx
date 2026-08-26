@@ -4,6 +4,7 @@ import { Mail, Menu } from 'lucide-react';
 import { ASSETS } from '../assets';
 import Container from './ui/Container';
 import { ROUTES, useGoToSection } from './navigation';
+import { MOTION, MS, useScrolledPast } from '../lib/motion';
 
 const LOGO_URL = ASSETS.header.logo;
 
@@ -21,6 +22,13 @@ interface HeaderProps {
  * All navigation lives in the overlay menu — the bar itself carries only the
  * logo, the contact CTA, and the hamburger. The menu is rendered by the layout
  * rather than here, so it sits outside the region it makes inert.
+ *
+ * Once the page scrolls past a bar's height the blue goes translucent over a
+ * blur. It stays at 70% rather than the 30% a literal reading of "70% glass"
+ * would give: the lockup and icons are white, and over the light page a mostly
+ * transparent bar puts white on near-white. The alpha is applied only where
+ * `backdrop-filter` is supported, so browsers without it keep the solid bar
+ * instead of a washed-out one.
  */
 const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   const { pathname } = useLocation();
@@ -28,9 +36,17 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   // contact section to scroll to and the button used to do nothing at all.
   const goToSection = useGoToSection();
   const goToContact = () => goToSection('contact');
+  // One bar height at the narrowest breakpoint. The three heights differ by less
+  // than a flick of the wheel, so a single threshold reads the same at all of them.
+  const glass = useScrolledPast(69) && MOTION.headerGlass;
 
   return (
-      <header className="sticky top-0 z-50 bg-bg-primary">
+      <header
+        className={`sticky top-0 z-50 bg-bg-primary transition-[background-color,backdrop-filter] motion-reduce:transition-none ${
+          glass ? 'backdrop-blur-md supports-[backdrop-filter]:bg-bg-primary/70' : ''
+        }`}
+        style={{ transitionDuration: `${MS.glass}ms` }}
+      >
         <Container className="h-[69px] lg:h-[113px] 3xl:h-[119px] flex items-center justify-between gap-fig-16">
           {/* The lockup art is a single blue-on-transparent PNG shared with the
               old header; on this blue bar it is inverted to solid white rather

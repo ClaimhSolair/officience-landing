@@ -3,6 +3,14 @@ import SectionBadge from './ui/SectionBadge';
 import type { SurveyBranch } from '../types';
 
 /**
+ * Each office row opens its address in Google Maps. Requested by the team;
+ * Figma draws no link here, so it is recorded in the adapter as a deliberate
+ * behaviour divergence, the same class as the Cookie Settings entry.
+ */
+const mapsUrl = (address: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
+/**
  * Figma 3151:2444 (1920) and 3153:8776 (390).
  *
  * A light card on the blue. 1920 sets the heading beside the form and runs the
@@ -158,16 +166,24 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
             and lays the six out three-up on a 160px gutter. */}
         <ul className="grid gap-fig-12 p-fig-16 lg:grid-cols-3 lg:gap-x-fig-160 lg:gap-y-fig-48 lg:p-0">
           {OFFICES.map((office) => (
-            <li key={office.city} className="flex items-start gap-fig-8">
-              <LocationPin />
-              <div className="flex min-w-0 flex-1 flex-col gap-[2px] lg:gap-fig-8 lg:max-w-[383px]">
-                <p className="font-body font-bold text-[14px] leading-[22px] text-text-default lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
-                  {office.city}
-                </p>
-                <p className="font-body text-[12px] leading-[20px] text-subtitle lg:text-body-xl">
-                  {office.address}
-                </p>
-              </div>
+            <li key={office.city}>
+              <a
+                href={mapsUrl(office.address)}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Open ${office.city} office in Google Maps`}
+                className="group flex items-start gap-fig-8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                <LocationPin />
+                <div className="flex min-w-0 flex-1 flex-col gap-[2px] lg:gap-fig-8 lg:max-w-[383px]">
+                  <p className="font-body font-bold text-[14px] leading-[22px] text-text-default group-hover:text-text-primary transition-colors motion-reduce:transition-none lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
+                    {office.city}
+                  </p>
+                  <p className="font-body text-[12px] leading-[20px] text-subtitle group-hover:underline lg:text-body-xl">
+                    {office.address}
+                  </p>
+                </div>
+              </a>
             </li>
           ))}
         </ul>

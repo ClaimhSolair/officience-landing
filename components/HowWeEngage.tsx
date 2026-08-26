@@ -1,7 +1,9 @@
 import React from 'react';
 import Container from './ui/Container';
+import Reveal from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
 import ApproachMark, { type MarkName } from './ui/ApproachMark';
+import { MOTION } from '../lib/motion';
 
 /**
  * Figma 3144:3723 (1920) and 3137:2432 (390).
@@ -76,10 +78,23 @@ const HowWeEngage: React.FC = () => (
       {/* Steps. `items-start` is load-bearing: each rule is its own step's
           height, and the artboard draws the third one shorter because Run's
           copy is shorter. Stretching them would flatten that. */}
-      <ol className="flex flex-col gap-fig-40 md:flex-row md:items-start md:gap-fig-24 lg:gap-fig-120">
-        {STEPS.map((step) => (
-          <li
+      <ol className="flex flex-col gap-fig-40 overflow-x-clip md:flex-row md:items-start md:gap-fig-24 lg:gap-fig-120">
+        {STEPS.map((step, i) => (
+          <Reveal
+            as="li"
             key={step.number}
+            enabled={MOTION.approach}
+            /* interyo travels its cards 350px, but it does that inside a pinned
+               section where they start off-canvas. Unpinned, a 350px offset puts
+               a step outside its own clipped column — at 768 and below, entirely
+               outside — so the entrance can never reach the 25% visibility that
+               triggers it and the third step stays invisible forever. Measured:
+               24.6% intersection at 1440, 0% at 768. The travel is scaled to
+               what our columns can actually hold; the arrival still reads from
+               the right. Divergence recorded in the catalog. */
+            x={120}
+            y={0}
+            delay={i * 0.12}
             /* At 390 the rules run past the copy: the artboard gives its three
                steps 340/350/350px regardless of how much text each holds, so the
                rule length is a constant, not a consequence. One min-height says
@@ -107,7 +122,7 @@ const HowWeEngage: React.FC = () => (
                 {step.body}
               </p>
             </div>
-          </li>
+          </Reveal>
         ))}
       </ol>
     </Container>
