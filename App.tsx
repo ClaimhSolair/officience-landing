@@ -14,6 +14,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { ROUTES } from './components/navigation';
 import HomePage from './pages/HomePage';
 import type { SurveyBranch } from './types';
+import { MOTION_FORCED } from './lib/motion';
 
 // Legal copy is long and rarely read — it leaves the home bundle.
 const LegalPage = React.lazy(() => import('./pages/LegalPage'));
@@ -104,8 +105,9 @@ const Layout: React.FC = () => {
 
 const App = () => (
   // Every framer-motion animation in the tree collapses for visitors who ask
-  // their OS for reduced motion.
-  <MotionConfig reducedMotion="user">
+  // their OS for reduced motion — except when motion is forced on (an explicit
+  // ?motion=on, or a preview host); see MOTION_FORCED in lib/motion.
+  <MotionConfig reducedMotion={MOTION_FORCED ? 'never' : 'user'}>
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />

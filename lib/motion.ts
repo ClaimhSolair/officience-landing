@@ -152,9 +152,37 @@ const readOverride = (): 'on' | 'off' | null => {
 
 const MOTION_OVERRIDE = readOverride();
 
+/**
+ * Preview deploys exist to be reviewed, so motion defaults ON there — otherwise a
+ * reviewer whose machine requests reduced motion (Windows reports `reduce`
+ * whenever "Animation effects" is off, which is common) opens the shared link to
+ * a completely static page and reads the deploy as broken. Vercel serves every
+ * branch/preview build from a `*.vercel.app` host; the public production domain
+ * (officience.com) does not match, so it is untouched and still follows the OS
+ * preference. An explicit `?motion=on/off` still wins everywhere, so a preview
+ * visitor who wants less motion can still ask for it with `?motion=off`.
+ *
+ * (The Vercel-assigned production alias is also `*.vercel.app`, so it force-
+ * animates too — harmless: real, accessibility-facing traffic is on the custom
+ * domain, which stays OS-respecting.)
+ */
+const isPreviewHost = (): boolean =>
+  typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.app');
+
+const PREVIEW_DEFAULTS_ON = MOTION_OVERRIDE === null && isPreviewHost();
+
+/**
+ * Motion is *forced on*, bypassing the OS reduced-motion preference, when the URL
+ * asked for it or this is a preview host. Both gates must honour this together:
+ * `useMotionEnabled` (below) so the animated variants mount at all, and framer's
+ * own `MotionConfig reducedMotion` (App.tsx) so it does not strip every transform
+ * back out — leaving only opacity fades alive — on a reduced-motion machine.
+ */
+export const MOTION_FORCED = MOTION_OVERRIDE === 'on' || PREVIEW_DEFAULTS_ON;
+
 export const useMotionEnabled = (): boolean => {
   const reduced = useReducedMotion();
-  const enabled = MOTION_OVERRIDE ? MOTION_OVERRIDE === 'on' : !reduced;
+  const enabled = MOTION_OVERRIDE ? MOTION_OVERRIDE === 'on' : PREVIEW_DEFAULTS_ON || !reduced;
 
   useEffect(() => {
     document.documentElement.dataset.motion = enabled ? 'on' : 'off';
