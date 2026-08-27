@@ -20,11 +20,17 @@ interface ContainerProps {
   children: React.ReactNode;
   className?: string;
   as?: 'div' | 'section' | 'header' | 'footer' | 'nav';
+  /**
+   * Lands on the inner column — the element that actually holds the content —
+   * for callers that need to measure it (a pinned section deciding whether its
+   * composition fits the viewport). Same idiom as `Reveal.innerRef`.
+   */
+  innerRef?: React.Ref<HTMLDivElement>;
 }
 
-const Container: React.FC<ContainerProps> = ({ children, className = '', as: Tag = 'div' }) => (
+const Container: React.FC<ContainerProps> = ({ children, className = '', as: Tag = 'div', innerRef }) => (
   <Tag className="w-full px-fig-16 lg:px-fig-24 3xl:px-fig-64">
-    <div className={`mx-auto w-full max-w-content-2 ${className}`}>{children}</div>
+    <div ref={innerRef} className={`mx-auto w-full max-w-content-2 ${className}`}>{children}</div>
   </Tag>
 );
 

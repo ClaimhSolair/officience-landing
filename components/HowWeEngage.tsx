@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, type MotionValue, type Variants } from 'framer-motion';
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import { motion, useScroll, useSpring, useTransform, type MotionValue, type Variants } from 'framer-motion';
 import Container from './ui/Container';
 import { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
 import ApproachMark, { type MarkName } from './ui/ApproachMark';
-import { EASE, MOTION, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { EASE, HEADER_H, MOTION, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
 
 /**
  * Figma 3144:3723 (1920) and 3137:2432 (390).
@@ -30,7 +30,14 @@ import { EASE, MOTION, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled }
  * procession *is* the effect — the heading staying put is what the steps are
  * measured against — so this is the one place in the pass that spends page height
  * on a pin. Below lg it is unpinned and the steps arrive as they are scrolled to,
- * which is what interyo itself ships at 390.
+ * which is what interyo itself ships at 390. The pin is also dropped on any
+ * viewport too short to hold the composition between the header and the fold —
+ * measured at runtime — so a fixed-height frame never spills its copy into the
+ * sections above and below it; it degrades to those same unpinned arrivals.
+ *
+ * Each step's travel is scrubbed then sprung: the raw map ties it to the
+ * scrollbar, the spring lets one flick carry it the rest of the way in smoothly
+ * instead of stopping dead where the wheel stopped.
  */
 
 interface Step {
@@ -72,9 +79,9 @@ const STEPS: Step[] = [
  * without it the last step is still arriving as the pin lets go, and the whole
  * procession reads as unfinished.
  */
-const START = 0.08;
-const PITCH = 0.28;
-const SPAN = 0.26;
+const START = 0.06;
+const PITCH = 0.3;
+const SPAN = 0.14;
 
 /** Unpinned fallback: the same arrival, on its own clock. */
 const STEP_VARIANTS: Variants = {
@@ -101,18 +108,21 @@ const StepItem: React.FC<{
   index: number;
   progress: MotionValue<number>;
   pinned: boolean;
+  compact: boolean;
   motionOn: boolean;
-}> = ({ step, index, progress, pinned, motionOn }) => {
+}> = ({ step, index, progress, pinned, compact, motionOn }) => {
   const from = START + index * PITCH;
   const to = from + SPAN;
 
-  // The full 350px interyo measures. Safe here in a way it was not before: the
-  // step travels inside a pinned frame that clips its own overflow, so the offset
-  // never has to be small enough to keep an observer happy.
-  const x = useTransform(progress, [from, to], [350, 0], { clamp: true });
-  // Opacity finishes a little ahead of the travel, so the step is readable for
-  // the last of its journey rather than arriving and only then becoming visible.
-  const opacity = useTransform(progress, [from, to - 0.08], [0, 1], { clamp: true });
+  // The full 350px interyo measures, over a narrow window so one flick spans it.
+  // The raw map welds the step to the scrollbar; springing it lets that flick
+  // carry the step the rest of the way in rather than halting it where the wheel
+  // stopped. Overdamped (zeta > 1), so it settles on the anchor without overshoot.
+  const xRaw = useTransform(progress, [from, to], [350, 0], { clamp: true });
+  const x = useSpring(xRaw, { stiffness: 70, damping: 22, restDelta: 0.5 });
+  // Opacity finishes in the first part of the window, so the step is legible for
+  // most of its slide rather than arriving and only then becoming visible.
+  const opacity = useTransform(progress, [from, from + SPAN * 0.6], [0, 1], { clamp: true });
 
   return (
     <motion.li
@@ -134,7 +144,7 @@ const StepItem: React.FC<{
         <ApproachMark name={step.mark} className={step.markClass} />
       </div>
 
-      <div className="mt-fig-24 flex flex-col gap-fig-8 lg:mt-fig-116 lg:gap-fig-24">
+      <div className={`mt-fig-24 flex flex-col gap-fig-8 lg:gap-fig-24 ${compact ? 'lg:mt-fig-64' : 'lg:mt-fig-116'}`}>
         <h3 className="font-sans text-h3 text-text-primary lg:text-display-sm">{step.name}</h3>
         <p className="font-body text-body-lg text-text-default lg:text-subtitle-2">{step.body}</p>
       </div>
@@ -144,21 +154,53 @@ const StepItem: React.FC<{
 
 const HowWeEngage: React.FC = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const motionOn = useMotionEnabled();
   const wide = useMinWidth(1024);
-  const pinned = motionOn && wide && MOTION.approach;
+
+  // A pinned frame is its own composition, tighter than the flow rhythm so it
+  // fits between the header and the fold on more viewports. The pin only holds
+  // if the composition actually fits there; on a short laptop it does not, and
+  // the section degrades to the unpinned staggered arrivals interyo ships at
+  // mobile rather than spilling its copy into the neighbouring bands.
+  const compact = motionOn && MOTION.approach;
+  const wantsPin = compact && wide;
+  const [fits, setFits] = useState(true);
+  const pinned = wantsPin && fits;
+
+  useLayoutEffect(() => {
+    if (!wantsPin) {
+      setFits(true);
+      return;
+    }
+    const el = contentRef.current;
+    if (!el) return;
+    const measure = () => {
+      const h = el.offsetHeight;
+      // 119 is the tallest header (3xl); using it keeps the check honest at every
+      // breakpoint rather than promising a fit the 3xl bar would eat.
+      setFits(h > 0 && h <= window.innerHeight - HEADER_H.xl3);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener('resize', measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [wantsPin]);
 
   // Runs from the moment the section's top reaches the top of the screen until
-  // its bottom reaches the bottom — which, at 220vh against a 100vh viewport, is
-  // 120vh of scroll spent pinned.
+  // its bottom reaches the bottom — 90vh of scroll spent pinned at 190vh.
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] });
 
   return (
     <section id="approach" className="bg-bg-secondary">
       {/* The extra height only exists when something is pinned to it. With motion
-          off, or below lg, the wrapper collapses to its contents so nobody
-          scrolls through a runway with nothing on it. */}
-      <div ref={wrapRef} className={`relative ${pinned ? 'lg:h-[220vh]' : ''}`}>
+          off, below lg, or on a viewport too short to hold the deck, the wrapper
+          collapses to its contents so nobody scrolls through an empty runway. */}
+      <div ref={wrapRef} className={`relative ${pinned ? 'lg:h-[190vh]' : ''}`}>
         <div
           className={`${
             pinned
@@ -166,7 +208,12 @@ const HowWeEngage: React.FC = () => {
               : ''
           } overflow-x-clip`}
         >
-          <Container className="flex flex-col gap-fig-32 py-fig-32 lg:gap-fig-146 lg:py-fig-100">
+          <Container
+            innerRef={contentRef}
+            className={`flex flex-col gap-fig-32 py-fig-32 ${
+              compact ? 'lg:gap-fig-64 lg:py-fig-40' : 'lg:gap-fig-146 lg:py-fig-100'
+            }`}
+          >
             {/* Header. The blurb sits bottom-aligned against the title at desktop,
                 in a 600px block flush with the content edge. Pinned, this is the
                 part that holds still while the steps arrive against it. */}
@@ -215,6 +262,7 @@ const HowWeEngage: React.FC = () => {
                   index={i}
                   progress={scrollYProgress}
                   pinned={pinned}
+                  compact={compact}
                   motionOn={motionOn}
                 />
               ))}

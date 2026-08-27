@@ -476,3 +476,65 @@ plus partner tiles.
 433px from a top of 449px, so on viewports under about 890px tall its lower edge sits below the fold
 until the deck releases. Nothing is clipped — the row is complete and scrolling reveals it — but on a
 short laptop the fourth "View Brochure" button is briefly out of sight.
+
+## v6 — review-fix pass (2026-08-27)
+
+The user reviewed the v5 build (`b77be4a`) on a ~1920x950 laptop and filed ten
+findings. Fixes, with the measurements behind them:
+
+**Counters were dead at zero — the observer sat on the clipped tape.**
+`whileInView` was on the 50-glyph tape inside its one-glyph `overflow-hidden`
+window, so its intersection ratio could never exceed ~2% and the roll never
+fired. Fixed by observing the odometer's root line (one glyph tall, never
+clipped) with `useInView(root, { once, amount: 0.5 })` and driving the tapes off
+that boolean. Verified: 9/9 tapes roll at every width 375-1920 and every height.
+
+**The Approach/Proven overlap was two height-budget failures.** Both pinned
+frames sized only their own content/card against the viewport and ignored the
+header + section chrome, so on a sub-1080 laptop a ~1300px column pinned into a
+~960px frame and bled its copy into the neighbours. Now:
+
+- Approach measures its (compressed) composition at runtime and pins only if it
+  clears `innerHeight - 119`; else it degrades to the unpinned staggered arrivals
+  interyo ships at mobile. Runway 220vh -> 190vh; step windows
+  START .06 / PITCH .30 / SPAN .14; each step x is useSpring'd (70/22) so one
+  flick carries it in smoothly.
+- Proven budgets the whole column (chrome = column padding + header block + its
+  margin, computed directly so it is invariant to the pin/dots state) against
+  `innerHeight - 119`, and the scaled track now reserves its reduced height on a
+  wrapper so the LAYOUT shrinks with the scale. A CSS scale alone shrinks only
+  the paint, leaving the full card height in flow — which is why v5 still bled.
+  Chrome compressed hard while pinned (py-24, mb-24, dots hidden) so both pins
+  engage at ~1920x950, not only at 1080.
+
+Verified: sections contiguous, overlap 0 (capabilities/approach/proven/clients);
+`contentH <= frameH` (no bleed) at heights 800-1080 x widths 1280-1920; both pins
+fall back cleanly below their fit floor; both scrub when scrolled (approach steps
+translate, proven track x=-330 scale .959 mid-runway); motion=off is plain flow
+with no dead runway.
+
+**Item 10 retimed.** Zoom removed outright (fade + lift only); the track holds
+for the first 8% so the first card is fully read before it rolls; cards already on
+screen at pin-start render settled (null window), not dimmed. User override of
+nava's measured zoom-settle.
+
+**Retunes.** Flower (item 3): scale+spin scrub replaced by a once-only fade to
+opacity 1 (moonx law retired). Manifesto (item 5): sweep window
+['start .85', 'start .35'] — about half a viewport, finishing while on screen.
+Services (item 8): the `cover` value is sprung (120/28) so the deck stops snapping
+per wheel notch. "Discover Our Story" CTA hidden behind SHOW_STORY_CTA=false
+(destination not ready); markup kept.
+
+**Legal pages:** content bottom padding raised (pb-fig-64 / lg:pb-fig-146) for air
+above the footer — divergence from the artboard, on request.
+
+**Still open — item 11 (marquee colour):** six logos (Mailjet, Auchan, B-process,
+Saur, Abaca, Diana) render greyscale because the served webp were exported WITH
+Figma's luminosity-blend baked in — the CSS reveal is correct, the bytes are not.
+Faithful re-export needs the Figma Dev-Mode MCP (down at fix time). Diana is a
+genuinely monochrome logo, nothing to reveal. Pending a colour-source decision
+plus a gated R2 upload (ASSET_VERSION 12 -> 13).
+
+Known pre-existing (unchanged): `#about` section_view peak ratio is 0.318 at 1080
+but 0.28 at ~950 (the section is ~3400px tall); marginally improved by hiding the
+CTA.

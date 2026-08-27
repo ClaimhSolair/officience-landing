@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
+import { motion, useScroll, useSpring, useTransform, type MotionValue } from 'framer-motion';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Container from './ui/Container';
 import Reveal, { RevealChild } from './ui/Reveal';
@@ -109,7 +109,11 @@ const ServiceRow: React.FC<{
   children: React.ReactNode;
 }> = ({ index, total, progress, decking, children }) => {
   const from = index / total;
-  const cover = useTransform(progress, (p) => Math.min(1, Math.max(0, (p - from) / (1 - from))));
+  // Spring the raw cover value before deriving the scale and dim, so both ease
+  // between wheel notches instead of snapping a step at each one — the jagging
+  // the review reported. Overdamped, so a covered row never bounces.
+  const coverRaw = useTransform(progress, (p) => Math.min(1, Math.max(0, (p - from) / (1 - from))));
+  const cover = useSpring(coverRaw, { stiffness: 120, damping: 28, restDelta: 0.001 });
   const scale = useTransform(cover, [0, 1], [1, 0.98]);
   const filter = useTransform(cover, (t) => `brightness(${1 - 0.03 * t})`);
 

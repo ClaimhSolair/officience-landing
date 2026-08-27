@@ -50,8 +50,13 @@ const LegalPage: React.FC<{ doc: LegalDoc }> = ({ doc }) => {
       {/* 1440 draws 448 / 140 / 804 across the 1392 content column, with the rule
           centred in the gap. Figma stops that rule after ~843px — about the height
           of the contents card — but with the panel sticky it runs the full column
-          here, which is what a column divider is for. */}
-      <Container className="flex flex-col gap-fig-24 py-fig-32 lg:flex-row lg:gap-0 lg:py-fig-64">
+          here, which is what a column divider is for.
+
+          The bottom padding is deliberately larger than the top: the artboard sets
+          the body tight to the footer, and the 2026-08-27 review asked for real air
+          between the last block and the blue footer band. Divergence from Figma's
+          spacing, on request. */}
+      <Container className="flex flex-col gap-fig-24 pb-fig-64 pt-fig-32 lg:flex-row lg:gap-0 lg:pb-fig-146 lg:pt-fig-64">
         <div className="lg:mr-[70px] lg:w-[448px] lg:shrink-0">
           <LegalToc sections={sections} />
         </div>

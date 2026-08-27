@@ -17,7 +17,7 @@ const R2 = R2_STAGING;
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '12';
+const ASSET_VERSION = '13';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 /** One `srcset` candidate: a URL and the intrinsic width it was encoded at. */

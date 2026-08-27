@@ -136,6 +136,13 @@ const scrubbedWords = (text: string, startIndex: number, toneClass: string) => {
 const MANIFESTO_CHARS = MANIFESTO_LEAD.length + 1 + MANIFESTO_REST.trim().length;
 
 /**
+ * The "Discover Our Story" CTA is hidden for now (2026-08-27 review) rather than
+ * removed — the destination isn't ready to link. Flip to true to restore it; the
+ * markup and its wiring stay in place.
+ */
+const SHOW_STORY_CTA = false;
+
+/**
  * One story card. It pins under the header while the next card slides over it,
  * scaling to 0.90 by the time the group releases, and its photo settles out of a
  * 1.2x zoom as the card arrives (`.claude/motion-catalog.md`, items 4 and 7).
@@ -240,14 +247,15 @@ const AboutUs: React.FC = () => {
     offset: ['start start', 'end end'],
   });
 
-  // The frontier crosses the whole string across roughly eight tenths of a
-  // viewport: it starts when the paragraph top is 72% down the screen and
-  // finishes just after that top leaves. Expressed in viewport terms rather than
-  // the reference's characters-per-pixel, which would make our sweep length an
-  // accident of how long this copy happens to be.
+  // The frontier crosses the whole string across about half a viewport of
+  // scroll — roughly two flicks — and finishes while the paragraph is still
+  // fully on screen (its top a third of the way down), rather than lighting the
+  // last characters only after the top has scrolled off, which read as too slow.
+  // Expressed in viewport terms rather than the reference's characters-per-pixel,
+  // so the sweep length is not an accident of how long this copy happens to be.
   const { scrollYProgress: sweep } = useScroll({
     target: manifestoRef,
-    offset: ['start 0.72', 'start -0.09'],
+    offset: ['start 0.85', 'start 0.35'],
   });
   const frontier = useTransform(sweep, [0, 1], [0, MANIFESTO_CHARS + 2]);
   const sweeping = motionOn && MOTION.manifesto;
@@ -279,6 +287,7 @@ const AboutUs: React.FC = () => {
             >
               {lead.nodes} {rest.nodes}
             </motion.p>
+            {SHOW_STORY_CTA && (
             <RevealChild as="span" y={20} duration={SEC.revealFast} className="inline-block">
             <a
               href={DISCOVER_OUR_STORY.target.kind === 'external' ? DISCOVER_OUR_STORY.target.href : EXTERNAL.about}
@@ -290,6 +299,7 @@ const AboutUs: React.FC = () => {
               <ArrowRight className="h-[20px] w-[20px] shrink-0" strokeWidth={2} aria-hidden="true" />
             </a>
             </RevealChild>
+            )}
           </div>
         </Reveal>
 

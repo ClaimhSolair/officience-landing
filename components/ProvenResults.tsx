@@ -7,7 +7,7 @@ import Button from './ui/Button';
 import SectionBadge from './ui/SectionBadge';
 import CarouselDots from './ui/CarouselDots';
 import Reveal, { RevealChild } from './ui/Reveal';
-import { EASE, MOTION, SEC, STAGGER, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { EASE, HEADER_H, MOTION, PINNED_H, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
 import { EXTERNAL, VIEW_ALL_WORK } from './navigation';
 
 /**
@@ -31,16 +31,19 @@ import { EXTERNAL, VIEW_ALL_WORK } from './navigation';
  *
  * **Motion (item 10, nava-studio).** From lg, and on viewports tall enough to
  * hold the deck, the section pins and vertical scrolling drives the track
- * sideways, each card settling out of a 1.2x zoom as it arrives. The arrows go
- * with it: Figma never drew them, so retiring them at that width returns the
- * section to what the artboards actually show. Below lg, and wherever the pin
- * will not fit, the swipe rail and its controls are exactly as they shipped.
+ * sideways. The deck holds still until the first card is fully read, then rolls;
+ * a card entering from beyond the right edge fades and lifts into place, and the
+ * cards already on screen are shown settled. No zoom — the review removed it. The
+ * arrows go with the pin: Figma never drew them, so retiring them at that width
+ * returns the section to what the artboards actually show. Below lg, and wherever
+ * the pin will not fit, the swipe rail and its controls are exactly as shipped.
  *
  * One divergence, flagged. While pinned the deck **scales to fit the viewport
- * height**: our card is 800px tall and a pinned frame on a 900px-tall laptop has
- * about 674px to give it, so at 1920x1080 the deck is 1:1 with the artboard and
- * below that it is proportionally smaller. Transform only, so the ratio the
- * design approved is never distorted, only reduced.
+ * height**, budgeting the whole column — header, paddings and card — against the
+ * space below the header it pins beneath. At 1920x1080 that is 1:1 with the
+ * artboard; on a shorter laptop it is proportionally smaller, and once the
+ * reduction would pass ~30% the section keeps the swipe rail instead. Transform
+ * only, so the ratio the design approved is never distorted, only reduced.
  */
 
 interface Project {
@@ -113,22 +116,39 @@ const Tag: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 interface Geometry {
   /** How far the track travels, in screen pixels after scaling. */
   travel: number;
-  /** Proportional reduction so an 800px card fits the pinned frame. */
+  /** Proportional reduction so the whole deck fits the pinned frame. */
   scale: number;
+  /**
+   * The scaled track's visual height, reserved on the track's wrapper so the
+   * reduction actually shrinks the column's *layout* — a CSS scale alone shrinks
+   * only the paint, leaving the full card height in flow and the column still
+   * overflowing the frame (the v5 bleed).
+   */
+  trackH: number;
   /** Total height of the scroll wrapper, in pixels. */
   height: number;
-  /** Per-card `[start, end]` in wrapper progress. */
-  windows: [number, number][];
+  /**
+   * Per-card `[start, end]` in wrapper progress, or `null` for a card already on
+   * screen when the pin engages — those are shown settled, not animated in.
+   */
+  windows: ([number, number] | null)[];
 }
 
 /**
  * Below this the deck would be too small to be worth pinning for, so the section
- * keeps the swipe rail instead. It is the honest floor: an 800px card in the
- * ~670px a 1280x800 laptop can offer is already a 28% reduction.
+ * keeps the swipe rail instead. It is the honest floor: on a laptop short enough
+ * to force more than a 30% reduction the pin isn't worth the page height.
  */
 const MIN_SCALE = 0.7;
 /** Track pixels per pixel of scroll — nava runs about 1.14. */
 const RATE = 1.15;
+/**
+ * The deck holds still for the first slice of the runway, so the first card is
+ * fully read before anything rolls — the arrival the review asked for, "only once
+ * the first card is fully on screen". The per-card windows map through the same
+ * hold so a card's fade begins exactly as it enters, not before.
+ */
+const HOLD = 0.08;
 
 /**
  * Measures the deck. Everything here is layout geometry (`offsetLeft`,
@@ -136,7 +156,7 @@ const RATE = 1.15;
  * transforms — so a measurement taken while the track is mid-scrub returns the
  * same answer as one taken at rest.
  */
-const measureDeck = (track: HTMLElement): Geometry | null => {
+const measureDeck = (track: HTMLElement, chrome: number): Geometry | null => {
   const kids = Array.from(track.children) as HTMLElement[];
   if (kids.length < 2) return null;
 
@@ -145,8 +165,19 @@ const measureDeck = (track: HTMLElement): Geometry | null => {
   const cardH = kids[0].offsetHeight;
   if (!inner || !cardH) return null;
 
-  const scale = Math.min(1, (window.innerHeight - 96) / cardH);
+  // The scale must clear the *whole* pinned column, not just the card: the header
+  // block, the section paddings and the dots row all take vertical space beside
+  // the deck (`chrome`, measured), and the frame is the viewport less the header
+  // it pins beneath. Budgeting the card alone is what let a 1,300px column pin
+  // into a 900px frame and bleed into the neighbouring sections.
+  // Budget against the tallest header (119, 3xl) so the check never promises a
+  // fit the 3xl bar would eat; at lg the 6px slack just centres.
+  const frame = window.innerHeight - HEADER_H.xl3;
+  const scale = Math.min(1, (frame - chrome) / cardH);
   if (scale < MIN_SCALE) return null;
+  // Reserved on the wrapper so the column's layout height drops with the scale,
+  // not just its paint. Without this the column stays cardH tall and overflows.
+  const trackH = cardH * scale;
 
   const origin = kids[0].offsetLeft;
   const last = kids[kids.length - 1];
@@ -154,18 +185,21 @@ const measureDeck = (track: HTMLElement): Geometry | null => {
   const travel = contentW - inner;
   if (travel <= 0) return null;
 
-  // A card's window opens as its left edge crosses the right edge of the frame
-  // and closes once it is most of the way in. Cards already on screen when the
-  // pin starts clamp to the beginning and take a small offset each, so they
-  // arrive in order instead of all at once.
-  const windows = kids.map((kid, i) => {
+  // A card already within the frame when the pin engages gets no window — it is
+  // rendered settled. The rest open as their left edge crosses the right edge of
+  // the frame and close once they are most of the way in, mapped through HOLD so
+  // the fade begins exactly as the track brings the card into view.
+  const windows = kids.map((kid) => {
     const left = (kid.offsetLeft - origin) * scale;
-    const start = Math.max(i * 0.02, (left - inner) / travel);
-    const end = Math.min(1, start + Math.max(0.1, (kid.offsetWidth * scale * 0.7) / travel));
+    if (left <= inner) return null;
+    const startRaw = (left - inner) / travel;
+    const start = HOLD + (1 - HOLD) * startRaw;
+    const span = (Math.max(0.1, (kid.offsetWidth * scale * 0.7) / travel)) * (1 - HOLD);
+    const end = Math.min(1, start + span);
     return [start, Math.max(end, start + 0.05)] as [number, number];
   });
 
-  return { travel, scale, height: window.innerHeight + travel / RATE, windows };
+  return { travel, scale, trackH, height: window.innerHeight + travel / RATE, windows };
 };
 
 /**
@@ -174,24 +208,25 @@ const measureDeck = (track: HTMLElement): Geometry | null => {
  * the card's box never crosses the viewport vertically. Unpinned, it keeps the
  * timed entrance the section shipped with.
  *
- * The zoom settles at 1, not at nava's 1.1: our crop is the approved one, so the
- * zoom may only ever be a way in to it, never a permanent re-frame.
+ * No zoom: the review removed nava's zoom-settle outright, so a card only fades
+ * and lifts into place and its crop never changes. Recorded in the catalog as a
+ * user override of the measured reference law.
  */
 const WorkCard: React.FC<{
   className: string;
   media: { src: string; srcSet: string; alt: string };
   progress: MotionValue<number>;
-  window?: [number, number];
+  window?: [number, number] | null;
   pinned: boolean;
   children: React.ReactNode;
 }> = ({ className, media, progress, window: win, pinned, children }) => {
-  const motionOn = useMotionEnabled();
   const [start, end] = win ?? [0, 1];
   const settle = start + (end - start) * 0.8;
 
-  const imgScale = useTransform(progress, [start, end], [1.2, 1], { clamp: true });
-  const imgOpacity = useTransform(progress, [start, settle], [0.1, 1], { clamp: true });
-  const cardY = useTransform(progress, [start, end], [56, 0], { clamp: true });
+  // Fade and lift only — no scale. Both hooks run unconditionally so the count
+  // stays stable when a resize flips a card between windowed and settled.
+  const imgOpacity = useTransform(progress, [start, settle], [0.35, 1], { clamp: true });
+  const cardY = useTransform(progress, [start, end], [32, 0], { clamp: true });
 
   const imgCls = 'h-[220px] w-full object-cover lg:h-[550px]';
   const imgProps = {
@@ -203,9 +238,19 @@ const WorkCard: React.FC<{
   };
 
   if (pinned) {
+    // On screen when the pin engages (null window): shown settled, so the deck
+    // never opens on a row of dimmed, half-arrived cards.
+    if (!win) {
+      return (
+        <motion.article className={className}>
+          <img {...imgProps} className={imgCls} />
+          {children}
+        </motion.article>
+      );
+    }
     return (
       <motion.article className={className} style={{ y: cardY }}>
-        <motion.img {...imgProps} className={imgCls} style={{ scale: imgScale, opacity: imgOpacity }} />
+        <motion.img {...imgProps} className={imgCls} style={{ opacity: imgOpacity }} />
         {children}
       </motion.article>
     );
@@ -217,8 +262,8 @@ const WorkCard: React.FC<{
         <motion.img
           {...imgProps}
           className={imgCls}
-          initial={motionOn ? { scale: 1.2, opacity: 0.1 } : { opacity: 0.1 }}
-          whileInView={{ scale: 1, opacity: 1 }}
+          initial={{ opacity: 0.1 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: SEC.revealBase, ease: [...EASE.reveal] }}
         />
@@ -232,6 +277,9 @@ const WorkCard: React.FC<{
 
 const ProvenResults: React.FC = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const columnRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const deckRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const motionOn = useMotionEnabled();
   const wide = useMinWidth(1024);
@@ -253,14 +301,33 @@ const ProvenResults: React.FC = () => {
       setGeom(null);
       return;
     }
-    const el = trackRef.current;
-    if (!el) return;
+    const track = trackRef.current;
+    const col = columnRef.current;
+    const header = headerRef.current;
+    if (!track || !col || !header) return;
 
-    const read = () => setGeom(measureDeck(el));
+    // `chrome` is the persistent non-deck height when pinned: the column's own
+    // top+bottom padding plus the header block and its bottom margin. Computed
+    // from those parts directly rather than as `column - deck`, so it stays
+    // invariant whether or not the deck is currently pinned or the dots row is
+    // currently rendered — both of which would otherwise make the estimate chase
+    // its own tail across re-measures.
+    const read = () => {
+      const cs = getComputedStyle(col);
+      const hcs = getComputedStyle(header);
+      const chrome =
+        parseFloat(cs.paddingTop) +
+        parseFloat(cs.paddingBottom) +
+        header.offsetHeight +
+        parseFloat(hcs.marginBottom);
+      setGeom(measureDeck(track, Math.max(0, chrome)));
+    };
     read();
 
     const ro = new ResizeObserver(read);
-    ro.observe(el);
+    ro.observe(track);
+    ro.observe(col);
+    ro.observe(header);
     window.addEventListener('resize', read);
     return () => {
       ro.disconnect();
@@ -269,9 +336,10 @@ const ProvenResults: React.FC = () => {
   }, [wantsPin]);
 
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] });
-  // Springing the scrubbed value is what gives the deck nava's soft landing:
-  // without it the track is welded to the scrollbar and stops dead.
-  const trackX = useSpring(useTransform(scrollYProgress, [0, 1], [0, -(geom?.travel ?? 0)]), {
+  // Held for the first slice (HOLD) so the first card is read before the roll,
+  // then springing the scrubbed value gives the deck nava's soft landing —
+  // without the spring the track is welded to the scrollbar and stops dead.
+  const trackX = useSpring(useTransform(scrollYProgress, [HOLD, 1], [0, -(geom?.travel ?? 0)]), {
     stiffness: 90,
     damping: 30,
     restDelta: 0.5,
@@ -331,12 +399,15 @@ const ProvenResults: React.FC = () => {
         <div
           className={
             pinned
-              ? 'sticky top-0 flex h-screen flex-col justify-center overflow-x-clip'
+              ? `sticky ${STICKY_TOP} flex ${PINNED_H} flex-col justify-center overflow-x-clip`
               : ''
           }
         >
-          <div className="flex flex-col py-fig-32 lg:py-fig-120">
-            <Container className="mb-fig-24 flex flex-col gap-fig-8 lg:mb-fig-100 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32">
+          {/* Compressed hard while pinning so the whole column — heading plus the
+              800px card — clears the header on a maximised 1080p laptop (~950px of
+              viewport), not only on a full 1080; full flow rhythm otherwise. */}
+          <div ref={columnRef} className={`flex flex-col py-fig-32 ${wantsPin ? 'lg:py-fig-24' : 'lg:py-fig-120'}`}>
+            <Container innerRef={headerRef} className={`mb-fig-24 flex flex-col gap-fig-8 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32 ${wantsPin ? 'lg:mb-fig-24' : 'lg:mb-fig-100'}`}>
               <Reveal as="div" stagger={STAGGER.base} className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
                 <RevealChild as="span" y={20} duration={SEC.revealFast}>
                   <SectionBadge>Proof Of Work</SectionBadge>
@@ -361,8 +432,14 @@ const ProvenResults: React.FC = () => {
             </Container>
 
             {/* Full-bleed to 1920 so the padding lands on the same gutters Container
-                uses, while the next card can still peek past the content edge. */}
-            <div className="mx-auto w-full max-w-[1920px]">
+                uses, while the next card can still peek past the content edge. When
+                pinned it reserves the scaled deck's height, so scaling the track
+                shrinks the column's layout and not merely its paint. */}
+            <div
+              ref={deckRef}
+              className="mx-auto w-full max-w-[1920px]"
+              style={pinned ? { height: geom.trackH } : undefined}
+            >
               <motion.div
                 ref={trackRef}
                 tabIndex={pinned ? undefined : 0}
@@ -379,7 +456,7 @@ const ProvenResults: React.FC = () => {
                 }`}
                 style={
                   pinned
-                    ? { x: trackX, scale: geom.scale, transformOrigin: '0% 50%' }
+                    ? { x: trackX, scale: geom.scale, transformOrigin: '0% 0%' }
                     : undefined
                 }
               >
@@ -447,8 +524,11 @@ const ProvenResults: React.FC = () => {
 
             {/* Dots at 390 as drawn. The arrows only exist for the hand-driven
                 rail — once scrolling drives the deck there is nothing for them to
-                do, and Figma never drew them in the first place. */}
-            <Container className="mt-fig-24 lg:mt-fig-40">
+                do, and Figma never drew them in the first place. Hidden entirely
+                while pinned: at lg the dots are already hidden and the arrows are
+                gone, so this would otherwise be 40px of empty chrome the pin
+                cannot afford. */}
+            <Container className={`mt-fig-24 lg:mt-fig-40 ${pinned ? 'lg:hidden' : ''}`}>
               <CarouselDots
                 containerRef={trackRef}
                 count={PROJECTS.length + 1}

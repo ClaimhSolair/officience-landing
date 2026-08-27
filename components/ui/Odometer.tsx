@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { EASE, SEC, useMotionEnabled } from '../../lib/motion';
 
 /**
@@ -22,6 +22,12 @@ import { EASE, SEC, useMotionEnabled } from '../../lib/motion';
  * Duration is the one number in the catalog that is not measured: salient's roll
  * renders pre-completed under automation, headed and headless alike, so it was
  * never captured. `MS.counter` is set by eye against the reference.
+ *
+ * The roll is triggered by observing the **root line**, which is one glyph tall
+ * and never clipped — not the tape, which lives inside a one-glyph
+ * `overflow-hidden` window and can therefore never report more than ~2% of
+ * itself to an observer, which is why an earlier `whileInView` on the tape never
+ * fired and every counter sat at zero.
  */
 const GLYPHS = Array.from({ length: 50 }, (_, i) => i % 10);
 
@@ -32,6 +38,11 @@ interface OdometerProps {
 
 const Odometer: React.FC<OdometerProps> = ({ value }) => {
   const motionOn = useMotionEnabled();
+  // Observe the root, not the tape (see the docblock). `once` so the roll never
+  // rewinds; `amount: 0.5` so it fires as the line reaches the middle of the
+  // screen — "the moment the user scrolls to it", as asked.
+  const rootRef = useRef<HTMLSpanElement>(null);
+  const inView = useInView(rootRef, { once: true, amount: 0.5 });
 
   // Nothing to roll for a visitor who asked for less motion, and no reason to
   // ship 50 glyphs per digit to them either.
@@ -46,7 +57,7 @@ const Odometer: React.FC<OdometerProps> = ({ value }) => {
   return (
     <>
       <span className="sr-only">{value}</span>
-      <span aria-hidden="true" className="inline-flex">
+      <span ref={rootRef} aria-hidden="true" className="inline-flex">
         {[...value].map((ch, i) => {
           if (!/[0-9]/.test(ch)) {
             return (
@@ -54,8 +65,7 @@ const Odometer: React.FC<OdometerProps> = ({ value }) => {
                 key={`${ch}-${i}`}
                 className="inline-block"
                 initial={{ scale: 0, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
-                viewport={{ once: true, amount: 0.6 }}
+                animate={inView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
                 transition={{ duration: SEC.suffixPop, ease: [...EASE.roll], delay: suffixDelay }}
               >
                 {ch}
@@ -72,8 +82,7 @@ const Odometer: React.FC<OdometerProps> = ({ value }) => {
               <motion.span
                 className="absolute inset-x-0 top-0 block"
                 initial={{ y: '0%' }}
-                whileInView={{ y: `-${(10 + digit) * 2}%` }}
-                viewport={{ once: true, amount: 0.6 }}
+                animate={inView ? { y: `-${(10 + digit) * 2}%` } : { y: '0%' }}
                 transition={{ duration: SEC.counter, ease: EASE.counter, delay }}
               >
                 {GLYPHS.map((g, k) => (
