@@ -610,3 +610,23 @@ band's transit) so it is reliably 0 before scroll and still fading as the band
 reaches centre; **counters** slowed (`MS.counter` 1500->2250, stagger 90->110)
 and armed a 400ms beat *after* the sweep fully completes (`sweep >= 0.999`), so
 the count-up reads as a clear second act rather than firing on the sweep's tail.
+
+## v6.3 — odometer motion blur (2026-08-27)
+
+The milestone counter now rolls with a **vertical motion blur** matching the
+reference the user supplied: the digits smear along the roll axis while they spin
+and snap crisp the instant they land ("numbers rolling up").
+
+Implemented per digit as a y-only SVG Gaussian blur (`feGaussianBlur
+stdDeviation="0 n"`) applied to the **one-glyph window** (not the 50-glyph tape,
+so it is cheap). `n` is a `useMotionValue` fed to the filter via
+`useMotionTemplate\`0 ${blur}\`` on a `motion.feGaussianBlur`, animated 0 → 8 → 0
+over the roll with `animate()` (peak at ~18%, the fastest part under easeOut).
+Extracted a `Digit` sub-component so each digit owns its own filter id, blur
+value and animation. Vertical-only keeps the digits horizontally sharp — it reads
+as motion, not out-of-focus (a uniform CSS `blur()` would fuzz both axes).
+
+Verified by screenshot at 1920x950: heavy vertical smear mid-roll (matches the
+reference), crisp `6 / 200 / 20 / 500+` at settle; no overflow at 1440/390,
+counters 9/9. Reduced motion unchanged (renders the final value statically, no
+filter).

@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import React, { useEffect, useId, useRef } from 'react';
+import { animate, motion, useInView, useMotionTemplate, useMotionValue } from 'framer-motion';
 import { EASE, SEC, useMotionEnabled } from '../../lib/motion';
 
 /**
@@ -19,6 +19,13 @@ import { EASE, SEC, useMotionEnabled } from '../../lib/motion';
  *
  * Digits carry no descenders, so that tight line box crops nothing.
  *
+ * Each spinning digit carries a **vertical motion blur** that peaks early in the
+ * roll and resolves to zero as it settles — the smear a physical counter shows
+ * as the numbers fly past, sharp again the instant they stop. It is a real
+ * directional (y-only) Gaussian blur on the window, its amount animated on the
+ * filter itself, so the digits stay crisp horizontally and only streak along the
+ * axis they travel. The requested "numbers rolling up" look.
+ *
  * Duration is the one number in the catalog that is not measured: salient's roll
  * renders pre-completed under automation, headed and headless alike, so it was
  * never captured. `MS.counter` is set by eye against the reference.
@@ -30,6 +37,62 @@ import { EASE, SEC, useMotionEnabled } from '../../lib/motion';
  * fired and every counter sat at zero.
  */
 const GLYPHS = Array.from({ length: 50 }, (_, i) => i % 10);
+
+/** Peak vertical blur (SVG stdDeviation on the y axis) at the fastest part of the roll. */
+const PEAK_BLUR = 8;
+
+/**
+ * One rolling digit and its blur. A component of its own because each digit
+ * needs its own filter id and its own animated blur value — hooks that cannot
+ * live inside the parent's map.
+ */
+const Digit: React.FC<{ digit: number; delay: number; rolled: boolean }> = ({ digit, delay, rolled }) => {
+  // A stable, CSS-safe id (useId returns ":r0:" — the colons are invalid in url(#…)).
+  const id = `odo-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  // The y-only blur amount. `useMotionTemplate` feeds it to stdDeviation as
+  // "0 <n>", so only the vertical axis blurs.
+  const blur = useMotionValue(0);
+  const std = useMotionTemplate`0 ${blur}`;
+
+  useEffect(() => {
+    if (!rolled) {
+      blur.set(0);
+      return;
+    }
+    // Peaks at ~18% and decays over the rest — the roll is fastest early
+    // (easeOut), so the smear is heaviest then and gone by the time it lands.
+    const controls = animate(blur, [0, PEAK_BLUR, 0], {
+      duration: SEC.counter,
+      ease: 'easeOut',
+      times: [0, 0.18, 1],
+      delay,
+    });
+    return () => controls.stop();
+  }, [rolled, delay, blur]);
+
+  return (
+    <span className="relative inline-block overflow-hidden" style={{ filter: `url(#${id})` }}>
+      <svg aria-hidden="true" className="pointer-events-none absolute h-0 w-0">
+        <filter id={id} x="-20%" y="-40%" width="140%" height="180%" colorInterpolationFilters="sRGB">
+          <motion.feGaussianBlur stdDeviation={std} edgeMode="duplicate" />
+        </filter>
+      </svg>
+      <span className="invisible block">0</span>
+      <motion.span
+        className="absolute inset-x-0 top-0 block"
+        initial={{ y: '0%' }}
+        animate={rolled ? { y: `-${(10 + digit) * 2}%` } : { y: '0%' }}
+        transition={{ duration: SEC.counter, ease: EASE.counter, delay }}
+      >
+        {GLYPHS.map((g, k) => (
+          <span key={k} className="block">
+            {g}
+          </span>
+        ))}
+      </motion.span>
+    </span>
+  );
+};
 
 interface OdometerProps {
   /** The finished number, e.g. `500+`. Non-digits render static. */
@@ -85,23 +148,7 @@ const Odometer: React.FC<OdometerProps> = ({ value, armed = true }) => {
           const delay = digitIndex * SEC.counterStagger;
           digitIndex += 1;
 
-          return (
-            <span key={`${ch}-${i}`} className="relative inline-block overflow-hidden">
-              <span className="invisible block">0</span>
-              <motion.span
-                className="absolute inset-x-0 top-0 block"
-                initial={{ y: '0%' }}
-                animate={rolled ? { y: `-${(10 + digit) * 2}%` } : { y: '0%' }}
-                transition={{ duration: SEC.counter, ease: EASE.counter, delay }}
-              >
-                {GLYPHS.map((g, k) => (
-                  <span key={k} className="block">
-                    {g}
-                  </span>
-                ))}
-              </motion.span>
-            </span>
-          );
+          return <Digit key={`${ch}-${i}`} digit={digit} delay={delay} rolled={rolled} />;
         })}
       </span>
     </>
