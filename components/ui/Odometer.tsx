@@ -34,15 +34,24 @@ const GLYPHS = Array.from({ length: 50 }, (_, i) => i % 10);
 interface OdometerProps {
   /** The finished number, e.g. `500+`. Non-digits render static. */
   value: string;
+  /**
+   * A second gate on top of visibility. The caller uses it to hold the roll until
+   * a prior beat has finished — the milestones wait for the manifesto sweep — so
+   * the numbers don't count up while something above them is still animating.
+   * Defaults true, so an Odometer with no opinion just rolls when it is seen.
+   */
+  armed?: boolean;
 }
 
-const Odometer: React.FC<OdometerProps> = ({ value }) => {
+const Odometer: React.FC<OdometerProps> = ({ value, armed = true }) => {
   const motionOn = useMotionEnabled();
   // Observe the root, not the tape (see the docblock). `once` so the roll never
   // rewinds; `amount: 0.5` so it fires as the line reaches the middle of the
   // screen — "the moment the user scrolls to it", as asked.
   const rootRef = useRef<HTMLSpanElement>(null);
   const inView = useInView(rootRef, { once: true, amount: 0.5 });
+  // Rolls only once it is both seen and armed by the caller.
+  const rolled = inView && armed;
 
   // Nothing to roll for a visitor who asked for less motion, and no reason to
   // ship 50 glyphs per digit to them either.
@@ -65,7 +74,7 @@ const Odometer: React.FC<OdometerProps> = ({ value }) => {
                 key={`${ch}-${i}`}
                 className="inline-block"
                 initial={{ scale: 0, opacity: 0 }}
-                animate={inView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+                animate={rolled ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
                 transition={{ duration: SEC.suffixPop, ease: [...EASE.roll], delay: suffixDelay }}
               >
                 {ch}
@@ -82,7 +91,7 @@ const Odometer: React.FC<OdometerProps> = ({ value }) => {
               <motion.span
                 className="absolute inset-x-0 top-0 block"
                 initial={{ y: '0%' }}
-                animate={inView ? { y: `-${(10 + digit) * 2}%` } : { y: '0%' }}
+                animate={rolled ? { y: `-${(10 + digit) * 2}%` } : { y: '0%' }}
                 transition={{ duration: SEC.counter, ease: EASE.counter, delay }}
               >
                 {GLYPHS.map((g, k) => (

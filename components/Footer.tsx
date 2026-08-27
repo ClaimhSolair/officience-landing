@@ -70,9 +70,12 @@ const LINK_HOVER =
 
 const Footer: React.FC = () => (
   <footer className="bg-bg-primary text-white">
-    {/* 390 opens with 40px of air above the lockup; at 1920 the Contact card's
-        own bottom padding already supplies the gap Figma draws. */}
-    <Container className="flex flex-col gap-fig-32 pt-fig-40 lg:pt-0">
+    {/* The footer carries its own top padding so its content never sits jammed
+        against the section above it — on the home page the Contact card supplies
+        some gap, but the legal pages end in a plain white column, and there the
+        blue block was butting straight up under the text. 64px of blue above the
+        lockup gives the separation the 2026-08-27 review asked for, everywhere. */}
+    <Container className="flex flex-col gap-fig-32 pt-fig-40 lg:pt-fig-64">
       <Reveal
         as="div"
         y={28}

@@ -538,3 +538,49 @@ plus a gated R2 upload (ASSET_VERSION 12 -> 13).
 Known pre-existing (unchanged): `#about` section_view peak ratio is 0.318 at 1080
 but 0.28 at ~950 (the section is ~3400px tall); marginally improved by hiding the
 CTA.
+
+## v6.1 — second review-pass tweaks (2026-08-27)
+
+Six follow-up tweaks after the user reviewed v6 on an external monitor and a
+laptop side by side.
+
+**The "works on the external screen, blank on the laptop" bug — a stranded
+MotionValue.** Approach's steps were invisible on shorter viewports. Root cause:
+`fits` started `true`, so on first render the step bound the pinned MotionValues
+to `style.x/opacity` (x=350 at scroll 0); the measurement then came back "doesn't
+fit", `pinned` flipped to false, and `style` was removed — but **framer-motion
+leaves the last MotionValue-written transform on the DOM node when you stop
+feeding it a style**, so the `<li>` stayed at `translateX(350) opacity:0`, and the
+variant fallback could not override it. Diagnosed by reading computed transforms
+at 1920x880 (all three steps `{o:0, x:350}` at every scroll position). Fix, two
+parts: start `fits` **false** so the unpinned fallback renders first and never
+binds the pinned MotionValue; and give the pinned and unpinned `<li>` **distinct
+keys** so a change in `pinned` remounts a clean element instead of re-propping the
+stranded one. General rule: never re-prop the same motion element between
+MotionValue-`style` and variant modes — branch to a keyed element per mode (this
+is why the WorkCard, which already returns different element types per mode, never
+had the bug).
+
+**Pins now engage on a real laptop.** An 800px card can't pin-fit under the header
+much below ~900px, and a maximised 1080p laptop only has ~860-910px of usable
+height, so both pins were falling back there. Compressed both harder while pinned
+(Approach `gap-40/py-24`, step `mt-48`; Proven `py-16`) so both engage down to
+~845px of viewport — verified pinning and scrubbing at 1920x880, and falling back
+*with visible, animated content* at 1920x840.
+
+**The rest:**
+- **Flower (item 3):** the fade was a viewport-enter trigger, which fired while
+  the tall band merely peeked on load. Now opacity is **tied to the band's scroll
+  progress** (`[0.3, 0.8] -> [0, 1]`), so it is 0 at the top and fills in only as
+  the reader scrolls the band up — verified opacity 0 at scrollTop, 1 once centred.
+- **Counters (item 6):** now hold until the manifesto sweep finishes. AboutUs
+  watches the sweep MotionValue and arms the Odometers (`armed` prop) when it
+  reaches ~1; verified 0 at page top, rolled after scrolling through the sweep.
+- **Hero title:** narrowed the H1 column (`lg:w-[600px] 3xl:w-[720px]`) so it wraps
+  to the reference's tall 4-line block and clears the centre shapes, and centred
+  the CTA column against it (`xl:items-center`). Divergence from the artboard's
+  wider bottom-aligned headline, on the user's request (their reference image).
+- **Legal -> footer spacing:** the real fix was the footer's own top padding —
+  it was `lg:pt-0`, so its content butted against the white area above. Now
+  `lg:pt-fig-64` on every page; legal-page bottom padding eased back to `pb-fig-64`.
+  Verified on both the legal and home footers.

@@ -123,15 +123,16 @@ const Hero: React.FC<HeroProps> = ({ splashDone }) => {
     </motion.div>
 
     {/* Two levels on purpose: the outer box owns the band's height and centres
-        its contents vertically, the inner row bottom-aligns the headline against
-        the CTA column the way the artboard does. */}
-    {/* The row lands at xl, not lg. The artboard's two columns are 755 + 448 =
-        1203px wide; at 1024 there is only ~976px of content width, so they would
-        shrink and squeeze the headline. Below 1280 they stack, at the desktop
-        type sizes. */}
+        its contents vertically, the inner row centres the CTA column against the
+        headline. The 2026-08-27 review asked for the reference layout — a narrow,
+        tall headline block with the copy+CTA balanced beside its middle — which is
+        a divergence from the artboard's wider, bottom-aligned headline. */}
+    {/* The row lands at xl, not lg. The two columns are ~600 + 448 = ~1048px wide;
+        at 1024 there is only ~976px of content width, so they would shrink and
+        squeeze the headline. Below 1280 they stack, at the desktop type sizes. */}
     <Container className="relative flex items-center py-fig-40 lg:min-h-[742px] lg:py-0 3xl:min-h-[875px]">
-      <div className="flex w-full flex-col items-center gap-fig-24 xl:flex-row xl:items-end xl:justify-between xl:gap-fig-32">
-        <h1 className="w-full font-sans text-white lg:w-[755px] 3xl:w-[1000px]">
+      <div className="flex w-full flex-col items-center gap-fig-24 xl:flex-row xl:items-center xl:justify-between xl:gap-fig-32">
+        <h1 className="w-full font-sans text-white lg:w-[600px] 3xl:w-[720px]">
           {/* The separating space lives inside a sized span. Left bare between
               the two spans it renders at the h1's inherited size and the words
               very nearly touch. */}

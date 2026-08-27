@@ -1,7 +1,7 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ASSETS } from '../assets';
-import { EASE, MOTION, SEC, useMotionEnabled } from '../lib/motion';
+import { MOTION, useMotionEnabled } from '../lib/motion';
 
 /**
  * The breather between the hero and About Us: one large Officience flower,
@@ -14,19 +14,29 @@ import { EASE, MOTION, SEC, useMotionEnabled } from '../lib/motion';
  *
  * Purely decorative, so it is hidden from assistive tech and never blocks paint.
  *
- * The mark **fades in** once, as the band scrolls up under the hero — the review
- * replaced moonx's scale-and-spin scrub with a plain cross-fade
- * (`.claude/motion-catalog.md`, item 3): a calm settle rather than a zoom-through,
- * completing within about one scroll of leaving the hero. Divergence from the
- * measured moonx law, recorded there. Opacity only, so the band's fixed heights
- * are untouched, nothing below it moves, and no anchor shifts.
+ * The mark **fades in on scroll**: its opacity is tied to the band's own scroll
+ * progress, so it stays hidden while the band is below the fold and fills in only
+ * as the reader scrolls it up into view — not the instant a pixel of the tall
+ * band peeks on load, which is what a viewport-enter trigger did. Opacity only
+ * (moonx's scale-and-spin scrub was dropped in review; divergence recorded in
+ * `.claude/motion-catalog.md`, item 3), so the band's fixed heights are
+ * untouched, nothing below it moves, and no anchor shifts. A scrub bypasses
+ * MotionConfig, so the bind is gated on `motionOn` here.
  */
 const FlowerDivider: React.FC = () => {
+  const bandRef = useRef<HTMLDivElement>(null);
   const motionOn = useMotionEnabled();
   const fading = MOTION.flower && motionOn;
 
+  // 0 while the band is below the fold; fills in over the middle of its transit,
+  // reaching full opacity a little before the band centres — so it is settled by
+  // the time it is comfortably in view, roughly one scroll after it appears.
+  const { scrollYProgress } = useScroll({ target: bandRef, offset: ['start end', 'center center'] });
+  const opacity = useTransform(scrollYProgress, [0.3, 0.8], [0, 1]);
+
   return (
     <div
+      ref={bandRef}
       aria-hidden="true"
       className="flex h-[522px] items-center justify-center bg-bg-secondary lg:h-[850px] 3xl:h-[1000px]"
     >
@@ -42,10 +52,7 @@ const FlowerDivider: React.FC = () => {
         className="h-auto w-[199px] lg:w-[576px] 3xl:w-[748px]"
         decoding="async"
         referrerPolicy="no-referrer"
-        initial={fading ? { opacity: 0 } : false}
-        whileInView={fading ? { opacity: 1 } : undefined}
-        viewport={{ once: true, amount: 0.25 }}
-        transition={{ duration: SEC.revealSlow, ease: [...EASE.reveal] }}
+        style={fading ? { opacity } : undefined}
       />
     </div>
   );

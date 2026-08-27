@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
+import React, { useRef, useState } from 'react';
+import { motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { ASSETS, srcSetOf } from '../assets';
 import Container from './ui/Container';
@@ -260,6 +260,16 @@ const AboutUs: React.FC = () => {
   const frontier = useTransform(sweep, [0, 1], [0, MANIFESTO_CHARS + 2]);
   const sweeping = motionOn && MOTION.manifesto;
 
+  // The counters hold until the manifesto sweep has finished, so the eye isn't
+  // split between two things animating at once — the numbers then count up as a
+  // second beat. With no sweep (motion off, or manifesto disabled) they arm at
+  // once and simply roll when scrolled to.
+  const [sweepDone, setSweepDone] = useState(false);
+  useMotionValueEvent(sweep, 'change', (v) => {
+    if (v >= 0.99) setSweepDone(true);
+  });
+  const countersArmed = !sweeping || sweepDone;
+
   const lead = scrubbedWords(MANIFESTO_LEAD, 0, 'text-text-default');
   const rest = scrubbedWords(MANIFESTO_REST.trim(), lead.next + 1, 'text-subtitle');
 
@@ -316,7 +326,7 @@ const AboutUs: React.FC = () => {
           {MILESTONES.map(({ value, label }) => (
             <RevealChild as="li" key={label} y={28} duration={SEC.revealFast} className="flex flex-col items-center gap-fig-16 lg:gap-fig-8">
               <span className="font-sans font-medium text-display-sm text-text-primary lg:font-semibold lg:text-[86px] lg:leading-[74px] lg:tracking-[-0.03em]">
-                {MOTION.counters ? <Odometer value={value} /> : value}
+                {MOTION.counters ? <Odometer value={value} armed={countersArmed} /> : value}
               </span>
               <span className="text-center font-body text-body-lg text-subtitle lg:text-body-xl">{label}</span>
             </RevealChild>

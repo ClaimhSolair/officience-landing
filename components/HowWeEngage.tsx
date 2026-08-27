@@ -124,17 +124,15 @@ const StepItem: React.FC<{
   // most of its slide rather than arriving and only then becoming visible.
   const opacity = useTransform(progress, [from, from + SPAN * 0.6], [0, 1], { clamp: true });
 
-  return (
-    <motion.li
-      style={pinned ? { x, opacity } : undefined}
-      variants={pinned ? undefined : motionOn ? STEP_VARIANTS : STEP_VARIANTS_FLAT}
-      /* At 390 the rules run past the copy: the artboard gives its three steps
-         340/350/350px regardless of how much text each holds, so the rule length
-         is a constant, not a consequence. One min-height says that; Engage ends
-         up 10px longer than drawn. From md the steps sit in a row and the rule is
-         the content's own height again. */
-      className="flex min-h-[350px] flex-col border-l border-border-field pl-fig-40 md:min-h-0 md:flex-1 md:pl-fig-24 lg:pl-fig-32"
-    >
+  /* At 390 the rules run past the copy: the artboard gives its three steps
+     340/350/350px regardless of how much text each holds, so the rule length is a
+     constant, not a consequence. One min-height says that; Engage ends up 10px
+     longer than drawn. From md the steps sit in a row and the rule is the
+     content's own height again. */
+  const cls =
+    'flex min-h-[350px] flex-col border-l border-border-field pl-fig-40 md:min-h-0 md:flex-1 md:pl-fig-24 lg:pl-fig-32';
+  const body = (
+    <>
       <p aria-hidden="true" className="font-sans font-semibold text-[24px] leading-[32px] text-subtitle lg:text-h2">
         {step.number}
       </p>
@@ -144,10 +142,29 @@ const StepItem: React.FC<{
         <ApproachMark name={step.mark} className={step.markClass} />
       </div>
 
-      <div className={`mt-fig-24 flex flex-col gap-fig-8 lg:gap-fig-24 ${compact ? 'lg:mt-fig-64' : 'lg:mt-fig-116'}`}>
+      <div className={`mt-fig-24 flex flex-col gap-fig-8 lg:gap-fig-24 ${compact ? 'lg:mt-fig-48' : 'lg:mt-fig-116'}`}>
         <h3 className="font-sans text-h3 text-text-primary lg:text-display-sm">{step.name}</h3>
         <p className="font-body text-body-lg text-text-default lg:text-subtitle-2">{step.body}</p>
       </div>
+    </>
+  );
+
+  // Two distinct elements, keyed, so a change in `pinned` remounts rather than
+  // re-props. The pinned branch binds MotionValues to `style`; framer leaves the
+  // last transform on the DOM node when style is later removed, so re-propping the
+  // same <li> from pinned to unpinned strands it at x:350/opacity:0 — invisible.
+  // A key forces a clean element for each mode. (This, plus starting `fits` false,
+  // is why the unpinned fallback never inherits a stuck pinned transform.)
+  if (pinned) {
+    return (
+      <motion.li key="pinned" style={{ x, opacity }} className={cls}>
+        {body}
+      </motion.li>
+    );
+  }
+  return (
+    <motion.li key="flow" variants={motionOn ? STEP_VARIANTS : STEP_VARIANTS_FLAT} className={cls}>
+      {body}
     </motion.li>
   );
 };
@@ -165,12 +182,16 @@ const HowWeEngage: React.FC = () => {
   // mobile rather than spilling its copy into the neighbouring bands.
   const compact = motionOn && MOTION.approach;
   const wantsPin = compact && wide;
-  const [fits, setFits] = useState(true);
+  // Starts false: the unpinned fallback must be the first thing rendered, so a
+  // step never briefly binds the pinned MotionValue and gets stranded when the
+  // measurement comes back "doesn't fit". The measure runs in useLayoutEffect,
+  // before paint, so a viewport that *does* fit flips to pinned with no flash.
+  const [fits, setFits] = useState(false);
   const pinned = wantsPin && fits;
 
   useLayoutEffect(() => {
     if (!wantsPin) {
-      setFits(true);
+      setFits(false);
       return;
     }
     const el = contentRef.current;
@@ -211,7 +232,7 @@ const HowWeEngage: React.FC = () => {
           <Container
             innerRef={contentRef}
             className={`flex flex-col gap-fig-32 py-fig-32 ${
-              compact ? 'lg:gap-fig-64 lg:py-fig-40' : 'lg:gap-fig-146 lg:py-fig-100'
+              compact ? 'lg:gap-fig-40 lg:py-fig-24' : 'lg:gap-fig-146 lg:py-fig-100'
             }`}
           >
             {/* Header. The blurb sits bottom-aligned against the title at desktop,

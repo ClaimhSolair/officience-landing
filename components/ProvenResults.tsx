@@ -404,9 +404,10 @@ const ProvenResults: React.FC = () => {
           }
         >
           {/* Compressed hard while pinning so the whole column — heading plus the
-              800px card — clears the header on a maximised 1080p laptop (~950px of
-              viewport), not only on a full 1080; full flow rhythm otherwise. */}
-          <div ref={columnRef} className={`flex flex-col py-fig-32 ${wantsPin ? 'lg:py-fig-24' : 'lg:py-fig-120'}`}>
+              800px card — clears the header on a maximised 1080p laptop (whose
+              usable height is ~860-910px after the taskbar and browser chrome),
+              not only on a full 1080; full flow rhythm otherwise. */}
+          <div ref={columnRef} className={`flex flex-col py-fig-32 ${wantsPin ? 'lg:py-fig-16' : 'lg:py-fig-120'}`}>
             <Container innerRef={headerRef} className={`mb-fig-24 flex flex-col gap-fig-8 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32 ${wantsPin ? 'lg:mb-fig-24' : 'lg:mb-fig-100'}`}>
               <Reveal as="div" stagger={STAGGER.base} className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
                 <RevealChild as="span" y={20} duration={SEC.revealFast}>

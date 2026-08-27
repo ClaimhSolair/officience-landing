@@ -52,11 +52,12 @@ const LegalPage: React.FC<{ doc: LegalDoc }> = ({ doc }) => {
           of the contents card — but with the panel sticky it runs the full column
           here, which is what a column divider is for.
 
-          The bottom padding is deliberately larger than the top: the artboard sets
-          the body tight to the footer, and the 2026-08-27 review asked for real air
-          between the last block and the blue footer band. Divergence from Figma's
-          spacing, on request. */}
-      <Container className="flex flex-col gap-fig-24 pb-fig-64 pt-fig-32 lg:flex-row lg:gap-0 lg:pb-fig-146 lg:pt-fig-64">
+          The bottom padding is a touch larger than the top: the artboard sets the
+          body tight to the footer, and the 2026-08-27 review asked for air between
+          the last block and the blue footer. Most of that separation now comes
+          from the footer's own top padding; this keeps a little white gap on top.
+          Divergence from Figma's spacing, on request. */}
+      <Container className="flex flex-col gap-fig-24 pb-fig-48 pt-fig-32 lg:flex-row lg:gap-0 lg:pb-fig-64 lg:pt-fig-64">
         <div className="lg:mr-[70px] lg:w-[448px] lg:shrink-0">
           <LegalToc sections={sections} />
         </div>
