@@ -135,11 +135,12 @@ interface Geometry {
 }
 
 /**
- * Below this the deck would be too small to be worth pinning for, so the section
- * keeps the swipe rail instead. It is the honest floor: on a laptop short enough
- * to force more than a 30% reduction the pin isn't worth the page height.
+ * The floor below which the deck is too small to pin for, so the section keeps
+ * the swipe rail instead. Low enough that the pin engages on any real laptop — a
+ * maximised 1080p laptop has only ~820-910px of usable height — so the section no
+ * longer falls back to the rail there; only a genuinely tiny window does.
  */
-const MIN_SCALE = 0.7;
+const MIN_SCALE = 0.5;
 /** Track pixels per pixel of scroll — nava runs about 1.14. */
 const RATE = 1.15;
 /**

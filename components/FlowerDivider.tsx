@@ -28,11 +28,13 @@ const FlowerDivider: React.FC = () => {
   const motionOn = useMotionEnabled();
   const fading = MOTION.flower && motionOn;
 
-  // 0 while the band is below the fold; fills in over the middle of its transit,
-  // reaching full opacity a little before the band centres — so it is settled by
-  // the time it is comfortably in view, roughly one scroll after it appears.
+  // Held at 0 for the first 0.45 of the transit — above the progress the band
+  // shows at on any load, even a tall viewport where it peeks well up — so it is
+  // reliably invisible before the reader scrolls. Then it ramps slowly to full
+  // only as the band nears centre, so the fade-in is actually watched as the band
+  // comes in rather than being over before it settles.
   const { scrollYProgress } = useScroll({ target: bandRef, offset: ['start end', 'center center'] });
-  const opacity = useTransform(scrollYProgress, [0.3, 0.8], [0, 1]);
+  const opacity = useTransform(scrollYProgress, [0.45, 1], [0, 1]);
 
   return (
     <div

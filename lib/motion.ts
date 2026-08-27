@@ -35,11 +35,11 @@ export const MS = {
   glass: 300,
   /** oma-genera's label roll, settling by ~400ms. */
   roll: 250,
-  /** salient's odometer. Its roll never fired under automation, so this is the
-   *  one duration in the catalog calibrated by eye rather than measured. */
-  counter: 1500,
+  /** salient's odometer, calibrated by eye. Slowed in the 2026-08-27 review so the
+   *  count-up reads as a deliberate second act after the manifesto sweep. */
+  counter: 2250,
   /** Per-digit offset, so a multi-digit number lands left to right. */
-  counterStagger: 90,
+  counterStagger: 110,
   /** The plus on 500+ arriving once the digits have seated. */
   suffixPop: 180,
 } as const;

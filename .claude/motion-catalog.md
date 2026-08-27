@@ -584,3 +584,29 @@ height, so both pins were falling back there. Compressed both harder while pinne
   it was `lg:pt-0`, so its content butted against the white area above. Now
   `lg:pt-fig-64` on every page; legal-page bottom padding eased back to `pb-fig-64`.
   Verified on both the legal and home footers.
+
+## v6.2 — third review-pass (2026-08-27): make the pins truly height-responsive
+
+The laptop-vs-external report persisted because a height *threshold* keeps missing
+whatever exact usable height a given laptop has (~820-930px after taskbar +
+browser chrome). Replaced the threshold with **scale-to-fit**, so the pins engage
+on any desktop height instead of falling back:
+
+- **Approach** now scales its whole composition to fit `viewport - header`
+  (transform on the Container, reduced height reserved on a wrapper — a CSS scale
+  shrinks paint, not layout). It is 1:1 at ~844px+ and shrinks proportionally
+  below; only `scale < 0.5` (absurdly short) falls back. Verified pinning and
+  scrubbing at 768 / 820 / 900 / 1080.
+- **Proven** floor `MIN_SCALE` 0.7 -> 0.5, so the deck pins down to ~820px of
+  viewport (below that the scaled deck fits the width, leaving nothing to scrub,
+  so it keeps the rail — correct). Verified scrubbing at 820 (scale .65) through
+  1080 (scale .98).
+
+Both verified by screenshot at 900 (the user's likely height): heading anchored,
+deck/steps scaled to fit, header clear, no bleed.
+
+Also: **flower fade** pushed later and slower (`[0.45, 1] -> [0, 1]` over the
+band's transit) so it is reliably 0 before scroll and still fading as the band
+reaches centre; **counters** slowed (`MS.counter` 1500->2250, stagger 90->110)
+and armed a 400ms beat *after* the sweep fully completes (`sweep >= 0.999`), so
+the count-up reads as a clear second act rather than firing on the sweep's tail.

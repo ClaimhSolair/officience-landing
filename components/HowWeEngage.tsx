@@ -175,32 +175,33 @@ const HowWeEngage: React.FC = () => {
   const motionOn = useMotionEnabled();
   const wide = useMinWidth(1024);
 
-  // A pinned frame is its own composition, tighter than the flow rhythm so it
-  // fits between the header and the fold on more viewports. The pin only holds
-  // if the composition actually fits there; on a short laptop it does not, and
-  // the section degrades to the unpinned staggered arrivals interyo ships at
-  // mobile rather than spilling its copy into the neighbouring bands.
+  // The pinned composition **scales to fit** the viewport rather than being gated
+  // on whether it fits at 1:1 — so the procession runs on any desktop height, not
+  // only tall ones (the recurring "works on my external monitor, not my laptop"
+  // report). It is 1:1 at ~844px of viewport and up and shrinks proportionally
+  // below that; only an absurdly short window (scale < FLOOR) falls back to the
+  // unpinned arrivals. A CSS scale shrinks paint, not layout, so the scaled
+  // content reserves its reduced height on a wrapper.
   const compact = motionOn && MOTION.approach;
   const wantsPin = compact && wide;
-  // Starts false: the unpinned fallback must be the first thing rendered, so a
-  // step never briefly binds the pinned MotionValue and gets stranded when the
-  // measurement comes back "doesn't fit". The measure runs in useLayoutEffect,
-  // before paint, so a viewport that *does* fit flips to pinned with no flash.
-  const [fits, setFits] = useState(false);
-  const pinned = wantsPin && fits;
+  const FLOOR = 0.5;
+  const [dims, setDims] = useState({ h: 0, scale: 1 });
+  const pinned = wantsPin && dims.scale >= FLOOR;
+  const scaling = pinned && dims.scale < 1;
 
   useLayoutEffect(() => {
     if (!wantsPin) {
-      setFits(false);
+      setDims({ h: 0, scale: 1 });
       return;
     }
     const el = contentRef.current;
     if (!el) return;
     const measure = () => {
-      const h = el.offsetHeight;
-      // 119 is the tallest header (3xl); using it keeps the check honest at every
-      // breakpoint rather than promising a fit the 3xl bar would eat.
-      setFits(h > 0 && h <= window.innerHeight - HEADER_H.xl3);
+      const h = el.offsetHeight; // natural; offsetHeight ignores the applied scale
+      if (!h) return;
+      // 119 is the tallest header (3xl), so the fit is honest at every breakpoint.
+      const avail = window.innerHeight - HEADER_H.xl3;
+      setDims({ h, scale: Math.min(1, avail / h) });
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -219,8 +220,9 @@ const HowWeEngage: React.FC = () => {
   return (
     <section id="approach" className="bg-bg-secondary">
       {/* The extra height only exists when something is pinned to it. With motion
-          off, below lg, or on a viewport too short to hold the deck, the wrapper
-          collapses to its contents so nobody scrolls through an empty runway. */}
+          off, below lg, or on a viewport far too short to hold the deck even
+          scaled, the wrapper collapses to its contents so nobody scrolls through
+          an empty runway. */}
       <div ref={wrapRef} className={`relative ${pinned ? 'lg:h-[190vh]' : ''}`}>
         <div
           className={`${
@@ -229,8 +231,12 @@ const HowWeEngage: React.FC = () => {
               : ''
           } overflow-x-clip`}
         >
+          {/* Reserves the scaled composition's height, so the pinned column's
+              layout shrinks with the scale and not merely its paint. */}
+          <div style={scaling ? { height: dims.h * dims.scale } : undefined}>
           <Container
             innerRef={contentRef}
+            style={scaling ? { transform: `scale(${dims.scale})`, transformOrigin: 'top center' } : undefined}
             className={`flex flex-col gap-fig-32 py-fig-32 ${
               compact ? 'lg:gap-fig-40 lg:py-fig-24' : 'lg:gap-fig-146 lg:py-fig-100'
             }`}
@@ -289,6 +295,7 @@ const HowWeEngage: React.FC = () => {
               ))}
             </motion.ol>
           </Container>
+          </div>
         </div>
       </div>
     </section>

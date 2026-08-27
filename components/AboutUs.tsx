@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { ASSETS, srcSetOf } from '../assets';
@@ -260,15 +260,24 @@ const AboutUs: React.FC = () => {
   const frontier = useTransform(sweep, [0, 1], [0, MANIFESTO_CHARS + 2]);
   const sweeping = motionOn && MOTION.manifesto;
 
-  // The counters hold until the manifesto sweep has finished, so the eye isn't
-  // split between two things animating at once — the numbers then count up as a
-  // second beat. With no sweep (motion off, or manifesto disabled) they arm at
-  // once and simply roll when scrolled to.
+  // The counters hold until the manifesto sweep has fully finished, then arm a
+  // beat later, so the count-up reads as a separate second act rather than firing
+  // on the sweep's tail. With no sweep (motion off, or manifesto disabled) they
+  // arm at once and simply roll when scrolled to.
   const [sweepDone, setSweepDone] = useState(false);
   useMotionValueEvent(sweep, 'change', (v) => {
-    if (v >= 0.99) setSweepDone(true);
+    if (v >= 0.999) setSweepDone(true);
   });
-  const countersArmed = !sweeping || sweepDone;
+  const [countersArmed, setCountersArmed] = useState(false);
+  useEffect(() => {
+    if (!sweeping) {
+      setCountersArmed(true);
+      return;
+    }
+    if (!sweepDone) return;
+    const t = window.setTimeout(() => setCountersArmed(true), 400);
+    return () => window.clearTimeout(t);
+  }, [sweeping, sweepDone]);
 
   const lead = scrubbedWords(MANIFESTO_LEAD, 0, 'text-text-default');
   const rest = scrubbedWords(MANIFESTO_REST.trim(), lead.next + 1, 'text-subtitle');

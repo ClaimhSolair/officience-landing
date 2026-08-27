@@ -26,11 +26,17 @@ interface ContainerProps {
    * composition fits the viewport). Same idiom as `Reveal.innerRef`.
    */
   innerRef?: React.Ref<HTMLDivElement>;
+  /**
+   * Also lands on the inner column, for callers that scale it to fit a pinned
+   * frame. `offsetHeight` (what `innerRef` measures) ignores transforms, so the
+   * natural height stays measurable while a scale is applied here.
+   */
+  style?: React.CSSProperties;
 }
 
-const Container: React.FC<ContainerProps> = ({ children, className = '', as: Tag = 'div', innerRef }) => (
+const Container: React.FC<ContainerProps> = ({ children, className = '', as: Tag = 'div', innerRef, style }) => (
   <Tag className="w-full px-fig-16 lg:px-fig-24 3xl:px-fig-64">
-    <div ref={innerRef} className={`mx-auto w-full max-w-content-2 ${className}`}>{children}</div>
+    <div ref={innerRef} style={style} className={`mx-auto w-full max-w-content-2 ${className}`}>{children}</div>
   </Tag>
 );
 
