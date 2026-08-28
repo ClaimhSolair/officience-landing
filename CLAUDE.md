@@ -29,7 +29,7 @@ officience/
     WhyOfficience.tsx  # "Why Choose Us" section
     Contact.tsx        # Contact form
     Footer.tsx         # Footer with social links
-    SplashScreen.tsx   # Once-per-day splash with 20th anniversary banner
+    SplashScreen.tsx   # Once-per-day seasonal splash (currently 2/9 Vietnam National Day)
     Survey.tsx         # Contact survey modal
     TermsConditions.tsx # Terms modal
     ui/Section.tsx     # Reusable section wrapper
@@ -44,10 +44,14 @@ officience/
 - **Scrollbar** is hidden (`scrollbar-width: none` + `::-webkit-scrollbar { display: none }`) for seamless edges
 
 ## Splash Screen Logic
-- Shows once per calendar day (localStorage key: `officience_splash_20th`)
+- Shows once per calendar day (localStorage key: `officience_splash_national_day_2026`)
+- **Bump `STORAGE_KEY` whenever the splash artwork changes** so returning visitors see the new banner once, instead of waiting for the next calendar day
 - Desktop: 5s auto-dismiss, Mobile: 4s auto-dismiss
 - Skip via X button or clicking backdrop
 - Mobile breakpoint: `window.innerWidth < 768`
+- Only the viewport-matching image is mounted (`isMobile ? MOBILE_IMAGE : DESKTOP_IMAGE`) so a phone never downloads the desktop banner
+- Banners are **WebP** in the `landing-page` R2 bucket (uploaded with `Cache-Control: public, max-age=31536000, immutable`; r2.dev sends no cache header by default). Desktop 200 KB, mobile 49 KB — the earlier PNGs were 2.82 MB / 510 KB
+- `index.html` has an inline `<script>` that preloads the matching banner during HTML parse; it mirrors `STORAGE_KEY` and the 768px breakpoint, so update both together
 
 ## Survey Email Routing
 - Survey submissions POST to `api/survey.ts` (Vercel Node function; **does not run under Vite** — e2e only on a Vercel deploy).

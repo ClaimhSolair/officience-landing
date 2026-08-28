@@ -3,6 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Splash banner preload. MUST stay above the blocking cdn.tailwindcss.com <script>:
+         an inline script only runs in document order, so below it the download would wait
+         for Tailwind to fetch and execute, costing ~1s of the 5s the splash is on screen.
+         Mirrors the gate in components/SplashScreen.tsx (same key, same 768px breakpoint);
+         if the two drift, the only cost is a wasted or missing preload hint. -->
+    <link rel="preconnect" href="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev" crossorigin>
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('officience_splash_national_day_2026') === new Date().toDateString()) return;
+          var file = window.innerWidth < 768 ? 'Banner mobile popup 341x316.webp' : 'Banner web popup 1157x750.webp';
+          var link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.href = 'https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/' + encodeURIComponent(file);
+          link.fetchPriority = 'high';
+          document.head.appendChild(link);
+        } catch (e) { /* localStorage can throw in restricted privacy modes - skip the hint */ }
+      })();
+    </script>
+
     <title>Officience — Full-Stack Data Solutions to Empower Your Business</title>
     <meta name="description" content="Founded in 2006, Officience is a dynamic French-Vietnamese company pioneering in the Global Outsourcing Industry. We analyze, design, and code with AI — bringing Vietnamese agility to speed up your growth." />
     <link rel="canonical" href="https://officience.com/" />
@@ -38,7 +60,6 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preload" href="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Element_header.png" as="image">
-    <link rel="preconnect" href="https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/lexend/v26/wlpwgwvFAVdoq2_v-6QU.woff2" as="font" type="font/woff2" crossorigin>

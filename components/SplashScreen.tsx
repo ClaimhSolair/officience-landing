@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
-const DESKTOP_IMAGE = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Banner%20splash%20web%2020th%201157x750.png";
-const MOBILE_IMAGE = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Banner%20splash%2020th%20mobi%20341x316.png";
-const STORAGE_KEY = "officience_splash_20th";
+const DESKTOP_IMAGE = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Banner%20web%20popup%201157x750.webp";
+const MOBILE_IMAGE = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Banner%20mobile%20popup%20341x316.webp";
+const SPLASH_ALT = "Celebrate 2/9 — Vietnam's National Day. Freedom, Unity, Prosperity. Officience 20 Years Anniversary.";
+// Bump this key whenever the splash artwork changes, so returning visitors see the new banner once.
+const STORAGE_KEY = "officience_splash_national_day_2026";
 const SPLASH_DURATION_DESKTOP = 5000; // 5 seconds for desktop
 const SPLASH_DURATION_MOBILE = 4000; // 4 seconds for mobile
 
@@ -86,23 +88,13 @@ const SplashScreen: React.FC = () => {
             style={{ aspectRatio: isMobile ? '682/632' : '2314/1500' }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Desktop Image */}
+            {/* Only the matching image is mounted, so a phone never downloads the desktop banner */}
             <img
-              src={DESKTOP_IMAGE}
-              alt="Welcome to Officience"
-              width={2314}
-              height={1500}
-              className={`hidden md:block w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl ${isMobile ? 'hidden' : ''}`}
-              loading="eager"
-            />
-
-            {/* Mobile Image */}
-            <img
-              src={MOBILE_IMAGE}
-              alt="Welcome to Officience"
-              width={682}
-              height={632}
-              className="md:hidden w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
+              src={isMobile ? MOBILE_IMAGE : DESKTOP_IMAGE}
+              alt={SPLASH_ALT}
+              width={isMobile ? 682 : 2314}
+              height={isMobile ? 632 : 1500}
+              className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
               loading="eager"
             />
           </motion.div>
