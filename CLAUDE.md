@@ -46,7 +46,7 @@ officience/
 ## Splash Screen Logic
 - Shows once per calendar day (localStorage key: `officience_splash_national_day_2026`)
 - **Bump `STORAGE_KEY` whenever the splash artwork changes** so returning visitors see the new banner once, instead of waiting for the next calendar day
-- Desktop: 5s auto-dismiss, Mobile: 4s auto-dismiss
+- Desktop: 8s auto-dismiss, Mobile: 7s auto-dismiss
 - Skip via X button or clicking backdrop
 - Mobile breakpoint: `window.innerWidth < 768`
 - Only the viewport-matching image is mounted (`isMobile ? MOBILE_IMAGE : DESKTOP_IMAGE`) so a phone never downloads the desktop banner

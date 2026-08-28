@@ -7,8 +7,8 @@ const MOBILE_IMAGE = "https://pub-e3bac769bc084adbae54275f1413ca66.r2.dev/Banner
 const SPLASH_ALT = "Celebrate 2/9 — Vietnam's National Day. Freedom, Unity, Prosperity. Officience 20 Years Anniversary.";
 // Bump this key whenever the splash artwork changes, so returning visitors see the new banner once.
 const STORAGE_KEY = "officience_splash_national_day_2026";
-const SPLASH_DURATION_DESKTOP = 5000; // 5 seconds for desktop
-const SPLASH_DURATION_MOBILE = 4000; // 4 seconds for mobile
+const SPLASH_DURATION_DESKTOP = 8000; // 8 seconds for desktop
+const SPLASH_DURATION_MOBILE = 7000; // 7 seconds for mobile
 
 const SplashScreen: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
