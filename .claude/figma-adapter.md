@@ -181,6 +181,28 @@ of decision, not by section.
     - Mobile crop windows, in original-source pixels, so nobody re-derives them:
       card 1 `(593,570) 2204x1239` of 3480x1957 · card 2 `(1392,767) 2688x1651` of
       4080x3072 · card 3 `(756,315) 2407x1603` of 4096x2730.
+18b. **The About Us PAGE hero shows the whole photograph — ruled 2026-09-03.**
+    Figma `3133:4426` draws the 1024x768 frame with `object-fit: fill` into a
+    1440x780 box, which stretches the people 1.385x. `object-cover` is not the
+    alternative: it removes the top 213px and cuts off the logo board the team
+    is holding, which is the subject. The user ruled **faithful proportion,
+    fully visible, no stretch and no crop**, so the box gives way to the
+    picture: `object-contain object-top` on a `bg-black-900` ground.
+    - Measured at eight widths: distortion **1.000** everywhere, whole picture
+      visible everywhere. The ground shows below the picture at mobile (227px
+      at 390, which is exactly where the copy sits) and at the sides from md
+      (8.3% each at 768, 13.9% at 1024-1440, 18.8% at 1536-1920).
+    - It also **fixes** the resolution problem rather than hiding it: the fill
+      rendered the 1024px source at 0.71x (1440) and 0.53x (1920); contained it
+      renders at 0.98x and 0.85x.
+    - White copy over the composited ground, picture and scrim measures
+      **4.00-4.42:1** across 1024/1440/1536/1920. Both styles are large text, so
+      AA needs 3:1. Do not remove the scrim: the picture's bottom-left is a pale
+      wall and the copy sits on it.
+    - This is the **opposite** call to ruling 18, which kept `lg:object-fill` on
+      the home page's story cards. The difference is the subject: stretching a
+      building is a proportion error, stretching the founding team and cropping
+      their logo board destroys the content. Do not "align" the two.
 19. **The footer's social glyphs come from Figma, not the bucket.** `3129:3568` draws
     each mark at its own size inside a shared 38x38 box (LinkedIn 13.89x14.79, TikTok
     16.51x19.05, Facebook and YouTube filling the frame). The earlier decision to

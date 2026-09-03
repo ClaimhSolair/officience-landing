@@ -19,6 +19,11 @@ import { MOTION_FORCED } from './lib/motion';
 // Legal copy is long and rarely read — it leaves the home bundle.
 const LegalPage = React.lazy(() => import('./pages/LegalPage'));
 
+// About Us carries its own photography and two interactive sections. It is a
+// second landing surface, not part of the home page, so it ships as its own
+// chunk.
+const AboutPage = React.lazy(() => import('./pages/AboutPage'));
+
 export interface LayoutContext {
   openSurvey: (branch?: SurveyBranch) => void;
   /** False only while the once-a-day splash is still covering the page. */
@@ -111,6 +116,7 @@ const App = () => (
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
+        <Route path={ROUTES.about} element={<AboutPage />} />
         <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
         <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />
         <Route path="*" element={<Navigate to={ROUTES.home} replace />} />

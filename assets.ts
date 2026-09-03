@@ -17,7 +17,7 @@ const R2 = R2_STAGING;
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '13';
+const ASSET_VERSION = '14';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 /** One `srcset` candidate: a URL and the intrinsic width it was encoded at. */
@@ -100,6 +100,17 @@ export const ASSETS = {
         ],
       },
     ],
+  },
+  /**
+   * The About Us **page** (Figma 3133:4423). Its own namespace, because
+   * `about` above belongs to the home page's story cards and the two sets are
+   * unrelated. Source folder: assets-src/about-page.
+   */
+  aboutPage: {
+    // Figma 3133:4426, the 2006 team photo. The fill is only 1024x768 against a
+    // 1440x780 box, so it renders at 0.71x there and 0.53x at 1920. Encoding it
+    // larger would add bytes and no detail. The original is on the team's list.
+    hero: a('/about-page/hero-2006.webp'),
   },
   // Proven Results project shots. Each is cropped to the window the artboard
   // actually shows — Figma scales and offsets these fills, so a straight export

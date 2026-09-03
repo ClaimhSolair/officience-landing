@@ -28,6 +28,12 @@
       ]
     },
     {
+      "source": "/about-us",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
       "source": "/terms-of-use",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, follow" }

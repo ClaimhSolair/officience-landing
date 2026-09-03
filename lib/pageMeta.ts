@@ -36,6 +36,39 @@ declare global {
 }
 
 /**
+ * The site origin, taken from the canonical tag that index.html ships. Reading
+ * it keeps one copy of the domain in the project.
+ */
+const canonicalTag = (): HTMLLinkElement | null =>
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+
+const SITE_ORIGIN = (() => {
+  const href = canonicalTag()?.href;
+  if (!href) return '';
+  try {
+    return new URL(href).origin;
+  } catch {
+    return '';
+  }
+})();
+
+/**
+ * Points the canonical tag at the route the reader is on.
+ *
+ * index.html pins the canonical to `/`, which is correct while the site has one
+ * indexable page. A second indexable route needs its own value: a canonical that
+ * says `/` tells a crawler that About Us is a copy of the home page.
+ *
+ * `og:url` stays static. A scraper does not run JavaScript, so a social card
+ * always shows the home URL. Only a server render can correct that.
+ */
+const setCanonical = (path: string) => {
+  const tag = canonicalTag();
+  if (!tag || !SITE_ORIGIN) return;
+  tag.href = path === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${path}`;
+};
+
+/**
  * Sets the document title for a route and reports the pageview, in that order
  * and in the same pass — so the two can never disagree.
  *
@@ -56,6 +89,10 @@ export const usePageView = (title: string = INITIAL_TITLE) => {
     lastKey.current = location.key;
 
     document.title = title;
+
+    // The canonical belongs to the route, so it is set on the first page too —
+    // before the early return that skips the duplicate first pageview.
+    setCanonical(location.pathname);
 
     if (initialPageViewHandledElsewhere) {
       initialPageViewHandledElsewhere = false;

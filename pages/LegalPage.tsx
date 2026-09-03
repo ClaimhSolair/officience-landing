@@ -29,8 +29,9 @@ const LAST_UPDATED = 'Last updated: June 2026';
 const LegalPage: React.FC<{ doc: LegalDoc }> = ({ doc }) => {
   const { label, sections } = DOCS[doc];
 
-  // These pages carry X-Robots-Tag: noindex and the canonical stays pinned to
-  // "/", so the title is purely for the reader's tab, history, and analytics.
+  // These pages carry X-Robots-Tag: noindex, so the title serves the reader's
+  // tab, the history, and analytics. `usePageView` now also points the canonical
+  // at this route, which agrees with noindex better than a canonical to "/".
   usePageView(`${label} — Officience`);
 
   return (

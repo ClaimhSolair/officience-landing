@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { ASSETS, srcSetOf } from '../assets';
@@ -7,7 +8,7 @@ import Odometer from './ui/Odometer';
 import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
 import { MOTION, SEC, STAGGER, STICKY_TOP, useMotionEnabled } from '../lib/motion';
-import { DISCOVER_OUR_STORY, EXTERNAL } from './navigation';
+import { DISCOVER_OUR_STORY, ROUTES } from './navigation';
 
 /**
  * Figma 3144:3187 (1920) and 3187:4452 (390).
@@ -136,11 +137,11 @@ const scrubbedWords = (text: string, startIndex: number, toneClass: string) => {
 const MANIFESTO_CHARS = MANIFESTO_LEAD.length + 1 + MANIFESTO_REST.trim().length;
 
 /**
- * The "Discover Our Story" CTA is hidden for now (2026-08-27 review) rather than
- * removed — the destination isn't ready to link. Flip to true to restore it; the
- * markup and its wiring stay in place.
+ * The "Discover Our Story" CTA. It was hidden from the 2026-08-27 review until
+ * 2026-09-03, because no destination existed. The About Us page is that
+ * destination, so the link is visible again.
  */
-const SHOW_STORY_CTA = false;
+const SHOW_STORY_CTA = true;
 
 /**
  * One story card. It pins under the header while the next card slides over it,
@@ -308,15 +309,15 @@ const AboutUs: React.FC = () => {
             </motion.p>
             {SHOW_STORY_CTA && (
             <RevealChild as="span" y={20} duration={SEC.revealFast} className="inline-block">
-            <a
-              href={DISCOVER_OUR_STORY.target.kind === 'external' ? DISCOVER_OUR_STORY.target.href : EXTERNAL.about}
-              target="_blank"
-              rel="noopener noreferrer"
+            {/* An internal route now, so it is a router Link and stays in this
+                tab. The old external anchor opened the legacy about site. */}
+            <Link
+              to={ROUTES.about}
               className="inline-flex min-h-[44px] items-center gap-fig-8 px-fig-24 font-sans font-semibold text-btn-lg text-text-primary transition-colors hover:text-[#000086] motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               {DISCOVER_OUR_STORY.label}
               <ArrowRight className="h-[20px] w-[20px] shrink-0" strokeWidth={2} aria-hidden="true" />
-            </a>
+            </Link>
             </RevealChild>
             )}
           </div>

@@ -4,6 +4,7 @@ import type { SurveyBranch } from '../types';
 /** Routes served by the SPA. `vercel.json` rewrites every non-api path to index.html. */
 export const ROUTES = {
   home: '/',
+  about: '/about-us',
   terms: '/terms-of-use',
   privacy: '/privacy-policy',
 } as const;
@@ -23,6 +24,24 @@ export const SECTION_IDS = [
 ] as const;
 
 export type SectionId = (typeof SECTION_IDS)[number];
+
+/**
+ * Anchor targets on the About Us page, and its `section_view` keys.
+ *
+ * These are a separate set from `SECTION_IDS` on purpose. The two pages each
+ * observe their own ids, so a new key here cannot disturb the home page's
+ * dashboard history. `our-story` does not reuse the home page's `about`.
+ */
+export const ABOUT_SECTION_IDS = [
+  'our-story',
+  'our-journey',
+  'our-values',
+  'diy-jam',
+  'our-team',
+  'working-life',
+] as const;
+
+export type AboutSectionId = (typeof ABOUT_SECTION_IDS)[number];
 
 const BROCHURE_URL = 'https://demo.officience.com/brochure';
 
@@ -115,7 +134,7 @@ export const MENU: NavItem[] = [
   },
   { label: 'Work', target: { kind: 'section', id: 'proven-results' } },
   { label: 'Career', target: { kind: 'external', href: EXTERNAL.career } },
-  { label: 'About Us', target: { kind: 'section', id: 'about' } },
+  { label: 'About Us', target: { kind: 'route', to: ROUTES.about } },
 ];
 
 /** Social links in the overlay menu footer, in the order Figma draws them. */
@@ -126,11 +145,10 @@ export const SOCIALS = [
   { label: 'YouTube', href: 'https://www.youtube.com/@officienceinvietnam' },
 ] as const;
 
-/** The About Us section's text link. */
+/** The About Us section's text link. It now reaches the About Us page. */
 export const DISCOVER_OUR_STORY: NavItem = {
   label: 'Discover Our Story',
-  target: { kind: 'external', href: EXTERNAL.about },
-  unresolved: 'No dedicated story page exists — points at the legacy about site for now.',
+  target: { kind: 'route', to: ROUTES.about },
 };
 
 /** "View All Work" on the Proven Results deck. */
@@ -142,7 +160,7 @@ export const VIEW_ALL_WORK: NavItem = {
 
 /** Footer "Company" column. */
 export const FOOTER_COMPANY: NavItem[] = [
-  { label: 'About us', target: { kind: 'section', id: 'about' } },
+  { label: 'About us', target: { kind: 'route', to: ROUTES.about } },
   { label: 'Services', target: { kind: 'section', id: 'capabilities' } },
   { label: 'Work', target: { kind: 'section', id: 'proven-results' } },
   { label: 'Career', target: { kind: 'external', href: EXTERNAL.career } },
