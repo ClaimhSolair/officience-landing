@@ -135,6 +135,21 @@ From the Sept-2026 motion retro (v4→v6.4): every lost review round was a *defa
 - Never run a white-key / background-removal pass over white-on-transparent artwork: it has nothing to key and destroys the logo.
 - Trim transparent margins and size exports to ~2-3x their **displayed** size. An asset that reproduces a padded Figma image box wastes its resolution on empty space and reads as blurry.
 
+## Language — ASD-STE100 Simplified Technical English
+Write all user-facing text in ASD-STE100 Simplified Technical English. This applies to chat replies, commit messages, reports, and Markdown documents.
+- Use the active voice. Write "the probe reads the value", not "the value is read by the probe".
+- Keep sentences short. Use 20 words maximum for an instruction. Use 25 words maximum for a description.
+- Give one instruction in one sentence.
+- Use the simple present tense when it is clear. Do not use the perfect or progressive tense if a simple tense says the same thing.
+- Use one word for one meaning. Do not change the word for the same idea in the same text.
+- Use a simple word when a technical word is not necessary.
+- Use three nouns maximum together in a noun cluster.
+- Write an article ("the" or "a") before a noun.
+- Write positive sentences. Do not put two negatives in one sentence.
+- Write six sentences maximum in a paragraph.
+- Keep every technical name and technical verb exactly as it is: code identifiers, file paths, commands, branch names, and commit hashes do not change.
+- **Exception — code comments.** Comments follow the style of the file around them, because the standing rule is to match the comment density and idiom of the surrounding code. STE does not replace that rule.
+
 ## Working Rules
 - **Do not offer a choice built on an unverified premise.** If an option asserts a fact ("identical composition", "no visual change", "same framing"), verify it first or say in the option that it is unverified. An approval inherits the framing of the question, so a wrong premise makes the user's "yes" mean something they did not agree to.
 - **Treat your own earlier flags as binding findings.** Re-read what you recorded about a breakpoint or node before changing it. A broad goal ("make it fully visible") is exactly what steamrolls a narrow, correct, already-documented constraint — and that regression is invisible to you and obvious to the user.
