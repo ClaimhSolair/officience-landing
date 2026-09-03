@@ -176,13 +176,20 @@ export const FOOTER_LEGAL: NavItem[] = [
   { label: 'Privacy Policy', target: { kind: 'route', to: ROUTES.privacy } },
 ];
 
-/** Scrolls to a home-page section, honouring a reduced-motion preference. */
-export const scrollToSection = (id: SectionId) => {
+/**
+ * Scrolls to any element on the current page, honouring a reduced-motion
+ * preference. It does nothing when the id is absent, so a caller on the wrong
+ * page fails quietly rather than throwing.
+ */
+export const scrollToId = (id: string) => {
   const el = document.getElementById(id);
   if (!el) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
 };
+
+/** Scrolls to a home-page section. */
+export const scrollToSection = (id: SectionId) => scrollToId(id);
 
 /** A home-page section as a URL, for anything that has to work from another route. */
 export const sectionHref = (id: SectionId) => `${ROUTES.home}#${id}`;
