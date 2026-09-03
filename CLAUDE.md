@@ -148,7 +148,8 @@ Write all user-facing text in ASD-STE100 Simplified Technical English. This appl
 - Write positive sentences. Do not put two negatives in one sentence.
 - Write six sentences maximum in a paragraph.
 - Keep every technical name and technical verb exactly as it is: code identifiers, file paths, commands, branch names, and commit hashes do not change.
-- **Exception — code comments.** Comments follow the style of the file around them, because the standing rule is to match the comment density and idiom of the surrounding code. STE does not replace that rule.
+- **Code comments follow STE too.** Write every new comment and every comment you edit in STE. Keep the comment density of the file, but write the sentences in STE. This rule is stronger than the rule to match the idiom of the nearby code.
+- Do not rewrite an existing comment only to make it STE. Change a comment when you change the code it explains. The file style becomes STE over time.
 
 ## Working Rules
 - **Do not offer a choice built on an unverified premise.** If an option asserts a fact ("identical composition", "no visual change", "same framing"), verify it first or say in the option that it is unverified. An approval inherits the framing of the question, so a wrong premise makes the user's "yes" mean something they did not agree to.
