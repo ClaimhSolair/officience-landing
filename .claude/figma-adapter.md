@@ -203,6 +203,37 @@ of decision, not by section.
       the home page's story cards. The difference is the subject: stretching a
       building is a proportion error, stretching the founding team and cropping
       their logo board destroys the content. Do not "align" the two.
+18c. **Our Journey is ONE track in four frames, and the pictures share one band.**
+    `3133:4460` plus `3070:1902`, `3070:2037` and `3070:2157` are four scroll
+    positions of the same rail, not four sections — 2012, 2016 and 2026 each
+    appear in two of them. Ten events, 361px cards, 100px gutter.
+    - **Every card draws its picture at the same y** (698..960 in the section).
+      Only the text moves, above the band or below it. Reproduce that by pinning
+      the band (304px of space, then 262px of picture) and alternating the text
+      around it — never by placing each card at its own offset, which does not
+      survive a width change.
+    - Below lg the rail stretches the cards to equal height and each card's copy
+      wraps differently, so the bands drifted up to 52px apart. `flex-1` on the
+      text block pushes every picture to the card bottom and re-aligns them.
+    - **Each of the 13 fills has its own zoom crop** — 1.10x on 2006 against
+      2.18x on 2011 — so each crop is baked into its file at the box aspect
+      (361:262 single, 180:262 per half of a pair). Measured: `object-cover` is
+      a no-op on all 13. Only `2012` misses 2x (1.68x); its source is 1244x794
+      and the crop leaves 607px for a 722px slot. That original is owed.
+    - The connector is a **1px dashed rule, `#C6C6C6`, dash 5/5**, at the text
+      block's leading edge. A CSS `dashed` border uses the browser's own rhythm,
+      so a repeating gradient reproduces the drawn lengths.
+    - The 869px flower watermark (`opacity 0.04`, `#1F49BF`) belongs to the
+      **section**, not the track: all four frames draw it in the same place.
+    - A snap rail needs `scroll-padding` equal to its own padding. Without it a
+      `snap-start` card aligns to the container edge, the gutter scrolls away and
+      the rail rests at `scrollLeft` 24 instead of 0.
+    - Figma draws no arrows and no scrollbar; the rail, its drag and its arrows
+      are the build's own, following Proven Results.
+    - Copy drawn as-is and worth a ruling: **2011's title is set entirely at
+      36px** where every other event splits the year (36) from the name (24);
+      **"OffyPlex" in the 2017 title is "Offyplex" in its body**; **2016's body
+      has no full stop**.
 19. **The footer's social glyphs come from Figma, not the bucket.** `3129:3568` draws
     each mark at its own size inside a shared 38x38 box (LinkedIn 13.89x14.79, TikTok
     16.51x19.05, Facebook and YouTube filling the frame). The earlier decision to

@@ -17,7 +17,7 @@ const R2 = R2_STAGING;
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '14';
+const ASSET_VERSION = '15';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 /** One `srcset` candidate: a URL and the intrinsic width it was encoded at. */
@@ -111,6 +111,35 @@ export const ASSETS = {
     // 1440x780 box, so it renders at 0.71x there and 0.53x at 1920. Encoding it
     // larger would add bytes and no detail. The original is on the team's list.
     hero: a('/about-page/hero-2006.webp'),
+    /**
+     * Our Journey. Figma scales and offsets every one of these fills past what
+     * object-fit would use, and each crop differs — 1.10x on 2006 against 2.18x
+     * on 2011. CSS cannot express that, so **each crop is baked into the file at
+     * its box aspect** (361x262 for a single, 180x262 for one half of a pair),
+     * which makes `object-cover` a no-op and stops CSS distorting anything.
+     *
+     * Every file carries 2x its displayed size except `y2012`, whose source is
+     * 1244x794 and whose crop leaves only 607px for a 722px slot — 1.68x. That
+     * one original is on the team's list.
+     */
+    journey: {
+      y2006: a('/about-page/journey/2006.webp'),
+      y2010: a('/about-page/journey/2010.webp'),
+      y2011: a('/about-page/journey/2011.webp'),
+      y2012: a('/about-page/journey/2012.webp'),
+      y2013: a('/about-page/journey/2013.webp'),
+      y2015a: a('/about-page/journey/2015-a.webp'),
+      y2015b: a('/about-page/journey/2015-b.webp'),
+      y2016: a('/about-page/journey/2016.webp'),
+      y2017a: a('/about-page/journey/2017-a.webp'),
+      y2017b: a('/about-page/journey/2017-b.webp'),
+      y2025a: a('/about-page/journey/2025-a.webp'),
+      y2025b: a('/about-page/journey/2025-b.webp'),
+      y2026: a('/about-page/journey/2026.webp'),
+    },
+    // The 869px flower watermark behind the timeline, drawn at 4% opacity. It
+    // belongs to the section, not the track, so it does not scroll with it.
+    journeyWatermark: a('/about-page/journey-watermark.svg'),
   },
   // Proven Results project shots. Each is cropped to the window the artboard
   // actually shows — Figma scales and offsets these fills, so a straight export

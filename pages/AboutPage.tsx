@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { track } from '@vercel/analytics';
 import AboutHero from '../components/about/AboutHero';
 import OurStory from '../components/about/OurStory';
+import OurJourney from '../components/about/OurJourney';
 import { ABOUT_SECTION_IDS } from '../components/navigation';
 import { usePageView } from '../lib/pageMeta';
 
@@ -49,6 +50,7 @@ const AboutPage: React.FC = () => {
     <>
       <AboutHero />
       <OurStory />
+      <OurJourney />
     </>
   );
 };
