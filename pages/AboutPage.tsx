@@ -5,6 +5,7 @@ import OurStory from '../components/about/OurStory';
 import OurJourney from '../components/about/OurJourney';
 import OurValues from '../components/about/OurValues';
 import DiyJam from '../components/about/DiyJam';
+import OurTeam from '../components/about/OurTeam';
 import { ABOUT_SECTION_IDS } from '../components/navigation';
 import { usePageView } from '../lib/pageMeta';
 
@@ -55,6 +56,7 @@ const AboutPage: React.FC = () => {
       <OurJourney />
       <OurValues />
       <DiyJam />
+      <OurTeam />
     </>
   );
 };

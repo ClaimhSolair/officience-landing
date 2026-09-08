@@ -276,6 +276,27 @@ of decision, not by section.
       1920**. Another original the team owes.
     - Figma gives **neither button a destination**. `DIY_JAM_CTAS` in
       `navigation.ts` records the two stand-ins and why.
+18f. **Our Team's seven cards are drawn inconsistently and are NORMALISED.**
+    `3133:4583` — the frame is named "Our Values" but its badge says "Our Team",
+    and the badge is right. A 4x2 grid of 318px cards on a 40px gutter with 100
+    between the rows; the eighth cell holds the "Join our team" CTA.
+    - Six cards use a 4.386px radius, one uses 3.78. Card 1 carries
+      `0 1px 2px #0F1219`, card 2 carries `0 4px 4px rgba(0,0,0,.25)`, and the
+      other five carry none. Card 3 also sets its own `#f2f5f9` background.
+      These are **siblings in one row**, where a difference reads as a defect
+      rather than as intent, so the majority wins: 4px radius, no shadow, blue
+      band. This is the `SectionBadge` precedent, not the ruling-10 one — that
+      covered a difference between BREAKPOINTS, which nobody sees side by side.
+    - Each portrait nests **two** transforms: a wrapper inside the 318px image
+      box, then the picture scaled and offset inside that wrapper. Both are
+      baked into the file at the card's box aspect. Measured: `object-cover` is
+      a no-op on all seven, and every one carries 2x.
+    - The names are **not** `whitespace-nowrap` as Figma sets them. A card clips
+      its overflow, so a name that outgrew its box would be silently cut.
+      "Nguyen Ngoc Ai Duyen" wraps to two lines at 1440 and makes the section
+      20px taller than the artboard; Figma would have clipped it instead.
+    - Four columns only from `xl`. At 1024 the artboard's four cards plus their
+      gutters need 1392px against a 976px column.
 19. **The footer's social glyphs come from Figma, not the bucket.** `3129:3568` draws
     each mark at its own size inside a shared 38x38 box (LinkedIn 13.89x14.79, TikTok
     16.51x19.05, Facebook and YouTube filling the frame). The earlier decision to

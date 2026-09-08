@@ -1,4 +1,4 @@
-﻿// Image origins on Cloudflare R2. Source files live in /assets-src and are
+// Image origins on Cloudflare R2. Source files live in /assets-src and are
 // published with `npm run upload-assets`.
 //
 //   PRODUCTION — serves every image on officience.com today. READ-ONLY for the
@@ -17,7 +17,7 @@ const R2 = R2_STAGING;
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '16';
+const ASSET_VERSION = '17';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 /** One `srcset` candidate: a URL and the intrinsic width it was encoded at. */
@@ -156,6 +156,21 @@ export const ASSETS = {
     // DIY Jam. The source is 1024x683 against an 856x711 box, so it renders at
     // 1.20x — short of 2x, and the original is on the team's list.
     diyJam: a('/about-page/diy-jam.webp'),
+    /**
+     * Our Team portraits. Figma nests two transforms on each one — a wrapper
+     * inside the 318px image box, and the picture scaled and offset inside that
+     * wrapper — and every card differs. Both are baked into the file at the
+     * card's box aspect, so `object-cover` is a no-op. All seven carry 2x.
+     */
+    team: {
+      ducHaDuong: a('/about-page/team/duc-ha-duong.webp'),
+      duongCaoPhuong: a('/about-page/team/duong-cao-phuong.webp'),
+      aiDuyen: a('/about-page/team/ai-duyen.webp'),
+      thienVi: a('/about-page/team/thien-vi.webp'),
+      thuyDung: a('/about-page/team/thuy-dung.webp'),
+      bachTrinh: a('/about-page/team/bach-trinh.webp'),
+      minhQuyen: a('/about-page/team/minh-quyen.webp'),
+    },
   },
   // Proven Results project shots. Each is cropped to the window the artboard
   // actually shows — Figma scales and offsets these fills, so a straight export
