@@ -63,10 +63,15 @@ const OurTeam: React.FC = () => (
       {/* Four columns only from xl. At 1024 four 318px cards plus their gutters
           need 1392px, and the column holds 976 — the 24px names would wrap
           three deep in a 214px card. */}
+      {/* `amount` is a FRACTION OF THIS LIST, not of the screen. Stacked into
+          one column the list is about 3,900px tall, so the default 0.2 asks for
+          780px of it to be visible — more than any phone viewport — and the
+          cards would never appear at all. A small fraction fires as soon as the
+          top edge arrives, which is what a long grid wants. */}
       <Reveal
         as="ul"
         stagger={STAGGER.loose}
-        amount={0.2}
+        amount={0.05}
         className="grid grid-cols-1 gap-fig-40 sm:grid-cols-2 lg:grid-cols-3 lg:gap-y-fig-64 xl:grid-cols-4 xl:gap-y-fig-100"
       >
         {MEMBERS.map((m) => (

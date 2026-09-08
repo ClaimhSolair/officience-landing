@@ -319,6 +319,16 @@ of decision, not by section.
     - Only `animate-marquee` survives in the config — cleanup removed the
       reverse keyframe — so the second row uses `animation-direction: reverse`
       rather than restoring one.
+18h. **`Reveal`'s `amount` is a fraction of the CONTAINER, not of the screen.**
+    Found on the About Us page's Our Team grid, 2026-09-08. Stacked into one
+    column that list is about 3,900px tall, so the default `amount: 0.2` asked
+    for **780px of it to be visible — more than any phone viewport** — and the
+    seven cards plus the CTA never appeared at all on a phone.
+    - A probe at a 1600px viewport passes, because 780 < 1600. **Probe a real
+      phone height** (390x568 and 390x667) whenever a `Reveal` wraps a list that
+      stacks.
+    - For a long list use a small fraction (0.05 here), which fires as the top
+      edge arrives. Keep the larger default for short rows.
 19. **The footer's social glyphs come from Figma, not the bucket.** `3129:3568` draws
     each mark at its own size inside a shared 38x38 box (LinkedIn 13.89x14.79, TikTok
     16.51x19.05, Facebook and YouTube filling the frame). The earlier decision to
