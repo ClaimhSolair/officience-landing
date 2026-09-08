@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
+import { ASSETS } from '../../assets';
 import Container from '../ui/Container';
 import Reveal, { RevealChild } from '../ui/Reveal';
 import SectionBadge from '../ui/SectionBadge';
 import { SEC } from '../../lib/motion';
 
 /**
- * Our Values — Figma 3489:3191, with the unclipped copy in 3082:1777.
+ * Our Values â€” Figma 3489:3191, with the unclipped copy in 3082:1777.
  *
  * COMIC, as five panels of one accordion. The artboard draws Caring open: its
  * panel is 448 wide and the other four are 214, on a 20px gutter, which fills
@@ -14,7 +15,7 @@ import { SEC } from '../../lib/motion';
  * **The two panel states are mirrored, not one revealed.** A collapsed panel
  * puts the mark at its left (overflowing by 78) and clips the text; an open
  * panel puts the mark at its right and shows the text whole. So the mark moves
- * between the states — the collapsed panel is not the left slice of the open
+ * between the states â€” the collapsed panel is not the left slice of the open
  * one, and building it that way would hide the mark entirely.
  *
  * Colours are read off the two rendered states: a closed panel sets its title
@@ -45,8 +46,12 @@ interface ValueItem {
   id: string;
   title: string;
   body: string;
-  /** The mark's own colour. Each value owns one; they are not a dimmed state. */
+  /**
+   * The mark's own colour. Each value owns one, and the exported SVG carries it
+   * as a single flat fill â€” so these are not a dimmed or an active state.
+   */
   colour: string;
+  mark: string;
 }
 
 const VALUES: ValueItem[] = [
@@ -55,30 +60,35 @@ const VALUES: ValueItem[] = [
     title: 'Commitment',
     body: 'Actions speak louder than words, and together with consistency, they go a long way. So be a man of actions yourself, not just a man of words.',
     colour: '#FFF1F3',
+    mark: ASSETS.aboutPage.values.commitment,
   },
   {
     id: 'openness',
     title: 'Open & Sincerity',
-    body: 'In the end, we’re all human, and our thoughts and feelings need to be appreciated, hence the need for an environment of trust where constructive criticisms are encouraged.',
+    body: 'In the end, weâ€™re all human, and our thoughts and feelings need to be appreciated, hence the need for an environment of trust where constructive criticisms are encouraged.',
     colour: '#FFEB97',
+    mark: ASSETS.aboutPage.values.openness,
   },
   {
     id: 'merit',
     title: 'Merit',
-    body: 'In Maslow’s hierarchy of needs, self-esteem is the second-highest need to give meaning to our contributions and respects we need to be more than we are today.',
+    body: 'In Maslowâ€™s hierarchy of needs, self-esteem is the second-highest need to give meaning to our contributions and respects we need to be more than we are today.',
     colour: '#FFBFC7',
+    mark: ASSETS.aboutPage.values.merit,
   },
   {
     id: 'innovation',
     title: 'Innovation',
     body: 'Creativity and innovation are vital to our social and global development, and the root of the continuous improvement which we promised.',
     colour: '#CAF2E0',
+    mark: ASSETS.aboutPage.values.innovation,
   },
   {
     id: 'caring',
     title: 'Caring',
     body: 'No one is the exact same as anyone but through empathy and compassion, we can understand each other in order to build a strong and connected society.',
     colour: '#1F49BF',
+    mark: ASSETS.aboutPage.values.caring,
   },
 ];
 
@@ -110,7 +120,7 @@ const OurValues: React.FC = () => {
             const isOpen = open === item.id;
             // The basis travels through a custom property so it binds only at
             // lg. As a plain inline style it would apply below lg too, where the
-            // list is a column — and a flex-basis in a column sets the panel's
+            // list is a column â€” and a flex-basis in a column sets the panel's
             // HEIGHT, not its width.
             //
             // The widths are the artboard's PROPORTIONS, not its pixels. 214 and
@@ -141,21 +151,22 @@ const OurValues: React.FC = () => {
                   onClick={() => setOpen(item.id)}
                   className="relative block w-full text-left lg:h-full"
                 >
-                  {/*
-                    MARK SLOT — the five SVGs are not in the build yet.
-
-                    Figma's `get_design_context` timed out on every node in this
-                    session, including ones that returned an SVG earlier, so the
-                    paths could not be exported. The slot holds the artboard's
-                    284x284 box and its position, so the five files drop in here
-                    and nothing else moves. Do not trace them from a screenshot:
-                    an approximation of brand artwork is worse than its absence.
-                  */}
-                  <span
+                  {/* The mark travels with the state: a closed panel holds it at
+                      the panel's left edge, an open one at its right. Each file
+                      is 284x284 and clips itself, because several petals are
+                      drawn past that frame on purpose. */}
+                  <img
+                    src={item.mark}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
                     aria-hidden="true"
                     data-value-mark={item.id}
                     data-mark-colour={item.colour}
-                    className="pointer-events-none absolute hidden lg:block lg:transition-[left] lg:duration-500 lg:ease-out lg:motion-reduce:transition-none"
+                    // `max-w-none` matters: a global `img { max-width: 100% }`
+                    // capped the mark to the panel width and squashed it to
+                    // 215x284. The panel must CLIP the 284 square, not resize it.
+                    className="pointer-events-none absolute hidden max-w-none select-none lg:block lg:transition-[left] lg:duration-500 lg:ease-out lg:motion-reduce:transition-none"
                     style={{
                       width: MARK,
                       height: MARK,
@@ -165,7 +176,7 @@ const OurValues: React.FC = () => {
                   />
 
                   {/* The text block is 407 wide in both states. A closed panel
-                      is 214, so the artboard clips it — that is drawn, not a
+                      is 214, so the artboard clips it â€” that is drawn, not a
                       defect. */}
                   <div
                     className="block lg:absolute lg:left-fig-20 lg:w-[407px]"

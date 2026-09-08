@@ -151,6 +151,25 @@ export const DISCOVER_OUR_STORY: NavItem = {
   target: { kind: 'route', to: ROUTES.about },
 };
 
+/**
+ * The two DIY Jam buttons on the About Us page. Figma draws neither with a
+ * destination, so each goes somewhere sensible rather than nowhere: the story
+ * to this page's own Working Life section, which carries the DIY Jam entries,
+ * and the built work to the home page's Proven Results deck.
+ */
+export const DIY_JAM_CTAS: NavItem[] = [
+  {
+    label: 'See the story',
+    target: { kind: 'route', to: ROUTES.about },
+    unresolved: 'No DIY Jam story page exists — scrolls to Working Life for now.',
+  },
+  {
+    label: 'See what we built',
+    target: { kind: 'section', id: 'proven-results' },
+    unresolved: 'No DIY Jam work archive exists — points at Proven Results for now.',
+  },
+];
+
 /** "View All Work" on the Proven Results deck. */
 export const VIEW_ALL_WORK: NavItem = {
   label: 'View All Work',

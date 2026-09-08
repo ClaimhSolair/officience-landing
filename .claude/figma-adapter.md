@@ -255,10 +255,27 @@ of decision, not by section.
       row ran 384px past the screen, clipped by `body { overflow-x: hidden }`
       and invisible to a leaf-based overflow probe, because each panel clips its
       own children. Shares reproduce the artboard exactly at 1440.
-    - The five mark SVGs are **NOT in the build**: `get_design_context` timed
-      out on every node in the 2026-09-08 session, including ones that had
-      returned SVGs earlier. `OurValues.tsx` holds a sized, positioned slot for
-      them. Do not trace them from a screenshot.
+    - The five mark SVGs shipped once `get_design_context` recovered later in
+      the 2026-09-08 session. Each is 284x284 and **clips itself**, because
+      several petals are drawn past that frame. Their flat fills confirmed the
+      per-value colours above independently of the screenshots.
+    - A mark needs **`max-w-none`**: the global `img { max-width: 100% }` capped
+      it to the panel width and squashed the 284 square to 215x284. The panel
+      must CLIP the mark, never resize it.
+18e. **DIY Jam (`3133:4506`) shows its whole photograph, like the hero.**
+    Figma draws the 1024x683 fill with `object-fit: fill` into an 856x711 box,
+    which squeezes the group 1.25x. `object-contain` under ruling 18b instead:
+    distortion 1.000 and the whole frame visible at every width.
+    - **Both columns are sized by SHARE.** The artboard's 496 card, 40 gutter
+      and 856 picture need 1392px, so the row starts at `xl`; below that they
+      stack. A fixed 496 card against a fluid picture also drifted the drawn
+      496:856 to 496:1256 at 1920, and letting the picture take `flex-1` at
+      1024 flattened its box from 1.204 to 0.783. The share holds 0.3669 at
+      1280/1440/1920 and reproduces 496x(856x711) exactly at 1440.
+    - The source is 1024x683 for an 856x711 box: **1.20x at 1440 and 0.92x at
+      1920**. Another original the team owes.
+    - Figma gives **neither button a destination**. `DIY_JAM_CTAS` in
+      `navigation.ts` records the two stand-ins and why.
 19. **The footer's social glyphs come from Figma, not the bucket.** `3129:3568` draws
     each mark at its own size inside a shared 38x38 box (LinkedIn 13.89x14.79, TikTok
     16.51x19.05, Facebook and YouTube filling the frame). The earlier decision to
