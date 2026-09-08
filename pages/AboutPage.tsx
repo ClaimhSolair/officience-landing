@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { track } from '@vercel/analytics';
 import AboutHero from '../components/about/AboutHero';
 import OurStory from '../components/about/OurStory';
@@ -6,6 +6,7 @@ import OurJourney from '../components/about/OurJourney';
 import OurValues from '../components/about/OurValues';
 import DiyJam from '../components/about/DiyJam';
 import OurTeam from '../components/about/OurTeam';
+import WorkingLife from '../components/about/WorkingLife';
 import { ABOUT_SECTION_IDS } from '../components/navigation';
 import { usePageView } from '../lib/pageMeta';
 
@@ -57,6 +58,7 @@ const AboutPage: React.FC = () => {
       <OurValues />
       <DiyJam />
       <OurTeam />
+      <WorkingLife />
     </>
   );
 };

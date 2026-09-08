@@ -297,6 +297,28 @@ of decision, not by section.
       20px taller than the artboard; Figma would have clipped it instead.
     - Four columns only from `xl`. At 1024 the artboard's four cards plus their
       gutters need 1392px against a 976px column.
+18g. **Our Working Life's marquee needs NO assets of its own.**
+    `3133:4640`. A news list (403) beside a white panel (987.6) holding the
+    anniversary banner, then two photo rows.
+    - **Both marquee rows draw the same nine pictures as Our Journey, at the
+      same crops**, and a tile's 330.222x239.663 box is the same 1.378 ratio as
+      a Journey card — so the baked Journey files drop straight in. The rows are
+      one set in two orders. Check this before exporting anything here.
+    - Figma leaves a **dashed connector inside three marquee tiles**, copied
+      from the timeline cards. They render behind the pictures and are invisible
+      in the artboard, so they are dropped rather than reproduced.
+    - The banner is **rebuilt from its layers, not flattened**: a blue ground,
+      two 1024x417 photo textures at 38% on `mix-blend-overlay`, the vertical
+      logo, the "20th" mark, and two lines of live text. Its type scales with
+      the box through **container query units** (`container-type: inline-size`
+      plus `6.14cqw`), because the banner's width follows the column. Measured:
+      57.15px at 1440 against the artboard's 57.056, and 19.03px at 390.
+    - The white panel insets the banner **28.8 left, 29.5 right, 28.8 top and
+      bottom**. Only the right inset is stated in the export; the others come
+      from 987.6 - 29.5 - 929.302 and 660 - 602.4.
+    - Only `animate-marquee` survives in the config — cleanup removed the
+      reverse keyframe — so the second row uses `animation-direction: reverse`
+      rather than restoring one.
 19. **The footer's social glyphs come from Figma, not the bucket.** `3129:3568` draws
     each mark at its own size inside a shared 38x38 box (LinkedIn 13.89x14.79, TikTok
     16.51x19.05, Facebook and YouTube filling the frame). The earlier decision to

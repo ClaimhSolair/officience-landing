@@ -17,7 +17,7 @@ const R2 = R2_STAGING;
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '17';
+const ASSET_VERSION = '18';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 /** One `srcset` candidate: a URL and the intrinsic width it was encoded at. */
@@ -170,6 +170,23 @@ export const ASSETS = {
       thuyDung: a('/about-page/team/thuy-dung.webp'),
       bachTrinh: a('/about-page/team/bach-trinh.webp'),
       minhQuyen: a('/about-page/team/minh-quyen.webp'),
+    },
+    /**
+     * The anniversary banner in Our Working Life. Figma composes it from layers
+     * rather than shipping one picture: a blue ground, two photo-grid textures
+     * at 38% on `mix-blend-overlay`, the vertical logo, the "20th" mark, and two
+     * lines of live text. It is rebuilt the same way, so the type stays crisp
+     * and selectable at any width.
+     *
+     * Both textures are 1024x417 for a 929px box — 1.10x. They carry a 38%
+     * overlay, so the softness does not show.
+     */
+    banner: {
+      gridTop: a('/about-page/banner/grid-top.webp'),
+      gridBottom: a('/about-page/banner/grid-bottom.webp'),
+      logoMark: a('/about-page/banner/logo-mark.svg'),
+      logoWord: a('/about-page/banner/logo-word.svg'),
+      twentieth: a('/about-page/banner/twentieth.svg'),
     },
   },
   // Proven Results project shots. Each is cropped to the window the artboard
