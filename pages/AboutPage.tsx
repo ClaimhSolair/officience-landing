@@ -9,7 +9,7 @@ import { ABOUT_SECTION_IDS } from '../components/navigation';
 import { usePageView } from '../lib/pageMeta';
 
 /**
- * The About Us page â€” Figma 3133:4423, a 1440 artboard.
+ * The About Us page — Figma 3133:4423, a 1440 artboard.
  *
  * The file draws no 390 frame and no 1920 frame for this page, so the mobile
  * treatment and the widths above 1440 are this build's own. Mobile follows the
@@ -24,7 +24,7 @@ import { usePageView } from '../lib/pageMeta';
 const tracked = new Set<string>();
 
 const AboutPage: React.FC = () => {
-  usePageView('About Us â€” Officience');
+  usePageView('About Us — Officience');
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -32,7 +32,7 @@ const AboutPage: React.FC = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !tracked.has(entry.target.id)) {
             tracked.add(entry.target.id);
-            // Vercel Analytics custom event â€” not GA4.
+            // Vercel Analytics custom event — not GA4.
             track('section_view', { section: entry.target.id });
           }
         });

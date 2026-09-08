@@ -6,7 +6,7 @@ import SectionBadge from '../ui/SectionBadge';
 import { SEC } from '../../lib/motion';
 
 /**
- * Our Values â€” Figma 3489:3191, with the unclipped copy in 3082:1777.
+ * Our Values — Figma 3489:3191, with the unclipped copy in 3082:1777.
  *
  * COMIC, as five panels of one accordion. The artboard draws Caring open: its
  * panel is 448 wide and the other four are 214, on a 20px gutter, which fills
@@ -15,7 +15,7 @@ import { SEC } from '../../lib/motion';
  * **The two panel states are mirrored, not one revealed.** A collapsed panel
  * puts the mark at its left (overflowing by 78) and clips the text; an open
  * panel puts the mark at its right and shows the text whole. So the mark moves
- * between the states â€” the collapsed panel is not the left slice of the open
+ * between the states — the collapsed panel is not the left slice of the open
  * one, and building it that way would hide the mark entirely.
  *
  * Colours are read off the two rendered states: a closed panel sets its title
@@ -48,7 +48,7 @@ interface ValueItem {
   body: string;
   /**
    * The mark's own colour. Each value owns one, and the exported SVG carries it
-   * as a single flat fill â€” so these are not a dimmed or an active state.
+   * as a single flat fill — so these are not a dimmed or an active state.
    */
   colour: string;
   mark: string;
@@ -65,14 +65,14 @@ const VALUES: ValueItem[] = [
   {
     id: 'openness',
     title: 'Open & Sincerity',
-    body: 'In the end, weâ€™re all human, and our thoughts and feelings need to be appreciated, hence the need for an environment of trust where constructive criticisms are encouraged.',
+    body: 'In the end, we’re all human, and our thoughts and feelings need to be appreciated, hence the need for an environment of trust where constructive criticisms are encouraged.',
     colour: '#FFEB97',
     mark: ASSETS.aboutPage.values.openness,
   },
   {
     id: 'merit',
     title: 'Merit',
-    body: 'In Maslowâ€™s hierarchy of needs, self-esteem is the second-highest need to give meaning to our contributions and respects we need to be more than we are today.',
+    body: 'In Maslow’s hierarchy of needs, self-esteem is the second-highest need to give meaning to our contributions and respects we need to be more than we are today.',
     colour: '#FFBFC7',
     mark: ASSETS.aboutPage.values.merit,
   },
@@ -120,7 +120,7 @@ const OurValues: React.FC = () => {
             const isOpen = open === item.id;
             // The basis travels through a custom property so it binds only at
             // lg. As a plain inline style it would apply below lg too, where the
-            // list is a column â€” and a flex-basis in a column sets the panel's
+            // list is a column — and a flex-basis in a column sets the panel's
             // HEIGHT, not its width.
             //
             // The widths are the artboard's PROPORTIONS, not its pixels. 214 and
@@ -176,7 +176,7 @@ const OurValues: React.FC = () => {
                   />
 
                   {/* The text block is 407 wide in both states. A closed panel
-                      is 214, so the artboard clips it â€” that is drawn, not a
+                      is 214, so the artboard clips it — that is drawn, not a
                       defect. */}
                   <div
                     className="block lg:absolute lg:left-fig-20 lg:w-[407px]"

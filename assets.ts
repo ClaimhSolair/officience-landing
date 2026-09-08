@@ -1,11 +1,11 @@
 ﻿// Image origins on Cloudflare R2. Source files live in /assets-src and are
 // published with `npm run upload-assets`.
 //
-//   PRODUCTION â€” serves every image on officience.com today. READ-ONLY for the
+//   PRODUCTION — serves every image on officience.com today. READ-ONLY for the
 //   Sept-2026 redesign: uploads overwrite objects in place, with no cache
 //   header and no deploy gate, so writing here would change the live site.
 const R2_PRODUCTION = 'https://pub-37210447316445838bf89f8613ac9ea5.r2.dev';
-//   STAGING â€” receives every Sept-2026 asset. Becomes the production origin at
+//   STAGING — receives every Sept-2026 asset. Becomes the production origin at
 //   merge (a URL flip, no copy), leaving R2_PRODUCTION intact as the rollback.
 const R2_STAGING = 'https://pub-767c5aebf4a841a595fec5daeb08d3b4.r2.dev';
 
@@ -28,7 +28,7 @@ export interface ImageSource {
 
 /** One client logo, at the pixel size the 1920 artboard draws it. */
 export interface ClientLogo {
-  /** Brand name â€” the image's alt text, so it has to read as the company. */
+  /** Brand name — the image's alt text, so it has to read as the company. */
   name: string;
   url: string;
   w: number;
@@ -41,7 +41,7 @@ export const srcSetOf = (sources: ImageSource[]) =>
 
 export const ASSETS = {
   header: { logo: a('/header/logo.png') },
-  // Exported from Figma 3137:1875 â€” one path set, all fills #1F49BF, so the
+  // Exported from Figma 3137:1875 — one path set, all fills #1F49BF, so the
   // petals are knock-outs that show whatever sits behind them.
   brand: { flower: a('/brand/officience-flower.svg') },
   icons: { eyebrow: a('/icons/eyebrow-mark.svg') },
@@ -59,7 +59,7 @@ export const ASSETS = {
     },
   },
   // Story-card photography. Two independent sets, because the artboards frame
-  // these photos differently rather than merely at different sizes â€” art
+  // these photos differently rather than merely at different sizes — art
   // direction, which srcset cannot express, hence <picture> in AboutUs.
   //
   //   small/large  the 1920 treatment: the whole frame, which the desktop card
@@ -69,7 +69,7 @@ export const ASSETS = {
   //                what object-fit: cover would use and offsets it, so the crop
   //                window is baked into the file at exactly the artboard's box
   //                aspect. Cut from the 3480-4096px originals behind the mobile
-  //                fills â€” far larger than the desktop exports above.
+  //                fills — far larger than the desktop exports above.
   about: {
     cards: [
       {
@@ -113,13 +113,13 @@ export const ASSETS = {
     hero: a('/about-page/hero-2006.webp'),
     /**
      * Our Journey. Figma scales and offsets every one of these fills past what
-     * object-fit would use, and each crop differs â€” 1.10x on 2006 against 2.18x
+     * object-fit would use, and each crop differs — 1.10x on 2006 against 2.18x
      * on 2011. CSS cannot express that, so **each crop is baked into the file at
      * its box aspect** (361x262 for a single, 180x262 for one half of a pair),
      * which makes `object-cover` a no-op and stops CSS distorting anything.
      *
      * Every file carries 2x its displayed size except `y2012`, whose source is
-     * 1244x794 and whose crop leaves only 607px for a 722px slot â€” 1.68x. That
+     * 1244x794 and whose crop leaves only 607px for a 722px slot — 1.68x. That
      * one original is on the team's list.
      */
     journey: {
@@ -142,7 +142,7 @@ export const ASSETS = {
     journeyWatermark: a('/about-page/journey-watermark.svg'),
     /**
      * The five Our Values marks, each 284x284 and clipped to that box by its
-     * own clipPath â€” several petals are drawn past the frame on purpose. Every
+     * own clipPath — several petals are drawn past the frame on purpose. Every
      * file carries one flat fill, and those fills confirm the colour a value
      * owns: they are not a dimmed or active state.
      */
@@ -154,12 +154,12 @@ export const ASSETS = {
       caring: a('/about-page/values/caring.svg'),
     },
     // DIY Jam. The source is 1024x683 against an 856x711 box, so it renders at
-    // 1.20x â€” short of 2x, and the original is on the team's list.
+    // 1.20x — short of 2x, and the original is on the team's list.
     diyJam: a('/about-page/diy-jam.webp'),
   },
   // Proven Results project shots. Each is cropped to the window the artboard
-  // actually shows â€” Figma scales and offsets these fills, so a straight export
-  // is mostly off-frame â€” then re-encoded WebP q80 at the widths the crop can
+  // actually shows — Figma scales and offsets these fills, so a straight export
+  // is mostly off-frame — then re-encoded WebP q80 at the widths the crop can
   // honestly carry. IOGA yields only 419px for a 587px slot; the others are
   // fine at 1x and short of a 2x screen. Originals are on the team's list.
   works: {
@@ -189,7 +189,7 @@ export const ASSETS = {
    * The client wall, exported from the Figma marquee (3137:2138) at 2x the size
    * each logo is drawn at. Every crop keeps the transparent padding of its Figma
    * frame, so rendering at `w` x `h` reproduces the artboard's optical balance
-   * with no per-logo nudging â€” the marquee only has to scale the pair.
+   * with no per-logo nudging — the marquee only has to scale the pair.
    *
    * Figma lays out twelve tiles, but the twelfth is `saur` a second time, drawn
    * at a different size: the designer showing the loop wrapping, not a twelfth
@@ -230,8 +230,8 @@ export const ASSETS = {
      * a single scale rather than restating every pair.
      *
      * These are provisional. Figma's underlying files are named
-     * "maxresdefault (3) 1", "Gemini_Generated_Image_â€¦" and "images (9) 1" â€” a
-     * video thumbnail, an AI generation and a stray download â€” so they are
+     * "maxresdefault (3) 1", "Gemini_Generated_Image_…" and "images (9) 1" — a
+     * video thumbnail, an AI generation and a stray download — so they are
      * stand-ins, not brand assets. Offinity is worse: it is drawn as six loose
      * vectors rather than one logo, and `offinity.svg` is those six recomposed.
      * All five want originals from the team.
