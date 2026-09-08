@@ -234,6 +234,31 @@ of decision, not by section.
       36px** where every other event splits the year (36) from the name (24);
       **"OffyPlex" in the 2017 title is "Offyplex" in its body**; **2016's body
       has no full stop**.
+18d. **Our Values is an accordion whose two panel states are MIRRORED.**
+    `3489:3191`; the unclipped copy is in `3082:1777`, which is a **different
+    colour variant** (coloured panels, white marks) — the section is what ships.
+    - A closed panel puts the mark at its left (`left: -78`) and clips the
+      407px text block to 214; an open panel puts the mark at its right
+      (`left: 242`) and shows the text whole. So the mark **moves** between the
+      states. A closed panel is not the left slice of an open one, and building
+      it that way hides the mark completely.
+    - Colours, read off both rendered states: closed sets title AND body in
+      Text/Subtitle-2 `#A0A0A0`; open sets the title `#1F49BF` and the body
+      `#0F1219`.
+    - Each value owns a mark colour: Commitment `#FFF1F3`, Open & Sincerity
+      `#FFEB97`, Merit `#FFBFC7`, Innovation `#CAF2E0`, Caring `#1F49BF`.
+      **Unresolved:** the artboard opens Caring, whose colour is also the blue
+      used for the active title, so it cannot show whether a mark turns blue
+      when its panel opens. Built as five fixed colours; one line to change.
+    - **Size the panels by SHARE, not by pixels.** 214/448 on four 20px gutters
+      needs 1384px, which fits the column only above roughly 1432px; at 1024 the
+      row ran 384px past the screen, clipped by `body { overflow-x: hidden }`
+      and invisible to a leaf-based overflow probe, because each panel clips its
+      own children. Shares reproduce the artboard exactly at 1440.
+    - The five mark SVGs are **NOT in the build**: `get_design_context` timed
+      out on every node in the 2026-09-08 session, including ones that had
+      returned SVGs earlier. `OurValues.tsx` holds a sized, positioned slot for
+      them. Do not trace them from a screenshot.
 19. **The footer's social glyphs come from Figma, not the bucket.** `3129:3568` draws
     each mark at its own size inside a shared 38x38 box (LinkedIn 13.89x14.79, TikTok
     16.51x19.05, Facebook and YouTube filling the frame). The earlier decision to
