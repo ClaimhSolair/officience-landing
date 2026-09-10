@@ -1,9 +1,9 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import Container from './ui/Container';
 import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
-import { EASE, MOTION, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
+import { EASE, MOTION, SEC, STAGGER, useMinWidth, useMotionEnabled } from '../lib/motion';
 import { ASSETS } from '../assets';
 
 /**
@@ -29,31 +29,145 @@ const TESTIMONIALS = [
   {
     // 390 writes "had become"; 1920 writes "has". Following 1920 — it is the
     // frame the copy was set in, and the tense is right.
-    quote: '"Officience has become our main partner and I don\u2019t regret it a single day."',
+    quote: '"Officience has become our main partner and I don’t regret it a single day."',
     name: 'Dr. Jean Marcel Guillon',
     role: 'FV Hospital',
     image: ASSETS.testimonials.authors[1],
   },
   {
-    quote: '"I really appreciate the team\u2019s availability & responsiveness."',
+    quote: '"I really appreciate the team’s availability & responsiveness."',
     name: 'Mr. Leurette',
     role: 'Program Director - Orange',
     image: ASSETS.testimonials.authors[0],
   },
   {
     // The 390 frame repeats the second quote here; 1920 carries the real one.
-    quote: '\u201cWithout you, I just could not work.\u201d',
+    quote: '“Without you, I just could not work.”',
     name: 'L. Lemaire',
     role: 'Director of Sales',
     image: ASSETS.testimonials.authors[2],
   },
 ];
 
-const ClientStories: React.FC = () => {
-  const motionOn = useMotionEnabled();
+/**
+ * Slide-tilt, cloned and adapted from the outsourceconsultants.com PROCESS deck
+ * (measured law in `.claude/motion-catalog.md`, Item 13: rotate ±12°, x = 150·N,
+ * scrubbed to rest). Our column is narrow and holds three cards, not four, so the
+ * card slides in from the right only — not the reference's down-right diagonal —
+ * behind an `overflow-x-clip`, tilts, then straightens and lifts to its resting
+ * place. The reference is drawn on the site's own blue grid; the user chose a
+ * single subtle neutral rule instead.
+ *
+ * One constant each; tune here. The tilt sign alternates by card, so the three
+ * cards lean −, +, −.
+ */
+const TILT_DEG = 10;
+const SLIDE_X = 160;
+const RISE_Y = 44;
+
+/**
+ * Overdamped, so a straightening card glides between wheel notches and never
+ * bounces past upright. Same shape as the Capabilities deck spring.
+ */
+const SCRUB_SPRING = { stiffness: 120, damping: 28, restDelta: 0.001 };
+
+/** The card box, shared by the static and the scrubbed branch. */
+const CARD =
+  'flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:gap-fig-20 lg:rounded-fig-l lg:p-fig-40';
+
+const Testimonial: React.FC<{
+  t: (typeof TESTIMONIALS)[number];
+  index: number;
+  scrub: boolean;
+  motionOn: boolean;
+}> = ({ t, index, scrub, motionOn }) => {
+  // The observed li never transforms, so its measured position stays honest —
+  // the moving box is the inner div. (Capabilities ServiceRow, same reason.)
+  const ref = useRef<HTMLLIElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
+  const p = useSpring(scrollYProgress, SCRUB_SPRING);
+  // Card slides in from the right, tilted, and settles upright as it climbs to
+  // mid-screen; clamped at rest after. The lean alternates −, +, −.
+  const dir = index % 2 === 0 ? -1 : 1;
+  const rotate = useTransform(p, [0, 1], [dir * TILT_DEG, 0]);
+  const x = useTransform(p, [0, 1], [SLIDE_X, 0]);
+  const y = useTransform(p, [0, 1], [RISE_Y, 0]);
+
+  const body = (
+    <>
+      <p className="font-body text-body-md text-text-default lg:text-body-xl">{t.quote}</p>
+      {/* The rule draws itself in from the left once the card has landed, which
+          separates the quote from its attribution rather than the two simply
+          appearing together. */}
+      <motion.hr
+        className="w-full origin-left border-0 border-t border-border-frame"
+        initial={motionOn && MOTION.clients ? { scaleX: 0 } : false}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true, amount: 0.6 }}
+        transition={{ duration: SEC.revealFast, ease: [...EASE.reveal], delay: 0.25 }}
+      />
+
+      <div className="flex items-center gap-fig-8 lg:gap-fig-12">
+        {/* The name sits next to the portrait, so the portrait repeating it as alt
+            text would double it up for a screen reader. */}
+        <img
+          src={t.image}
+          alt=""
+          aria-hidden="true"
+          width={52}
+          height={52}
+          className="h-[36px] w-[36px] shrink-0 rounded-full object-cover lg:h-[52px] lg:w-[52px]"
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+        />
+        <div className="flex flex-col lg:gap-[4px]">
+          <p className="font-body font-bold text-[14px] leading-[22px] text-text-default lg:font-sans lg:text-h4">
+            {t.name}
+          </p>
+          <p className="font-body text-[10px] leading-[16px] text-subtitle lg:text-[14px] lg:font-medium lg:leading-[22px]">
+            {t.role}
+          </p>
+        </div>
+      </div>
+    </>
+  );
+
+  // Reduced motion and mobile keep the approved static card exactly — its own
+  // fade-rise entrance and nothing more. A scrub cannot reach this branch, so it
+  // needs no MotionValue. Branch to keyed elements; never re-prop one node
+  // between a variant entrance and a style-MotionValue transform.
+  if (!scrub) {
+    return (
+      /* min-height keeps the stack rhythm without clipping the role descenders,
+         and squares the shorter third card. */
+      <RevealChild as="li" y={40} className={CARD}>
+        {body}
+      </RevealChild>
+    );
+  }
 
   return (
-  <section id="clients" className="bg-bg-secondary">
+    <li ref={ref} className="relative z-10">
+      <motion.div className={CARD} style={{ x, y, rotate }}>
+        {body}
+      </motion.div>
+    </li>
+  );
+};
+
+const ClientStories: React.FC = () => {
+  const motionOn = useMotionEnabled();
+  const wide = useMinWidth(1024);
+  // The slide-tilt scrub runs on desktop only, and folds in reduced motion
+  // through `motionOn`. Off ⇒ the approved static stack, unchanged.
+  const scrub = motionOn && wide && MOTION.clients;
+
+  return (
+  // overflow-x-clip catches the cards while they are still slid to the right, so
+  // the entrance never widens the page. It clips the x axis only, so the card
+  // rule draw and the rest of the column are untouched.
+  <section id="clients" className="overflow-x-clip bg-bg-secondary">
     {/* 1920 lays the two columns out at 600 / 146 / 847 inside the 1792 content
         width. The 146px gap belongs at lg, not 3xl: a maximised 1920x1080 browser
         reports about 1910px of viewport, so 3xl (1920px) never fires there and the
@@ -86,56 +200,21 @@ const ClientStories: React.FC = () => {
         as="ul"
         stagger={STAGGER.loose}
         enabled={MOTION.clients}
-        className="flex w-full flex-col gap-fig-20 lg:max-w-[847px] lg:flex-1 lg:gap-fig-100"
+        className="relative flex w-full flex-col gap-fig-20 lg:max-w-[847px] lg:flex-1 lg:gap-fig-100"
       >
-        {TESTIMONIALS.map((t) => (
-          <RevealChild
-            as="li"
-            key={t.name}
-            y={40}
-            /* Both frames fix the card height — 174 at 390, 200 at 1920 — while
-               their own contents measure a couple of pixels more. A min-height
-               keeps the stack's rhythm without clipping the role's descenders,
-               and squares up the third card, whose quote is a line shorter than
-               the other two and would otherwise sit 20px low. */
-            className="flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:gap-fig-20 lg:rounded-fig-l lg:p-fig-40 lg:shadow-fig-sm"
-          >
-            <p className="font-body text-body-md text-text-default lg:text-body-xl">{t.quote}</p>
-            {/* The rule draws itself in from the left once the card has landed,
-                which is what separates the quote from its attribution rather than
-                the two simply appearing together. */}
-            <motion.hr
-              className="w-full origin-left border-0 border-t border-border-frame"
-              initial={motionOn && MOTION.clients ? { scaleX: 0 } : false}
-              whileInView={{ scaleX: 1 }}
-              viewport={{ once: true, amount: 0.6 }}
-              transition={{ duration: SEC.revealFast, ease: [...EASE.reveal], delay: 0.25 }}
-            />
-
-            <div className="flex items-center gap-fig-8 lg:gap-fig-12">
-              {/* The name sits next to the portrait, so the portrait repeating it
-                  as alt text would double it up for a screen reader. */}
-              <img
-                src={t.image}
-                alt=""
-                aria-hidden="true"
-                width={52}
-                height={52}
-                className="h-[36px] w-[36px] shrink-0 rounded-full object-cover lg:h-[52px] lg:w-[52px]"
-                loading="lazy"
-                decoding="async"
-                referrerPolicy="no-referrer"
-              />
-              <div className="flex flex-col lg:gap-[4px]">
-                <p className="font-body font-bold text-[14px] leading-[22px] text-text-default lg:font-sans lg:text-h4">
-                  {t.name}
-                </p>
-                <p className="font-body text-[10px] leading-[16px] text-subtitle lg:text-[14px] lg:font-medium lg:leading-[22px]">
-                  {t.role}
-                </p>
-              </div>
-            </div>
-          </RevealChild>
+        {/* The spine. A single thin neutral rule down the middle of the column,
+            behind the cards (z-0 against their z-10), so it reads only in the
+            gaps between them — the reference look, without its full blue grid.
+            Part of the slide-tilt treatment, so it appears only when the scrub
+            does. */}
+        {scrub && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-0 z-0 hidden h-full w-px -translate-x-1/2 bg-border-field lg:block"
+          />
+        )}
+        {TESTIMONIALS.map((t, i) => (
+          <Testimonial key={t.name} t={t} index={i} scrub={scrub} motionOn={motionOn} />
         ))}
       </Reveal>
     </Container>

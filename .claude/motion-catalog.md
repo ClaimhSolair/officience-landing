@@ -630,3 +630,76 @@ Verified by screenshot at 1920x950: heavy vertical smear mid-roll (matches the
 reference), crisp `6 / 200 / 20 / 500+` at settle; no overflow at 1440/390,
 counters 9/9. Reduced motion unchanged (renders the final value statically, no
 filter).
+
+---
+
+## Item 13 — Process card slide-tilt (outsourceconsultants.com → `ClientStories.tsx`)
+
+Added 2026-09-10, a new reference outside the original seven. User pointed at the
+PROCESS section and asked to clone it onto the "People Trust Us" testimonial
+bubbles. Measured live with the CDP rig at 1440x900, motion forced on.
+
+**Trigger** — scroll position, per card. **Kind** — **SCRUB** (park-and-hold:
+held while parked, moved with +120px scroll). The site is Nuxt/Vue with a
+GSAP-style ScrollTrigger, not Framer.
+
+**The card element** — `div.col-span-full.bg-white.text-blue.pt-10.px-16`, one
+per step (Strategy/Communication/Navigation/Results), ~460-480px wide, in a
+`section.overflow-hidden`. `transform-origin` = **center center**
+(`230px 96.9px` on a 460x194 box).
+
+**The law.** Each card N (1..4) holds an initial offset, then ramps to identity
+as it scrolls up through its own ~400px window; clamped flat before and after.
+Scale constant 1, opacity constant 1 (no fade — the section clips instead).
+
+| Card N | initial rotate | initial x | initial y |
+|---|---|---|---|
+| 1 | −10.9° | 150 | 200 |
+| 2 | +13.0° | 300 | 400 |
+| 3 | −12.2° | 450 | 600 |
+| 4 | +11.4° | 600 | 800 |
+
+- **Rotate**: alternating sign, magnitude ~**±12°**, → 0 at rest.
+- **Translate**: diagonal down-right, `x = 150·N`, `y = 200·N` (fixed 3:4 slope),
+  → (0,0) at rest. Deeper cards enter from further away — a fanned deck sliding
+  into a pile, clipped by the section's `overflow-hidden`.
+- **Law shape**: near-linear ramp with a mild ease-out knee at the start
+  (transient −19°/+19° readings at the trigger edge); clone as an eased scrub.
+- **Stagger**: not a delay — the same per-card law, offset by each card's layout
+  position, so at any scrollY the lower cards are earlier in the identical ramp.
+
+**The "spine".** No per-card connector. The visible vertical lines are the site's
+**blue 1px grid column rules** (`div.w-1px`, full section height, static), plus
+subtle white 1px `js-home-intro-li` intro lines. The cards travel up *past* these
+fixed rules; the connector impression is a grid rule the cards align along.
+
+**Ours differs, deliberately.** Our testimonials are 3 cards (not 4) in a narrow
+847px column with a left heading; no section clip today; approved Figma layout
+(3151:2378 / 3137:2470) that neither draws this motion. The reference's big
+diagonal fly-in (a card from x=450) would overflow our column horizontally —
+CLAUDE.md forbids horizontal overflow. So the **rotation is the transplantable
+essence**; the full diagonal translate is an open ruling (Item-13 Q1).
+
+**Blocking couplings** — none. `ClientStories.tsx` has no scroll manager, no
+pinned neighbour. The card is a `RevealChild as="li"` (variant entrance); a
+style-MotionValue rotation on the same element collides with the variant, so
+split entrance (outer li) from scrub (inner motion.div) exactly like
+`Capabilities.tsx` ServiceRow.
+
+**Reduced motion** — SCRUB, so it needs its own `motionOn` branch to a static
+end-state (today's untilted stack). `MotionConfig` does not cover it. This
+machine reports reduce on plain localhost, so the static branch is the default
+local render and must equal the current build.
+
+**Open questions / divergences (Item-13 rulings, before code):**
+1. **Diagonal fly-in.** Reference slides each card in from (150N, 200N) down-right.
+   Our narrow 3-card column cannot take a 450px x-slide without horizontal
+   overflow. Options: drop the x-slide and keep rotation + a small down-slide
+   (closest to the user's "tilt-straighten" words, no overflow); or keep a scaled
+   diagonal slide inside a new `overflow-x-clip` on the section.
+2. **Rotation amplitude.** Measured ±12°. On our wider 847px card a 12° tilt lifts
+   a corner ~88px and risks section overflow. Keep faithful ±12° (verify overflow)
+   or dial to a gentler ±6-8°.
+3. **Vertical rule.** Reference is a full blue grid. Add one thin (1px) rule in the
+   cards column (subtle border token, or reference blue), static, behind the cards
+   — or omit it. The user's approved scope named a connector line.
