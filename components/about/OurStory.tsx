@@ -89,7 +89,6 @@ const OurStory: React.FC = () => {
             <Button
               onClick={() => scrollToId(ABOUT_SECTION_IDS[1])}
               size="xl"
-              radius="m"
               className="w-full shadow-fig-xs xl:w-[448px]"
               icon={<ArrowUpRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
             >

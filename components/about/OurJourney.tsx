@@ -359,7 +359,7 @@ const OurJourney: React.FC = () => {
             whileHover={enabled && !atStart ? { scale: 1.05 } : undefined}
             whileTap={enabled && !atStart ? { scale: 0.95 } : undefined}
             transition={{ type: 'spring', ...SPRING.hover }}
-            className="flex h-[48px] w-[48px] items-center justify-center rounded-fig-xs border border-primary text-text-primary transition-colors hover:bg-bg-secondary disabled:opacity-40 motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="flex h-[48px] w-[48px] items-center justify-center border border-primary text-text-primary transition-colors hover:bg-bg-secondary disabled:opacity-40 motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <ArrowLeft className="h-[24px] w-[24px]" aria-hidden="true" />
             <span className="sr-only">Show earlier milestones</span>
@@ -371,7 +371,7 @@ const OurJourney: React.FC = () => {
             whileHover={enabled && !atEnd ? { scale: 1.05 } : undefined}
             whileTap={enabled && !atEnd ? { scale: 0.95 } : undefined}
             transition={{ type: 'spring', ...SPRING.hover }}
-            className="flex h-[48px] w-[48px] items-center justify-center rounded-fig-xs border border-primary text-text-primary transition-colors hover:bg-bg-secondary disabled:opacity-40 motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="flex h-[48px] w-[48px] items-center justify-center border border-primary text-text-primary transition-colors hover:bg-bg-secondary disabled:opacity-40 motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <ArrowRight className="h-[24px] w-[24px]" aria-hidden="true" />
             <span className="sr-only">Show later milestones</span>

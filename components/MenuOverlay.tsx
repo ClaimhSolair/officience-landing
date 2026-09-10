@@ -2,11 +2,11 @@ import React, { useEffect, useId, useRef, useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronDown, X } from 'lucide-react';
-import { ASSETS } from '../assets';
 import { setInert, useModalA11y } from '../lib/modal';
 import { CSS_EASE, EASE, MOTION, MS, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
 import { MENU, SOCIALS, useGoToSection, type NavItem, type NavTarget } from './navigation';
 import RollText from './ui/RollText';
+import { FacebookIcon, LinkedInIcon, TikTokIcon, YouTubeIcon } from './ui/FooterIcons';
 
 interface MenuOverlayProps {
   isOpen: boolean;
@@ -15,11 +15,20 @@ interface MenuOverlayProps {
   backgroundRef?: React.RefObject<HTMLElement>;
 }
 
-const SOCIAL_ICON: Record<string, string> = {
-  LinkedIn: ASSETS.footer.linkedin,
-  Facebook: ASSETS.footer.facebook,
-  TikTok: ASSETS.footer.tiktok,
-  YouTube: ASSETS.footer.youtube,
+/**
+ * The menu's own social marks — Figma 3683:3556. That frame draws four 38x38
+ * tiles on a 40px pitch, so the gap is 2px, and it places each glyph inside its
+ * tile at the same coordinates the footer frame uses (TikTok, for one, sits at
+ * 11.4932, 8.5195 in both). The inline components therefore reproduce this
+ * frame exactly, and they replace the bucket images this menu used to draw:
+ * those normalised every mark to one 45.385 square, which rendered LinkedIn
+ * small and Facebook oversized.
+ */
+const SOCIAL_ICON: Record<string, React.FC<{ className?: string }>> = {
+  LinkedIn: LinkedInIcon,
+  Facebook: FacebookIcon,
+  TikTok: TikTokIcon,
+  YouTube: YouTubeIcon,
 };
 
 /**
@@ -215,7 +224,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                         aria-controls={panelId}
                         className={`group inline-flex items-center gap-fig-12 ${topLevel} ${focusRing}`}
                       >
-                        <RollText>{item.label}</RollText>
+                        <RollText durationMs={MS.rollSlow}>{item.label}</RollText>
                         <ChevronDown
                           className={`h-[32px] w-[32px] lg:h-[40px] lg:w-[40px] shrink-0 transition-transform duration-200 motion-reduce:transition-none ${
                             isExpanded ? '-rotate-180' : ''
@@ -225,11 +234,20 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                       </button>
 
                       {/* Two columns filled down-then-across at desktop, one on
-                          mobile where 233+47+221 cannot fit 342px of content. */}
+                          mobile where 233+47+221 cannot fit 342px of content.
+
+                          The closed state switches the display utility rather
+                          than setting the `hidden` attribute. Preflight's
+                          `[hidden]{display:none}` sits in the base layer and
+                          `.grid` sits in utilities: same specificity, later
+                          source order, so `grid` won and the attribute did
+                          nothing. The toggle looked dead because the panel never
+                          left. */}
                       <div
                         id={panelId}
-                        hidden={!isExpanded}
-                        className="mt-fig-20 lg:mt-[16px] grid grid-cols-1 md:grid-cols-2 gap-x-[47px] gap-y-fig-14"
+                        className={`mt-fig-20 lg:mt-fig-32 grid-cols-1 md:grid-cols-2 gap-x-[47px] gap-y-fig-14 ${
+                          isExpanded ? 'grid' : 'hidden'
+                        }`}
                       >
                         {item.children!.map((child) =>
                           renderLeaf(
@@ -237,7 +255,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                             `block group ${focusRing}`,
                             <>
                               <span className="block font-sans font-semibold text-white text-h3 group-hover:text-pri-100 transition-colors motion-reduce:transition-none">
-                                <RollText>{child.label}</RollText>
+                                <RollText durationMs={MS.rollSlow}>{child.label}</RollText>
                               </span>
                               {child.description && (
                                 <span className="block mt-fig-6 font-body text-white text-body-md">
@@ -250,7 +268,11 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                       </div>
                     </>
                   ) : (
-                    renderLeaf(item, `block group ${topLevel} ${focusRing}`, <RollText>{item.label}</RollText>)
+                    renderLeaf(
+                      item,
+                      `block group ${topLevel} ${focusRing}`,
+                      <RollText durationMs={MS.rollSlow}>{item.label}</RollText>,
+                    )
                   )}
                 </motion.li>
               );
@@ -258,20 +280,26 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
           </motion.ul>
         </nav>
 
-        {/* Footer socials — right-aligned, 38px targets 2px apart per Figma. */}
+        {/* Footer socials — right-aligned, 38px tiles 2px apart per Figma. The
+            tile is the artwork's own frame, so each glyph keeps the size and the
+            position the artboard gives it. 38px clears the 24px WCAG 2.2 web
+            target minimum. */}
         <div className="shrink-0 flex justify-end gap-fig-2 px-fig-20 py-fig-16">
-          {SOCIALS.map(({ label, href }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className={`h-[44px] w-[44px] inline-flex items-center justify-center hover:opacity-80 transition-opacity motion-reduce:transition-none ${focusRing}`}
-            >
-              <img src={SOCIAL_ICON[label]} alt="" aria-hidden="true" className="h-[20px] w-auto" />
-            </a>
-          ))}
+          {SOCIALS.map(({ label, href }) => {
+            const Icon = SOCIAL_ICON[label];
+            return (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className={`h-[38px] w-[38px] inline-flex items-center justify-center hover:opacity-80 transition-opacity motion-reduce:transition-none ${focusRing}`}
+              >
+                <Icon className="h-[38px] w-[38px]" />
+              </a>
+            );
+          })}
         </div>
       </div>
     </div>

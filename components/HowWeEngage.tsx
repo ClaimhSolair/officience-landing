@@ -237,8 +237,12 @@ const HowWeEngage: React.FC = () => {
           <Container
             innerRef={contentRef}
             style={scaling ? { transform: `scale(${dims.scale})`, transformOrigin: 'top center' } : undefined}
+            /* The pinned column runs at 100px between the header and the steps,
+               which the user set on 2026-09-10; the artboard draws 146, which the
+               unpinned branch keeps. The scale-to-fit wrapper absorbs the taller
+               column on a short viewport by rendering the composition smaller. */
             className={`flex flex-col gap-fig-32 py-fig-32 ${
-              compact ? 'lg:gap-fig-40 lg:py-fig-24' : 'lg:gap-fig-146 lg:py-fig-100'
+              compact ? 'lg:gap-fig-100 lg:py-fig-24' : 'lg:gap-fig-146 lg:py-fig-100'
             }`}
           >
             {/* Header. The blurb sits bottom-aligned against the title at desktop,

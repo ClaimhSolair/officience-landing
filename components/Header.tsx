@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Mail, Menu } from 'lucide-react';
 import { ASSETS } from '../assets';
 import Container from './ui/Container';
 import { ROUTES, useGoToSection } from './navigation';
-import { MOTION, MS, useScrolledPast } from '../lib/motion';
+import { MOTION, MS, useMotionEnabled, useScrollDirection, useScrolledPast } from '../lib/motion';
 
 const LOGO_URL = ASSETS.header.logo;
 
@@ -31,6 +31,15 @@ interface HeaderProps {
  * instead of a washed-out one. A hairline along the bottom edge comes with the
  * same state: once the bar is translucent it needs an edge of its own, or it
  * dissolves into whichever pale section happens to be behind it.
+ *
+ * The bar also retracts while the reader scrolls down and returns the moment
+ * they scroll up, which gives the long sections their full viewport height back.
+ * Three states override the retraction and hold the bar on screen: the menu is
+ * open, the bar holds keyboard focus, or the reader is near the top of the page.
+ * The pinned decks keep their header offsets, so a retracted bar leaves a band
+ * of background above pinned content until the reader scrolls up. Re-pinning
+ * those decks to `top-0` would move content under the reader instead, which is
+ * worse.
  */
 const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   const { pathname } = useLocation();
@@ -42,9 +51,18 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   // than a flick of the wheel, so a single threshold reads the same at all of them.
   const glass = useScrolledPast(69) && MOTION.headerGlass;
 
+  const motionOn = useMotionEnabled();
+  const [focusWithin, setFocusWithin] = useState(false);
+  const scrolledDown = useScrollDirection();
+  const retracted = scrolledDown && motionOn && MOTION.headerHide && !isMenuOpen && !focusWithin;
+
   return (
       <header
-        className={`sticky top-0 z-50 bg-bg-primary transition-[background-color,backdrop-filter] motion-reduce:transition-none ${
+        onFocusCapture={() => setFocusWithin(true)}
+        onBlurCapture={() => setFocusWithin(false)}
+        className={`sticky top-0 z-50 bg-bg-primary transition-[background-color,backdrop-filter,transform] motion-reduce:transition-none ${
+          retracted ? '-translate-y-full' : 'translate-y-0'
+        } ${
           glass
             ? 'backdrop-blur-md supports-[backdrop-filter]:bg-bg-primary/70 supports-[backdrop-filter]:border-b supports-[backdrop-filter]:border-white/10'
             : 'border-b border-transparent'

@@ -258,7 +258,11 @@ const AboutUs: React.FC = () => {
     target: manifestoRef,
     offset: ['start 0.85', 'start 0.35'],
   });
-  const frontier = useTransform(sweep, [0, 1], [0, MANIFESTO_CHARS + 2]);
+  // The headroom must equal the CSS ramp's divisor (4, in index.html), or the
+  // last characters stop short of full opacity: a character needs the frontier
+  // four places past its own index to light completely, so a headroom of 2 left
+  // the final full stop at 75%.
+  const frontier = useTransform(sweep, [0, 1], [0, MANIFESTO_CHARS + 4]);
   const sweeping = motionOn && MOTION.manifesto;
 
   // The counters hold until the manifesto sweep has fully finished, then arm a
@@ -280,8 +284,12 @@ const AboutUs: React.FC = () => {
     return () => window.clearTimeout(t);
   }, [sweeping, sweepDone]);
 
+  // One tone for the whole paragraph, not two. Figma draws the second clause in
+  // Text/Subtitle grey, and the sweep lit it to full opacity but left it grey —
+  // so the fill read as stopping at "We architect". The user ruled on 2026-09-10
+  // that the sweep must carry the whole paragraph to Semantic/Text/Default.
   const lead = scrubbedWords(MANIFESTO_LEAD, 0, 'text-text-default');
-  const rest = scrubbedWords(MANIFESTO_REST.trim(), lead.next + 1, 'text-subtitle');
+  const rest = scrubbedWords(MANIFESTO_REST.trim(), lead.next + 1, 'text-text-default');
 
   return (
     <section id="about" className="bg-bg-secondary">
@@ -298,8 +306,9 @@ const AboutUs: React.FC = () => {
           </RevealChild>
 
           <div className="flex flex-col items-start gap-fig-24 xl:w-[1018px]">
-            {/* Two-tone at rest, as Figma draws it: the sweep lights each half to
-                its own approved colour rather than flattening both into one. */}
+            {/* One tone. The sweep carries the whole paragraph to Text/Default,
+                which departs from the artboard's grey second clause — see the
+                ruling above `lead`. */}
             <motion.p
               ref={manifestoRef}
               className="font-sans font-semibold text-h3 text-text-default lg:font-medium lg:text-display-sm"

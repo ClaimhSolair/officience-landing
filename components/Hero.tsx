@@ -158,7 +158,6 @@ const Hero: React.FC<HeroProps> = ({ splashDone }) => {
           <Button
             variant="secondary"
             size="lg"
-            radius="m"
             onDark
             onClick={() => scrollToSection('contact')}
             className="w-[336px] max-w-full self-center border-transparent shadow-fig-xs lg:w-full lg:self-auto lg:gap-fig-14 lg:text-btn-lg"

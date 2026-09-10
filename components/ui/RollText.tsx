@@ -18,8 +18,16 @@ import { CSS_EASE, MS, useMotionEnabled } from '../../lib/motion';
  *
  * Hover and focus-visible only — there is no hover on touch, and the reference
  * has no touch equivalent.
+ *
+ * `durationMs` lets one caller roll at its own speed. The overlay menu asks for
+ * half speed, because its labels are display-scale and the panel is a
+ * destination rather than a control. Every other caller keeps `MS.roll`.
  */
-const RollText: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => {
+const RollText: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+  durationMs?: number;
+}> = ({ children, className = '', durationMs = MS.roll }) => {
   // Gated in JS rather than with `motion-reduce:`, so the review override can
   // reach it — a CSS media query cannot be overridden from script.
   const motionOn = useMotionEnabled();
@@ -30,7 +38,7 @@ const RollText: React.FC<{ children: React.ReactNode; className?: string }> = ({
       className={`relative block py-[0.15em] transition-transform ${
         motionOn ? 'group-hover:-translate-y-full group-focus-visible:-translate-y-full' : ''
       }`}
-      style={{ transitionDuration: `${motionOn ? MS.roll : 0}ms`, transitionTimingFunction: CSS_EASE.roll }}
+      style={{ transitionDuration: `${motionOn ? durationMs : 0}ms`, transitionTimingFunction: CSS_EASE.roll }}
     >
       {children}
       <span aria-hidden="true" className="absolute inset-x-0 top-full block py-[0.15em]">

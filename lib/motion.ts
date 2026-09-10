@@ -35,6 +35,9 @@ export const MS = {
   glass: 300,
   /** oma-genera's label roll, settling by ~400ms. */
   roll: 250,
+  /** The overlay menu rolls at half speed. Its labels are display-scale and the
+   *  panel is a destination, not a control: the reader has time to watch. */
+  rollSlow: 500,
   /** salient's odometer, calibrated by eye. Slowed in the 2026-08-27 review so the
    *  count-up reads as a deliberate second act after the manifesto sweep. */
   counter: 2250,
@@ -90,6 +93,7 @@ export const STAGGER = {
  */
 export const MOTION = {
   headerGlass: true,
+  headerHide: true,
   menuCascade: true,
   flower: true,
   aboutStack: true,
@@ -250,4 +254,50 @@ export const useScrolledPast = (px: number): boolean => {
   }, [px]);
 
   return past;
+};
+
+/**
+ * True when the header must retract: the reader is scrolling down and is already
+ * past `revealAt`. Scrolling up any distance brings it back immediately.
+ *
+ * Same rAF-coalesced passive listener as `useScrolledPast`, and it flips one
+ * boolean for the same reason. Two guards make the answer stable:
+ *  - a `DELTA` of 8px, so a trackpad's jitter and the rubber-band at the page
+ *    ends cannot toggle the bar;
+ *  - `revealAt`, so the top of the page always shows the bar. A header that
+ *    hides on the first notch of scroll reads as a glitch rather than a gesture.
+ *
+ * The caller decides what to do with the answer, and must override it while the
+ * menu is open or the header holds focus — a bar that leaves under an open menu
+ * or under the keyboard strands both.
+ */
+const SCROLL_DELTA = 8;
+
+export const useScrollDirection = (revealAt = 120): boolean => {
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    let frame = 0;
+    let last = window.scrollY;
+
+    const read = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const moved = y - last;
+      if (Math.abs(moved) < SCROLL_DELTA) return;
+      last = y;
+      setHidden(moved > 0 && y > revealAt);
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(read);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [revealAt]);
+
+  return hidden;
 };

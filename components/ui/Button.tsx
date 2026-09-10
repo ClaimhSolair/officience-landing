@@ -17,8 +17,10 @@ import { Link } from 'react-router-dom';
  *              white via `onDark` where the button sits on #1F49BF
  *   disabled   50% opacity, pointer events off
  *
- * Corner radius varies by where the button is used, and both values are drawn:
- * the header CTA (3552:2994) is square, the hero CTA (3137:1866) is 8px.
+ * Every button on the site is square, which the user set on 2026-09-10. The
+ * artboards draw two radii — the header CTA (3552:2994) square and the hero CTA
+ * (3137:1866) on 8px — and the square one is now the whole system. `m` stays
+ * available for a section that Figma later draws round; nothing uses it today.
  */
 const RADIUS = { none: 'rounded-none', m: 'rounded-fig-m' } as const;
 

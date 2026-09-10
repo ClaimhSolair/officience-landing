@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useScroll, useSpring, useTransform, type MotionValue } from 'framer-motion';
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { ASSETS, srcSetOf, type ImageSource } from '../assets';
 import Container from './ui/Container';
 import Button from './ui/Button';
@@ -83,10 +83,38 @@ const PROJECTS: Project[] = [
 const VIEW_ALL_BLURB =
   'Providing bespoke web development services that optimize user experience, elevate brand visibility, and drive measurable business results.';
 
-/** The carousel is one card wide at 390 and 570 from lg. */
-const CARD = 'w-[240px] shrink-0 lg:w-[570px]';
+/**
+ * The artboard's card, exactly: 570x800 from lg, one 240px card at 390.
+ *
+ * Both numbers are fixed on purpose, and the pair is what makes the shape right.
+ * Deriving either from the viewport re-shapes the card — a width share made it
+ * 685x800 at 1920, which is a different rectangle from the one the design
+ * approved. The deck stays legible on a short screen by *scaling* instead: a
+ * transform keeps the 570:800 ratio and only reduces it.
+ *
+ * How many fit across is then just what the gutters leave: three at 1920
+ * (570x3 + 40x2 = 1790 of 1792), two and a peek at 1440, one and a 112px peek
+ * at 390 — which is what each artboard draws.
+ */
+const CARD = 'w-[240px] shrink-0 lg:w-[calc(var(--card-h)*0.7125)]';
 /** Project and View All cards share a footprint so the snap stays even. */
-const CARD_H = 'h-[314px] lg:h-[800px]';
+const CARD_H = 'h-[314px] lg:h-[var(--card-h)]';
+
+/**
+ * The card's height, and through the ratio above its width too.
+ *
+ * `min` caps it at the artboard's 800px, so a tall screen gets the design
+ * untouched — 570x800, three across a 1920 column. Anything shorter takes the
+ * viewport less the sticky header and a margin, so the whole card is on screen
+ * at 100% zoom instead of running off the bottom. The 200px is the 113px bar
+ * plus enough slack that the card is not merely technically on screen. Both branches keep 570:800 exactly: the
+ * width is derived from the height, never from the column, which is what went
+ * wrong when a width share made the card 685x800 at 1920.
+ *
+ * `svh`, not `vh`: on a phone `vh` is the tallest the viewport ever gets, so a
+ * card sized in `vh` hides under the browser's own chrome.
+ */
+const CARD_HEIGHT = 'min(800px, calc(100svh - 200px))';
 
 /** Figma 2943:1748 — a 100px star, drawn rotated. One path, so it inlines. */
 const StarMark: React.FC<{ className?: string }> = ({ className = '' }) => (
@@ -285,8 +313,6 @@ const ProvenResults: React.FC = () => {
   const motionOn = useMotionEnabled();
   const wide = useMinWidth(1024);
   const [geom, setGeom] = useState<Geometry | null>(null);
-  const [atStart, setAtStart] = useState(true);
-  const [atEnd, setAtEnd] = useState(false);
 
   const wantsPin = motionOn && wide && MOTION.work;
   const pinned = wantsPin && geom !== null;
@@ -346,56 +372,18 @@ const ProvenResults: React.FC = () => {
     restDelta: 0.5,
   });
 
-  /** Which ends the deck is resting against, so the arrows can go dim. */
-  const sync = useCallback(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    setAtStart(el.scrollLeft <= 1);
-    setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 1);
-  }, []);
-
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el || pinned) return;
-    el.addEventListener('scroll', sync, { passive: true });
-    window.addEventListener('resize', sync);
-    sync();
-    return () => {
-      el.removeEventListener('scroll', sync);
-      window.removeEventListener('resize', sync);
-    };
-  }, [sync, pinned]);
-
-  /**
-   * Page by exactly one card — the step is measured off the DOM so the gap can
-   * differ by breakpoint without being repeated here.
-   *
-   * The target is computed and clamped up front and the arrow states are set
-   * from it, rather than re-read afterwards. Scroll events are rAF-driven, so a
-   * throttled tab can delay or withhold them and leave the arrows describing the
-   * previous position — or, if none arrive at all, leave Previous dimmed for good
-   * and the deck one-way. The listener above still keeps things honest when the
-   * reader scrolls the track by hand.
-   */
-  const page = useCallback((direction: 1 | -1) => {
-    const el = trackRef.current;
-    if (!el) return;
-    const [first, second] = Array.from(el.children) as HTMLElement[];
-    const step = second ? second.offsetLeft - first.offsetLeft : el.clientWidth;
-    const max = el.scrollWidth - el.clientWidth;
-    const target = Math.max(0, Math.min(el.scrollLeft + direction * step, max));
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    el.scrollTo({ left: target, behavior: reduced ? 'auto' : 'smooth' });
-    setAtStart(target <= 1);
-    setAtEnd(target >= max - 1);
-  }, []);
-
-  const cardBase = `${CARD} ${CARD_H} overflow-hidden rounded-fig-xs bg-bg-primary shadow-fig-sm lg:rounded-fig-l`;
+  const cardBase = `${CARD} ${CARD_H} overflow-hidden rounded-fig-xs bg-bg-primary lg:rounded-fig-l`;
   const cardCls = pinned ? cardBase : `${cardBase} snap-start`;
 
   return (
-    <section id="proven-results" className="bg-bg-secondary">
+    /* The seam to Our Approach is 120px, which the user set on 2026-09-10. The
+       two pinned sections' own paddings give 40px, so the balance sits here —
+       outside the pinned column, where it cannot eat the pin's height budget.
+       The unpinned branch already runs 100 + 120 and needs nothing. */
+    <section
+      id="proven-results"
+      className={`bg-bg-secondary ${wantsPin ? 'lg:pt-[80px]' : ''}`}
+    >
       <div ref={wrapRef} className="relative" style={pinned ? { height: geom.height } : undefined}>
         <div
           className={
@@ -409,7 +397,10 @@ const ProvenResults: React.FC = () => {
               usable height is ~860-910px after the taskbar and browser chrome),
               not only on a full 1080; full flow rhythm otherwise. */}
           <div ref={columnRef} className={`flex flex-col py-fig-32 ${wantsPin ? 'lg:py-fig-16' : 'lg:py-fig-120'}`}>
-            <Container innerRef={headerRef} className={`mb-fig-24 flex flex-col gap-fig-8 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32 ${wantsPin ? 'lg:mb-fig-24' : 'lg:mb-fig-100'}`}>
+            {/* 100px from the title to the cards in both branches, which the
+                user set on 2026-09-10. Pinned, the scale-to-fit absorbs the
+                extra chrome by rendering the deck a little smaller. */}
+            <Container innerRef={headerRef} className="mb-fig-24 flex flex-col gap-fig-8 lg:mb-fig-100 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32">
               <Reveal as="div" stagger={STAGGER.base} className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
                 <RevealChild as="span" y={20} duration={SEC.revealFast}>
                   <SectionBadge>Proof Of Work</SectionBadge>
@@ -458,8 +449,13 @@ const ProvenResults: React.FC = () => {
                 }`}
                 style={
                   pinned
-                    ? { x: trackX, scale: geom.scale, transformOrigin: '0% 0%' }
-                    : undefined
+                    ? {
+                        x: trackX,
+                        scale: geom.scale,
+                        transformOrigin: '0% 0%',
+                        ['--card-h' as string]: CARD_HEIGHT,
+                      }
+                    : ({ ['--card-h' as string]: CARD_HEIGHT } as React.CSSProperties)
                 }
               >
                 {PROJECTS.map((project, i) => (
@@ -491,7 +487,7 @@ const ProvenResults: React.FC = () => {
                 {/* The deck's last slide. Only the 1440 frame draws it, and only at
                     desktop size — the 390 treatment is scaled from it. */}
                 <article
-                  className={`${CARD} ${CARD_H} flex flex-col justify-between overflow-hidden rounded-fig-xs bg-bg-primary px-fig-16 py-fig-20 shadow-fig-sm lg:rounded-fig-l lg:px-fig-24 lg:py-fig-32 ${
+                  className={`${CARD} ${CARD_H} flex flex-col justify-between overflow-hidden rounded-fig-xs bg-bg-primary px-fig-16 py-fig-20 lg:rounded-fig-l lg:px-fig-24 lg:py-fig-32 ${
                     pinned ? '' : 'snap-start'
                   }`}
                 >
@@ -510,7 +506,6 @@ const ProvenResults: React.FC = () => {
                       href={VIEW_ALL_WORK.target.kind === 'external' ? VIEW_ALL_WORK.target.href : EXTERNAL.about}
                       variant="secondary"
                       size="lg"
-                      radius="m"
                       onDark
                       className="w-full border-transparent shadow-fig-xs lg:max-w-[448px] lg:gap-fig-14 lg:text-btn-lg"
                       icon={
@@ -524,44 +519,16 @@ const ProvenResults: React.FC = () => {
               </motion.div>
             </div>
 
-            {/* Dots at 390 as drawn. The arrows only exist for the hand-driven
-                rail — once scrolling drives the deck there is nothing for them to
-                do, and Figma never drew them in the first place. Hidden entirely
-                while pinned: at lg the dots are already hidden and the arrows are
-                gone, so this would otherwise be 40px of empty chrome the pin
-                cannot afford. */}
-            <Container className={`mt-fig-24 lg:mt-fig-40 ${pinned ? 'lg:hidden' : ''}`}>
+            {/* Dots at 390, which is what that artboard draws. No arrows at any
+                width: Figma draws none, and the pair that used to sit here was
+                this build's own invention. The desktop track is still scrollable
+                by wheel, drag and keyboard. */}
+            <Container className={`mt-fig-24 lg:hidden`}>
               <CarouselDots
                 containerRef={trackRef}
                 count={PROJECTS.length + 1}
                 variant="dot"
-                className="lg:hidden"
               />
-
-              {!pinned && (
-                <div className="hidden justify-end gap-fig-8 lg:flex">
-                  <Button
-                    onClick={() => page(-1)}
-                    variant="secondary"
-                    size="icon"
-                    radius="m"
-                    disabled={atStart}
-                    icon={<ArrowLeft className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
-                  >
-                    <span className="sr-only">Previous projects</span>
-                  </Button>
-                  <Button
-                    onClick={() => page(1)}
-                    variant="secondary"
-                    size="icon"
-                    radius="m"
-                    disabled={atEnd}
-                    icon={<ArrowRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
-                  >
-                    <span className="sr-only">Next projects</span>
-                  </Button>
-                </div>
-              )}
             </Container>
           </div>
         </div>

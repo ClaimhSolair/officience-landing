@@ -81,11 +81,16 @@ const SERVICES: Service[] = [
 
 
 /**
- * How much of a covered row still shows. The peek is the row's own top padding
- * plus its title line, so what stays visible is the service name — the deck reads
- * as a list of names with the current one opened.
+ * How much of a covered row still shows. The band holds the row's top padding,
+ * its title, and the offering list beside it — so the next row covers exactly
+ * the promise line and the brochure button, and a covered card still reads as
+ * its name plus what it does.
+ *
+ * The promise starts at 312px and the button at 312-344, so 248 clears the
+ * longest offering list (244px) and still covers both. 112 showed only 48px of
+ * a 148px two-line title, cutting the names mid-glyph.
  */
-const PEEK = 112;
+const PEEK = 248;
 
 /**
  * One service row. From lg it pins under the header and the next row slides over
@@ -193,7 +198,7 @@ const Capabilities: React.FC = () => {
             href={EXTERNAL.brochureIndex}
             size="lg"
             radius="none"
-            className="w-[336px] max-w-full self-center shadow-fig-xs lg:w-auto lg:self-auto lg:gap-fig-14 lg:rounded-fig-m lg:text-btn-lg"
+            className="w-[336px] max-w-full self-center shadow-fig-xs lg:w-auto lg:self-auto lg:gap-fig-14 lg:text-btn-lg"
             icon={
               <>
                 {/* The artboards use different arrows for the same button: a
@@ -230,7 +235,11 @@ const Capabilities: React.FC = () => {
         stagger={STAGGER.base}
         amount={0.1}
         enabled={MOTION.services}
-        className="flex flex-col"
+        /* The runway under the last row gives it a beat of its own. The list is
+           the scroll target, so its own bottom padding extends that row's sticky
+           travel: the card holds under the header while the reader keeps
+           scrolling, then releases and rides up into Our Approach. */
+        className={`flex flex-col ${decking ? 'pb-[35vh]' : ''}`}
       >
         {SERVICES.map((service, i) => {
           const first = i === 0;
@@ -284,7 +293,6 @@ const Capabilities: React.FC = () => {
                   href={service.brochure}
                   variant="secondary"
                   size="lg"
-                  radius="m"
                   className="w-full shadow-fig-xs lg:w-[350px] lg:text-btn-lg"
                   icon={
                     <ArrowRight

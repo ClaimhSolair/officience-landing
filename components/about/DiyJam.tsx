@@ -97,7 +97,6 @@ const DiyJam: React.FC = () => {
               <Button
                 onClick={() => scrollToId(ABOUT_SECTION_IDS[5])}
                 size="xl"
-                radius="m"
                 className="w-full shadow-fig-xs"
                 icon={<ArrowUpRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
               >
@@ -113,7 +112,6 @@ const DiyJam: React.FC = () => {
                 to={sectionHref('proven-results')}
                 variant="secondary"
                 size="xl"
-                radius="m"
                 className="w-full"
                 icon={<ArrowRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
               >

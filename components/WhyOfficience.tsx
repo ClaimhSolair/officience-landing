@@ -129,7 +129,7 @@ const WhyOfficience: React.FC = () => {
           stagger={STAGGER.base}
           enabled={MOTION.whyUs}
           amount={0.3}
-          className="grid grid-cols-2 grid-rows-[minmax(83px,auto)_0px_auto] gap-x-[32px] gap-y-[21px] lg:grid-rows-[minmax(158px,auto)_0px_auto] lg:gap-x-[128px] lg:gap-y-[83px]"
+          className="relative z-10 grid grid-cols-2 grid-rows-[minmax(83px,auto)_0px_auto] gap-x-[32px] gap-y-[21px] lg:grid-rows-[minmax(158px,auto)_0px_auto] lg:gap-x-[128px] lg:gap-y-[83px]"
         >
           {VALUES.map((value, i) => {
             const left = i % 2 === 0;
@@ -163,30 +163,46 @@ const WhyOfficience: React.FC = () => {
           {/* The crosshair draws itself out from the centre and the mark turns
               into place on it — the section's own geometry becoming the thing the
               four values are arranged around. */}
-          <motion.li
+          {/* The row itself never transforms. The rule is an inner span, and the
+              mark's opaque backing is a sibling of it, so both crosshair rules
+              pass behind the mark and the pinwheel's knock-outs show plain blue —
+              what the artboard draws (3129:3436).
+
+              Both facts are load-bearing. Drawing the rule by scaling this `li`
+              squashed the backing with it, so for the second the rule took to
+              draw the vertical hairline showed straight through the logo. And
+              only the inner span turns: a rotating backing would sweep its own
+              corners over the rules it exists to hide. */}
+          <li
             aria-hidden="true"
-            className={`relative col-span-2 row-start-2 mx-auto h-px w-[266px] origin-center lg:w-[851px] ${RULE}`}
-            initial={animating ? { scaleX: 0 } : false}
-            whileInView={{ scaleX: 1 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: SEC.revealSlow, ease: [...EASE.reveal] }}
+            className="relative z-10 col-span-2 row-start-2 mx-auto h-px w-[266px] lg:w-[851px]"
           >
             <motion.span
-              className="absolute left-1/2 top-1/2 block h-[43.21px] w-[43.21px] lg:h-[135.71px] lg:w-[135.56px]"
-              style={{ x: '-50%', y: '-50%' }}
-              initial={animating ? { rotate: -90, scale: 0.6 } : false}
-              whileInView={{ rotate: 0, scale: 1 }}
+              className={`absolute inset-0 block origin-center ${RULE}`}
+              initial={animating ? { scaleX: 0 } : false}
+              whileInView={{ scaleX: 1 }}
               viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: SEC.revealSlow, ease: [...EASE.roll], delay: 0.15 }}
+              transition={{ duration: SEC.revealSlow, ease: [...EASE.reveal] }}
+            />
+            <span
+              className="absolute left-1/2 top-1/2 z-[1] block h-[43.21px] w-[43.21px] -translate-x-1/2 -translate-y-1/2 bg-bg-primary lg:h-[135.71px] lg:w-[135.56px]"
             >
-              <Pinwheel className="h-full w-full" />
-            </motion.span>
-          </motion.li>
+              <motion.span
+                className="block h-full w-full"
+                initial={animating ? { rotate: -90, scale: 0.6 } : false}
+                whileInView={{ rotate: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: SEC.revealSlow, ease: [...EASE.roll], delay: 0.15 }}
+              >
+                <Pinwheel className="h-full w-full" />
+              </motion.span>
+            </span>
+          </li>
         </Reveal>
 
         <motion.span
           aria-hidden="true"
-          className={`absolute inset-y-0 left-1/2 w-px origin-center ${RULE}`}
+          className={`absolute inset-y-0 left-1/2 z-0 w-px origin-center ${RULE}`}
           style={{ x: '-50%' }}
           initial={animating ? { scaleY: 0 } : false}
           whileInView={{ scaleY: 1 }}

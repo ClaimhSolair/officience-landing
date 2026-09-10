@@ -124,7 +124,6 @@ const OurTeam: React.FC = () => {
                 href={EXTERNAL.career}
                 variant="secondary"
                 size="xl"
-                radius="m"
                 className="w-full sm:w-[270px]"
                 icon={<ArrowRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
               >
