@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { ASSETS } from '../../assets';
 import Container from '../ui/Container';
 import Reveal, { RevealChild } from '../ui/Reveal';
 import SectionBadge from '../ui/SectionBadge';
-import { SEC } from '../../lib/motion';
+import { EASE, MOTION, SEC, STAGGER, useMotionEnabled } from '../../lib/motion';
 
 /**
  * Our Working Life — Figma 3133:4640.
@@ -95,28 +96,40 @@ const TileView: React.FC<{ tile: Tile; hidden?: boolean }> = ({ tile, hidden }) 
 );
 
 /** The banner, rebuilt from the artboard's layers. Percentages of a 929.302x602.4 box. */
-const Banner: React.FC = () => (
+const Banner: React.FC<{ enabled: boolean }> = ({ enabled }) => (
   <div className="relative aspect-[929/602] w-full overflow-hidden bg-primary [container-type:inline-size]">
-    {/* Two photo textures at 38% on an overlay blend, exactly as drawn. */}
-    <img
+    <motion.img
       src={ASSETS.aboutPage.banner.gridTop}
       alt=""
       aria-hidden="true"
       className="absolute inset-x-0 top-0 h-[62.67%] w-full object-cover object-bottom opacity-[0.38] mix-blend-overlay"
       loading="lazy"
       decoding="async"
+      initial={enabled ? { opacity: 0 } : undefined}
+      whileInView={enabled ? { opacity: 0.38 } : undefined}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, ease: EASE.reveal }}
     />
-    <img
+    <motion.img
       src={ASSETS.aboutPage.banner.gridBottom}
       alt=""
       aria-hidden="true"
       className="absolute inset-x-0 bottom-0 h-[37.33%] w-full object-cover object-bottom opacity-[0.38] mix-blend-overlay"
       loading="lazy"
       decoding="async"
+      initial={enabled ? { opacity: 0 } : undefined}
+      whileInView={enabled ? { opacity: 0.38 } : undefined}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, ease: EASE.reveal }}
     />
 
-    {/* The vertical lockup: the mark above the wordmark. */}
-    <span className="absolute left-[5.19%] top-[8.00%] block h-[11.21%] w-[6.86%]">
+    <motion.span
+      className="absolute left-[5.19%] top-[8.00%] block h-[11.21%] w-[6.86%]"
+      initial={enabled ? { scale: 0.7, opacity: 0 } : undefined}
+      whileInView={enabled ? { scale: 1, opacity: 1 } : undefined}
+      viewport={{ once: true }}
+      transition={{ duration: SEC.revealFast, ease: EASE.roll, delay: 0.2 }}
+    >
       <img
         src={ASSETS.aboutPage.banner.logoMark}
         alt=""
@@ -131,26 +144,44 @@ const Banner: React.FC = () => (
         className="absolute inset-x-0 bottom-0 top-[85.03%] max-w-none"
         loading="lazy"
       />
-    </span>
+    </motion.span>
 
-    <img
+    <motion.img
       src={ASSETS.aboutPage.banner.twentieth}
       alt=""
       aria-hidden="true"
       className="absolute left-[34.49%] top-[27.46%] h-[31.43%] w-[30.98%] max-w-none"
       loading="lazy"
       decoding="async"
+      initial={enabled ? { y: 20, opacity: 0 } : undefined}
+      whileInView={enabled ? { y: 0, opacity: 1 } : undefined}
+      viewport={{ once: true }}
+      transition={{ duration: SEC.revealFast, ease: EASE.reveal, delay: 0.35 }}
     />
 
-    {/* 57.056 of the banner's 929.302 width, so the type scales with the box. */}
-    <p className="absolute left-1/2 top-[64.67%] w-full -translate-x-1/2 text-center font-sans font-medium uppercase leading-[1.05] tracking-[-0.06em] text-white [font-size:6.14cqw]">
+    <motion.p
+      className="absolute left-1/2 top-[64.67%] w-full -translate-x-1/2 text-center font-sans font-medium uppercase leading-[1.05] tracking-[-0.06em] text-white [font-size:6.14cqw]"
+      initial={enabled ? { opacity: 0 } : undefined}
+      whileInView={enabled ? { opacity: 1 } : undefined}
+      viewport={{ once: true }}
+      transition={{ duration: SEC.revealFast, ease: EASE.reveal, delay: 0.5 }}
+    >
       Officience
-    </p>
-    <p className="absolute left-1/2 top-[75.08%] w-full -translate-x-1/2 text-center font-sans font-medium uppercase leading-[1.05] tracking-[-0.06em] text-white [font-size:6.14cqw]">
+    </motion.p>
+    <motion.p
+      className="absolute left-1/2 top-[75.08%] w-full -translate-x-1/2 text-center font-sans font-medium uppercase leading-[1.05] tracking-[-0.06em] text-white [font-size:6.14cqw]"
+      initial={enabled ? { opacity: 0 } : undefined}
+      whileInView={enabled ? { opacity: 1 } : undefined}
+      viewport={{ once: true }}
+      transition={{ duration: SEC.revealFast, ease: EASE.reveal, delay: 0.58 }}
+    >
       Anniversary
-    </p>
+    </motion.p>
   </div>
 );
+
+const MARQUEE_MASK =
+  'linear-gradient(to right, transparent, black clamp(32px, 8vw, 96px), black calc(100% - clamp(32px, 8vw, 96px)), transparent)';
 
 /**
  * One marquee row, following the LogoMarquee idiom already in the build: the
@@ -164,25 +195,48 @@ const Banner: React.FC = () => (
  * removed at cleanup — so the second row reverses the same animation rather
  * than adding a keyframe back.
  */
-const MarqueeRow: React.FC<{ tiles: Tile[]; reverse?: boolean }> = ({ tiles, reverse }) => (
-  <div className="menu-scroll flex overflow-hidden motion-reduce:overflow-x-auto">
-    <ul
-      className={`marquee-track flex w-max gap-fig-24 animate-marquee motion-reduce:animate-none ${
-        reverse ? '[animation-direction:reverse]' : ''
-      }`}
+const MarqueeRow: React.FC<{ tiles: Tile[]; reverse?: boolean }> = ({ tiles, reverse }) => {
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const track = el.querySelector('.marquee-track') as HTMLElement | null;
+    if (!track) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { track.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused'; },
+      { threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={rowRef}
+      className="menu-scroll flex overflow-hidden motion-reduce:overflow-x-auto"
+      style={{ maskImage: MARQUEE_MASK, WebkitMaskImage: MARQUEE_MASK }}
     >
-      {tiles.map((t, i) => (
-        <TileView key={`a-${i}`} tile={t} />
-      ))}
-      {/* The second copy only exists to close the loop, so it is never read. */}
-      {tiles.map((t, i) => (
-        <TileView key={`b-${i}`} tile={t} hidden />
-      ))}
-    </ul>
-  </div>
-);
+      <ul
+        className={`marquee-track flex w-max gap-fig-24 animate-marquee motion-reduce:animate-none ${
+          reverse ? '[animation-direction:reverse]' : ''
+        }`}
+      >
+        {tiles.map((t, i) => (
+          <TileView key={`a-${i}`} tile={t} />
+        ))}
+        {tiles.map((t, i) => (
+          <TileView key={`b-${i}`} tile={t} hidden />
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 const WorkingLife: React.FC = () => {
+  const motionEnabled = useMotionEnabled();
+  const enabled = motionEnabled && MOTION.aboutWorkingLife;
+
   return (
     <section id="working-life" className="overflow-hidden bg-background py-fig-64 lg:py-fig-120">
       <Container className="flex flex-col gap-fig-40 lg:gap-fig-100">
@@ -200,20 +254,32 @@ const WorkingLife: React.FC = () => {
         {/* The news list and the banner. The row starts at xl: the artboard's
             403 + 987.6 columns need 1390.6px, and 1024 leaves 976. */}
         <Reveal className="flex flex-col gap-fig-24 xl:flex-row xl:gap-0">
-          <RevealChild
-            y={24}
-            duration={SEC.revealFast}
-            className="flex flex-col justify-center xl:w-[403px] xl:shrink-0"
-          >
+          <div className="flex flex-col justify-center xl:w-[403px] xl:shrink-0">
             <ul className="flex flex-col">
-              {NEWS.map((n) => (
-                <li key={n.title} className={`flex flex-col gap-fig-24 p-fig-24 ${n.body ? 'bg-surface' : ''}`}>
+              {NEWS.map((n, index) => (
+                <motion.li
+                  key={n.title}
+                  className={`flex flex-col gap-fig-24 p-fig-24 ${n.body ? 'bg-surface' : ''}`}
+                  initial={enabled ? { y: n.body ? 24 : 16, opacity: 0 } : { opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    y: enabled
+                      ? { duration: SEC.revealFast, ease: EASE.reveal, delay: index * STAGGER.tight }
+                      : { duration: 0 },
+                    opacity: {
+                      duration: SEC.revealFast,
+                      ease: EASE.reveal,
+                      delay: enabled ? index * STAGGER.tight : 0,
+                    },
+                  }}
+                >
                   <h3 className="font-sans text-h2 text-text-primary">{n.title}</h3>
                   {n.body && <p className="font-body text-body-lg text-subtitle">{n.body}</p>}
-                </li>
+                </motion.li>
               ))}
             </ul>
-          </RevealChild>
+          </div>
 
           {/* Figma's white panel is 987.6 wide and insets the banner 29.5 from
               its right edge, centred vertically. */}
@@ -222,7 +288,7 @@ const WorkingLife: React.FC = () => {
             duration={SEC.revealFast}
             className="flex items-center justify-end bg-surface p-fig-24 xl:min-w-0 xl:flex-1 xl:py-[28.8px] xl:pl-[28.8px] xl:pr-[29.5px]"
           >
-            <Banner />
+            <Banner enabled={enabled} />
           </RevealChild>
         </Reveal>
       </Container>

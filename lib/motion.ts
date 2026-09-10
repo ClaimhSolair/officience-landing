@@ -104,6 +104,19 @@ export const MOTION = {
   whyUs: true,
   contact: true,
   footer: true,
+  aboutHero: true,
+  aboutStory: true,
+  aboutJourney: true,
+  aboutValues: true,
+  aboutDiyJam: true,
+  aboutTeam: true,
+  aboutWorkingLife: true,
+} as const;
+
+export const SPRING = {
+  panel: { stiffness: 200, damping: 28, mass: 1 },
+  hover: { stiffness: 300, damping: 25 },
+  gentle: { stiffness: 120, damping: 20 },
 } as const;
 
 /**

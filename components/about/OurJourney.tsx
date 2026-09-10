@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ASSETS } from '../../assets';
 import Container from '../ui/Container';
 import Reveal, { RevealChild } from '../ui/Reveal';
 import SectionBadge from '../ui/SectionBadge';
-import { SEC } from '../../lib/motion';
+import { EASE, MOTION, SEC, SPRING, STAGGER, useMotionEnabled } from '../../lib/motion';
 
 /**
  * Our Journey — Figma 3133:4460, with its scroll states in 3070:1902,
@@ -176,9 +177,19 @@ const EventImages: React.FC<{ event: JourneyEvent }> = ({ event }) => (
 );
 
 const OurJourney: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
   const railRef = useRef<HTMLDivElement>(null);
+  const motionEnabled = useMotionEnabled();
+  const enabled = motionEnabled && MOTION.aboutJourney;
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+  const watermarkY = useTransform(scrollYProgress, [0, 1], [0, -40]);
+  const watermarkRotate = useTransform(scrollYProgress, [0, 1], [0, 8]);
 
   const syncEdges = useCallback(() => {
     const el = railRef.current;
@@ -232,17 +243,29 @@ const OurJourney: React.FC = () => {
   };
 
   return (
-    <section id="our-journey" className="relative isolate overflow-hidden bg-background py-fig-64 lg:py-fig-120">
+    <section ref={sectionRef} id="our-journey" className="relative isolate overflow-hidden bg-background py-fig-64 lg:py-fig-120">
       {/* The watermark belongs to the section, not the track: all four Figma
           frames draw it in the same place while the cards move past it. */}
-      <img
-        src={ASSETS.aboutPage.journeyWatermark}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 hidden h-[869px] w-[869px] -translate-x-1/2 -translate-y-1/2 select-none lg:block"
-        loading="lazy"
-        decoding="async"
-      />
+      {enabled ? (
+        <motion.img
+          src={ASSETS.aboutPage.journeyWatermark}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 -z-10 hidden h-[869px] w-[869px] select-none lg:block"
+          loading="lazy"
+          decoding="async"
+          style={{ marginLeft: -434.5, marginTop: -434.5, y: watermarkY, rotate: watermarkRotate }}
+        />
+      ) : (
+        <img
+          src={ASSETS.aboutPage.journeyWatermark}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 -z-10 hidden h-[869px] w-[869px] -translate-x-1/2 -translate-y-1/2 select-none lg:block"
+          loading="lazy"
+          decoding="async"
+        />
+      )}
 
       <Container className="flex flex-col gap-fig-40 lg:gap-fig-100">
         <Reveal className="flex flex-col gap-fig-24 lg:flex-row lg:justify-between lg:gap-fig-32">
@@ -283,10 +306,23 @@ const OurJourney: React.FC = () => {
               Branching into two arrangements would put every picture in the
               document twice — 26 downloads, and every alt text announced
               twice. */}
-          {EVENTS.map((event) => (
-            <article
+          {EVENTS.map((event, index) => (
+            <motion.article
               key={event.year}
               className="flex w-[280px] shrink-0 snap-start flex-col gap-fig-24 sm:w-[320px] lg:w-[361px] lg:gap-0"
+              initial={enabled ? { y: 28, opacity: 0 } : { opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{
+                y: enabled
+                  ? { duration: SEC.revealFast, ease: EASE.reveal, delay: Math.min(index, 3) * STAGGER.base }
+                  : { duration: 0 },
+                opacity: {
+                  duration: SEC.revealFast,
+                  ease: EASE.reveal,
+                  delay: enabled ? Math.min(index, 3) * STAGGER.base : 0,
+                },
+              }}
             >
               {/* `flex-1` below lg is what keeps the pictures on one line there.
                   The rail stretches every card to the tallest, and each card's
@@ -311,29 +347,35 @@ const OurJourney: React.FC = () => {
               <div className={event.imageFirst ? 'lg:order-2' : 'lg:order-2 lg:mt-fig-40'}>
                 <EventImages event={event} />
               </div>
-            </article>
+            </motion.article>
           ))}
         </div>
 
         <Container className="mt-fig-24 flex justify-end gap-fig-16">
-          <button
+          <motion.button
             type="button"
             onClick={() => step(-1)}
             disabled={atStart}
+            whileHover={enabled && !atStart ? { scale: 1.05 } : undefined}
+            whileTap={enabled && !atStart ? { scale: 0.95 } : undefined}
+            transition={{ type: 'spring', ...SPRING.hover }}
             className="flex h-[48px] w-[48px] items-center justify-center rounded-fig-xs border border-primary text-text-primary transition-colors hover:bg-bg-secondary disabled:opacity-40 motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <ArrowLeft className="h-[24px] w-[24px]" aria-hidden="true" />
             <span className="sr-only">Show earlier milestones</span>
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             onClick={() => step(1)}
             disabled={atEnd}
+            whileHover={enabled && !atEnd ? { scale: 1.05 } : undefined}
+            whileTap={enabled && !atEnd ? { scale: 0.95 } : undefined}
+            transition={{ type: 'spring', ...SPRING.hover }}
             className="flex h-[48px] w-[48px] items-center justify-center rounded-fig-xs border border-primary text-text-primary transition-colors hover:bg-bg-secondary disabled:opacity-40 motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <ArrowRight className="h-[24px] w-[24px]" aria-hidden="true" />
             <span className="sr-only">Show later milestones</span>
-          </button>
+          </motion.button>
         </Container>
       </div>
     </section>

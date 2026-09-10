@@ -1,9 +1,10 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { ASSETS } from '../../assets';
 import Container from '../ui/Container';
 import Reveal, { RevealChild } from '../ui/Reveal';
 import SectionBadge from '../ui/SectionBadge';
-import { SEC } from '../../lib/motion';
+import { EASE, MOTION, SEC, SPRING, STAGGER, useMinWidth, useMotionEnabled } from '../../lib/motion';
 
 /**
  * Our Values — Figma 3489:3191, with the unclipped copy in 3082:1777.
@@ -24,6 +25,10 @@ import { SEC } from '../../lib/motion';
  *
  * Below lg the file draws nothing. Five 214px panels cannot share a phone
  * screen, so the accordion is a plain stack there with every panel open.
+ *
+ * Animation (Sept-2026 motion pass): panel resize and mark travel use spring
+ * physics (SPRING.panel). Each panel staggers in on first viewport entry.
+ * Marks pop from scale 0.6 / rotate -45 with EASE.roll overshoot.
  */
 
 const PANEL_H = 523;
@@ -47,7 +52,7 @@ interface ValueItem {
   title: string;
   body: string;
   /**
-   * The mark's own colour. Each value owns one, and the exported SVG carries it
+   * The mark’s own colour. Each value owns one, and the exported SVG carries it
    * as a single flat fill — so these are not a dimmed or an active state.
    */
   colour: string;
@@ -95,8 +100,18 @@ const VALUES: ValueItem[] = [
 /** The artboard opens Caring. */
 const DEFAULT_OPEN = 'caring';
 
+const panelBasis = (isOpen: boolean) =>
+  `calc((100% - ${GAP_TOTAL}px) * ${isOpen ? OPEN_SHARE : CLOSED_SHARE})`;
+
 const OurValues: React.FC = () => {
   const [open, setOpen] = useState(DEFAULT_OPEN);
+  const motionEnabled = useMotionEnabled();
+  const enabled = motionEnabled && MOTION.aboutValues;
+  const isLg = useMinWidth(1024);
+
+  const spring = enabled
+    ? { type: 'spring' as const, ...SPRING.panel }
+    : { duration: 0 };
 
   return (
     <section id="our-values" className="bg-background py-fig-64 lg:pb-fig-100 lg:pt-fig-64">
@@ -116,27 +131,28 @@ const OurValues: React.FC = () => {
         {/* Below lg: a plain stack, every panel open, no interaction.
             From lg: the accordion, one panel open at a time. */}
         <ul className="flex flex-col gap-fig-40 lg:h-[523px] lg:flex-row lg:gap-fig-20">
-          {VALUES.map((item) => {
+          {VALUES.map((item, index) => {
             const isOpen = open === item.id;
-            // The basis travels through a custom property so it binds only at
-            // lg. As a plain inline style it would apply below lg too, where the
-            // list is a column — and a flex-basis in a column sets the panel's
-            // HEIGHT, not its width.
-            //
-            // The widths are the artboard's PROPORTIONS, not its pixels. 214 and
-            // 448 on four 20px gutters need 1384px, which fits the column only
-            // from about 1432px up; at 1024 the row ran 384px past the screen,
-            // clipped by `body { overflow-x: hidden }` and therefore invisible.
-            // The shares reproduce the artboard exactly at 1440 and scale below.
+
             return (
-              <li
+              <motion.li
                 key={item.id}
-                className="lg:h-full lg:shrink-0 lg:basis-[var(--panel-basis)] lg:overflow-hidden lg:transition-[flex-basis] lg:duration-500 lg:ease-out lg:motion-reduce:transition-none"
-                style={
-                  {
-                    '--panel-basis': `calc((100% - ${GAP_TOTAL}px) * ${isOpen ? OPEN_SHARE : CLOSED_SHARE})`,
-                  } as React.CSSProperties
-                }
+                className="lg:h-full lg:shrink-0 lg:overflow-hidden"
+                initial={enabled ? { y: 40, opacity: 0 } : { opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                animate={isLg ? { flexBasis: panelBasis(isOpen) } : undefined}
+                transition={{
+                  y: enabled
+                    ? { duration: SEC.revealBase, ease: EASE.reveal, delay: index * STAGGER.base }
+                    : { duration: 0 },
+                  opacity: {
+                    duration: SEC.revealFast,
+                    ease: EASE.reveal,
+                    delay: enabled ? index * STAGGER.base : 0,
+                  },
+                  flexBasis: spring,
+                }}
               >
                 {/*
                   Hover opens the panel for a pointer, focus opens it for a
@@ -155,7 +171,7 @@ const OurValues: React.FC = () => {
                       the panel's left edge, an open one at its right. Each file
                       is 284x284 and clips itself, because several petals are
                       drawn past that frame on purpose. */}
-                  <img
+                  <motion.img
                     src={item.mark}
                     alt=""
                     loading="lazy"
@@ -163,15 +179,34 @@ const OurValues: React.FC = () => {
                     aria-hidden="true"
                     data-value-mark={item.id}
                     data-mark-colour={item.colour}
-                    // `max-w-none` matters: a global `img { max-width: 100% }`
-                    // capped the mark to the panel width and squashed it to
-                    // 215x284. The panel must CLIP the 284 square, not resize it.
-                    className="pointer-events-none absolute hidden max-w-none select-none lg:block lg:transition-[left] lg:duration-500 lg:ease-out lg:motion-reduce:transition-none"
-                    style={{
-                      width: MARK,
-                      height: MARK,
-                      top: -75,
-                      left: isOpen ? MARK_X_OPEN : MARK_X_CLOSED,
+                    className="pointer-events-none absolute hidden max-w-none select-none lg:block"
+                    style={{ width: MARK, height: MARK, top: -75 }}
+                    initial={
+                      enabled
+                        ? {
+                            x: isOpen ? MARK_X_OPEN : MARK_X_CLOSED,
+                            scale: 0.6,
+                            rotate: -45,
+                            opacity: 0,
+                          }
+                        : { x: isOpen ? MARK_X_OPEN : MARK_X_CLOSED }
+                    }
+                    whileInView={
+                      enabled ? { scale: 1, rotate: 0, opacity: 1 } : undefined
+                    }
+                    viewport={{ once: true }}
+                    animate={{ x: isOpen ? MARK_X_OPEN : MARK_X_CLOSED }}
+                    transition={{
+                      x: spring,
+                      scale: enabled
+                        ? { duration: SEC.revealFast, ease: EASE.roll, delay: index * STAGGER.base + 0.15 }
+                        : { duration: 0 },
+                      rotate: enabled
+                        ? { duration: SEC.revealFast, ease: EASE.roll, delay: index * STAGGER.base + 0.15 }
+                        : { duration: 0 },
+                      opacity: enabled
+                        ? { duration: SEC.revealFast, ease: EASE.reveal, delay: index * STAGGER.base }
+                        : { duration: 0 },
                     }}
                   />
 
@@ -205,7 +240,7 @@ const OurValues: React.FC = () => {
                     </p>
                   </div>
                 </div>
-              </li>
+              </motion.li>
             );
           })}
         </ul>

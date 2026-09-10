@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import Container from '../ui/Container';
 import Button from '../ui/Button';
@@ -6,7 +7,7 @@ import Odometer from '../ui/Odometer';
 import Reveal, { RevealChild } from '../ui/Reveal';
 import SectionBadge from '../ui/SectionBadge';
 import { ABOUT_SECTION_IDS, scrollToId } from '../navigation';
-import { MOTION, SEC, STAGGER } from '../../lib/motion';
+import { EASE, MOTION, SEC, SPRING, STAGGER, useMotionEnabled } from '../../lib/motion';
 
 /**
  * Our Story — Figma 3133:4432 (1440x766).
@@ -43,7 +44,11 @@ const MILESTONES = [
   { value: '500+', label: 'Projects delivered for clients worldwide' },
 ] as const;
 
-const OurStory: React.FC = () => (
+const OurStory: React.FC = () => {
+  const motionEnabled = useMotionEnabled();
+  const enabled = motionEnabled && MOTION.aboutStory;
+
+  return (
   <section id="our-story" className="bg-background py-fig-64 lg:py-fig-120">
     <Container className="flex flex-col gap-fig-56 lg:gap-fig-80">
       {/* The row starts at xl, not lg. The artboard's two columns are 448 and
@@ -76,15 +81,21 @@ const OurStory: React.FC = () => (
               story and sits directly below, so the click scrolls there — a
               sensible target rather than a dead click, and an inference to
               confirm with the team. */}
-          <Button
-            onClick={() => scrollToId(ABOUT_SECTION_IDS[1])}
-            size="xl"
-            radius="m"
-            className="w-full shadow-fig-xs xl:w-[448px]"
-            icon={<ArrowUpRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
+          <motion.div
+            whileHover={enabled ? { y: -2 } : undefined}
+            whileTap={enabled ? { scale: 0.97 } : undefined}
+            transition={{ type: 'spring', ...SPRING.hover }}
           >
-            Read Our Full Story
-          </Button>
+            <Button
+              onClick={() => scrollToId(ABOUT_SECTION_IDS[1])}
+              size="xl"
+              radius="m"
+              className="w-full shadow-fig-xs xl:w-[448px]"
+              icon={<ArrowUpRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
+            >
+              Read Our Full Story
+            </Button>
+          </motion.div>
         </RevealChild>
       </Reveal>
 
@@ -110,15 +121,22 @@ const OurStory: React.FC = () => (
             duration={SEC.revealFast}
             className="flex flex-col items-center gap-fig-8 text-center"
           >
-            <span className="font-sans text-display-sm text-text-primary lg:text-display-lg">
+            <motion.span
+              className="font-sans text-display-sm text-text-primary lg:text-display-lg"
+              initial={enabled ? { scale: 0.85 } : undefined}
+              whileInView={enabled ? { scale: 1 } : undefined}
+              viewport={{ once: true }}
+              transition={{ duration: SEC.revealBase, ease: EASE.roll }}
+            >
               {MOTION.counters ? <Odometer value={value} /> : value}
-            </span>
+            </motion.span>
             <span className="font-body text-body-lg text-subtitle lg:text-body-xl">{label}</span>
           </RevealChild>
         ))}
       </Reveal>
     </Container>
   </section>
-);
+  );
+};
 
 export default OurStory;
