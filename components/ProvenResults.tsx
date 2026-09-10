@@ -397,10 +397,17 @@ const ProvenResults: React.FC = () => {
               usable height is ~860-910px after the taskbar and browser chrome),
               not only on a full 1080; full flow rhythm otherwise. */}
           <div ref={columnRef} className={`flex flex-col py-fig-32 ${wantsPin ? 'lg:py-fig-16' : 'lg:py-fig-120'}`}>
-            {/* 100px from the title to the cards in both branches, which the
-                user set on 2026-09-10. Pinned, the scale-to-fit absorbs the
-                extra chrome by rendering the deck a little smaller. */}
-            <Container innerRef={headerRef} className="mb-fig-24 flex flex-col gap-fig-8 lg:mb-fig-100 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32">
+            {/* 100px from the title to the cards, which the user set on
+                2026-09-10 — kept for the static rail, the view they review.
+                While pinned the gap is compact instead: a pinned deck must fit
+                header + gap + card into one viewport, and the 100px gap raised
+                that budget by 76px, so on a short laptop viewport (Windows
+                display scaling shrinks the CSS height) the deck could no longer
+                fit and the section fell back to the static rail — the animation
+                went missing. The compact gap lowers the height the pin needs, so
+                the scrub returns on laptop viewports. The gap is scaled by
+                `geom.scale` anyway, so the difference reads small. */}
+            <Container innerRef={headerRef} className={`mb-fig-24 flex flex-col gap-fig-8 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32 ${wantsPin ? 'lg:mb-fig-24' : 'lg:mb-fig-100'}`}>
               <Reveal as="div" stagger={STAGGER.base} className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
                 <RevealChild as="span" y={20} duration={SEC.revealFast}>
                   <SectionBadge>Proof Of Work</SectionBadge>
