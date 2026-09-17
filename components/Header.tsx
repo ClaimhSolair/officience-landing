@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Mail, Menu } from 'lucide-react';
 import { ASSETS } from '../assets';
@@ -56,6 +56,13 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   const scrolledDown = useScrollDirection();
   const retracted = scrolledDown && motionOn && MOTION.headerHide && !isMenuOpen && !focusWithin;
 
+  // The pinned decks follow the bar: while it is retracted they collapse their
+  // header offset to 0, so no blank band is left above them. The decks read
+  // `--header-shown` through `calc()`; the bar owns the value. (index.html.)
+  useEffect(() => {
+    document.documentElement.style.setProperty('--header-shown', retracted ? '0' : '1');
+  }, [retracted]);
+
   return (
       <header
         onFocusCapture={() => setFocusWithin(true)}
@@ -67,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
             ? 'backdrop-blur-md supports-[backdrop-filter]:bg-bg-primary/70 supports-[backdrop-filter]:border-b supports-[backdrop-filter]:border-white/10'
             : 'border-b border-transparent'
         }`}
-        style={{ transitionDuration: `${MS.glass}ms` }}
+        style={{ transitionDuration: `${MS.glass}ms, ${MS.glass}ms, ${MS.headerSlide}ms` }}
       >
         <Container className="h-[69px] lg:h-[113px] 3xl:h-[119px] flex items-center justify-between gap-fig-16">
           {/* The lockup art is a single blue-on-transparent PNG shared with the

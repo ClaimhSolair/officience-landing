@@ -33,6 +33,9 @@ export const MS = {
   exit: 220,
   /** Header glass cross-fade (self-specified — no reference). */
   glass: 300,
+  /** Header retract/return slide. 1.5x faster than the glass fade, and given its
+   *  own duration so the fade stays at 300ms. */
+  headerSlide: 200,
   /** oma-genera's label roll, settling by ~400ms. */
   roll: 250,
   /** The overlay menu rolls at half speed. Its labels are display-scale and the
@@ -130,11 +133,22 @@ export const SPRING = {
  */
 export const HEADER_H = { base: 69, lg: 113, xl3: 119 } as const;
 
-/** Sticky offset for pinned cards, in those same heights. */
-export const STICKY_TOP = 'top-[69px] lg:top-[113px] 3xl:top-[119px]';
+/**
+ * Sticky offset for pinned cards. It reads the header height and whether the bar
+ * is on screen (`--header-h` / `--header-shown`, index.html), so the offset
+ * collapses to 0 when the bar retracts and no blank band is left above the deck.
+ * Pair it with `PIN_FOLLOW` so the move animates in step with the bar.
+ */
+export const STICKY_TOP = 'top-[calc(var(--header-h)*var(--header-shown))]';
 
-/** Viewport height less the header, for a pinned section's inner frame. */
-export const PINNED_H = 'h-[calc(100vh-69px)] lg:h-[calc(100vh-113px)] 3xl:h-[calc(100vh-119px)]';
+/** Viewport height less the live header offset, for a pinned section's inner frame. */
+export const PINNED_H = 'h-[calc(100vh_-_var(--header-h)*var(--header-shown))]';
+
+/**
+ * Animates a pinned deck's top and height in step with the retracting bar, so
+ * the two never separate into a visible band. 200ms matches `MS.headerSlide`.
+ */
+export const PIN_FOLLOW = 'transition-[top,height] duration-200 ease-out motion-reduce:transition-none';
 
 /**
  * Whether motion should run for this visitor.

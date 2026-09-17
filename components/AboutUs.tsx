@@ -7,7 +7,7 @@ import Container from './ui/Container';
 import Odometer from './ui/Odometer';
 import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
-import { MOTION, SEC, STAGGER, STICKY_TOP, useMotionEnabled } from '../lib/motion';
+import { MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMotionEnabled } from '../lib/motion';
 import { DISCOVER_OUR_STORY, ROUTES } from './navigation';
 
 /**
@@ -193,7 +193,7 @@ const StoryCardArticle: React.FC<{
     <motion.article
       ref={ref}
       className={`overflow-hidden rounded-fig-xs bg-bg-secondary xl:rounded-fig-l ${
-        stacking ? `sticky ${STICKY_TOP}` : ''
+        stacking ? `sticky ${STICKY_TOP} ${PIN_FOLLOW}` : ''
       }`}
       style={stacking ? { scale } : undefined}
     >

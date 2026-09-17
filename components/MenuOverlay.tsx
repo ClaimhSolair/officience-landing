@@ -83,7 +83,7 @@ const ITEM_VARIANTS_FLAT: Variants = {
 const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRef }) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const [expanded, setExpanded] = useState<string | null>('Services');
+  const [expanded, setExpanded] = useState<string | null>(null);
   // JS rather than `motion-reduce:` so the review override can reach it; a CSS
   // media query cannot be overridden from script.
   const motionOn = useMotionEnabled();
@@ -108,9 +108,11 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
 
   useModalA11y({ isOpen, onClose, containerRef: panelRef, backgroundRef });
 
-  // Reopening should show the design's default state, not wherever it was left.
+  // The design default is all groups collapsed. Reset on reopen, so the menu does
+  // not show a group the reader expanded on a previous open. Services opens on a
+  // manual click only.
   useEffect(() => {
-    if (isOpen) setExpanded('Services');
+    if (isOpen) setExpanded(null);
   }, [isOpen]);
 
   const go = useNavigateTarget(onClose);

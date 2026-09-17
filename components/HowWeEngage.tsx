@@ -4,7 +4,7 @@ import Container from './ui/Container';
 import { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
 import ApproachMark, { type MarkName } from './ui/ApproachMark';
-import { EASE, HEADER_H, MOTION, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { EASE, HEADER_H, MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
 
 /**
  * Figma 3144:3723 (1920) and 3137:2432 (390).
@@ -227,7 +227,7 @@ const HowWeEngage: React.FC = () => {
         <div
           className={`${
             pinned
-              ? `lg:sticky ${STICKY_TOP} lg:flex lg:h-[calc(100vh-113px)] lg:flex-col lg:justify-center 3xl:h-[calc(100vh-119px)]`
+              ? `lg:sticky ${STICKY_TOP} ${PIN_FOLLOW} lg:flex lg:h-[calc(100vh_-_var(--header-h)*var(--header-shown))] lg:flex-col lg:justify-center`
               : ''
           } overflow-x-clip`}
         >

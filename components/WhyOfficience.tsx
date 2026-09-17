@@ -200,15 +200,27 @@ const WhyOfficience: React.FC = () => {
           </li>
         </Reveal>
 
+        {/* The observer must not be the mover: a full-height box that scales
+            itself to `scaleY: 0` collapses its own intersection height to zero,
+            so its visibility threshold is never met and the line waits forever
+            (the exact trap `Reveal` documents). So the outer span is the stable
+            full-height box that observes, and the inner span is the one that
+            scales. It stays at `z-0`, so the values grid and the mark's backing
+            paint over the crossing while the open gaps show the line through. */}
         <motion.span
           aria-hidden="true"
-          className={`absolute inset-y-0 left-1/2 z-0 w-px origin-center ${RULE}`}
+          className="absolute inset-y-0 left-1/2 z-0 w-px"
           style={{ x: '-50%' }}
-          initial={animating ? { scaleY: 0 } : false}
-          whileInView={{ scaleY: 1 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: SEC.revealSlow, ease: [...EASE.reveal] }}
-        />
+          initial={animating ? 'hidden' : 'shown'}
+          whileInView="shown"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <motion.span
+            className={`block h-full w-full origin-center ${RULE}`}
+            variants={{ hidden: { scaleY: 0 }, shown: { scaleY: 1 } }}
+            transition={{ duration: SEC.revealSlow, ease: [...EASE.reveal] }}
+          />
+        </motion.span>
       </div>
     </Container>
   </section>

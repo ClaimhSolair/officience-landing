@@ -7,7 +7,7 @@ import Button from './ui/Button';
 import SectionBadge from './ui/SectionBadge';
 import CarouselDots from './ui/CarouselDots';
 import Reveal, { RevealChild } from './ui/Reveal';
-import { EASE, HEADER_H, MOTION, PINNED_H, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { EASE, HEADER_H, MOTION, PINNED_H, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
 import { EXTERNAL, VIEW_ALL_WORK } from './navigation';
 
 /**
@@ -29,21 +29,23 @@ import { EXTERNAL, VIEW_ALL_WORK } from './navigation';
  * Figma draws no arrow control at any width, so the pair below the track is
  * invention, built from the button system and flagged.
  *
- * **Motion (item 10, nava-studio).** From lg, and on viewports tall enough to
- * hold the deck, the section pins and vertical scrolling drives the track
- * sideways. The deck holds still until the first card is fully read, then rolls;
- * a card entering from beyond the right edge fades and lifts into place, and the
- * cards already on screen are shown settled. No zoom — the review removed it. The
- * arrows go with the pin: Figma never drew them, so retiring them at that width
- * returns the section to what the artboards actually show. Below lg, and wherever
- * the pin will not fit, the swipe rail and its controls are exactly as shipped.
+ * **Motion (item 10, nava-studio).** From lg the section pins and vertical
+ * scrolling drives the track sideways. The deck holds still until the first card
+ * is fully read, then rolls; a card entering from beyond the right edge fades and
+ * lifts into place, and the cards already on screen are shown settled. No zoom —
+ * the review removed it. The arrows go with the pin: Figma never drew them, so
+ * retiring them at that width returns the section to what the artboards show.
+ * Below lg the swipe rail and its controls are exactly as shipped.
  *
- * One divergence, flagged. While pinned the deck **scales to fit the viewport
- * height**, budgeting the whole column — header, paddings and card — against the
- * space below the header it pins beneath. At 1920x1080 that is 1:1 with the
- * artboard; on a shorter laptop it is proportionally smaller, and once the
- * reduction would pass ~30% the section keeps the swipe rail instead. Transform
- * only, so the ratio the design approved is never distorted, only reduced.
+ * **Fit wins over an exact count (user decision 2026-09-18).** The pinned deck is
+ * sized by HEIGHT to fit the viewport, its width taken from the frame's 580:751
+ * aspect; if the header, gap and card together still overrun the frame, the whole
+ * deck scales down (transform) to fit. Nothing is ever clipped. The trade the user
+ * accepted for keeping the pin and full visibility: the number of cards on screen
+ * is what the width leaves room for — about 2.5-2.9 on a normal desktop — and
+ * drifts with the viewport, rather than being pinned to an exact 2.5. The gap is
+ * kept compact while pinned so the deck stays near the frame's 1:1 size; the full
+ * 100px seam shows in the static / reduced-motion view.
  */
 
 interface Project {
@@ -84,37 +86,30 @@ const VIEW_ALL_BLURB =
   'Providing bespoke web development services that optimize user experience, elevate brand visibility, and drive measurable business results.';
 
 /**
- * The artboard's card, exactly: 570x800 from lg, one 240px card at 390.
- *
- * Both numbers are fixed on purpose, and the pair is what makes the shape right.
- * Deriving either from the viewport re-shapes the card — a width share made it
- * 685x800 at 1920, which is a different rectangle from the one the design
- * approved. The deck stays legible on a short screen by *scaling* instead: a
- * transform keeps the 570:800 ratio and only reduces it.
- *
- * How many fit across is then just what the gutters leave: three at 1920
- * (570x3 + 40x2 = 1790 of 1792), two and a peek at 1440, one and a 112px peek
- * at 390 — which is what each artboard draws.
+ * Card sizing across three breakpoints, settled 2026-09-18:
+ *  - 390: one fixed 240x314 card, one peek — unchanged.
+ *  - md (tablet, no pin): a share of the track so 3 cards show, on a 48px gap.
+ *  - lg (desktop, pinned): sized by HEIGHT to fit the pinned viewport, width from
+ *    the frame's 580:751 aspect. `--card-h` caps at the frame's 751; a shorter
+ *    window takes `100svh - 200`, and `measureDeck` scales the whole deck down if
+ *    the column still overruns. The number of cards on screen is therefore what
+ *    the width leaves room for — about 2.5-2.9 on a normal desktop — and varies
+ *    with the viewport. The user chose this (pin + full visibility) over a fixed
+ *    2.5 count, which could not fit a card taller than the frame.
  */
-const CARD = 'w-[240px] shrink-0 lg:w-[calc(var(--card-h)*0.7125)]';
-/** Project and View All cards share a footprint so the snap stays even. */
-const CARD_H = 'h-[314px] lg:h-[var(--card-h)]';
+const CARD = 'w-[240px] shrink-0 md:w-[calc((100%_-_96px)/3)] lg:w-[calc(var(--card-h)*580/751)]';
+/** Project and View All cards share the frame's 580:751 footprint. */
+const CARD_H = 'h-[314px] md:h-auto md:aspect-[580/751] lg:aspect-auto lg:h-[var(--card-h)]';
 
 /**
- * The card's height, and through the ratio above its width too.
- *
- * `min` caps it at the artboard's 800px, so a tall screen gets the design
- * untouched — 570x800, three across a 1920 column. Anything shorter takes the
- * viewport less the sticky header and a margin, so the whole card is on screen
- * at 100% zoom instead of running off the bottom. The 200px is the 113px bar
- * plus enough slack that the card is not merely technically on screen. Both branches keep 570:800 exactly: the
- * width is derived from the height, never from the column, which is what went
- * wrong when a width share made the card 685x800 at 1920.
- *
- * `svh`, not `vh`: on a phone `vh` is the tallest the viewport ever gets, so a
- * card sized in `vh` hides under the browser's own chrome.
+ * The pinned card's height, and through the 580:751 aspect its width too. It caps
+ * at the frame's 751; a shorter window takes the viewport less the header and a
+ * margin, so the whole card stays on screen at 100% zoom instead of running off
+ * the bottom. `measureDeck` scales the deck further if the header, gap and card
+ * together still overrun the pinned frame. `svh`, not `vh`: on a phone `vh` is the
+ * tallest the viewport ever gets, so a card sized in `vh` hides under the chrome.
  */
-const CARD_HEIGHT = 'min(800px, calc(100svh - 200px))';
+const CARD_HEIGHT = 'min(751px, calc(100svh - 200px))';
 
 /** Figma 2943:1748 — a 100px star, drawn rotated. One path, so it inlines. */
 const StarMark: React.FC<{ className?: string }> = ({ className = '' }) => (
@@ -142,16 +137,12 @@ const Tag: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 /** What one pinned deck needs to know about itself, all of it measured. */
 interface Geometry {
-  /** How far the track travels, in screen pixels after scaling. */
+  /** How far the track travels, in screen pixels. */
   travel: number;
-  /** Proportional reduction so the whole deck fits the pinned frame. */
+  /** Proportional reduction (<=1) so the whole pinned column clears the frame. */
   scale: number;
-  /**
-   * The scaled track's visual height, reserved on the track's wrapper so the
-   * reduction actually shrinks the column's *layout* — a CSS scale alone shrinks
-   * only the paint, leaving the full card height in flow and the column still
-   * overflowing the frame (the v5 bleed).
-   */
+  /** The scaled track's height, reserved on the wrapper so the reduction shrinks
+   *  the column's layout and not merely its paint. */
   trackH: number;
   /** Total height of the scroll wrapper, in pixels. */
   height: number;
@@ -164,9 +155,7 @@ interface Geometry {
 
 /**
  * The floor below which the deck is too small to pin for, so the section keeps
- * the swipe rail instead. Low enough that the pin engages on any real laptop — a
- * maximised 1080p laptop has only ~820-910px of usable height — so the section no
- * longer falls back to the rail there; only a genuinely tiny window does.
+ * the swipe rail instead. Low enough that the pin engages on any real laptop.
  */
 const MIN_SCALE = 0.5;
 /** Track pixels per pixel of scroll — nava runs about 1.14. */
@@ -194,13 +183,12 @@ const measureDeck = (track: HTMLElement, chrome: number): Geometry | null => {
   const cardH = kids[0].offsetHeight;
   if (!inner || !cardH) return null;
 
-  // The scale must clear the *whole* pinned column, not just the card: the header
-  // block, the section paddings and the dots row all take vertical space beside
-  // the deck (`chrome`, measured), and the frame is the viewport less the header
-  // it pins beneath. Budgeting the card alone is what let a 1,300px column pin
-  // into a 900px frame and bleed into the neighbouring sections.
-  // Budget against the tallest header (119, 3xl) so the check never promises a
-  // fit the 3xl bar would eat; at lg the 6px slack just centres.
+  // The whole pinned column must clear the frame, not just the card: the header
+  // block, the section paddings and the dots row take vertical space beside the
+  // deck (`chrome`, measured), and the frame is the viewport less the header it
+  // pins beneath. Budget against the tallest header (119, 3xl) so the check never
+  // promises a fit the 3xl bar would eat. Below MIN_SCALE the deck is too small to
+  // pin for, so the section keeps the swipe rail instead.
   const frame = window.innerHeight - HEADER_H.xl3;
   const scale = Math.min(1, (frame - chrome) / cardH);
   if (scale < MIN_SCALE) return null;
@@ -257,10 +245,12 @@ const WorkCard: React.FC<{
   const imgOpacity = useTransform(progress, [start, settle], [0.35, 1], { clamp: true });
   const cardY = useTransform(progress, [start, end], [32, 0], { clamp: true });
 
-  const imgCls = 'h-[220px] w-full object-cover lg:h-[550px]';
+  // The image is 528 of the frame's 751-tall card (3129:3298), so it takes the
+  // top 70.3% and the title block below it takes the rest.
+  const imgCls = 'h-[220px] w-full object-cover md:h-[70.3%]';
   const imgProps = {
     ...media,
-    sizes: '(min-width: 1024px) 570px, 240px',
+    sizes: '(min-width: 1024px) 680px, (min-width: 768px) 320px, 240px',
     loading: 'lazy' as const,
     decoding: 'async' as const,
     referrerPolicy: 'no-referrer' as const,
@@ -334,11 +324,9 @@ const ProvenResults: React.FC = () => {
     if (!track || !col || !header) return;
 
     // `chrome` is the persistent non-deck height when pinned: the column's own
-    // top+bottom padding plus the header block and its bottom margin. Computed
-    // from those parts directly rather than as `column - deck`, so it stays
-    // invariant whether or not the deck is currently pinned or the dots row is
-    // currently rendered — both of which would otherwise make the estimate chase
-    // its own tail across re-measures.
+    // top+bottom padding plus the header block and its bottom margin. Computed from
+    // those parts directly rather than as `column - deck`, so it stays invariant
+    // whether or not the deck is currently pinned or the dots row is rendered.
     const read = () => {
       const cs = getComputedStyle(col);
       const hcs = getComputedStyle(header);
@@ -388,26 +376,19 @@ const ProvenResults: React.FC = () => {
         <div
           className={
             pinned
-              ? `sticky ${STICKY_TOP} flex ${PINNED_H} flex-col justify-center overflow-x-clip`
+              ? `sticky ${STICKY_TOP} ${PIN_FOLLOW} flex ${PINNED_H} flex-col justify-center overflow-x-clip`
               : ''
           }
         >
-          {/* Compressed hard while pinning so the whole column — heading plus the
-              800px card — clears the header on a maximised 1080p laptop (whose
-              usable height is ~860-910px after the taskbar and browser chrome),
-              not only on a full 1080; full flow rhythm otherwise. */}
+          {/* The pinned column keeps a compact vertical padding so header + gap +
+              card fit the viewport it pins into; the static rail takes the full
+              flow rhythm. `measureDeck` scales the deck to fit against this. */}
           <div ref={columnRef} className={`flex flex-col py-fig-32 ${wantsPin ? 'lg:py-fig-16' : 'lg:py-fig-120'}`}>
-            {/* 100px from the title to the cards, which the user set on
-                2026-09-10 — kept for the static rail, the view they review.
-                While pinned the gap is compact instead: a pinned deck must fit
-                header + gap + card into one viewport, and the 100px gap raised
-                that budget by 76px, so on a short laptop viewport (Windows
-                display scaling shrinks the CSS height) the deck could no longer
-                fit and the section fell back to the static rail — the animation
-                went missing. The compact gap lowers the height the pin needs, so
-                the scrub returns on laptop viewports. The gap is scaled by
-                `geom.scale` anyway, so the difference reads small. */}
-            <Container innerRef={headerRef} className={`mb-fig-24 flex flex-col gap-fig-8 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32 ${wantsPin ? 'lg:mb-fig-24' : 'lg:mb-fig-100'}`}>
+            {/* 100px from the title to the cards (frame 3129:3294), pinned and
+                static alike (user, 2026-09-18). The wider seam raises the pinned
+                column's height, so `measureDeck` scales the deck a little more to
+                keep it fitting the viewport — the trade for the roomier gap. */}
+            <Container innerRef={headerRef} className="mb-fig-24 flex flex-col gap-fig-8 lg:mb-fig-100 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32">
               <Reveal as="div" stagger={STAGGER.base} className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
                 <RevealChild as="span" y={20} duration={SEC.revealFast}>
                   <SectionBadge>Proof Of Work</SectionBadge>
@@ -449,7 +430,7 @@ const ProvenResults: React.FC = () => {
                    aligns the first card to the scrollport edge and eats the gutter —
                    the deck ends up a full gutter left of the heading. Scrollbars are
                    killed globally in index.html, so the track needs no opt-out. */
-                className={`flex gap-[22px] px-fig-16 lg:gap-fig-40 lg:px-fig-24 3xl:px-fig-64 ${
+                className={`flex items-start gap-[22px] md:gap-[48px] px-fig-16 lg:px-fig-24 3xl:px-fig-64 ${
                   pinned
                     ? 'will-change-transform'
                     : 'snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-pl-fig-16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:scroll-pl-fig-24 3xl:scroll-pl-fig-64'
@@ -478,7 +459,7 @@ const ProvenResults: React.FC = () => {
                       alt: project.alt,
                     }}
                   >
-                    <div className="flex flex-col gap-fig-6 px-fig-16 py-fig-20 lg:gap-fig-16 lg:p-fig-40">
+                    <div className="flex flex-1 flex-col justify-center gap-fig-6 px-fig-16 py-fig-20 lg:gap-fig-16 lg:p-fig-40">
                       <div className="flex flex-wrap items-center gap-[5px] lg:gap-fig-12">
                         {project.tags.map((tag) => (
                           <Tag key={tag}>{tag}</Tag>

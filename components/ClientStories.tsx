@@ -50,20 +50,16 @@ const TESTIMONIALS = [
 ];
 
 /**
- * Slide-tilt, cloned and adapted from the outsourceconsultants.com PROCESS deck
- * (measured law in `.claude/motion-catalog.md`, Item 13: rotate ±12°, x = 150·N,
- * scrubbed to rest). Our column is narrow and holds three cards, not four, so the
- * card slides in from the right only — not the reference's down-right diagonal —
- * behind an `overflow-x-clip`, tilts, then straightens and lifts to its resting
- * place. The reference is drawn on the site's own blue grid; the user chose a
- * single subtle neutral rule instead.
+ * Slide-in, adapted from the outsourceconsultants.com PROCESS deck (measured law
+ * in `.claude/motion-catalog.md`, Item 13: x = 150·N, scrubbed to rest). The user
+ * set a pure horizontal slide here: each card enters from the right, behind an
+ * `overflow-x-clip`, and settles at its resting position — no rise and no tilt.
+ * The reference is drawn on the site's own blue grid; the user chose a single
+ * subtle neutral rule instead.
  *
- * One constant each; tune here. The tilt sign alternates by card, so the three
- * cards lean −, +, −.
+ * One constant; tune here.
  */
-const TILT_DEG = 10;
 const SLIDE_X = 160;
-const RISE_Y = 44;
 
 /**
  * Overdamped, so a straightening card glides between wheel notches and never
@@ -71,27 +67,27 @@ const RISE_Y = 44;
  */
 const SCRUB_SPRING = { stiffness: 120, damping: 28, restDelta: 0.001 };
 
-/** The card box, shared by the static and the scrubbed branch. */
+/**
+ * The card box, shared by the static and the scrubbed branch. Capped at the
+ * frame's 545px on lg (3129:3363) and left-aligned in the wider column, so the
+ * open space on its right is the room the slide-in enters from.
+ */
 const CARD =
-  'flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:gap-fig-20 lg:rounded-fig-l lg:p-fig-40';
+  'flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:max-w-[545px] lg:gap-fig-20 lg:rounded-fig-l lg:p-fig-40';
 
 const Testimonial: React.FC<{
   t: (typeof TESTIMONIALS)[number];
-  index: number;
   scrub: boolean;
   motionOn: boolean;
-}> = ({ t, index, scrub, motionOn }) => {
+}> = ({ t, scrub, motionOn }) => {
   // The observed li never transforms, so its measured position stays honest —
   // the moving box is the inner div. (Capabilities ServiceRow, same reason.)
   const ref = useRef<HTMLLIElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
   const p = useSpring(scrollYProgress, SCRUB_SPRING);
-  // Card slides in from the right, tilted, and settles upright as it climbs to
-  // mid-screen; clamped at rest after. The lean alternates −, +, −.
-  const dir = index % 2 === 0 ? -1 : 1;
-  const rotate = useTransform(p, [0, 1], [dir * TILT_DEG, 0]);
+  // Card slides in from the right and settles at its resting position; clamped at
+  // rest after. No rise, no tilt — a pure horizontal slide.
   const x = useTransform(p, [0, 1], [SLIDE_X, 0]);
-  const y = useTransform(p, [0, 1], [RISE_Y, 0]);
 
   const body = (
     <>
@@ -149,7 +145,7 @@ const Testimonial: React.FC<{
 
   return (
     <li ref={ref} className="relative z-10">
-      <motion.div className={CARD} style={{ x, y, rotate }}>
+      <motion.div className={CARD} style={{ x }}>
         {body}
       </motion.div>
     </li>
@@ -202,19 +198,19 @@ const ClientStories: React.FC = () => {
         enabled={MOTION.clients}
         className="relative flex w-full flex-col gap-fig-20 lg:max-w-[847px] lg:flex-1 lg:gap-fig-100"
       >
-        {/* The spine. A single thin neutral rule down the middle of the column,
-            behind the cards (z-0 against their z-10), so it reads only in the
-            gaps between them — the reference look, without its full blue grid.
-            Part of the slide-tilt treatment, so it appears only when the scrub
-            does. */}
+        {/* The spine. A single thin neutral rule down the centre of the 545px
+            card, behind the cards (z-0 against their z-10), so it reads only in
+            the gaps between them — the reference look, without its full blue
+            grid. Centred on the card (273 ≈ 545/2), not the wider column, now
+            the cards are left-aligned. Appears only when the scrub does. */}
         {scrub && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-0 z-0 hidden h-full w-px -translate-x-1/2 bg-border-field lg:block"
+            className="pointer-events-none absolute left-[273px] top-0 z-0 hidden h-full w-px -translate-x-1/2 bg-border-field lg:block"
           />
         )}
-        {TESTIMONIALS.map((t, i) => (
-          <Testimonial key={t.name} t={t} index={i} scrub={scrub} motionOn={motionOn} />
+        {TESTIMONIALS.map((t) => (
+          <Testimonial key={t.name} t={t} scrub={scrub} motionOn={motionOn} />
         ))}
       </Reveal>
     </Container>

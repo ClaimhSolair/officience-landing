@@ -5,7 +5,7 @@ import Container from './ui/Container';
 import Reveal, { RevealChild } from './ui/Reveal';
 import Button from './ui/Button';
 import SectionBadge from './ui/SectionBadge';
-import { HEADER_H, MOTION, SEC, STAGGER, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled } from '../lib/motion';
 import { EXTERNAL } from './navigation';
 
 /**
@@ -129,10 +129,15 @@ const ServiceRow: React.FC<{
     <RevealChild
       as="li"
       y={44}
-      className={decking ? 'sticky' : ''}
-      /* The offset is the header plus one peek per row above, so every row lands
-         clear of the bar and clear of its predecessors. */
-      style={decking ? { top: HEADER_H.lg + index * PEEK, zIndex: index } : undefined}
+      className={decking ? `sticky ${PIN_FOLLOW}` : ''}
+      /* The offset is the live header height plus one peek per row above, so every
+         row lands clear of the bar and clear of its predecessors — and follows the
+         bar up when it retracts (`--header-shown`, index.html), leaving no band. */
+      style={
+        decking
+          ? { top: `calc(var(--header-h) * var(--header-shown) + ${index * PEEK}px)`, zIndex: index }
+          : undefined
+      }
     >
       <motion.div
         className={`border-border-field ${first ? 'border-t-0 lg:border-t' : 'border-t'} ${
@@ -235,11 +240,13 @@ const Capabilities: React.FC = () => {
         stagger={STAGGER.base}
         amount={0.1}
         enabled={MOTION.services}
-        /* The runway under the last row gives it a beat of its own. The list is
-           the scroll target, so its own bottom padding extends that row's sticky
-           travel: the card holds under the header while the reader keeps
-           scrolling, then releases and rides up into Our Approach. */
-        className={`flex flex-col ${decking ? 'pb-[35vh]' : ''}`}
+        /* The runway under the last row gives it a beat before it releases into
+           Our Approach. The user wants the TOTAL empty gap from the last row to the
+           "Our Approach" heading to read 200px (2026-09-18). That total is this
+           runway + the section's own 100px bottom padding + the 72px of Approach's
+           header above its heading, so the runway itself is 28px (28 + 100 + 72 =
+           200). All three are fixed px, so the 200px holds on every screen. */
+        className={`flex flex-col ${decking ? 'pb-[28px]' : ''}`}
       >
         {SERVICES.map((service, i) => {
           const first = i === 0;

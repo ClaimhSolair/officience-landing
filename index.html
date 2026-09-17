@@ -230,12 +230,19 @@
       html {
         scroll-padding-top: 69px;
         scrollbar-width: none;
+        /* The header's own height, per artboard, and whether it is on screen.
+           A pinned deck reads calc(var(--header-h) * var(--header-shown)) for its
+           top offset and 100vh minus the same value for its height, so both
+           collapse to the top when the header retracts and no blank band is left
+           above the deck. Header.tsx writes --header-shown (1 shown, 0 retracted). */
+        --header-h: 69px;
+        --header-shown: 1;
       }
       @media (min-width: 1024px) {
-        html { scroll-padding-top: 113px; }
+        html { scroll-padding-top: 113px; --header-h: 113px; }
       }
       @media (min-width: 1920px) {
-        html { scroll-padding-top: 119px; }
+        html { scroll-padding-top: 119px; --header-h: 119px; }
       }
       /* Anchor scrolling animates only for visitors who haven't asked for less motion. */
       @media (prefers-reduced-motion: no-preference) {
