@@ -131,10 +131,16 @@ export const ASSETS = {
    * unrelated. Source folder: assets-src/about-page.
    */
   aboutPage: {
-    // Figma 3133:4426, the 2006 team photo. The fill is only 1024x768 against a
-    // 1440x780 box, so it renders at 0.71x there and 0.53x at 1920. Encoding it
-    // larger would add bytes and no detail. The original is on the team's list.
-    hero: a('/about-page/hero-2006.webp'),
+    // The 2006 team photo, as the team made it for Figma 3779:5758 (user,
+    // 2026-09-24): Figma's own 1980x1080 render of that frame. It is the old
+    // 1024x768 photo widened 1.375x, with the dark scrim in the pixels, so the
+    // hero draws no scrim of its own. Its detail is the 1024px source's, so the
+    // 1980 file is soft at 1920; the camera original is on the team's list.
+    hero: [
+      { url: a('/about-page/hero-2006-800.webp'), w: 800 },
+      { url: a('/about-page/hero-2006-1280.webp'), w: 1280 },
+      { url: a('/about-page/hero-2006-1980.webp'), w: 1980 },
+    ],
     /**
      * Our Journey. Figma scales and offsets every one of these fills past what
      * object-fit would use, and each crop differs — 1.10x on 2006 against 2.18x

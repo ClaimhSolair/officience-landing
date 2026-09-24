@@ -1,24 +1,39 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { ASSETS } from '../../assets';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { ASSETS, srcSetOf } from '../../assets';
 import { EASE, MOTION, SEC, STAGGER, useMotionEnabled } from '../../lib/motion';
 import Container from '../ui/Container';
 
 /**
- * The About Us hero — Figma 3133:4425 (1440x780, directly under the header).
+ * The About Us hero — Figma 3133:4425 (1440x780, directly under the header),
+ * with the photo of 3779:5758.
  *
- * The band is full-bleed and holds the photograph over a dark ground, with a
- * bottom-up black scrim above both. The copy sits on the last 190px: the
- * headline on the left gutter, the subtitle on the right, both aligned to the
- * same baseline, 52px above the band bottom.
+ * **The photo shows whole, at its own 1980:1080 (user, 2026-09-24).** The file
+ * is the one the team made for 3779:5758: Figma's render of that frame, which
+ * is the 1024x768 photo widened 1.375x, with the dark scrim in the pixels. The
+ * user chose it as made. The band takes the file's ratio at every width, so the
+ * photo never crops and no band shows, and the hero draws no scrim of its own.
+ * There is no parallax: a parallax needs overdraw, and overdraw is a crop.
+ *
+ * From lg the copy sits on the last part of the photo: the headline on the
+ * left gutter, the subtitle on the right, both on one baseline, 52px above the
+ * photo's bottom edge. Below lg the band is too short for the copy (213px at
+ * 390), so the copy sits under the photo on the dark ground.
  *
  * Only `lg` is the artboard. The file draws no 390 frame and no 1920 frame for
- * this page, so every other ratio is this build's own.
+ * this page, so every other width is this build's own.
  */
 
 const HEADLINE = ['About', 'Officience'];
 
 const SUBTITLE = 'We don’t just build software. We empower the people who build the future.';
+
+const ALT =
+  "The Officience team in 2006, holding the company's first logo board outside the original Ho Chi Minh City office.";
+
+// React 18 does not know the camelCase `fetchPriority` prop and warns about it,
+// so the attribute goes in lowercase, which React passes through as it is.
+const HIGH_PRIORITY = { fetchpriority: 'high' } as Record<string, string>;
 
 const COPY_VARIANTS = {
   hidden: { y: 32, opacity: 0 },
@@ -31,56 +46,31 @@ const COPY_VARIANTS_REDUCED = {
 } as const;
 
 const AboutHero: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null);
   const motionEnabled = useMotionEnabled();
   const enabled = motionEnabled && MOTION.aboutHero;
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end start'],
-  });
-
-  const photoY = useTransform(scrollYProgress, [0, 1], [0, -30]);
-
   const variants = enabled ? COPY_VARIANTS : COPY_VARIANTS_REDUCED;
+  const photo = ASSETS.aboutPage.hero;
 
   return (
     <section
-      ref={sectionRef}
-      className="relative isolate w-full overflow-hidden rounded-fig-xs bg-black-900 aspect-[390/520] sm:aspect-[640/560] md:aspect-[768/480] lg:aspect-[1440/780] 2xl:aspect-[1920/900]"
+      className="relative isolate w-full overflow-hidden rounded-fig-xs bg-black-900"
       aria-labelledby="about-hero-title"
     >
-      {enabled ? (
-        <motion.img
-          src={ASSETS.aboutPage.hero}
-          alt="The Officience team in 2006, holding the company's first logo board outside the original Ho Chi Minh City office."
-          className="absolute inset-0 h-full w-full object-cover object-center"
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          style={{ y: photoY }}
-        />
-      ) : (
+      {/* The file's own ratio, so `object-cover` has no effect. */}
+      <div className="relative aspect-[1980/1080] w-full">
         <img
-          src={ASSETS.aboutPage.hero}
-          alt="The Officience team in 2006, holding the company's first logo board outside the original Ho Chi Minh City office."
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          src={photo[photo.length - 1].url}
+          srcSet={srcSetOf(photo)}
+          sizes="100vw"
+          alt={ALT}
+          className="absolute inset-0 h-full w-full object-cover"
           loading="eager"
-          fetchPriority="high"
           decoding="async"
+          {...HIGH_PRIORITY}
         />
-      )}
+      </div>
 
-      <motion.div
-        aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.5)] from-[45.673%] to-[rgba(102,102,102,0)]"
-        initial={enabled ? { opacity: 0 } : undefined}
-        whileInView={enabled ? { opacity: 1 } : undefined}
-        viewport={{ once: true }}
-        transition={{ duration: SEC.revealBase, ease: EASE.reveal }}
-      />
-
-      <div className="absolute inset-x-0 bottom-0 pb-fig-32 lg:pb-[52px]">
+      <div className="relative pb-fig-32 pt-fig-24 lg:absolute lg:inset-x-0 lg:bottom-0 lg:pb-[52px] lg:pt-0">
         <Container className="flex flex-col gap-fig-24 lg:flex-row lg:items-end lg:gap-fig-32">
           <motion.h1
             id="about-hero-title"

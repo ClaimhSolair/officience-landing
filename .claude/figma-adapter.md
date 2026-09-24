@@ -215,8 +215,26 @@ of decision, not by section.
       and the photo fills it with no stretch, crop or band. Below lg a 16:9 band
       is too short for the copy (219px at 390), so the copy sits under the photo
       on the dark ground. The photo parallax goes, because a parallax needs
-      overdraw, and overdraw is a crop. **Status: this waits for the file**
-      (`.claude/drop/about-hero.<ext>`, which git ignores).
+      overdraw, and overdraw is a crop.
+    - **Built 2026-09-24 with the file the user sent in chat.** Measured: it is
+      **Figma's own render of 3779:5758**, not a new photo. It is 1980x1080 (not
+      1920x1080), it differs from the Figma render by 1.94/255, it is the 4:3
+      photo scaled about 1.95x across and 1.41x down (the 1.375x widening), and
+      the dark scrim is in its pixels (the row brightness equals the render's).
+      The logo circle on the board reads about 0.80 wide:tall in the 4:3 file and
+      1.09 in this one, so this file makes the people about 9% wide, by that
+      circle. The user saw these facts and chose **"use it as the team made it"**.
+      So: the band is `aspect-[1980/1080]` at every width, the hero draws no CSS
+      scrim (the file has one), and the copy sits on the photo from lg and under
+      it below lg. Files: `hero-2006-{800,1280,1980}.webp`; 28 corner pixels of
+      the frame's 4px radius were transparent and are flattened onto `#1B1E25`.
+    - **Consequence to know:** the band is 1047px tall at 1920, so the headline
+      ends below the first screen on tall desktop screens: at y=900 on 1536x864,
+      and at y=1115 on 1920x1080 (a maximised 1920 browser shows only the top of
+      the copy). At 1440x900 (847) and 1280x800 (760) it fits. Any fix needs a
+      ruling, because each one crops, adds a band, or moves the copy.
+    - The detail is the 1024px source's, so the photo is soft at 1920. The camera
+      original is still owed.
 18c. **Our Journey is ONE track in four frames, and the pictures share one band.**
     `3133:4460` plus `3070:1902`, `3070:2037` and `3070:2157` are four scroll
     positions of the same rail, not four sections — 2012, 2016 and 2026 each
@@ -331,8 +349,9 @@ of decision, not by section.
       (9px of gap), at 1480 the gap is 26px, and at 1520 the copy takes 4 lines
       (79px). So the row starts at **2xl (1536)**, where the card and picture are
       611 = 611, and 740 = 740 at 1920. Below 2xl the section stacks, card first.
-      The stack at 1024-1535 is **open for a ruling**: the photo there is the
-      full column width at 3:2 (928px tall at 1440).
+      **Ruled 2026-09-24: keep the stack below 1536** (user). The photo there is
+      the full column width at 3:2 (928px tall at 1440). Do not bring the row
+      back below 2xl.
     - "See the story" now opens the story page (ruling 18i).
 18f. **Our Team's seven cards are drawn inconsistently and are NORMALISED.**
     `3133:4583` — the frame is named "Our Values" but its badge says "Our Team",
