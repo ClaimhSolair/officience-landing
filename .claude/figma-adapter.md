@@ -203,6 +203,20 @@ of decision, not by section.
       the home page's story cards. The difference is the subject: stretching a
       building is a proportion error, stretching the founding team and cropping
       their logo board destroys the content. Do not "align" the two.
+    - **Amended 2026-09-24 (round 4).** Commit `4140f3d` changed this ruled
+      `object-contain` to `object-cover object-center` and recorded no reason, so
+      the build cropped the photo again. The team then asked for "no stretch, no
+      cut, no crop" and named a "1920x1080 version". Measured: the node they
+      linked, **3779:5758**, is 1980x1080, and its fill is the same **1024x768**
+      file that ships (mean pixel difference 3.8/255). Figma **stretches** it
+      1.375x wide into the frame (the fit score is 4.5 for a stretch, against 16
+      or more for every crop). So that node is not the new file. The user chose to
+      **supply the 1920x1080 file**. With it, the band takes 16:9 at every width,
+      and the photo fills it with no stretch, crop or band. Below lg a 16:9 band
+      is too short for the copy (219px at 390), so the copy sits under the photo
+      on the dark ground. The photo parallax goes, because a parallax needs
+      overdraw, and overdraw is a crop. **Status: this waits for the file**
+      (`.claude/drop/about-hero.<ext>`, which git ignores).
 18c. **Our Journey is ONE track in four frames, and the pictures share one band.**
     `3133:4460` plus `3070:1902`, `3070:2037` and `3070:2157` are four scroll
     positions of the same rail, not four sections — 2012, 2016 and 2026 each
@@ -230,6 +244,21 @@ of decision, not by section.
       the rail rests at `scrollLeft` 24 instead of 0.
     - Figma draws no arrows and no scrollbar; the rail, its drag and its arrows
       are the build's own, following Proven Results.
+    - **Motion, user 2026-09-24: the Proven Results animation, plus drag.** From
+      lg with motion on, the rail pins under the header and the vertical scroll
+      moves it sideways. The code is shared with Proven Results
+      (`lib/pinnedTrack.ts`), so the hold, the scrub rate, the 0.3-viewport
+      dwell, the card fade and lift, and the scale-to-fit are the same. **Only the
+      rail pins, not the heading.** The heading is three lines at 50px, and a
+      pinned heading would have scaled the cards far down on a laptop. Measured
+      scale with the rail alone: 1.0 at 1440x900 and 1920x1080, 0.83 at 1024x768,
+      and 0.76 at 1280x720. A drag moves the page scroll, not the track, so the
+      pin stays the one source of the position: 1 track px = `(1-HOLD)/RATE` =
+      0.8 scroll px, clamped to the moving range. The arrows go while the rail
+      is pinned. Below lg, and with reduced motion, the swipe rail stays.
+    - The pinned section is about 4,000px tall, so a plain `threshold: 0.3` never
+      reported its `section_view`. `AboutPage.tsx` now counts a view at 30% of
+      the section or 30% of the screen, whichever needs less.
     - Copy drawn as-is and worth a ruling: **2011's title is set entirely at
       36px** where every other event splits the year (36) from the name (24);
       **"OffyPlex" in the 2017 title is "Offyplex" in its body**; **2016's body
@@ -262,6 +291,22 @@ of decision, not by section.
     - A mark needs **`max-w-none`**: the global `img { max-width: 100% }` capped
       it to the panel width and squashed the 284 square to 215x284. The panel
       must CLIP the mark, never resize it.
+    - **Card design of 2026-09-24 (Figma 3363:3591, user ruling).** The frame
+      draws five equal 448x589 cards. The user kept the accordion and its
+      animation, and chose "marks stay": each mark sits at the panel's top-left
+      in both states, because the frame draws only that position. So these
+      points above are **superseded**: the 523 height (now 589), the mark that
+      moves from left to right, the grey closed text (every title is now
+      Text/Primary and every body Text/Default, 16/26 weight 500), and the five
+      pastel colours. The open panel is BG/Default (white), and a closed panel
+      is BG/Secondary, the section's own fill. New marks, each with its own size
+      and offset from the panel's top-left: Commitment `#FFBFC7` 347 at
+      (-98,-121), Openness `#FFCE00` 306 at (-55,-62), Merit `#DD3C57` 310 at
+      (-45,-86), Innovation `#22B573` 320 at (-71.43,-99.43) (a 336 box at
+      (-76,-104) with the art 4.57 inside), Caring `#1F49BF` 284 at (-38,-65).
+      The marks are inline (`components/about/ValueMarks.tsx`), not in the
+      bucket, because each is a flat vector under 2 kB. Measured at 1440: all
+      five at their drawn size and offset, the panel row 589 tall.
 18e. **DIY Jam (`3133:4506`) shows its whole photograph, like the hero.**
     Figma draws the 1024x683 fill with `object-fit: fill` into an 856x711 box,
     which squeezes the group 1.25x. `object-contain` under ruling 18b instead:
@@ -276,6 +321,19 @@ of decision, not by section.
       1920**. Another original the team owes.
     - Figma gives **neither button a destination**. `DIY_JAM_CTAS` in
       `navigation.ts` records the two stand-ins and why.
+    - **Amended 2026-09-24 (round 4).** `4140f3d` had changed the contained photo
+      to a cover crop, which cut its sides. The team's node **3133:4525** holds the
+      same 1024x683 file (difference 3.7/255) and squeezes it 1.25x into 856x711.
+      The user chose **the whole photo at its own 3:2**: the picture box is
+      `aspect-[1024/683]`, and no stretch, crop or band shows. The card and the
+      picture share one row height, and the picture sets it. Measured: at 1440
+      the copy wraps to 5 lines and the card needs 586px beside a 571px picture
+      (9px of gap), at 1480 the gap is 26px, and at 1520 the copy takes 4 lines
+      (79px). So the row starts at **2xl (1536)**, where the card and picture are
+      611 = 611, and 740 = 740 at 1920. Below 2xl the section stacks, card first.
+      The stack at 1024-1535 is **open for a ruling**: the photo there is the
+      full column width at 3:2 (928px tall at 1440).
+    - "See the story" now opens the story page (ruling 18i).
 18f. **Our Team's seven cards are drawn inconsistently and are NORMALISED.**
     `3133:4583` — the frame is named "Our Values" but its badge says "Our Team",
     and the badge is right. A 4x2 grid of 318px cards on a 40px gutter with 100
@@ -297,6 +355,39 @@ of decision, not by section.
       20px taller than the artboard; Figma would have clipped it instead.
     - Four columns only from `xl`. At 1024 the artboard's four cards plus their
       gutters need 1392px against a 976px column.
+    - **New portraits, 2026-09-24 (Figma 3214:4405, 3214:4430).** The old files
+      had jagged edges, because `4140f3d` turned their black ground white with a
+      flood-fill, which leaves a hard, aliased edge. The new sources are clean
+      cut-outs (62-80% transparent, with a soft alpha edge). The bake puts each
+      one on its drawn ground with alpha blending at the source resolution, then
+      applies the frame's two nested transforms and crops to 318:356 (636x712,
+      2x). Measured against the Figma render: mean difference 0.6-3.9/255.
+      **Duc's ground is `#ECF4FF`**, as the frame draws it, where the other six
+      are white. That is a sibling difference of the kind this ruling
+      normalises, but here it is inside the photo, so it is reproduced and
+      flagged (one line in the bake script).
+18i. **The DIY Jam story page (Figma 3830:8872, 1440 only), added 2026-09-24.**
+    Route `/about-us/diy-jam` (`ROUTES.diyJam`), lazy-loaded, in the sitemap, with
+    `index, follow`. The "See the story" button opens it.
+    - The top photo (3830:8873) is a different 1024x683 photo, which Figma
+      stretches 1.14x into 1392x817. It shows whole at 3:2, the DIY Jam ruling
+      (18e). It upscales 1.36x at 1440 and 1.75x at 1920, and the original is owed.
+    - The Sparks photo carries Figma's crop (1117:593 of a 4096px frame), baked
+      in. The poster is 16:9 into a 16:9 box.
+    - The two marquee rows (3842:15308, 14 tiles at 3:2, three of them cropped
+      and baked; 3842:15420, 5 tiles at 16:9) use `components/ui/PhotoMarquee.tsx`.
+      Each tile is 461 tall from lg and 240 below, at its file's own ratio. The
+      loop speed is one value (60 px/s) for both rows, so the duration comes from
+      the set width (156s and 69.29s at desktop). The track ends with one gap of
+      padding, or -50% stops half a gap early and the loop jumps.
+    - **The Grand Finale poster ships without its play icon and its 62% grey dim**
+      (user: "poster only for now"). The dim exists only to carry the icon.
+    - Slips shipped as drawn and flagged: the last project, "O2B Automated
+      Branding Assistant", has no colon after its name. The artboard puts 55px
+      between the top block and the first text block where every other gap is
+      64; the build uses 64. The Sparks photo has a 5.049px radius, built as 5.
+    - Figma draws no 390 frame. Below lg: the home-page type steps, full-width
+      images at their ratios, 240px tiles, 40px gaps.
 18g. **Our Working Life's marquee needs NO assets of its own.**
     `3133:4640`. A news list (403) beside a white panel (987.6) holding the
     anniversary banner, then two photo rows.
@@ -435,6 +526,12 @@ points at **production** until the staging bucket has been seeded with the curre
 
 - Cache-bust: `ASSET_VERSION` in `assets.ts` — bump on **every** re-upload. r2.dev sends no `Cache-Control`, so verify fresh bytes with a never-used `?cb=<guid>`; if a stale response got cached under the new `?v=N`, bump once more.
 - Image processing: Python + Pillow (installed; `magick` is NOT) — RGBA → soft white-key ramp min(r,g,b) 236→250 → `getbbox()` crop.
+  **2026-09-24: Pillow is no longer installed** (both Pythons on the machine lack it). Use `sharp` 0.34.5,
+  which is in `node_modules`: run a node script from the worktree root and resolve it with
+  `require(require.resolve('sharp', { paths: [process.cwd()] }))`. In one sharp pipeline, a second
+  `resize` replaces the first, and an `extract` after a `resize` fails: write each step to a buffer.
+  The round-4 bake script (team crops, story tiles) is `bake-about-r4.cjs` in that session's scratchpad.
+  Its crop numbers are in rulings 18f and 18i.
 - New SVG exports: run through the `preserveAspectRatio` fixer and spot-check the viewBox.
 
 ## Design tokens

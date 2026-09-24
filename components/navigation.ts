@@ -6,6 +6,8 @@ import { scrollToElement } from '../lib/scroll';
 export const ROUTES = {
   home: '/',
   about: '/about-us',
+  /** The DIY Jam story, reached from the About Us page's "See the story". */
+  diyJam: '/about-us/diy-jam',
   terms: '/terms-of-use',
   privacy: '/privacy-policy',
 } as const;
@@ -153,16 +155,14 @@ export const DISCOVER_OUR_STORY: NavItem = {
 };
 
 /**
- * The two DIY Jam buttons on the About Us page. Figma draws neither with a
- * destination, so each goes somewhere sensible rather than nowhere: the story
- * to this page's own Working Life section, which carries the DIY Jam entries,
- * and the built work to the home page's Proven Results deck.
+ * The two DIY Jam buttons on the About Us page. The story goes to its own page
+ * (Figma 3830:8872, added 2026-09-24). Figma gives the built work no
+ * destination, so it goes to the home page's Proven Results deck.
  */
 export const DIY_JAM_CTAS: NavItem[] = [
   {
     label: 'See the story',
-    target: { kind: 'route', to: ROUTES.about },
-    unresolved: 'No DIY Jam story page exists — scrolls to Working Life for now.',
+    target: { kind: 'route', to: ROUTES.diyJam },
   },
   {
     label: 'See what we built',

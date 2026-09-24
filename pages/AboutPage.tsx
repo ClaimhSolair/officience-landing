@@ -25,6 +25,15 @@ import { usePageView } from '../lib/pageMeta';
 // One entry per section, recorded at most once per page load.
 const tracked = new Set<string>();
 
+/**
+ * A section counts as seen when 30% of it is on screen, or 30% of the screen
+ * shows it, whichever needs less. The pinned Our Journey is about 4,000px tall,
+ * so 30% of the section never fits on any screen, and a plain `threshold: 0.3`
+ * never reported it. The home page keeps its own plain threshold.
+ */
+const SEEN = 0.3;
+const THRESHOLDS = Array.from({ length: 21 }, (_, i) => i / 20);
+
 const AboutPage: React.FC = () => {
   usePageView('About Us — Officience');
 
@@ -32,14 +41,16 @@ const AboutPage: React.FC = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !tracked.has(entry.target.id)) {
+          const need = SEEN * Math.min(entry.boundingClientRect.height, window.innerHeight);
+          const seen = entry.isIntersecting && entry.intersectionRect.height >= need;
+          if (seen && !tracked.has(entry.target.id)) {
             tracked.add(entry.target.id);
             // Vercel Analytics custom event — not GA4.
             track('section_view', { section: entry.target.id });
           }
         });
       },
-      { threshold: 0.3 },
+      { threshold: THRESHOLDS },
     );
 
     ABOUT_SECTION_IDS.forEach((id) => {

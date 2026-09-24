@@ -751,3 +751,36 @@ came back, so this round changes the mechanism (the two-strikes rule), not a par
 - **Item 10 (Proven Results)** — a dwell of 0.3 viewport heights after the scrub, before
   the pin releases. The hold and scrub keep their earlier lengths, so the track rate is the
   same. Measured: 270px at 1440x900, 324px at 1920x1080 (25-28% of the pinned runway).
+
+# v8 — About Us round 4 (2026-09-24)
+
+The team asked for the Proven Results animation on Our Journey, with drag.
+
+## What changed
+- **One pinned-track mechanism.** The pin logic moved out of `components/ProvenResults.tsx`
+  into `lib/pinnedTrack.ts` with no change in behaviour: `measureTrack`, `usePinnedTrack`,
+  `useCardEntrance` and `useTrackDrag`. Proven Results measures as before: wrapper 1141.28px
+  at 1280x720, dwell 270px at 1440x900 and 324px at 1920x1080.
+- **Our Journey pins from lg (item 10 law, applied to the About page).** It has the same hold
+  (`HOLD` 0.08), rate (`RATE` 1.15), dwell (`DWELL` 0.3 viewport), card fade (0.35 to 1) and
+  lift (32 to 0). Only the rail pins, not the heading. With the heading the cards would scale far
+  down on a laptop. Measured scale: 1.0 at 1440x900 and 1920x1080, 0.83 at 1024x768, 0.76 at
+  1280x720. The watermark moves into the pinned frame while the rail is pinned.
+- **Drag on a pinned track moves the page scroll.** 1 track px = `(1-HOLD)/RATE` = 0.8 scroll
+  px, clamped to the moving range. A move under 4px is not a drag. A release glides on at the
+  release speed for about 250ms through Lenis. `touch-action: pan-y` keeps a vertical swipe native.
+  Measured with fired pointer events at 1440x900: a 3px move scrolls 0, a 100px drag scrolls
+  80px, and the ends clamp at the range edges.
+- **Story-page marquee (`components/ui/PhotoMarquee.tsx`).** One speed for every row (60 px/s),
+  so the duration comes from the set width. The track ends with one gap of padding, so -50%
+  lands on the seam. Off screen it pauses with an inline `paused`, and on screen it clears the
+  inline value, so the CSS hover pause still works.
+- **DIY Jam and the About hero lose their photo parallax.** A parallax needs overdraw, and the
+  user ruled "no stretch, no cut, no crop" for these photos.
+- **Our Values** keeps its animation (the width spring, stagger and mark pop). The mark no
+  longer moves between states, because the new card design draws one position. The open
+  panel's fill fades white in 300ms.
+
+## Not verified here
+The pane draws no frames, so the glide, the scrub feel and the marquee motion are for the user
+to check in a foreground browser.

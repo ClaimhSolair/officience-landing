@@ -1,12 +1,12 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { ASSETS } from '../../assets';
 import Container from '../ui/Container';
 import Button from '../ui/Button';
 import Reveal, { RevealChild } from '../ui/Reveal';
 import SectionBadge from '../ui/SectionBadge';
-import { ABOUT_SECTION_IDS, DIY_JAM_CTAS, scrollToId, sectionHref } from '../navigation';
+import { DIY_JAM_CTAS, ROUTES, sectionHref } from '../navigation';
 import { EASE, MOTION, SEC, SPRING, STAGGER, useMotionEnabled } from '../../lib/motion';
 
 /**
@@ -14,19 +14,20 @@ import { EASE, MOTION, SEC, SPRING, STAGGER, useMotionEnabled } from '../../lib/
  *
  * A white card on the left gutter (496 wide, 48px of padding) beside a
  * photograph (856 wide). The two sit on the artboard's 40px gutter and fill the
- * 1392 column exactly. Both are 711 tall.
+ * 1392 column exactly.
  *
- * The picture keeps its true proportions, the same ruling as the hero
- * (figma-adapter 18b): Figma draws the 1024x683 frame with `object-fit: fill`
- * into an 856x711 box, which squeezes the group 1.25x. `object-contain` shows
- * the whole photograph instead and leaves a band above and below it.
+ * **The whole photo shows, at its own 3:2 (user, 2026-09-24).** Figma 3133:4525
+ * squeezes the 1024x683 file 1.25x into an 856x711 box. The picture box takes
+ * the file's own ratio instead, so nothing stretches, crops or shows a band.
+ * The row is 611 tall at 1536 (the artboard draws 711 at 1440).
  *
- * The artboard leaves 167px between the copy and the buttons, and pins the
- * buttons to the foot of the card. `justify-between` reproduces that at any
- * card height rather than reserving the gap as a fixed value.
- *
- * Below lg the file draws nothing: the card and the picture stack, and the
- * picture leads because it carries the section.
+ * The card and the picture share one row height, and the picture sets it. The
+ * card pins its buttons to its foot (`justify-between`), and the gap above them
+ * can shrink to 24. Measured 2026-09-24: at 1440 the copy wraps to 5 lines and
+ * the card needs 586px beside a 571px picture, so the gap would be 9px. At 1520
+ * the copy takes 4 lines and 79px of gap is left, and at 1536 it is 85px. So the
+ * row starts at 2xl (1536). Below that the section stacks, card first, as it did
+ * below xl before.
  */
 
 /** The artboard's split of the 1392 column: a 496 card beside an 856 picture. */
@@ -36,30 +37,19 @@ const DESCRIPTION =
   'A space where Offies can turn ideas into playful experiments and smart prototypes. Fail fast, learn faster, and build things that leave a mark.';
 
 const DiyJam: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null);
   const motionEnabled = useMotionEnabled();
   const enabled = motionEnabled && MOTION.aboutDiyJam;
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  });
-  const photoY = useTransform(scrollYProgress, [0, 1], [0, -20]);
-
   return (
-    <section ref={sectionRef} id="diy-jam" className="bg-background py-fig-64 lg:py-fig-120">
+    <section id="diy-jam" className="bg-background py-fig-64 lg:py-fig-120">
     <Container>
-      {/* The row starts at xl. The artboard's 496 card, 40 gutter and 856
-          picture need 1392px; a 1024 viewport leaves 976, which squeezed the
-          card's 75px title and flattened the picture box to 0.78.
-
-          Both columns are sized by their SHARE of the row, not by 496px. A
-          fixed card against a fluid picture drifted the artboard's 496:856 to
-          496:1256 at 1920. The share reproduces 496 exactly at 1440. */}
-      <Reveal className="flex flex-col gap-fig-24 xl:flex-row xl:gap-fig-40">
+      {/* The row starts at 2xl (see the file comment). Both columns are sized
+          by their SHARE of the row, so the artboard's 496:856 holds at every
+          width from there. */}
+      <Reveal className="flex flex-col gap-fig-24 2xl:flex-row 2xl:gap-fig-40">
         {/* The card: 496 of the artboard's 1392 column. */}
         <div
-          className="flex flex-col justify-between gap-fig-40 rounded-fig-m bg-surface p-fig-24 xl:shrink-0 xl:basis-[var(--card-basis)] xl:gap-0 xl:p-fig-48"
+          className="flex flex-col justify-between gap-fig-40 rounded-fig-m bg-surface p-fig-24 2xl:shrink-0 2xl:basis-[var(--card-basis)] 2xl:gap-fig-24 2xl:p-fig-48"
           style={{ '--card-basis': `calc((100% - 40px) * ${CARD_SHARE})` } as React.CSSProperties}
         >
           <motion.div
@@ -95,7 +85,7 @@ const DiyJam: React.FC = () => {
               transition={{ type: 'spring', ...SPRING.hover }}
             >
               <Button
-                onClick={() => scrollToId(ABOUT_SECTION_IDS[5])}
+                to={ROUTES.diyJam}
                 size="xl"
                 className="w-full shadow-fig-xs"
                 icon={<ArrowUpRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
@@ -121,30 +111,21 @@ const DiyJam: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* The picture: 856 of the column, on the artboard's 8px radius. */}
+        {/* The picture: 856 of the column, on the artboard's 8px radius. Its
+            box has the file's own ratio, so `object-cover` has no effect. It
+            keeps `self-start`: a stretched row would override the ratio. */}
         <RevealChild
           y={24}
           duration={SEC.revealFast}
-          className="flex aspect-[856/711] w-full items-center justify-center overflow-hidden rounded-fig-m xl:min-w-0 xl:flex-1"
+          className="aspect-[1024/683] w-full self-start overflow-hidden rounded-fig-m 2xl:min-w-0 2xl:flex-1"
         >
-          {enabled ? (
-            <motion.img
-              src={ASSETS.aboutPage.diyJam}
-              alt="Officience colleagues at the DIY Jam contest in Can Tho, behind a banner reading “Let’s Pitch & Chill”."
-              className="h-full w-full object-cover object-center"
-              loading="lazy"
-              decoding="async"
-              style={{ y: photoY }}
-            />
-          ) : (
-            <img
-              src={ASSETS.aboutPage.diyJam}
-              alt="Officience colleagues at the DIY Jam contest in Can Tho, behind a banner reading “Let’s Pitch & Chill”."
-              className="h-full w-full object-cover object-center"
-              loading="lazy"
-              decoding="async"
-            />
-          )}
+          <img
+            src={ASSETS.aboutPage.diyJam}
+            alt="Officience colleagues at the DIY Jam contest in Can Tho, behind a banner reading “Let’s Pitch & Chill”."
+            className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
         </RevealChild>
       </Reveal>
     </Container>

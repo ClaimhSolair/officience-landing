@@ -59,6 +59,19 @@ export const scrollToY = (top: number, smooth: boolean) => {
 };
 
 /**
+ * Scrolls the page to `top` at once, for a pointer drag (`lib/pinnedTrack.ts`).
+ * It does not tell Lenis to measure again: a drag does not change the page
+ * height, and a measurement on every pointer move costs a layout read.
+ */
+export const dragScrollTo = (top: number) => {
+  if (active) {
+    active.scrollTo(top, { immediate: true, force: true });
+    return;
+  }
+  window.scrollTo({ top, left: 0, behavior: 'instant' as ScrollBehavior });
+};
+
+/**
  * Scrolls the page so `el` sits at the top. Lenis and `scrollIntoView` both
  * subtract the element's `scroll-margin-top` and the page's `scroll-padding-top`
  * (the header height, index.html), so the target lands at the same place.

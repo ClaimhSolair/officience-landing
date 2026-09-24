@@ -17,7 +17,7 @@ const R2 = R2_STAGING;
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '19';
+const ASSET_VERSION = '20';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 /** One `srcset` candidate: a URL and the intrinsic width it was encoded at. */
@@ -38,6 +38,30 @@ export interface ClientLogo {
 /** `srcset` string from a candidate list, widest last. */
 export const srcSetOf = (sources: ImageSource[]) =>
   sources.map((s) => `${s.url} ${s.w}w`).join(', ');
+
+/**
+ * One photo of a marquee row. `w` x `h` is the file's own ratio, and the tile
+ * box takes that ratio, so no tile crops or stretches at any height.
+ */
+export interface PhotoTile {
+  url: string;
+  sources: ImageSource[];
+  w: number;
+  h: number;
+  alt: string;
+}
+
+/**
+ * A story-page marquee tile. Each file exists at 480 and 922 tall: two times
+ * the 240px mobile row and the 461px desktop row.
+ */
+const storyTile = (dir: string, name: string, w480: number, w922: number, alt: string): PhotoTile => {
+  const sources = [
+    { url: a(`/about-page/diy-story/${dir}/${name}-h480.webp`), w: w480 },
+    { url: a(`/about-page/diy-story/${dir}/${name}-h922.webp`), w: w922 },
+  ];
+  return { url: sources[1].url, sources, w: w922, h: 922, alt };
+};
 
 export const ASSETS = {
   header: { logo: a('/header/logo.png') },
@@ -140,27 +164,21 @@ export const ASSETS = {
     // The 869px flower watermark behind the timeline, drawn at 4% opacity. It
     // belongs to the section, not the track, so it does not scroll with it.
     journeyWatermark: a('/about-page/journey-watermark.svg'),
-    /**
-     * The five Our Values marks, each 284x284 and clipped to that box by its
-     * own clipPath — several petals are drawn past the frame on purpose. Every
-     * file carries one flat fill, and those fills confirm the colour a value
-     * owns: they are not a dimmed or active state.
-     */
-    values: {
-      commitment: a('/about-page/values/commitment.svg'),
-      openness: a('/about-page/values/openness.svg'),
-      merit: a('/about-page/values/merit.svg'),
-      innovation: a('/about-page/values/innovation.svg'),
-      caring: a('/about-page/values/caring.svg'),
-    },
-    // DIY Jam. The source is 1024x683 against an 856x711 box, so it renders at
-    // 1.20x — short of 2x, and the original is on the team's list.
+    // The Our Values marks are inline in components/about/ValueMarks.tsx. Each
+    // one is a flat vector under 2 kB, so a request per mark costs more than it
+    // saves.
+    // DIY Jam. The source is 1024x683 (3:2). The box takes the same ratio, so
+    // the whole photo shows (user, 2026-09-24). It renders at 1.20x at 1440,
+    // short of 2x, and the original is on the team's list.
     diyJam: a('/about-page/diy-jam.webp'),
     /**
-     * Our Team portraits. Figma nests two transforms on each one — a wrapper
-     * inside the 318px image box, and the picture scaled and offset inside that
-     * wrapper — and every card differs. Both are baked into the file at the
-     * card's box aspect, so `object-cover` is a no-op. All seven carry 2x.
+     * Our Team portraits, from Figma 3214:4405 and 3214:4430 (2026-09-24).
+     * Each source is a cut-out with a soft alpha edge. The bake puts it on its
+     * drawn ground (white, and #ECF4FF for Duc) with alpha blending, then bakes
+     * the frame's two nested transforms into the file at the card's box aspect,
+     * so `object-cover` has no effect. The earlier files had a hard, jagged
+     * edge, because a flood-fill turned their black ground white. All seven
+     * carry 2x.
      */
     team: {
       ducHaDuong: a('/about-page/team/duc-ha-duong.webp'),
@@ -187,6 +205,52 @@ export const ASSETS = {
       logoMark: a('/about-page/banner/logo-mark.svg'),
       logoWord: a('/about-page/banner/logo-word.svg'),
       twentieth: a('/about-page/banner/twentieth.svg'),
+    },
+    /**
+     * The DIY Jam story page (Figma 3830:8872). Source folder:
+     * assets-src/about-page/diy-story.
+     *  - `top`: the whole photo at its own 1024x683 (3:2), the only size the
+     *    team gave. It upscales in a 1392-1792px box, and the original is on
+     *    the team's list.
+     *  - `sparks`: Figma's crop (1117:593) of a 4096px frame, baked in.
+     *  - `finale`: the Grand Finale poster, 16:9 into a 16:9 box.
+     *  - `round1`, `celebrating`: the two marquee rows, in the frames' order
+     *    (3842:15308, 3842:15420). Three Round 1 tiles crop their frame, and
+     *    each crop is baked into the file.
+     */
+    diyStory: {
+      top: a('/about-page/diy-story/top-1024.webp'),
+      sparks: [
+        { url: a('/about-page/diy-story/sparks-1117.webp'), w: 1117 },
+        { url: a('/about-page/diy-story/sparks-2234.webp'), w: 2234 },
+      ],
+      finale: [
+        { url: a('/about-page/diy-story/finale-1117.webp'), w: 1117 },
+        { url: a('/about-page/diy-story/finale-2234.webp'), w: 2234 },
+      ],
+      round1: [
+        storyTile('round-1', 'bi8a6049', 720, 1383, 'A team sets up its laptops at the presenters’ table.'),
+        storyTile('round-1', 'bi8a6063', 720, 1383, 'The audience listens to a Round 1 pitch.'),
+        storyTile('round-1', 'bi8a5974', 574, 1103, 'A judge asks a question at the judges’ table.'),
+        storyTile('round-1', 'bi8a5842', 720, 1383, 'A presenter pitches a productivity tool on stage.'),
+        storyTile('round-1', 'bi8a5805', 556, 1068, 'A presenter explains the timesheet problem beside her slides.'),
+        storyTile('round-1', 'bi8a5713', 720, 1383, 'A presenter shows her team’s challenge to the room.'),
+        storyTile('round-1', 'bi8a5671', 720, 1383, 'A presenter demonstrates a chatbot for business.'),
+        storyTile('round-1', 'bi8a5767', 520, 1000, 'Two participants ask a question from the floor.'),
+        storyTile('round-1', 'bi8a5872', 720, 1383, 'A presenter pitches a translation tool for the marketing team.'),
+        storyTile('round-1', 'bi8a6037', 720, 1383, 'A presenter explains the context of his project.'),
+        storyTile('round-1', 'bi8a6080', 720, 1383, 'A presenter takes the room through the pain points.'),
+        storyTile('round-1', 'bi8a5577', 720, 1383, 'Two hosts open Round 1 on stage.'),
+        storyTile('round-1', 'bi8a5549', 720, 1383, 'Coffee and tea for the break.'),
+        storyTile('round-1', 'bi8a5545', 720, 1383, 'Fruit trays for the break.'),
+      ],
+      celebrating: [
+        storyTile('celebrating', 'nyp128', 853, 1639, 'A winning team holds its certificate and trophy on stage.'),
+        storyTile('celebrating', 'nyp130', 853, 1639, 'The Second Prize winners on stage.'),
+        storyTile('celebrating', 'nyp132', 853, 1639, 'A prize-winning team shows its certificates on stage.'),
+        storyTile('celebrating', 'nyp135', 853, 1639, 'A team receives its certificates on stage.'),
+        storyTile('celebrating', 'nyp126', 853, 1639, 'The participants on stage with their certificates.'),
+      ],
     },
   },
   // Proven Results project shots. Each is cropped to the window the artboard

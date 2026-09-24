@@ -25,6 +25,10 @@ const LegalPage = React.lazy(() => import('./pages/LegalPage'));
 // chunk.
 const AboutPage = React.lazy(() => import('./pages/AboutPage'));
 
+// The DIY Jam story carries about thirty photos of its own, so it is a chunk of
+// its own too.
+const DiyJamStoryPage = React.lazy(() => import('./pages/DiyJamStoryPage'));
+
 export interface LayoutContext {
   openSurvey: (branch?: SurveyBranch) => void;
   /** False only while the once-a-day splash is still covering the page. */
@@ -120,6 +124,7 @@ const App = () => (
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path={ROUTES.about} element={<AboutPage />} />
+          <Route path={ROUTES.diyJam} element={<DiyJamStoryPage />} />
           <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
           <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />
           <Route path="*" element={<Navigate to={ROUTES.home} replace />} />
