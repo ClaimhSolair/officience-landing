@@ -9,6 +9,19 @@ import { scrollToY } from '../lib/scroll';
 
 const LOGO_URL = ASSETS.header.logo;
 
+/**
+ * True when `el` has focus from the keyboard. A browser without `:focus-visible`
+ * throws on the selector; it then counts all focus as keyboard focus, which is
+ * the earlier, safe behaviour.
+ */
+const isKeyboardFocus = (el: EventTarget): boolean => {
+  try {
+    return (el as Element).matches(':focus-visible');
+  } catch {
+    return true;
+  }
+};
+
 interface HeaderProps {
   onOpenMenu: () => void;
   isMenuOpen: boolean;
@@ -52,7 +65,14 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   const glass = useScrolledPast(69) && MOTION.headerGlass;
 
   const motionOn = useMotionEnabled();
+  // True only while the bar holds KEYBOARD focus. A bar that retracts under the
+  // keyboard strands the user, so that case holds it on screen. A mouse click
+  // also focuses the link or button it hits, and that focus stays after the
+  // click: the logo click scrolled to the top and then held the bar on screen
+  // for every later scroll down. `:focus-visible` is true for keyboard focus
+  // and false after a pointer click, so only keyboard focus holds the bar.
   const [focusWithin, setFocusWithin] = useState(false);
+  const onFocusIn = (e: React.FocusEvent) => setFocusWithin(isKeyboardFocus(e.target));
   const scrolledDown = useScrollDirection();
   const retracted = scrolledDown && motionOn && MOTION.headerHide && !isMenuOpen && !focusWithin;
 
@@ -65,7 +85,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
 
   return (
       <header
-        onFocusCapture={() => setFocusWithin(true)}
+        onFocusCapture={onFocusIn}
         onBlurCapture={() => setFocusWithin(false)}
         className={`sticky top-0 z-50 bg-bg-primary transition-[background-color,backdrop-filter,transform] motion-reduce:transition-none ${
           retracted ? '-translate-y-full' : 'translate-y-0'

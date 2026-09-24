@@ -8,7 +8,15 @@ import { createContext, useContext } from 'react';
  * needs to know whether Lenis is present:
  *  - a native scroll under Lenis leaves Lenis with a stale position, and the
  *    next wheel notch then jumps back from it;
- *  - a scroll while Lenis is stopped (an open modal) needs `force`.
+ *  - a scroll while Lenis is stopped (an open modal) needs `force`;
+ *  - Lenis clamps every target to a cached page height, which it measures only
+ *    250ms after a resize. A modal lock makes the body `position: fixed`, so the
+ *    cached height falls to one viewport and the limit to 0. The unlock then
+ *    restores the body and scrolls back at once, before Lenis measures again:
+ *    the target clamped to 0 and the page jumped to the hero. So each helper
+ *    tells Lenis to measure again (`resize`) before it scrolls. This also
+ *    protects a cross-page anchor, which scrolls just after the new page
+ *    mounts, when the cached height can still be the old page's.
  *
  * This file does not import Lenis or `lib/motion.ts`, so `lib/modal.ts` and
  * `components/navigation.ts` can use it without a cycle.
@@ -22,6 +30,8 @@ export interface PageScroller {
   ): void;
   stop(): void;
   start(): void;
+  /** Measures the page again, so `scrollTo` clamps to the current height. */
+  resize(): void;
 }
 
 let active: PageScroller | null = null;
@@ -41,6 +51,7 @@ export const useSmoothScrollActive = (): boolean => useContext(SmoothScrollConte
 /** Scrolls the page to `top`. `smooth: false` jumps with no animation. */
 export const scrollToY = (top: number, smooth: boolean) => {
   if (active) {
+    active.resize();
     active.scrollTo(top, { immediate: !smooth, force: true });
     return;
   }
@@ -54,6 +65,7 @@ export const scrollToY = (top: number, smooth: boolean) => {
  */
 export const scrollToElement = (el: HTMLElement, smooth: boolean) => {
   if (active) {
+    active.resize();
     active.scrollTo(el, { immediate: !smooth, force: true });
     return;
   }
