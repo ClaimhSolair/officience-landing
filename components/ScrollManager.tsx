@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
+import { scrollToElement, scrollToY } from '../lib/scroll';
 
 /** How long to keep looking for a hash target while a lazy route mounts. */
 const HASH_RETRY_INTERVAL_MS = 50;
@@ -27,8 +28,10 @@ const ScrollManager = () => {
     // itself, and scrolling here would fight it.
     if (navigationType === 'POP') return;
 
+    // Both scrolls go through `lib/scroll`, so the smooth-scroll layer learns the
+    // new position and the next wheel notch does not jump back from the old one.
     if (!location.hash) {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+      scrollToY(0, false);
       return;
     }
 
@@ -47,10 +50,7 @@ const ScrollManager = () => {
         // screen, so it can glide. Found only after a wait means we just landed
         // from another route — animating a full-page scroll there reads as jank.
         const smooth = attempts === 0 && !reduced;
-        el.scrollIntoView({
-          behavior: (smooth ? 'smooth' : 'instant') as ScrollBehavior,
-          block: 'start',
-        });
+        scrollToElement(el, smooth);
         return;
       }
       if (++attempts < HASH_RETRY_LIMIT) {

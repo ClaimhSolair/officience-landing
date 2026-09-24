@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { SurveyBranch } from '../types';
+import { scrollToElement } from '../lib/scroll';
 
 /** Routes served by the SPA. `vercel.json` rewrites every non-api path to index.html. */
 export const ROUTES = {
@@ -204,7 +205,8 @@ export const scrollToId = (id: string) => {
   const el = document.getElementById(id);
   if (!el) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  // Through the helper, so the smooth-scroll layer does the glide when it is on.
+  scrollToElement(el, !reduced);
 };
 
 /** Scrolls to a home-page section. */

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useReducedMotion } from 'framer-motion';
+import { useReducedMotion, useSpring, type MotionValue } from 'framer-motion';
+import { useSmoothScrollActive } from './scroll';
 
 /**
  * Motion tokens for the Sept-2026 pass. Every duration and curve here was fitted
@@ -23,10 +24,13 @@ export const MS = {
   menu: 400,
   /** Menu items cascading in behind the opening panel. */
   menuItem: 350,
-  /** Small things that should feel immediate: list rows, captions, chips. */
-  revealFast: 450,
-  /** The default entrance — cards, blocks, anything card-sized. */
-  revealBase: 700,
+  /** Small things that should feel immediate: list rows, captions, chips.
+   *  600, not the measured 450: the team found the page stiff (2026-09-24), and a
+   *  longer glide reads lighter. */
+  revealFast: 600,
+  /** The default entrance — cards, blocks, anything card-sized. 900, not the
+   *  measured 700, for the same reason. */
+  revealBase: 900,
   /** nexvio's section reveal, ~980ms to rest. Display-scale moments only. */
   revealSlow: 1000,
   /** Leaving is faster than arriving: an exit is an acknowledgement, not a show. */
@@ -59,8 +63,10 @@ export const SEC = toSec(MS);
 export const EASE = {
   /** easeInOutQuint — oma-genera's panel holds, snaps, then settles. */
   menu: [0.83, 0, 0.17, 1],
-  /** easeOutCubic — nexvio's reveal, within ~2% of the captured curve. */
-  reveal: [0.33, 1, 0.68, 1],
+  /** easeOutQuint. It replaces nexvio's measured easeOutCubic (2026-09-24): the
+   *  start is as fast, and the approach to rest is longer, so an entrance glides
+   *  to a stop instead of stopping dead. */
+  reveal: [0.22, 1, 0.36, 1],
   /** Back-out: the roll overshoots a little before it settles. */
   roll: [0.34, 1.56, 0.64, 1],
   /** Long tail — an odometer should arrive fast and coast into place. */
@@ -72,7 +78,7 @@ export const EASE = {
 /** The same curves for CSS transitions, where framer-motion isn't driving. */
 export const CSS_EASE = {
   menu: 'cubic-bezier(0.83, 0, 0.17, 1)',
-  reveal: 'cubic-bezier(0.33, 1, 0.68, 1)',
+  reveal: 'cubic-bezier(0.22, 1, 0.36, 1)',
   roll: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
 } as const;
 
@@ -118,13 +124,36 @@ export const MOTION = {
   aboutDiyJam: true,
   aboutTeam: true,
   aboutWorkingLife: true,
+  /** Lenis wheel smoothing (`components/SmoothScroll.tsx`). Off ⇒ native scroll,
+   *  and every scrub falls back to `SPRING.scrub`. */
+  smoothScroll: true,
 } as const;
 
 export const SPRING = {
   panel: { stiffness: 200, damping: 28, mass: 1 },
   hover: { stiffness: 300, damping: 25 },
   gentle: { stiffness: 120, damping: 20 },
+  /** The one spring for scroll-linked values. Overdamped, so a scrub never
+   *  bounces. Used only when no smooth-scroll layer is active (`useScrub`). */
+  scrub: { stiffness: 120, damping: 28, restDelta: 0.001 },
 } as const;
+
+/**
+ * Smooths one scroll-linked value at its source. Derive every property of a
+ * group from the returned value, so the parts of a group never drift apart.
+ *
+ * With Lenis active, the scroll position itself glides, so the raw value is
+ * returned: a second spring on top only adds lag. Without Lenis, the shared
+ * `SPRING.scrub` smooths the value between wheel notches.
+ *
+ * The spring hook runs in both cases, so the hook count stays stable when the
+ * smooth-scroll layer mounts or unmounts.
+ */
+export const useScrub = (value: MotionValue<number>): MotionValue<number> => {
+  const smooth = useSmoothScrollActive();
+  const sprung = useSpring(value, SPRING.scrub);
+  return smooth ? value : sprung;
+};
 
 /**
  * The header's own heights, which several effects have to clear. The references

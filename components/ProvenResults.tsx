@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { motion, useScroll, useSpring, useTransform, type MotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { ASSETS, srcSetOf, type ImageSource } from '../assets';
 import Container from './ui/Container';
@@ -7,7 +7,7 @@ import Button from './ui/Button';
 import SectionBadge from './ui/SectionBadge';
 import CarouselDots from './ui/CarouselDots';
 import Reveal, { RevealChild } from './ui/Reveal';
-import { EASE, HEADER_H, MOTION, PINNED_H, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { EASE, HEADER_H, MOTION, PINNED_H, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
 import { EXTERNAL, VIEW_ALL_WORK } from './navigation';
 
 /**
@@ -146,6 +146,10 @@ interface Geometry {
   trackH: number;
   /** Total height of the scroll wrapper, in pixels. */
   height: number;
+  /** Wrapper progress where the opening hold ends and the track starts to move. */
+  holdEnd: number;
+  /** Wrapper progress where the track stops. The dwell runs from here to 1. */
+  scrubEnd: number;
   /**
    * Per-card `[start, end]` in wrapper progress, or `null` for a card already on
    * screen when the pin engages — those are shown settled, not animated in.
@@ -167,6 +171,13 @@ const RATE = 1.15;
  * hold so a card's fade begins exactly as it enters, not before.
  */
 const HOLD = 0.08;
+/**
+ * The deck holds still on its last card before the pin releases, so the View All
+ * card is read before the next section arrives (user, 2026-09-24). A fraction of
+ * the viewport height: 0.3 is about 320px of scroll at 1080, three wheel notches.
+ * The dwell also lets the smoothed track land while the deck is still pinned.
+ */
+const DWELL = 0.3;
 
 /**
  * Measures the deck. Everything here is layout geometry (`offsetLeft`,
@@ -202,21 +213,31 @@ const measureDeck = (track: HTMLElement, chrome: number): Geometry | null => {
   const travel = contentW - inner;
   if (travel <= 0) return null;
 
+  // The runway in scroll pixels: the opening hold and the scrub keep their earlier
+  // lengths (travel / RATE together), and the dwell is added after them. So the
+  // track moves at the same rate as before, and only the end is longer.
+  const scrubPx = travel / RATE;
+  const runway = scrubPx + DWELL * window.innerHeight;
+  const holdEnd = (HOLD * scrubPx) / runway;
+  const scrubEnd = scrubPx / runway;
+  const moving = scrubEnd - holdEnd;
+
   // A card already within the frame when the pin engages gets no window — it is
   // rendered settled. The rest open as their left edge crosses the right edge of
-  // the frame and close once they are most of the way in, mapped through HOLD so
-  // the fade begins exactly as the track brings the card into view.
+  // the frame and close once they are most of the way in, mapped into the moving
+  // part of the runway so the fade begins exactly as the track brings the card
+  // into view.
   const windows = kids.map((kid) => {
     const left = (kid.offsetLeft - origin) * scale;
     if (left <= inner) return null;
     const startRaw = (left - inner) / travel;
-    const start = HOLD + (1 - HOLD) * startRaw;
-    const span = (Math.max(0.1, (kid.offsetWidth * scale * 0.7) / travel)) * (1 - HOLD);
-    const end = Math.min(1, start + span);
+    const start = holdEnd + moving * startRaw;
+    const span = Math.max(0.1, (kid.offsetWidth * scale * 0.7) / travel) * moving;
+    const end = Math.min(scrubEnd, start + span);
     return [start, Math.max(end, start + 0.05)] as [number, number];
   });
 
-  return { travel, scale, trackH, height: window.innerHeight + travel / RATE, windows };
+  return { travel, scale, trackH, height: window.innerHeight + runway, holdEnd, scrubEnd, windows };
 };
 
 /**
@@ -351,14 +372,18 @@ const ProvenResults: React.FC = () => {
   }, [wantsPin]);
 
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] });
-  // Held for the first slice (HOLD) so the first card is read before the roll,
-  // then springing the scrubbed value gives the deck nava's soft landing —
-  // without the spring the track is welded to the scrollbar and stops dead.
-  const trackX = useSpring(useTransform(scrollYProgress, [HOLD, 1], [0, -(geom?.travel ?? 0)]), {
-    stiffness: 90,
-    damping: 30,
-    restDelta: 0.5,
-  });
+  // Smoothed once, and both the track and the cards read this one value, so the
+  // cards cannot drift from the track on a fast scroll. Without smoothing the
+  // track is welded to the wheel and stops dead.
+  const progress = useScrub(scrollYProgress);
+  // Still until `holdEnd` so the first card is read before the roll, and still
+  // again after `scrubEnd` for the dwell on the last card.
+  const trackX = useTransform(
+    progress,
+    [geom?.holdEnd ?? HOLD, geom?.scrubEnd ?? 1],
+    [0, -(geom?.travel ?? 0)],
+    { clamp: true },
+  );
 
   const cardBase = `${CARD} ${CARD_H} overflow-hidden rounded-fig-xs bg-bg-primary lg:rounded-fig-l`;
   const cardCls = pinned ? cardBase : `${cardBase} snap-start`;
@@ -450,7 +475,7 @@ const ProvenResults: React.FC = () => {
                   <WorkCard
                     key={project.name}
                     className={cardCls}
-                    progress={scrollYProgress}
+                    progress={progress}
                     window={geom?.windows[i]}
                     pinned={pinned}
                     media={{

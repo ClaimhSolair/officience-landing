@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ASSETS } from '../assets';
-import { MOTION, useMotionEnabled } from '../lib/motion';
+import { MOTION, useMotionEnabled, useScrub } from '../lib/motion';
 
 /**
  * The breather between the hero and About Us: one large Officience flower,
@@ -34,7 +34,7 @@ const FlowerDivider: React.FC = () => {
   // only as the band nears centre, so the fade-in is actually watched as the band
   // comes in rather than being over before it settles.
   const { scrollYProgress } = useScroll({ target: bandRef, offset: ['start end', 'center center'] });
-  const opacity = useTransform(scrollYProgress, [0.45, 1], [0, 1]);
+  const opacity = useTransform(useScrub(scrollYProgress), [0.45, 1], [0, 1]);
 
   return (
     <div

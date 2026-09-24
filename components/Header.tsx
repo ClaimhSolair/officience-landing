@@ -5,6 +5,7 @@ import { ASSETS } from '../assets';
 import Container from './ui/Container';
 import { ROUTES, useGoToSection } from './navigation';
 import { MOTION, MS, useMotionEnabled, useScrollDirection, useScrolledPast } from '../lib/motion';
+import { scrollToY } from '../lib/scroll';
 
 const LOGO_URL = ASSETS.header.logo;
 
@@ -36,10 +37,9 @@ interface HeaderProps {
  * they scroll up, which gives the long sections their full viewport height back.
  * Three states override the retraction and hold the bar on screen: the menu is
  * open, the bar holds keyboard focus, or the reader is near the top of the page.
- * The pinned decks keep their header offsets, so a retracted bar leaves a band
- * of background above pinned content until the reader scrolls up. Re-pinning
- * those decks to `top-0` would move content under the reader instead, which is
- * worse.
+ * The pinned decks follow the bar (user ruling 2026-09-18): when it retracts,
+ * their offset goes to 0 in step with the slide, so no band of background is
+ * left above them. This replaces the earlier choice to keep the offsets.
  */
 const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   const { pathname } = useLocation();
@@ -89,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
               if (pathname !== ROUTES.home) return;
               e.preventDefault();
               const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-              window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+              scrollToY(0, !reduced);
             }}
             className="flex items-center shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             aria-label="Officience home"

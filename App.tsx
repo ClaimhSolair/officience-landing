@@ -10,6 +10,7 @@ import Survey from './components/Survey';
 import SplashScreen from './components/SplashScreen';
 import CookieConsent from './components/CookieConsent';
 import ScrollManager from './components/ScrollManager';
+import SmoothScroll from './components/SmoothScroll';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ROUTES } from './components/navigation';
 import HomePage from './pages/HomePage';
@@ -113,15 +114,18 @@ const App = () => (
   // their OS for reduced motion — except when motion is forced on (an explicit
   // ?motion=on, or a preview host); see MOTION_FORCED in lib/motion.
   <MotionConfig reducedMotion={MOTION_FORCED ? 'never' : 'user'}>
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<HomePage />} />
-        <Route path={ROUTES.about} element={<AboutPage />} />
-        <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
-        <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />
-        <Route path="*" element={<Navigate to={ROUTES.home} replace />} />
-      </Route>
-    </Routes>
+    {/* Wheel smoothing for every route, so all pages scroll the same. */}
+    <SmoothScroll>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path={ROUTES.about} element={<AboutPage />} />
+          <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
+          <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />
+          <Route path="*" element={<Navigate to={ROUTES.home} replace />} />
+        </Route>
+      </Routes>
+    </SmoothScroll>
   </MotionConfig>
 );
 

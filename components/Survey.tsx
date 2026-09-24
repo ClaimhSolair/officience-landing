@@ -645,8 +645,8 @@ const Survey: React.FC<SurveyProps> = ({
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-[16px] sm:px-[32px] py-[24px] overflow-y-auto">
+        {/* Body. data-lenis-prevent lets the wheel scroll this panel natively. */}
+        <div data-lenis-prevent className="px-[16px] sm:px-[32px] py-[24px] overflow-y-auto">
           {isCompleted ? (
             <div className="flex flex-col gap-[24px]">
               <h2 id={titleId} className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">

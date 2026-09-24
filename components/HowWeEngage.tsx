@@ -1,10 +1,10 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { motion, useScroll, useSpring, useTransform, type MotionValue, type Variants } from 'framer-motion';
+import { motion, useScroll, useTransform, type MotionValue, type Variants } from 'framer-motion';
 import Container from './ui/Container';
 import { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
 import ApproachMark, { type MarkName } from './ui/ApproachMark';
-import { EASE, HEADER_H, MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { EASE, HEADER_H, MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
 
 /**
  * Figma 3144:3723 (1920) and 3137:2432 (390).
@@ -35,8 +35,8 @@ import { EASE, HEADER_H, MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWid
  * measured at runtime — so a fixed-height frame never spills its copy into the
  * sections above and below it; it degrades to those same unpinned arrivals.
  *
- * Each step's travel is scrubbed then sprung: the raw map ties it to the
- * scrollbar, the spring lets one flick carry it the rest of the way in smoothly
+ * Each step's travel and fade are scrubbed from one smoothed progress value
+ * (`useScrub`), so one flick carries a step the rest of the way in smoothly
  * instead of stopping dead where the wheel stopped.
  */
 
@@ -115,11 +115,11 @@ const StepItem: React.FC<{
   const to = from + SPAN;
 
   // The full 350px interyo measures, over a narrow window so one flick spans it.
-  // The raw map welds the step to the scrollbar; springing it lets that flick
-  // carry the step the rest of the way in rather than halting it where the wheel
-  // stopped. Overdamped (zeta > 1), so it settles on the anchor without overshoot.
-  const xRaw = useTransform(progress, [from, to], [350, 0], { clamp: true });
-  const x = useSpring(xRaw, { stiffness: 70, damping: 22, restDelta: 0.5 });
+  // `progress` arrives already smoothed (`useScrub` in the section), so a flick
+  // carries the step the rest of the way in rather than halting it where the
+  // wheel stopped. Both x and opacity read that one value, so they cannot drift
+  // apart the way a sprung x and a raw opacity did.
+  const x = useTransform(progress, [from, to], [350, 0], { clamp: true });
   // Opacity finishes in the first part of the window, so the step is legible for
   // most of its slide rather than arriving and only then becoming visible.
   const opacity = useTransform(progress, [from, from + SPAN * 0.6], [0, 1], { clamp: true });
@@ -216,6 +216,8 @@ const HowWeEngage: React.FC = () => {
   // Runs from the moment the section's top reaches the top of the screen until
   // its bottom reaches the bottom — 90vh of scroll spent pinned at 190vh.
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] });
+  // Smoothed once for all three steps.
+  const progress = useScrub(scrollYProgress);
 
   return (
     <section id="approach" className="bg-bg-secondary">
@@ -291,7 +293,7 @@ const HowWeEngage: React.FC = () => {
                   key={step.number}
                   step={step}
                   index={i}
-                  progress={scrollYProgress}
+                  progress={progress}
                   pinned={pinned}
                   compact={compact}
                   motionOn={motionOn}

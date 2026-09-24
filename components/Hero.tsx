@@ -4,7 +4,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { ASSETS } from '../assets';
 import Container from './ui/Container';
 import Button from './ui/Button';
-import { EASE, MOTION, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
+import { EASE, MOTION, SEC, STAGGER, useMotionEnabled, useScrub } from '../lib/motion';
 import { scrollToSection } from './navigation';
 
 const HEADLINE_LEAD = 'Full-stack';
@@ -104,6 +104,8 @@ const Hero: React.FC<HeroProps> = ({ splashDone }) => {
   const state = !animating || splashDone ? 'shown' : 'hidden';
 
   const { scrollYProgress } = useScroll({ target: bandRef, offset: ['start start', 'end start'] });
+  // Smoothed once for every shape, so the drift glides between wheel notches.
+  const drift = useScrub(scrollYProgress);
 
   return (
   <section ref={bandRef} className="relative overflow-hidden bg-bg-primary">
@@ -118,7 +120,7 @@ const Hero: React.FC<HeroProps> = ({ splashDone }) => {
       animate={state}
     >
       {SHAPE_PLACEMENT.map((shape) => (
-        <Shape key={shape.key} shape={shape} progress={scrollYProgress} drifting={animating} />
+        <Shape key={shape.key} shape={shape} progress={drift} drifting={animating} />
       ))}
     </motion.div>
 

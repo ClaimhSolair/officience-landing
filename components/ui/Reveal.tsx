@@ -68,13 +68,24 @@ interface CommonProps {
   style?: React.CSSProperties;
 }
 
+/**
+ * The default trigger: the entrance starts when the element's top crosses 90% of
+ * the viewport height, whatever the element's size. An `amount` of 20% fired late
+ * on tall blocks, so they appeared in the middle of the screen; this trigger puts
+ * each entrance in motion as the element arrives (2026-09-24).
+ */
+const ENTER_MARGIN = '0px 0px -10% 0px';
+
 interface RevealProps extends CommonProps {
   /**
    * Cascade the `RevealChild`ren this far apart, in seconds; `true` takes the
    * standard rhythm. With it set, this element carries no travel of its own.
    */
   stagger?: number | boolean;
-  /** How much must be on screen before it starts. */
+  /**
+   * How much must be on screen before it starts. Omit it for the default
+   * trigger (`ENTER_MARGIN`); give it where the threshold carries a meaning.
+   */
   amount?: number;
   /** Lets a caller keep the element static without changing its markup. */
   enabled?: boolean;
@@ -92,13 +103,15 @@ export const Reveal: React.FC<RevealProps> = ({
   delay = 0,
   ease = EASE.reveal,
   stagger,
-  amount = 0.2,
+  amount,
   enabled = true,
   innerRef,
   style,
 }) => {
   const motionOn = useMotionEnabled();
   const Tag = TAGS[as];
+  const viewport =
+    amount === undefined ? { once: true, amount: 0, margin: ENTER_MARGIN } : { once: true, amount };
 
   // Switched off outright: render the plain element, so nothing is ever left
   // holding an opacity of 0 with no animation coming to clear it.
@@ -134,7 +147,7 @@ export const Reveal: React.FC<RevealProps> = ({
         variants={variants}
         initial="hidden"
         whileInView="shown"
-        viewport={{ once: true, amount }}
+        viewport={viewport}
       >
         {children}
       </Tag>
@@ -149,7 +162,7 @@ export const Reveal: React.FC<RevealProps> = ({
       variants={travelVariants(x, y, motionOn, transition)}
       initial="hidden"
       whileInView="shown"
-      viewport={{ once: true, amount }}
+      viewport={viewport}
     >
       {children}
     </Tag>

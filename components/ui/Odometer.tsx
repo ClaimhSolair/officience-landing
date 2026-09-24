@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { animate, motion, useInView, useMotionTemplate, useMotionValue } from 'framer-motion';
 import { EASE, SEC, useMotionEnabled } from '../../lib/motion';
 
@@ -35,6 +35,10 @@ import { EASE, SEC, useMotionEnabled } from '../../lib/motion';
  * `overflow-hidden` window and can therefore never report more than ~2% of
  * itself to an observer, which is why an earlier `whileInView` on the tape never
  * fired and every counter sat at zero.
+ *
+ * The roll runs again each time the number comes back on screen (user,
+ * 2026-09-24). It resets only when the line is fully off screen, and the reset
+ * is instant, so the reader sees each roll start from 0 and never sees a rewind.
  */
 const GLYPHS = Array.from({ length: 50 }, (_, i) => i % 10);
 
@@ -78,11 +82,13 @@ const Digit: React.FC<{ digit: number; delay: number; rolled: boolean }> = ({ di
         </filter>
       </svg>
       <span className="invisible block">0</span>
+      {/* The reset to 0 is instant. It occurs only when the row is off screen, so
+          the reader never sees the tape turn back. */}
       <motion.span
         className="absolute inset-x-0 top-0 block"
         initial={{ y: '0%' }}
         animate={rolled ? { y: `-${(10 + digit) * 2}%` } : { y: '0%' }}
-        transition={{ duration: SEC.counter, ease: EASE.counter, delay }}
+        transition={rolled ? { duration: SEC.counter, ease: EASE.counter, delay } : { duration: 0 }}
       >
         {GLYPHS.map((g, k) => (
           <span key={k} className="block">
@@ -108,13 +114,23 @@ interface OdometerProps {
 
 const Odometer: React.FC<OdometerProps> = ({ value, armed = true }) => {
   const motionOn = useMotionEnabled();
-  // Observe the root, not the tape (see the docblock). `once` so the roll never
-  // rewinds; `amount: 0.5` so it fires as the line reaches the middle of the
-  // screen — "the moment the user scrolls to it", as asked.
+  // Observe the root, not the tape (see the docblock). The number rolls again
+  // each time the reader comes back to it (user, 2026-09-24). This replaces the
+  // earlier `once`, which let the roll run a single time only.
+  //
+  // Two observers on the same line give the roll a dead band:
+  //  - `seen` (half the line on screen) starts the roll;
+  //  - `present` (any pixel on screen) keeps it. The number resets only when
+  //    the line is fully off screen, so it never snaps back to 0 in view.
   const rootRef = useRef<HTMLSpanElement>(null);
-  const inView = useInView(rootRef, { once: true, amount: 0.5 });
-  // Rolls only once it is both seen and armed by the caller.
-  const rolled = inView && armed;
+  const seen = useInView(rootRef, { amount: 0.5 });
+  const present = useInView(rootRef, { amount: 'some' });
+  const [rolled, setRolled] = useState(false);
+  useEffect(() => {
+    // Rolls only when it is both seen and armed by the caller.
+    if (seen && armed) setRolled(true);
+    else if (!present) setRolled(false);
+  }, [seen, present, armed]);
 
   // Nothing to roll for a visitor who asked for less motion, and no reason to
   // ship 50 glyphs per digit to them either.
@@ -138,7 +154,9 @@ const Odometer: React.FC<OdometerProps> = ({ value, armed = true }) => {
                 className="inline-block"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={rolled ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-                transition={{ duration: SEC.suffixPop, ease: [...EASE.roll], delay: suffixDelay }}
+                transition={
+                  rolled ? { duration: SEC.suffixPop, ease: [...EASE.roll], delay: suffixDelay } : { duration: 0 }
+                }
               >
                 {ch}
               </motion.span>

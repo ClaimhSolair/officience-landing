@@ -122,22 +122,30 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
         amount={0.15}
         className="mx-auto flex w-full max-w-[1772px] flex-col gap-[14px] rounded-fig-xs bg-bg-secondary px-fig-16 py-fig-24 lg:gap-fig-64 lg:rounded-fig-l lg:p-fig-64"
       >
-        <div className="flex flex-col gap-fig-24 lg:flex-row lg:items-start lg:gap-fig-24">
-          <div className="flex flex-col items-start gap-fig-8 lg:w-[624px] lg:shrink-0 lg:gap-0">
+        {/* Frame 3151:2444 sets a 686px text column, a 100px gap, and an 858px
+            panel inside the 1644px card. That needs 1536px of viewport: at 1280 it
+            leaves the panel 318px, at 1024 only 62px. Below 2xl the text block
+            therefore stacks above a full-width panel, 64px apart (user, 2026-09-24),
+            and the subtitle keeps its 2 lines at every width. */}
+        <div className="flex flex-col gap-fig-24 lg:gap-fig-64 2xl:flex-row 2xl:items-start 2xl:gap-[100px]">
+          {/* Badge to heading 16, heading to subtitle 32 (16 gap + 16 margin). */}
+          <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16 2xl:w-[686px] 2xl:shrink-0">
             <SectionBadge>Our Contact</SectionBadge>
-            {/* 1920 breaks the headline by hand after "Connect"; 390 keeps it on
-                one line, so the break only exists from lg up. */}
-            <h2 className="font-sans text-h1 text-text-default lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
-              Connect <span className="lg:block">With Us</span>
+            {/* One line at every width. The current 1920 frame draws it on one
+                line; an older frame broke it after "Connect". About 673px of text
+                in the 686px column. */}
+            <h2 className="font-sans text-h1 text-text-default lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
+              Connect With Us
             </h2>
-            {/* The 390 frame drops the blurb entirely. */}
-            <p className="hidden font-body text-subtitle lg:mt-fig-32 lg:block lg:pr-[100px] lg:text-subtitle-1">
+            {/* The 390 frame drops the blurb entirely. Capped at the frame's 686px,
+                so it wraps to 2 lines in both layouts. */}
+            <p className="hidden font-body text-subtitle lg:mt-fig-16 lg:block lg:max-w-[686px] lg:text-subtitle-1">
               Our global teams across strategic locations are ready to help you navigate your data
               &amp; tech challenges.
             </p>
           </div>
 
-          <div className="flex w-full flex-col gap-fig-20 rounded-fig-xs bg-bg-default p-fig-20 lg:min-w-0 lg:flex-1 lg:gap-fig-64 lg:rounded-[6px] lg:p-fig-40">
+          <div className="flex w-full flex-col gap-fig-20 rounded-fig-xs bg-bg-default p-fig-20 lg:gap-fig-64 lg:rounded-[6px] lg:p-fig-40 2xl:min-w-0 2xl:flex-1">
             <div className="flex flex-col gap-[4px] lg:gap-[6px]">
               <h3 className="font-sans text-h4 text-text-default lg:text-[28px] lg:font-semibold lg:leading-[40px]">
                 What brings you here?

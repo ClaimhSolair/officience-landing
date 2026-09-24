@@ -1,4 +1,5 @@
 import { useEffect, useRef, type RefObject } from 'react';
+import { scrollToY, startScroll, stopScroll } from './scroll';
 
 /**
  * Shared modal plumbing for every overlay surface (menu, survey, splash):
@@ -33,6 +34,9 @@ let savedStyles: Partial<CSSStyleDeclaration> = {};
 export const lockBodyScroll = () => {
   if (++lockCount > 1) return;
   const { body } = document;
+  // Stop the wheel smoothing first, so the position read below is final and
+  // not a point in the middle of a glide.
+  stopScroll();
   savedScrollY = window.scrollY;
   savedStyles = {
     position: body.style.position,
@@ -58,7 +62,9 @@ export const unlockBodyScroll = () => {
   body.style.right = savedStyles.right ?? '';
   body.style.width = savedStyles.width ?? '';
   // Jump straight back — an animated restore reads as the page scrolling itself.
-  window.scrollTo({ top: savedScrollY, left: 0, behavior: 'instant' as ScrollBehavior });
+  // Through the helper, so the smooth-scroll layer also learns the position.
+  scrollToY(savedScrollY, false);
+  startScroll();
 };
 
 // --- Background inertness ---------------------------------------------------

@@ -586,6 +586,19 @@ backgrounds go on the parent so they stay full-bleed.
   `navigation.ts`, which scrolls on the home page and navigates to `/#id` elsewhere,
   letting `ScrollManager` land it once the page mounts.
 
+**Rulings from the 2026-09-24 review (round 3):**
+
+- **Our Services deck: one fill, no dim.** The stacked rows need an opaque fill to cover
+  the row below. The fill is the section's own BG/Secondary `#F7F7F7`, so the deck shows no
+  panels, as `3137:1931` draws. The user chose this over BG/Default `#FFFFFF`, which would
+  show four white panels. The old `brightness()` dim is gone: it turned covered rows
+  `#EFEFEF` and caused the colour mismatch when the last row arrived. The last row takes
+  no scale, because nothing covers it.
+- **Proven Results holds on its last card** for 0.3 of the viewport height (about three
+  wheel notches) before the pin releases (`DWELL` in `ProvenResults.tsx`).
+- **The milestone numbers roll again** each time they come back on screen (`Odometer.tsx`).
+- **Contact** — see "Connect With Us (step 9)" for the stack below 1536px.
+
 ### Superseded by the Sept-2026 design
 
 The July header rules no longer apply: heights are now the Figma values
@@ -700,8 +713,15 @@ double-gutter and compact-88px divergences are retired with the old header.
   locations…" entirely. Hidden rather than deleted.
 - **The chevron is drawn at two optical weights** — a light glyph inside a 32px shadowed
   button at 390, a heavier bare glyph at 1920. Both ship and swap at the breakpoint.
-- **The heading changes from "Let's Build Together" to "Connect With Us"**, hard-broken
-  after "Connect" at 1920 and on one line at 390.
+- **The heading changes from "Let's Build Together" to "Connect With Us"**. An older 1920
+  frame broke it after "Connect". The current frame `3151:2444` (read 2026-09-24) draws it
+  on one line, and the build follows it (user ruling). It is 672px of text in the 686px column.
+- **Spacing and panel width follow `3151:2444` (user, 2026-09-24).** Badge → heading 16,
+  heading → subtitle 32, text column 686, column → panel 100, panel 858 at 1920. The
+  subtitle is capped at 686px, so it is 2 lines at every desktop width.
+- **Below 1536px (2xl) the text block stacks above a full-width panel, 64px apart** (user
+  ruling). The 686 + 100 layout needs 1536px of viewport: at 1280 it leaves the panel 318px,
+  at 1024 only 62px. The old 624px column already left the panel only 200px at 1024.
 - The blue wrapper HomePage carried since July is now gone: Why Us and Contact each paint
   their own `Semantic/BG/Primary`, and `Footer` already set `bg-bg-primary` itself.
 

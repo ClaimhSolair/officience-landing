@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Container from './ui/Container';
 import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
-import { EASE, MOTION, SEC, STAGGER, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { EASE, MOTION, SEC, STAGGER, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
 import { ASSETS } from '../assets';
 
 /**
@@ -62,12 +62,6 @@ const TESTIMONIALS = [
 const SLIDE_X = 160;
 
 /**
- * Overdamped, so a straightening card glides between wheel notches and never
- * bounces past upright. Same shape as the Capabilities deck spring.
- */
-const SCRUB_SPRING = { stiffness: 120, damping: 28, restDelta: 0.001 };
-
-/**
  * The card box, shared by the static and the scrubbed branch. Capped at the
  * frame's 545px on lg (3129:3363) and left-aligned in the wider column, so the
  * open space on its right is the room the slide-in enters from.
@@ -84,7 +78,9 @@ const Testimonial: React.FC<{
   // the moving box is the inner div. (Capabilities ServiceRow, same reason.)
   const ref = useRef<HTMLLIElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
-  const p = useSpring(scrollYProgress, SCRUB_SPRING);
+  // Smoothed so the card glides between wheel notches; overdamped, so it never
+  // overshoots its resting position.
+  const p = useScrub(scrollYProgress);
   // Card slides in from the right and settles at its resting position; clamped at
   // rest after. No rise, no tilt — a pure horizontal slide.
   const x = useTransform(p, [0, 1], [SLIDE_X, 0]);

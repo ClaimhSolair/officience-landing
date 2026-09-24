@@ -703,3 +703,51 @@ local render and must equal the current build.
 3. **Vertical rule.** Reference is a full blue grid. Add one thin (1px) rule in the
    cards column (subtle border token, or reference blue), static, behind the cards
    — or omit it. The user's approved scope named a connector line.
+
+# v7 — round-3 smoothness pass (2026-09-24)
+
+The team said the page felt "stiff and jagged". An audit of every home-page motion found
+these causes:
+- Nothing smoothed the wheel. Each notch moved the page, and every scrub on it, in one step.
+  `scroll-behavior: smooth` applies to anchor scrolls, not to the wheel.
+- Seven scrubs read the scroll position raw (hero drift, flower opacity, manifesto sweep,
+  About stack scale, About photo zoom, Approach step opacity, Proven card lift/fade).
+- Sprung and raw values mixed in one group, so they drifted apart: Approach x (sprung) vs its
+  opacity (raw); the Proven track (sprung) vs the card y/opacity (raw).
+- Four spring settings (120/28 twice, 70/22, 90/30). None came from `SPRING`.
+- A per-frame `brightness()` filter on four full-width Services rows.
+- Reveals of 0.45s / 0.7s on easeOutCubic that stopped dead, and started only when 20-40%
+  of the element showed.
+
+An earlier round already added a spring to the Services scrub for "jagging". The complaint
+came back, so this round changes the mechanism (the two-strikes rule), not a parameter.
+
+## What changed
+- **Lenis wheel smoothing** (`components/SmoothScroll.tsx`, `lib/scroll.ts`). It smooths
+  the wheel and the trackpad only; touch stays native. It runs only when motion is on, and
+  `MOTION.smoothScroll` switches it off. Lenis steps inside framer-motion's frame loop.
+  All page scrolls go through `lib/scroll.ts` (`scrollToY`, `scrollToElement`,
+  `stopScroll`, `startScroll`): the modal lock, `scrollToId`, the header logo, and
+  `ScrollManager`. The menu list and the survey body carry `data-lenis-prevent`.
+- **One smoothing source per group** (`useScrub` in `lib/motion.ts`). Each section smooths
+  its progress once and derives every property from it. Under Lenis the raw value is used,
+  because the scroll already glides. Without Lenis, `SPRING.scrub` (120/28) smooths it.
+  The per-effect springs (70/22, 90/30, and the two 120/28) are gone.
+- **Reveal tokens now depart from the measured nexvio reveal.** `revealFast` 450 → 600,
+  `revealBase` 700 → 900, `EASE.reveal` easeOutCubic → easeOutQuint `[0.22, 1, 0.36, 1]`.
+  This is a user-approved override of the fitted values in "Proposed tokens" above.
+- **The default Reveal trigger** is a root margin (`0px 0px -10% 0px`, amount 0): an
+  entrance starts when the element's top crosses 90% of the viewport height. Explicit
+  `amount` props do not change.
+- **Filters and layers.** The Services dim is gone. The About story cards and their zoom
+  photos get `will-change: transform` while their scrub runs.
+
+## Item overrides in this pass
+- **Item 6 (counters)** — the roll now runs again each time the number comes back on screen
+  (user). It resets only when the line is fully off screen, with no animation, so no one
+  sees a rewind. This replaces the `once` behaviour.
+- **Item 8 (Services)** — no brightness dim; the fill is BG/Secondary; the last row does
+  not scale.
+- **Item 10 (Proven Results)** — a dwell of 0.3 viewport heights after the scrub, before
+  the pin releases. The hold and scrub keep their earlier lengths, so the track rate is the
+  same. Measured: 270px at 1440x900, 324px at 1920x1080 (25-28% of the pinned runway).

@@ -7,7 +7,7 @@ import Container from './ui/Container';
 import Odometer from './ui/Odometer';
 import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
-import { MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMotionEnabled } from '../lib/motion';
+import { MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMotionEnabled, useScrub } from '../lib/motion';
 import { DISCOVER_OUR_STORY, ROUTES } from './navigation';
 
 /**
@@ -184,16 +184,18 @@ const StoryCardArticle: React.FC<{
     target: ref,
     offset: ['start end', 'center 0.6'],
   });
-  const photoScale = useTransform(arrival, [0, 1], [1.2, 1]);
+  const photoScale = useTransform(useScrub(arrival), [0, 1], [1.2, 1]);
 
   const stacking = motionOn && MOTION.aboutStack;
   const zooming = motionOn && MOTION.photoZoom;
 
   return (
+    /* `will-change` only while a scrub drives the transform: it gives each large
+       card and photo its own layer, so a scale does not repaint the page. */
     <motion.article
       ref={ref}
       className={`overflow-hidden rounded-fig-xs bg-bg-secondary xl:rounded-fig-l ${
-        stacking ? `sticky ${STICKY_TOP} ${PIN_FOLLOW}` : ''
+        stacking ? `sticky ${STICKY_TOP} ${PIN_FOLLOW} will-change-transform` : ''
       }`}
       style={stacking ? { scale } : undefined}
     >
@@ -209,7 +211,7 @@ const StoryCardArticle: React.FC<{
             srcSet={srcSetOf(img.mobile)}
             sizes="calc(100vw - 32px)"
             alt={card.alt}
-            className={`block w-full ${card.aspect} lg:aspect-[1792/860] ${card.fit}`}
+            className={`block w-full ${card.aspect} lg:aspect-[1792/860] ${card.fit} ${zooming ? 'will-change-transform' : ''}`}
             loading="lazy"
             decoding="async"
             referrerPolicy="no-referrer"
@@ -243,10 +245,12 @@ const AboutUs: React.FC = () => {
   const manifestoRef = useRef<HTMLParagraphElement>(null);
   const motionOn = useMotionEnabled();
 
-  const { scrollYProgress: stack } = useScroll({
+  const { scrollYProgress: stackRaw } = useScroll({
     target: cardsRef,
     offset: ['start start', 'end end'],
   });
+  // Smoothed once for all three cards.
+  const stack = useScrub(stackRaw);
 
   // The frontier crosses the whole string across about half a viewport of
   // scroll — roughly two flicks — and finishes while the paragraph is still
@@ -262,7 +266,9 @@ const AboutUs: React.FC = () => {
   // last characters stop short of full opacity: a character needs the frontier
   // four places past its own index to light completely, so a headroom of 2 left
   // the final full stop at 75%.
-  const frontier = useTransform(sweep, [0, 1], [0, MANIFESTO_CHARS + 4]);
+  // The frontier reads the smoothed sweep; the gate below reads the raw one, so
+  // the counters arm on the true scroll position.
+  const frontier = useTransform(useScrub(sweep), [0, 1], [0, MANIFESTO_CHARS + 4]);
   const sweeping = motionOn && MOTION.manifesto;
 
   // The counters hold until the manifesto sweep has fully finished, then arm a

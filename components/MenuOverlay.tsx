@@ -200,8 +200,9 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
         </div>
 
         {/* Scrolling body. .menu-scroll re-enables the scrollbar that index.html
-            hides document-wide, styled to the one Figma draws. */}
-        <nav className="menu-scroll flex-1 overflow-y-auto overscroll-contain px-fig-24 lg:px-fig-64 pb-fig-40">
+            hides document-wide, styled to the one Figma draws. data-lenis-prevent
+            lets the wheel scroll this list natively, not the page behind it. */}
+        <nav data-lenis-prevent className="menu-scroll flex-1 overflow-y-auto overscroll-contain px-fig-24 lg:px-fig-64 pb-fig-40">
           <motion.ul
             className="flex flex-col gap-fig-24 lg:gap-fig-40"
             variants={cascading ? LIST_VARIANTS : undefined}

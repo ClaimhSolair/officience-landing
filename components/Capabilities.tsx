@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useSpring, useTransform, type MotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Container from './ui/Container';
 import Reveal, { RevealChild } from './ui/Reveal';
 import Button from './ui/Button';
 import SectionBadge from './ui/SectionBadge';
-import { MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
 import { EXTERNAL } from './navigation';
 
 /**
@@ -97,9 +97,15 @@ const PEEK = 248;
  * it, easing back slightly as it goes so the covered rows read as behind rather
  * than merely underneath.
  *
- * The row needs an opaque fill to do that, which is a visible departure from the
- * artboard: Figma draws these rows on the section background with nothing behind
- * them, because Figma draws them never overlapping. Flagged in the catalog.
+ * The row needs an opaque fill to cover the row below it. The fill is the
+ * section's own BG/Secondary, and no row dims (user ruling 2026-09-24). An
+ * earlier brightness dim turned the covered rows #EFEFEF against the #F7F7F7
+ * section, so the stack showed rows of different colours when the last row
+ * arrived. With one fill, the rows show no panel edges, as the artboard draws.
+ * Only the small scale step remains as the depth cue.
+ *
+ * The last row is never covered, so it takes no scale: a row that recedes as it
+ * lands reads as a fault.
  *
  * Two elements, not one: the `li` owns the sticky position and the entrance, the
  * inner box owns the scrub. Both write to `transform`, and one element cannot
@@ -114,16 +120,15 @@ const ServiceRow: React.FC<{
   children: React.ReactNode;
 }> = ({ index, total, progress, decking, children }) => {
   const from = index / total;
-  // Spring the raw cover value before deriving the scale and dim, so both ease
-  // between wheel notches instead of snapping a step at each one — the jagging
-  // the review reported. Overdamped, so a covered row never bounces.
-  const coverRaw = useTransform(progress, (p) => Math.min(1, Math.max(0, (p - from) / (1 - from))));
-  const cover = useSpring(coverRaw, { stiffness: 120, damping: 28, restDelta: 0.001 });
-  const scale = useTransform(cover, [0, 1], [1, 0.98]);
-  const filter = useTransform(cover, (t) => `brightness(${1 - 0.03 * t})`);
-
   const first = index === 0;
   const last = index === total - 1;
+  // The deck progress arrives already smoothed (`useScrub` in the parent), so the
+  // scale eases between wheel notches instead of stepping at each one.
+  const scale = useTransform(progress, (p) => {
+    if (last) return 1;
+    const cover = Math.min(1, Math.max(0, (p - from) / (1 - from)));
+    return 1 - 0.02 * cover;
+  });
 
   return (
     <RevealChild
@@ -143,7 +148,7 @@ const ServiceRow: React.FC<{
         className={`border-border-field ${first ? 'border-t-0 lg:border-t' : 'border-t'} ${
           decking ? 'bg-bg-secondary' : ''
         }`}
-        style={decking ? { scale, filter, transformOrigin: '50% 0%' } : undefined}
+        style={decking ? { scale, transformOrigin: '50% 0%' } : undefined}
       >
         {children}
       </motion.div>
@@ -157,8 +162,10 @@ const Capabilities: React.FC = () => {
   const wide = useMinWidth(1024);
   const decking = motionOn && wide && MOTION.services;
 
-  // One progress value for the whole deck; each row reads its own slice of it.
+  // One progress value for the whole deck, smoothed once here; each row reads its
+  // own slice of it.
   const { scrollYProgress } = useScroll({ target: listRef, offset: ['start start', 'end end'] });
+  const deck = useScrub(scrollYProgress);
 
   return (
   <section id="capabilities" className="bg-bg-secondary">
@@ -257,7 +264,7 @@ const Capabilities: React.FC = () => {
             service={service}
             index={i}
             total={SERVICES.length}
-            progress={scrollYProgress}
+            progress={deck}
             decking={decking}
           >
             {/* At 390 a rule sits in 32px of air — the row's own 16px of padding
