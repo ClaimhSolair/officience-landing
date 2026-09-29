@@ -29,6 +29,10 @@ const AboutPage = React.lazy(() => import('./pages/AboutPage'));
 // its own too.
 const DiyJamStoryPage = React.lazy(() => import('./pages/DiyJamStoryPage'));
 
+// The seven service pages share one template and one chunk. Their pictures come
+// from the bucket, so the chunk holds only the copy.
+const ServicePage = React.lazy(() => import('./pages/ServicePage'));
+
 export interface LayoutContext {
   openSurvey: (branch?: SurveyBranch) => void;
   /** False only while the once-a-day splash is still covering the page. */
@@ -125,6 +129,7 @@ const App = () => (
           <Route index element={<HomePage />} />
           <Route path={ROUTES.about} element={<AboutPage />} />
           <Route path={ROUTES.diyJam} element={<DiyJamStoryPage />} />
+          <Route path={`${ROUTES.services}/:slug`} element={<ServicePage />} />
           <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
           <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />
           <Route path="*" element={<Navigate to={ROUTES.home} replace />} />

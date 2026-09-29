@@ -97,6 +97,10 @@ One left. The hero shapes below were delivered on 2026-08-26 and are now in the 
    no `loading="lazy"` above the fold. Hidden below `xl`, where the hero stacks into
    one column and a shape would land on the headline.
 
+3. **The Services photo originals (added 2026-09-29, section 19).** Figma holds small files: the Software hero is
+   1024x600 and upscales 1.4x at 1440, and the row and work-card files have 0.35 to 1.05 source px for each 2x px. Ask
+   for the camera or export originals of each hero, row picture and work-card picture.
+
 ### Backlog — open items awaiting a ruling (index)
 
 Everything below is **built as drawn** and flagged; none of it blocks the next step. This
@@ -997,3 +1001,68 @@ Each office row in Connect With Us is wrapped in a link to
 `aria-label` naming the office. Figma draws no link here; this is a team request
 carried out during the Sept-2026 motion pass, recorded in the same class as the
 Cookie Settings entry. Hover underlines the address and tints the city.
+
+## 19 — Services hub and the seven service pages (started 2026-09-29)
+
+Spec and plan: `C:\Users\Admin\.claude\plans\what-is-the-latest-radiant-wall.md` (three phases: the template and the
+Software pilot, the other six pages, the hub). Every frame is 1440 only. No page draws a 390 frame or a 1920 frame.
+
+### Node map
+- Hub `3109:1851` (1440x7440). The strong-colour grid `3530:3299` is the hover state of the hub grid `3530:3351`.
+- The seven child pages are Figma "Brochure" frames on one template:
+  - Design & Digital `3494:4864`, with extra work cards `3524:14458`.
+  - Software & Web Development `3707:3568`, with the whole FV Hospital card `3707:6041`.
+  - BI & Analytics `3707:6222`, with extra work cards `3707:9173/9184/9195` and the quote master `3707:8921`.
+  - Data Engineering & Processing ("Crunch") `3716:11412`.
+  - IT Operations & Support `3716:12297`.
+  - People & Talent Solutions `3726:13016`.
+  - Trusted AI Platform for Insurance `3738:3980`, with extra work cards `3738:4395/4406/4417` and a 4th team card
+    `3739:4505`.
+- Software, per section: the hero photo `3932:5198`, the copy `3716:12747`, the back button `3712:9440`, "What We Do"
+  `3707:3581`, the strip `3707:6113`, "Selected Work" `3707:5974`, "People Trust Us" `3707:5502`, "Meet the Team"
+  `3707:5524`.
+
+### Rulings (user, 2026-09-29, unless marked "build")
+19a. **Routes.** `/services` (the hub) and `/services/<slug>`. There is one template, `pages/ServicePage.tsx`, and one
+    content file per page in `content/services/`. An unknown slug goes to `/services`. Until the hub exists (phase 3),
+    `/services` falls to the catch-all and goes home.
+19b. **Heroes show the whole photo at its own ratio**, as ruling 18b does for the About hero. From lg the copy sits
+    116px above the bottom edge and the back link 60px below the top edge. Below lg the copy sits under the photo.
+19c. **Selected Work pins, with drag,** on `lib/pinnedTrack.ts` (the Our Journey pattern). Only the row pins.
+    - Build: a row that travels less than 140px does not pin.
+    - Build: the card is 570 wide at 3xl, because Figma's 3 x 571 + 2 x 40 is 1px wider than the 1792 column.
+19d. **The tool strip loops when its set is wider than the column,** on `components/ui/Marquee.tsx` at 60 px/s. A strip
+    that fits is a fixed, centred row.
+19e. **Quotes: three or more loop up** (the vertical `Marquee`) in a 548px box from lg with motion on. With one or two
+    quotes, below lg, or with motion off, the cards are a fixed list.
+19f. **Placeholders ship as drawn and are flagged.** The one exception: the three Design & Digital note-lines ("Framed
+    by a very large, high-fidelity mood board image", and the others) do not show.
+19g. **The hub list is a reveal only, with no deck.** Seven rows at a 248px peek would pin the last row at 1,601px.
+19h. **The hub grid is pastel at rest and strong on hover.** The cards are not links, so there is no focus state.
+19i. **The AI Insurance team takes four columns.**
+19j. **The LinkedIn icon shows only when a URL exists.** The team gives no URLs yet.
+19k. Build: **the badge label is Body-lg-medium (16/26) from lg** on these pages (`SectionBadge size="sm"`). The home
+    page badge is 20/28.
+19l. Build: **"People Trust Us" is Display-sm at lg and 86px from xl.** At lg the 86px nowrap line and the 545px
+    column need 1,217px of a 976px column.
+19m. Build: **the row pictures are fluid up to their drawn width.** A 699px picture does not fit beside the 549px text
+    column at 1024.
+
+### Assets (Software, phase 1)
+- The bake uses `sharp` with a frame renderer (scratchpad `render-lib.cjs`): each layer is drawn where Figma draws
+  it, at 2x, clipped to its node and its frame. The files are in `assets-src/services/software-web-development/`.
+- **Two Figma fills are stretched.** The IOGA card image is stretched 1.095x, and the Mobile Apps tech panel 1.045x.
+  The bake keeps Figma's anchor and crop area at one scale on both axes, so the distortion is 1.000.
+- **The Figma files are small.** The hero is 1024x600, and it upscales 1.4x at 1440. The row and card files have 0.35
+  to 1.05 source px per 2x px. The originals are owed (see the backlog).
+- The Mobile Apps picture is a composite of two fills (the tech panel and the phone screen, with a 17.245px radius).
+  `get_screenshot` gives only 1x (708px), so the bake builds the composite from the two source files.
+- The team portraits have the Gray/200 `#D9D9D9` ground baked in. The quote avatars are square files, and the page
+  rounds them.
+- The three icons (Iconly "Arrow - Left 2" and "Arrow - Right", and the LinkedIn mark) are inline in
+  `components/services/parts.tsx`, with the exact Figma paths.
+
+### Slips shipped as drawn (Software)
+- "Saas Platforms" (not "SaaS"). "Dr.Jean Marcel Guillon" has no space after "Dr.".
+- The Mobile Apps picture group is drawn twice, one copy inside the other (3707:9251 holds 3707:9255). One copy is
+  built.

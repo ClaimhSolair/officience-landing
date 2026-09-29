@@ -23,9 +23,14 @@ interface SectionBadgeProps {
    * other headings are card titles jumps straight from h1 to h3.
    */
   as?: 'span' | 'h2';
+  /**
+   * `sm` sets the label in Body-lg-medium (16/26) from lg. The service pages
+   * (the Figma "Brochure" frames) draw it at that size.
+   */
+  size?: 'md' | 'sm';
 }
 
-const SectionBadge: React.FC<SectionBadgeProps> = ({ children, className = '', as: Tag = 'span' }) => (
+const SectionBadge: React.FC<SectionBadgeProps> = ({ children, className = '', as: Tag = 'span', size = 'md' }) => (
   <Tag
     className={`inline-flex shrink-0 items-center gap-fig-8 rounded-fig-xs bg-pri-50 px-fig-12 py-fig-4 lg:px-fig-8 lg:py-fig-2 ${className}`}
   >
@@ -39,7 +44,11 @@ const SectionBadge: React.FC<SectionBadgeProps> = ({ children, className = '', a
       decoding="async"
       referrerPolicy="no-referrer"
     />
-    <span className="whitespace-nowrap font-body font-medium text-[14px] leading-[22px] text-text-default lg:text-body-xl lg:font-normal">
+    <span
+      className={`whitespace-nowrap font-body font-medium text-[14px] leading-[22px] text-text-default ${
+        size === 'sm' ? 'lg:text-body-lg lg:font-medium' : 'lg:text-body-xl lg:font-normal'
+      }`}
+    >
       {children}
     </span>
   </Tag>

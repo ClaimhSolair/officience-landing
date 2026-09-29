@@ -124,6 +124,11 @@ export const MOTION = {
   aboutDiyJam: true,
   aboutTeam: true,
   aboutWorkingLife: true,
+  /** The Services hub and the seven service pages (2026-09-29). */
+  serviceHero: true,
+  serviceTools: true,
+  serviceWork: true,
+  serviceQuotes: true,
   /** Lenis wheel smoothing (`components/SmoothScroll.tsx`). Off ⇒ native scroll,
    *  and every scrub falls back to `SPRING.scrub`. */
   smoothScroll: true,

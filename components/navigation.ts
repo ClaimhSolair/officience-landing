@@ -10,7 +10,27 @@ export const ROUTES = {
   diyJam: '/about-us/diy-jam',
   terms: '/terms-of-use',
   privacy: '/privacy-policy',
+  /** The Services hub. Each service page is `/services/<slug>`. */
+  services: '/services',
 } as const;
+
+/**
+ * The seven service pages, in the hub's order (Figma 3109:1851). Each slug is
+ * the URL segment and the key of its content in `content/services/`.
+ */
+export const SERVICE_SLUGS = [
+  'design-digital',
+  'software-web-development',
+  'business-intelligence-analytics',
+  'data-engineering-processing',
+  'it-operations-support',
+  'people-talent-solutions',
+  'trusted-ai-insurance',
+] as const;
+
+export type ServiceSlug = (typeof SERVICE_SLUGS)[number];
+
+export const serviceHref = (slug: ServiceSlug) => `${ROUTES.services}/${slug}`;
 
 /**
  * Anchor targets on the home page. These ids are also the keys Vercel Analytics
@@ -45,6 +65,20 @@ export const ABOUT_SECTION_IDS = [
 ] as const;
 
 export type AboutSectionId = (typeof ABOUT_SECTION_IDS)[number];
+
+/**
+ * Anchor targets on every service page, and their `section_view` keys. The
+ * event also carries the page slug, so the seven pages share one set of ids.
+ * A page reports only the sections it has.
+ */
+export const SERVICE_SECTION_IDS = [
+  'service-hero',
+  'what-we-do',
+  'tools',
+  'selected-work',
+  'testimonials',
+  'our-team',
+] as const;
 
 const BROCHURE_URL = 'https://demo.officience.com/brochure';
 
@@ -103,7 +137,7 @@ export const MENU: NavItem[] = [
       {
         label: 'Tech',
         description: 'Software & Web Development',
-        target: { kind: 'external', href: EXTERNAL.brochureItCraft },
+        target: { kind: 'route', to: serviceHref('software-web-development') },
       },
       {
         label: 'Data',

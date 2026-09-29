@@ -164,12 +164,18 @@
             },
             animation: {
               'marquee': 'marquee 40s linear infinite',
+              // The vertical loop of components/ui/Marquee.tsx. The inline duration wins.
+              'marquee-y': 'marquee-y 40s linear infinite',
             },
             keyframes: {
               // Track must contain the content duplicated twice; -50% loops seamlessly.
               marquee: {
                 '0%': { transform: 'translateX(0)' },
                 '100%': { transform: 'translateX(-50%)' },
+              },
+              'marquee-y': {
+                '0%': { transform: 'translateY(0)' },
+                '100%': { transform: 'translateY(-50%)' },
               },
             }
           },
@@ -286,7 +292,8 @@
       /* Lexend headings */
       /* Montserrat body */
       /* Pause marquee on hover for readability */
-      .marquee-track:hover {
+      .marquee-track:hover,
+      .marquee-track-y:hover {
         animation-play-state: paused;
       }
       /* Client logos: greyed by default, reveal true color on hover (others stay
@@ -327,6 +334,8 @@
         html[data-motion='on'] { scroll-behavior: smooth; }
         html[data-motion='on'] .marquee-track { animation: marquee 40s linear infinite; }
         html[data-motion='on'] .marquee-track:hover { animation-play-state: paused; }
+        html[data-motion='on'] .marquee-track-y { animation: marquee-y 40s linear infinite; }
+        html[data-motion='on'] .marquee-track-y:hover { animation-play-state: paused; }
         html[data-motion='on'] .client-logo { transition: filter 0.3s ease; }
       }
     </style>

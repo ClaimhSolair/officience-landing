@@ -6,7 +6,7 @@ import Reveal, { RevealChild } from './ui/Reveal';
 import Button from './ui/Button';
 import SectionBadge from './ui/SectionBadge';
 import { MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
-import { EXTERNAL } from './navigation';
+import { EXTERNAL, serviceHref } from './navigation';
 
 /**
  * Figma 3137:1931 (1920) and 3187:4345 (390).
@@ -28,6 +28,8 @@ interface Service {
   promise: string;
   offerings: string[];
   brochure: string;
+  /** The service's own page on this site. When set, the button goes there, not to the brochure. */
+  to?: string;
 }
 
 /**
@@ -54,6 +56,7 @@ const SERVICES: Service[] = [
       'System integrations',
     ],
     brochure: EXTERNAL.brochureItCraft,
+    to: serviceHref('software-web-development'),
   },
   {
     title: 'Business Intelligence & Analytics',
@@ -304,7 +307,7 @@ const Capabilities: React.FC = () => {
                 </ul>
 
                 <Button
-                  href={service.brochure}
+                  {...(service.to ? { to: service.to } : { href: service.brochure })}
                   variant="secondary"
                   size="lg"
                   className="w-full shadow-fig-xs lg:w-[350px] lg:text-btn-lg"

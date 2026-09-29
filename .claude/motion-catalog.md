@@ -784,3 +784,25 @@ The team asked for the Proven Results animation on Our Journey, with drag.
 ## Not verified here
 The pane draws no frames, so the glide, the scrub feel and the marquee motion are for the user
 to check in a foreground browser.
+
+# v9 — Services pages, phase 1 (2026-09-29)
+
+The team asked for the Services hub and seven service pages. Phase 1 builds the shared template and the Software page.
+
+## What changed
+- **Selected Work pins, with drag** (`components/services/SelectedWork.tsx`). It uses `lib/pinnedTrack.ts` exactly as Our
+  Journey does: the same hold, rate, dwell, card fade and lift, and the same drag (0.8 scroll px per track px). Only the
+  row pins. A row that travels less than 140px does not pin, because a very short scrub still adds the full dwell.
+  Measured on Software (3 cards): scale 0.71 at 1280x720, 0.77 at 1024x768, 0.94 at 1440x900. At 1910 and 1920 the
+  three cards fit, so the row is a plain row. A 3px move is not a drag, a 50px drag scrolls 40px, and the ends clamp
+  at the hold end and the scrub end.
+- **One marquee engine** (`components/ui/Marquee.tsx`). The loop of `PhotoMarquee` moved into it with no change: the
+  DIY Jam rows keep the same DOM and the same durations (156s and 69.29s). It adds a vertical direction (the
+  `marquee-y` keyframe and the `.marquee-track-y` hover and override rules in index.html).
+- **Tool strips loop only when they overflow** (60 px/s). The Software strip is 3,028.5px, so its loop is 50.48s.
+- **Quotes loop up when a page has three or more** (BI has five), from lg with motion on, in a 548px box.
+- **Service heroes** keep the About hero entrance (the copy fade-rise) and have no parallax.
+
+## Not verified here
+The pane draws no frames, so the scrub feel, the glide and the marquee motion are for the user to check in a foreground
+browser. The vertical quote loop has no page with three quotes until phase 2 (BI).

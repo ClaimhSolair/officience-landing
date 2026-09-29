@@ -40,6 +40,17 @@ export const srcSetOf = (sources: ImageSource[]) =>
   sources.map((s) => `${s.url} ${s.w}w`).join(', ');
 
 /**
+ * A file of the Services pages, from `assets-src/services/<slug>/`. The page
+ * content files (`content/services/*.ts`) build their own URLs with these two
+ * helpers, so the seven pages do not all live in this file.
+ */
+export const serviceAsset = (slug: string, file: string) => a(`/services/${slug}/${file}`);
+
+/** One service picture at several widths (`<name>-<w>.webp`), narrowest first. */
+export const serviceSources = (slug: string, name: string, widths: number[]): ImageSource[] =>
+  [...widths].sort((x, y) => x - y).map((w) => ({ url: serviceAsset(slug, `${name}-${w}.webp`), w }));
+
+/**
  * One photo of a marquee row. `w` x `h` is the file's own ratio, and the tile
  * box takes that ratio, so no tile crops or stretches at any height.
  */
