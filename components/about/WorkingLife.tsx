@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ASSETS } from '../../assets';
+import { ASSETS, srcSetOf } from '../../assets';
+import type { ImageSource } from '../../assets';
 import Container from '../ui/Container';
 import Reveal, { RevealChild } from '../ui/Reveal';
 import SectionBadge from '../ui/SectionBadge';
@@ -26,21 +27,81 @@ import { EASE, MOTION, SEC, STAGGER, useMotionEnabled } from '../../lib/motion';
  * container query units, since the banner's width follows the column.
  */
 
+/** A story's photo in the panel, with its social mark at the lower right. */
+interface StoryPhoto {
+  sources: ImageSource[];
+  alt: string;
+  icon: string;
+  /** The mark's width as a share of the 836px photo box. */
+  iconWidth: number;
+}
+
 interface NewsItem {
   title: string;
-  /** Only the open item carries a description in the artboard. */
+  /** Only the first item carries a description in the artboard. */
   body?: string;
+  /** No photo: the panel shows the anniversary banner. */
+  photo?: StoryPhoto;
 }
+
+const W = ASSETS.aboutPage.workingLife;
 
 const NEWS: NewsItem[] = [
   {
     title: '2026 - Twenty Years. Still Going',
     body: 'Design the look and experience of your brand and digital products...',
   },
-  { title: 'Virtual Race - We Have Our Winners' },
-  { title: 'A Very Offy Friday: Learning, cooking, ...' },
-  { title: 'The Real Secret Behind Long-Term Client ...' },
+  {
+    title: 'Virtual Race - We Have Our Winners',
+    photo: { sources: W.virtualRace, alt: 'Five colleagues on stage with a First Prize certificate.', icon: W.linkedin, iconWidth: 34.35 / 836 },
+  },
+  {
+    title: 'A Very Offy Friday: Learning, cooking, ...',
+    photo: { sources: W.offyFriday, alt: 'Hands cut vegetables on a wooden board, beside bowls of tomatoes and cucumber.', icon: W.facebook, iconWidth: 30.82 / 836 },
+  },
+  {
+    title: 'The Real Secret Behind Long-Term Client ...',
+    photo: { sources: W.realSecret, alt: 'Four colleagues wave on stage in front of the Otty mascot.', icon: W.youtube, iconWidth: 63.28 / 836 },
+  },
 ];
+
+/** The panel's image at 1440 is 929px, and 1283px from 1792. */
+const PANEL_SIZES = '(min-width: 1792px) 1283px, (min-width: 1280px) calc(100vw - 509px), calc(100vw - 80px)';
+
+/**
+ * One story photo, on the banner's box. Figma draws it 836x542 in hover frames
+ * 4047:8972, 4047:8973 and 4047:8986: the same ratio as the banner, so the
+ * photo takes the banner's place and the panel does not change size. Over the
+ * photo: a 40% Black/950 dim, and the social mark 22px (2.63% and 4.06%) in from
+ * the lower right. The mark is not a link, because no post URL exists yet.
+ */
+const PhotoLayer: React.FC<{ photo: StoryPhoto; shown: boolean }> = ({ photo, shown }) => (
+  <div
+    className={`absolute inset-0 transition-opacity duration-300 motion-reduce:transition-none ${
+      shown ? 'opacity-100' : 'opacity-0'
+    }`}
+    aria-hidden={!shown || undefined}
+  >
+    <img
+      src={photo.sources[photo.sources.length - 1].url}
+      srcSet={srcSetOf(photo.sources)}
+      sizes={PANEL_SIZES}
+      alt={shown ? photo.alt : ''}
+      className="absolute inset-0 h-full w-full object-cover"
+      loading="lazy"
+      decoding="async"
+    />
+    <div className="absolute inset-0 bg-black-950 opacity-40" />
+    <img
+      src={photo.icon}
+      alt=""
+      aria-hidden="true"
+      className="absolute bottom-[4.06%] right-[2.63%] h-auto"
+      style={{ width: `${(photo.iconWidth * 100).toFixed(3)}%` }}
+      loading="lazy"
+    />
+  </div>
+);
 
 /** One tile of the photo marquee. A pair fills the same box as a single. */
 type Tile = { kind: 'one'; src: string; alt: string } | { kind: 'pair'; a: [string, string]; alt: string };
@@ -236,6 +297,7 @@ const MarqueeRow: React.FC<{ tiles: Tile[]; reverse?: boolean }> = ({ tiles, rev
 const WorkingLife: React.FC = () => {
   const motionEnabled = useMotionEnabled();
   const enabled = motionEnabled && MOTION.aboutWorkingLife;
+  const [active, setActive] = useState(0);
 
   return (
     <section id="working-life" className="overflow-hidden bg-background py-fig-64 lg:py-fig-120">
@@ -254,12 +316,19 @@ const WorkingLife: React.FC = () => {
         {/* The news list and the banner. The row starts at xl: the artboard's
             403 + 987.6 columns need 1390.6px, and 1024 leaves 976. */}
         <Reveal className="flex flex-col gap-fig-24 xl:flex-row xl:gap-0">
+          {/* Each story selects its picture on hover, focus or click (Figma
+              4047:8972, 8973, 8986). The white ground moves to the selected
+              story, and the selection stays when the pointer leaves, so a tap
+              works the same way. The first story shows the banner. */}
           <div className="flex flex-col justify-center xl:w-[403px] xl:shrink-0">
             <ul className="flex flex-col">
               {NEWS.map((n, index) => (
                 <motion.li
                   key={n.title}
-                  className={`flex flex-col gap-fig-24 p-fig-24 ${n.body ? 'bg-surface' : ''}`}
+                  className={`relative flex flex-col gap-fig-24 p-fig-24 transition-colors duration-300 motion-reduce:transition-none ${
+                    index === active ? 'bg-surface' : ''
+                  }`}
+                  onMouseEnter={() => setActive(index)}
                   initial={enabled ? { y: n.body ? 24 : 16, opacity: 0 } : { opacity: 0 }}
                   whileInView={{ y: 0, opacity: 1 }}
                   viewport={{ once: true }}
@@ -274,7 +343,19 @@ const WorkingLife: React.FC = () => {
                     },
                   }}
                 >
-                  <h3 className="font-sans text-h2 text-text-primary">{n.title}</h3>
+                  <h3 className="font-sans text-h2 text-text-primary">
+                    {/* The button's hit area covers the whole story. */}
+                    <button
+                      type="button"
+                      aria-pressed={index === active}
+                      aria-controls="working-life-panel"
+                      onClick={() => setActive(index)}
+                      onFocus={() => setActive(index)}
+                      className="text-left after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-primary"
+                    >
+                      {n.title}
+                    </button>
+                  </h3>
                   {n.body && <p className="font-body text-body-lg text-subtitle">{n.body}</p>}
                 </motion.li>
               ))}
@@ -282,13 +363,26 @@ const WorkingLife: React.FC = () => {
           </div>
 
           {/* Figma's white panel is 987.6 wide and insets the banner 29.5 from
-              its right edge, centred vertically. */}
+              its right edge, centred vertically. The story photos lie on the
+              banner's box and fade in over it. */}
           <RevealChild
             y={24}
             duration={SEC.revealFast}
             className="flex items-center justify-end bg-surface p-fig-24 xl:min-w-0 xl:flex-1 xl:py-[28.8px] xl:pl-[28.8px] xl:pr-[29.5px]"
           >
-            <Banner enabled={enabled} />
+            <div id="working-life-panel" className="relative w-full">
+              <div
+                className={`transition-opacity duration-300 motion-reduce:transition-none ${
+                  active === 0 ? 'opacity-100' : 'opacity-0'
+                }`}
+                aria-hidden={active !== 0 || undefined}
+              >
+                <Banner enabled={enabled} />
+              </div>
+              {NEWS.map((n, index) =>
+                n.photo ? <PhotoLayer key={n.title} photo={n.photo} shown={index === active} /> : null,
+              )}
+            </div>
           </RevealChild>
         </Reveal>
       </Container>

@@ -17,7 +17,7 @@ const R2 = R2_STAGING;
 // Cache-busting version. The R2 public dev URL sends no Cache-Control header, so
 // browsers cache assets heuristically and serve stale copies after a re-upload.
 // Bump ASSET_VERSION whenever you replace an asset in the bucket to force a refetch.
-const ASSET_VERSION = '22';
+const ASSET_VERSION = '23';
 const a = (path: string) => `${R2}${path}?v=${ASSET_VERSION}`;
 
 /** One `srcset` candidate: a URL and the intrinsic width it was encoded at. */
@@ -72,6 +72,12 @@ const storyTile = (dir: string, name: string, w480: number, w922: number, alt: s
     { url: a(`/about-page/diy-story/${dir}/${name}-h922.webp`), w: w922 },
   ];
   return { url: sources[1].url, sources, w: w922, h: 922, alt };
+};
+
+/** A Round 1 column tile: Figma's 272x459 crop, at 1x and 2x. */
+const roundTile = (name: string, alt: string): PhotoTile => {
+  const sources = [272, 544].map((w) => ({ url: a(`/about-page/diy-story/round-1-cols/${name}-w${w}.webp`), w }));
+  return { url: sources[1].url, sources, w: 272, h: 459, alt };
 };
 
 export const ASSETS = {
@@ -184,10 +190,10 @@ export const ASSETS = {
     // The Our Values marks are inline in components/about/ValueMarks.tsx. Each
     // one is a flat vector under 2 kB, so a request per mark costs more than it
     // saves.
-    // DIY Jam. The source is 1024x683 (3:2). The box takes the same ratio, so
-    // the whole photo shows (user, 2026-09-24). It renders at 1.20x at 1440,
-    // short of 2x, and the original is on the team's list.
-    diyJam: a('/about-page/diy-jam.webp'),
+    // DIY Jam. The user's file (2026-09-30) is 856x711, the Figma box of
+    // 3133:4525 at 1x. The box takes the same ratio, so the whole photo shows.
+    // It is 1x only, so it upscales where the box is wider than 856px.
+    diyJam: a('/about-page/diy-jam-856.webp'),
     /**
      * Our Team portraits, from Figma 3214:4405 and 3214:4430 (2026-09-24).
      * Each source is a cut-out with a soft alpha edge. The bake puts it on its
@@ -224,6 +230,21 @@ export const ASSETS = {
       twentieth: a('/about-page/banner/twentieth.svg'),
     },
     /**
+     * The Our Working Life story photos (Figma 4047:8972, 4047:8973, 4047:8986).
+     * Each file is baked at the 836:542 photo box, which is the banner's ratio.
+     * Virtual Race and Offy Friday are Figma's cover crops. The Real Secret has
+     * no object-fit in Figma, so Figma stretches its 3:2 file 1.03x into the box,
+     * and the bake does the same. Each icon is a flat #F7F7F7 mark.
+     */
+    workingLife: {
+      virtualRace: [960, 1920].map((w) => ({ url: a(`/about-page/working-life/virtual-race-${w}.webp`), w })),
+      offyFriday: [960, 1672].map((w) => ({ url: a(`/about-page/working-life/offy-friday-${w}.webp`), w })),
+      realSecret: [960, 1024].map((w) => ({ url: a(`/about-page/working-life/real-secret-${w}.webp`), w })),
+      linkedin: a('/about-page/working-life/linkedin.svg'),
+      facebook: a('/about-page/working-life/facebook.svg'),
+      youtube: a('/about-page/working-life/youtube.svg'),
+    },
+    /**
      * The DIY Jam story page (Figma 3830:8872). Source folder:
      * assets-src/about-page/diy-story.
      *  - `top`: the whole photo at its own 1024x683 (3:2), the only size the
@@ -231,9 +252,10 @@ export const ASSETS = {
      *    the team's list.
      *  - `sparks`: Figma's crop (1117:593) of a 4096px frame, baked in.
      *  - `finale`: the Grand Finale poster, 16:9 into a 16:9 box.
-     *  - `round1`, `celebrating`: the two marquee rows, in the frames' order
-     *    (3842:15308, 3842:15420). Three Round 1 tiles crop their frame, and
-     *    each crop is baked into the file.
+     *  - `round1`: the two vertical columns of Figma 4047:9480 (2026-09-30), in
+     *    the frame's top-to-bottom order. Each tile is Figma's crop of a 4096px
+     *    3:2 frame into a 272x459 box, baked in at 1x and 2x.
+     *  - `celebrating`: the marquee row, in the frame's order (3842:15420).
      */
     diyStory: {
       top: a('/about-page/diy-story/top-1024.webp'),
@@ -245,22 +267,26 @@ export const ASSETS = {
         { url: a('/about-page/diy-story/finale-1117.webp'), w: 1117 },
         { url: a('/about-page/diy-story/finale-2234.webp'), w: 2234 },
       ],
-      round1: [
-        storyTile('round-1', 'bi8a6049', 720, 1383, 'A team sets up its laptops at the presenters’ table.'),
-        storyTile('round-1', 'bi8a6063', 720, 1383, 'The audience listens to a Round 1 pitch.'),
-        storyTile('round-1', 'bi8a5974', 574, 1103, 'A judge asks a question at the judges’ table.'),
-        storyTile('round-1', 'bi8a5842', 720, 1383, 'A presenter pitches a productivity tool on stage.'),
-        storyTile('round-1', 'bi8a5805', 556, 1068, 'A presenter explains the timesheet problem beside her slides.'),
-        storyTile('round-1', 'bi8a5713', 720, 1383, 'A presenter shows her team’s challenge to the room.'),
-        storyTile('round-1', 'bi8a5671', 720, 1383, 'A presenter demonstrates a chatbot for business.'),
-        storyTile('round-1', 'bi8a5767', 520, 1000, 'Two participants ask a question from the floor.'),
-        storyTile('round-1', 'bi8a5872', 720, 1383, 'A presenter pitches a translation tool for the marketing team.'),
-        storyTile('round-1', 'bi8a6037', 720, 1383, 'A presenter explains the context of his project.'),
-        storyTile('round-1', 'bi8a6080', 720, 1383, 'A presenter takes the room through the pain points.'),
-        storyTile('round-1', 'bi8a5577', 720, 1383, 'Two hosts open Round 1 on stage.'),
-        storyTile('round-1', 'bi8a5549', 720, 1383, 'Coffee and tea for the break.'),
-        storyTile('round-1', 'bi8a5545', 720, 1383, 'Fruit trays for the break.'),
-      ],
+      round1: {
+        left: [
+          roundTile('bi8a6049', 'A team sets up its laptops at the presenters’ table.'),
+          roundTile('bi8a6037', 'A presenter explains the context of his project.'),
+          roundTile('bi8a6080', 'A presenter takes the room through the pain points.'),
+          roundTile('bi8a5872', 'A presenter pitches a translation tool for the marketing team.'),
+          roundTile('bi8a5805', 'A presenter explains the timesheet problem beside her slides.'),
+          roundTile('bi8a5713', 'A presenter shows her team’s challenge to the room.'),
+          roundTile('bi8a5549', 'Coffee and tea for the break.'),
+        ],
+        right: [
+          roundTile('bi8a6063', 'The audience listens to a Round 1 pitch.'),
+          roundTile('bi8a5671', 'A presenter demonstrates a chatbot for business.'),
+          roundTile('bi8a5842', 'A presenter pitches a productivity tool on stage.'),
+          roundTile('bi8a5577', 'Two hosts open Round 1 on stage.'),
+          roundTile('bi8a5767', 'Two participants ask a question from the floor.'),
+          roundTile('bi8a5974', 'A judge asks a question at the judges’ table.'),
+          roundTile('bi8a5545', 'Fruit trays for the break.'),
+        ],
+      },
       celebrating: [
         storyTile('celebrating', 'nyp128', 853, 1639, 'A winning team holds its certificate and trophy on stage.'),
         storyTile('celebrating', 'nyp130', 853, 1639, 'The Second Prize winners on stage.'),

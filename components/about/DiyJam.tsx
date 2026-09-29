@@ -16,18 +16,14 @@ import { EASE, MOTION, SEC, SPRING, STAGGER, useMotionEnabled } from '../../lib/
  * photograph (856 wide). The two sit on the artboard's 40px gutter and fill the
  * 1392 column exactly.
  *
- * **The whole photo shows, at its own 3:2 (user, 2026-09-24).** Figma 3133:4525
- * squeezes the 1024x683 file 1.25x into an 856x711 box. The picture box takes
- * the file's own ratio instead, so nothing stretches, crops or shows a band.
- * The row is 611 tall at 1536 (the artboard draws 711 at 1440).
+ * **The whole photo shows, at its own ratio.** On 2026-09-30 the user sent a
+ * new file at 856x711, the size of the Figma box (3133:4525). So the picture box
+ * is 856:711, as the artboard draws it, and nothing stretches or crops.
  *
  * The card and the picture share one row height, and the picture sets it. The
  * card pins its buttons to its foot (`justify-between`), and the gap above them
- * can shrink to 24. Measured 2026-09-24: at 1440 the copy wraps to 5 lines and
- * the card needs 586px beside a 571px picture, so the gap would be 9px. At 1520
- * the copy takes 4 lines and 79px of gap is left, and at 1536 it is 85px. So the
- * row starts at 2xl (1536). Below that the section stacks, card first, as it did
- * below xl before.
+ * can shrink to 24. The row starts at 2xl (1536), a user ruling of 2026-09-24
+ * for the old 3:2 file. Below that the section stacks, card first.
  */
 
 /** The artboard's split of the 1392 column: a 496 card beside an 856 picture. */
@@ -117,7 +113,7 @@ const DiyJam: React.FC = () => {
         <RevealChild
           y={24}
           duration={SEC.revealFast}
-          className="aspect-[1024/683] w-full self-start overflow-hidden rounded-fig-m 2xl:min-w-0 2xl:flex-1"
+          className="aspect-[856/711] w-full self-start overflow-hidden rounded-fig-m 2xl:min-w-0 2xl:flex-1"
         >
           <img
             src={ASSETS.aboutPage.diyJam}

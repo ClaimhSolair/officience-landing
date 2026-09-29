@@ -22,6 +22,10 @@ import React, { useEffect, useRef, useState } from 'react';
  * whose height the caller sets. It has no reduced-motion fallback of its own:
  * the caller shows a fixed list instead.
  *
+ * `reverse` runs the loop the other way (right, or down). It is an inline
+ * style, because the `?motion=on` rule in index.html sets the animation
+ * shorthand, and that shorthand resets a direction that a class sets.
+ *
  * `renderItem` gets `hidden` for the second copy of the set. The caller must
  * hide that copy from assistive technology and give it no alt text.
  */
@@ -41,6 +45,8 @@ interface MarqueeProps<T> {
   className?: string;
   /** Classes for the track, e.g. `items-center`. */
   trackClassName?: string;
+  /** Run the loop the other way: right, or down. */
+  reverse?: boolean;
 }
 
 function Marquee<T>({
@@ -53,6 +59,7 @@ function Marquee<T>({
   gap,
   className = '',
   trackClassName = '',
+  reverse = false,
 }: MarqueeProps<T>) {
   const rowRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLUListElement>(null);
@@ -110,6 +117,7 @@ function Marquee<T>({
           gap,
           ...(vertical ? { paddingBottom: gap } : { paddingRight: gap }),
           ...(duration ? { animationDuration: `${duration.toFixed(2)}s` } : {}),
+          ...(reverse ? { animationDirection: 'reverse' as const } : {}),
         }}
       >
         {items.map((item, i) => (

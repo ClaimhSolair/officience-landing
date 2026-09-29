@@ -1,7 +1,9 @@
 import React from 'react';
 import { ASSETS, srcSetOf } from '../assets';
+import type { PhotoTile } from '../assets';
 import Container from '../components/ui/Container';
 import Reveal, { RevealChild } from '../components/ui/Reveal';
+import Marquee from '../components/ui/Marquee';
 import PhotoMarquee from '../components/ui/PhotoMarquee';
 import { SEC, STAGGER } from '../lib/motion';
 import { usePageView } from '../lib/pageMeta';
@@ -18,9 +20,10 @@ import { usePageView } from '../lib/pageMeta';
  *  - A top block in the content column: two chips, the headline, and the top
  *    photo. The photo shows whole, at its own 3:2 (user, 2026-09-24): Figma
  *    stretches it 1.14x into a 1392x817 box.
- *  - Five text blocks in a centred 1117px column, 64px apart. Three carry a
- *    photo and two carry a marquee row, 40px below the copy. The marquee rows
- *    bleed to the screen edges.
+ *  - Five text blocks in a centred 1117px column, 64px apart. Two carry a
+ *    photo and one carries a marquee row, 40px below the copy. The marquee row
+ *    bleeds to the screen edges. Round 1 (Figma 4047:9480, 2026-09-30) puts two
+ *    vertical photo columns beside its text.
  *  - 120px of space above the footer.
  * The artboard puts 55px, not 64, between the top block and the first text
  * block. It is the only gap that differs, so the build uses 64 (flagged).
@@ -44,6 +47,40 @@ const StoryText: React.FC<{ title: string; children: React.ReactNode }> = ({ tit
       {children}
     </RevealChild>
   </Reveal>
+);
+
+/**
+ * One Round 1 photo column. The first column moves up and the second moves
+ * down, at the speed of the marquee rows. Each tile is a 272:459 box that fills
+ * the column width. The file carries Figma's crop, so `object-cover` has no
+ * effect. With reduced motion the loop stops and the column scrolls, so every
+ * photo stays reachable.
+ */
+const PhotoColumn: React.FC<{ tiles: PhotoTile[]; label: string; reverse?: boolean }> = ({ tiles, label, reverse }) => (
+  <Marquee
+    items={tiles}
+    itemKey={(t) => t.url}
+    renderItem={(t, _i, hidden) => (
+      <li className="w-full shrink-0" style={{ aspectRatio: `${t.w} / ${t.h}` }} aria-hidden={hidden || undefined}>
+        <img
+          src={t.url}
+          srcSet={srcSetOf(t.sources)}
+          sizes="(min-width: 1024px) 272px, 50vw"
+          alt={hidden ? '' : t.alt}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+      </li>
+    )}
+    label={label}
+    direction="y"
+    speed={60}
+    gap={12}
+    reverse={reverse}
+    className="h-full min-h-0 motion-reduce:overflow-y-auto"
+  />
 );
 
 const PROJECTS: { name: string; text: string }[] = [
@@ -121,21 +158,26 @@ const DiyJamStoryPage: React.FC = () => {
           </div>
         </Container>
 
-        <div className="flex flex-col gap-fig-24 lg:gap-fig-40">
-          <Container>
-            <div className={TEXT_COLUMN}>
-              <StoryText title="Round 1: Energy & Brainstorming in Cần Thơ">
-                <p className={COPY}>
-                  Our journey kicked off in the vibrant city of Cần Thơ! Against the backdrop of the Delta’s rich
-                  culture, the teams dove headfirst into intensive collaboration—refining their initial concepts,
-                  testing early prototypes, and building serious momentum. It was a high-energy mix of sharp
-                  strategic thinking, teamwork, and unstoppable creative drive.
-                </p>
-              </StoryText>
-            </div>
-          </Container>
-          <PhotoMarquee tiles={S.round1} label="Photos from Round 1 in Cần Thơ" />
-        </div>
+        {/* Round 1 (Figma 4047:9480): the text beside a 556x727 window with
+            two photo columns that loop in opposite directions. The artboard's
+            520 : 40 : 556 split of the 1116 column holds from lg. Below lg, the
+            window goes under the text at full width. */}
+        <Container>
+          <div className={`${TEXT_COLUMN} grid grid-cols-1 items-center gap-fig-24 lg:grid-cols-[520fr_556fr] lg:gap-fig-40`}>
+            <StoryText title="Round 1: Energy & Brainstorming in Cần Thơ">
+              <p className={COPY}>
+                Our journey kicked off in the vibrant city of Cần Thơ! Against the backdrop of the Delta’s rich
+                culture, the teams dove headfirst into intensive collaboration—refining their initial concepts,
+                testing early prototypes, and building serious momentum. It was a high-energy mix of sharp
+                strategic thinking, teamwork, and unstoppable creative drive.
+              </p>
+            </StoryText>
+            <Reveal y={24} className="grid aspect-[556/727] w-full grid-cols-2 grid-rows-1 gap-[12px] overflow-hidden">
+              <PhotoColumn tiles={S.round1.left} label="Photos from Round 1 in Cần Thơ, first column" />
+              <PhotoColumn tiles={S.round1.right} label="Photos from Round 1 in Cần Thơ, second column" reverse />
+            </Reveal>
+          </div>
+        </Container>
 
         <Container>
           <div className={TEXT_COLUMN}>

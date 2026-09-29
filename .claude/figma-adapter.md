@@ -357,6 +357,12 @@ of decision, not by section.
       the full column width at 3:2 (928px tall at 1440). Do not bring the row
       back below 2xl.
     - "See the story" now opens the story page (ruling 18i).
+    - **New photo, 2026-09-30.** The user sent an 856x711 file, the Figma box
+      at 1x. The picture box is now `aspect-[856/711]`, as drawn, and the whole
+      file shows (distortion 1.000 at 390/1440/1536/1920). The row still starts
+      at 2xl, by the ruling above. Measured: 917x761 beside a 761 card at 1536,
+      and 1109x921 at 1920. Stacked at 1440, the picture is 1392x1156. The file
+      is 1x, so it upscales 1.07x at 1536 and 1.63x stacked at 1440.
 18f. **Our Team's seven cards are drawn inconsistently and are NORMALISED.**
     `3133:4583` — the frame is named "Our Values" but its badge says "Our Team",
     and the badge is right. A 4x2 grid of 318px cards on a 40px gutter with 100
@@ -411,6 +417,20 @@ of decision, not by section.
       64; the build uses 64. The Sparks photo has a 5.049px radius, built as 5.
     - Figma draws no 390 frame. Below lg: the home-page type steps, full-width
       images at their ratios, 240px tiles, 40px gaps.
+    - **Round 1 changes its layout (user, 2026-09-30, Figma 4047:9480 and
+      4047:9479).** The text (520) sits beside a 556x727 window, 40px apart, in
+      the 1116 column, centred on the window. The window holds two 272px
+      columns, 12px apart, of 7 photos each. The first column moves up and the
+      second moves down, at 60 px/s (55s at 1440). `Marquee` gets a `reverse`
+      prop for this. It is an inline style, because the `?motion=on` shorthand
+      resets a class direction.
+    - Each tile is Figma's crop of a 4096x2731 frame into 272x459, baked at 1x
+      and 2x (`diy-story/round-1-cols/`). Figma draws some tiles 460 or 461
+      tall. The bake keeps Figma's centre and uses one 272:459 box. The old
+      3:2 row files are removed.
+    - The 520:556 split holds from lg (a 483x632 window at 1024). Below lg the
+      window goes under the text at full width, at 556:727. With reduced
+      motion the loop stops and each column scrolls.
 18g. **Our Working Life's marquee needs NO assets of its own.**
     `3133:4640`. A news list (403) beside a white panel (987.6) holding the
     anniversary banner, then two photo rows.
@@ -433,6 +453,26 @@ of decision, not by section.
     - Only `animate-marquee` survives in the config — cleanup removed the
       reverse keyframe — so the second row uses `animation-direction: reverse`
       rather than restoring one.
+    - **The stories select the panel picture (user, 2026-09-30).** Hover frames
+      4047:8972 (Virtual Race), 4047:8973 (Offy Friday) and 4047:8986 (The Real
+      Secret). Hover, focus or a click selects a story. The white ground moves to
+      that story, and the panel shows its photo. The selection stays when the
+      pointer leaves, so a tap does the same thing. The first story shows the
+      banner. Each title is a `button` (`aria-pressed`) whose hit area covers
+      the story.
+    - The hover frames draw a 941x631 panel with the photo 836x542 at 52/45
+      insets, against the default frame's 987.6 panel. The photo has the
+      banner's ratio (1.5424 against 1.5427), so **the photo takes the banner's
+      box and the panel keeps its size**. A panel that changed size on hover
+      would move the layout. Normalised and flagged.
+    - Over each photo: a 40% Black/950 dim and a #F7F7F7 social mark (LinkedIn,
+      Facebook, a play mark) 22px in from the lower right, scaled with the box.
+      **The marks are not links**, because no post URL exists. The LinkedIn
+      group is drawn twice in Figma, one on top of the other. It is drawn once.
+    - Virtual Race (3840x2160) and Offy Friday (1672x1254) are cover crops,
+      baked at the box ratio. The Real Secret has no object-fit, so Figma
+      stretches its 1024x683 file 1.03x wide. The bake does the same (flagged).
+      It is 1024px wide only, so it upscales above about 1400.
 18h. **`Reveal`'s `amount` is a fraction of the CONTAINER, not of the screen.**
     Found on the About Us page's Our Team grid, 2026-09-08. Stacked into one
     column that list is about 3,900px tall, so the default `amount: 0.2` asked
