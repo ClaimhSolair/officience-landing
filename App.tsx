@@ -33,6 +33,9 @@ const DiyJamStoryPage = React.lazy(() => import('./pages/DiyJamStoryPage'));
 // from the bucket, so the chunk holds only the copy.
 const ServicePage = React.lazy(() => import('./pages/ServicePage'));
 
+// The Services hub, which points to the seven service pages.
+const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
+
 export interface LayoutContext {
   openSurvey: (branch?: SurveyBranch) => void;
   /** False only while the once-a-day splash is still covering the page. */
@@ -129,6 +132,7 @@ const App = () => (
           <Route index element={<HomePage />} />
           <Route path={ROUTES.about} element={<AboutPage />} />
           <Route path={ROUTES.diyJam} element={<DiyJamStoryPage />} />
+          <Route path={ROUTES.services} element={<ServicesPage />} />
           <Route path={`${ROUTES.services}/:slug`} element={<ServicePage />} />
           <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
           <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />

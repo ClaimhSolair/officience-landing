@@ -1124,3 +1124,25 @@ These pictures are live layers and live text in Figma. They look soft on high-de
   - The surnames use mixed capitals.
 - **People and AI:** the middle team card hides a leftover "Tuan Ngo" plate, copied from Software. It is not built.
 
+### Phase 3 — the Services hub (2026-09-29)
+`pages/ServicesPage.tsx` at `/services`: the hero, `hub/HubServices`, `hub/TailorMade`, `hub/OurRoots`, and the
+home `Contact` with the hub blurb (3257:2599) and no offices.
+
+19r. Build: **the hub list is its own component, not a `Capabilities` variant.** It draws a 75px heading, no header
+    button, 16px lists, a 349px rail and 253px buttons. The home page is unchanged, apart from its links.
+19s. **The hub hero** shows the whole photo (1646x956), with the drawn 40% black scrim in CSS. The headline box is 1189
+    wide and centred, so it starts at x126 at 1440 (at x366 at 1920). The two lines are Figma's own.
+19t. **The Tailor-made marks** are inline SVGs with Figma's paths, placed in container units of the 684px card. The
+    strong set is a second layer that cross-fades on hover (`hover: hover` only). The two clip masks of card 3 are
+    full-bounds rectangles, so they are dropped. A card is at least 373/684 of its width tall and grows with its copy.
+    At 1024 and 1280 the second row is 348px tall, because the five-cause list needs it.
+19u. **Links.** The menu "Services", the footer "Services" and the home "View All Brochure" go to `/services`. All the
+    `EXTERNAL.brochure*` URLs are removed, because nothing uses them. On `/services` the header's "Contact Us" scrolls
+    to the hub's own contact band.
+19v. **Slips shipped as drawn (hub):**
+    - "Since 20 years" (a French construction).
+    - "the faster tech hub" (not "fastest").
+    - The hub row "AI Platform & Solutions" names the "Trusted AI Platform for Insurance" page.
+    - The hidden 5th Roots logo slot is not built.
+    - The contact band keeps the home layout (the text stacks above the panel below 2xl, ruling 2026-09-24), where the
+      hub frame draws them side by side at 1440.

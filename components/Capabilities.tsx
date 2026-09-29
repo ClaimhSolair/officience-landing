@@ -6,7 +6,7 @@ import Reveal, { RevealChild } from './ui/Reveal';
 import Button from './ui/Button';
 import SectionBadge from './ui/SectionBadge';
 import { MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
-import { EXTERNAL, serviceHref } from './navigation';
+import { ROUTES, serviceHref } from './navigation';
 
 /**
  * Figma 3137:1931 (1920) and 3187:4345 (390).
@@ -27,9 +27,8 @@ interface Service {
   /** The single line under the name. */
   promise: string;
   offerings: string[];
-  brochure: string;
-  /** The service's own page on this site. When set, the button goes there, not to the brochure. */
-  to?: string;
+  /** The service's own page on this site (the Services pages, 2026-09-29). */
+  to: string;
 }
 
 /**
@@ -43,7 +42,6 @@ const SERVICES: Service[] = [
     title: 'Design & Digital Experience',
     promise: 'Design the look and experience of your brand and digital products.',
     offerings: ['Product design', 'Branding & visual identity', 'UX/UI design', 'Web design'],
-    brochure: EXTERNAL.brochureCreativeTribe,
     to: serviceHref('design-digital'),
   },
   {
@@ -56,7 +54,6 @@ const SERVICES: Service[] = [
       'Mobile apps',
       'System integrations',
     ],
-    brochure: EXTERNAL.brochureItCraft,
     to: serviceHref('software-web-development'),
   },
   {
@@ -68,7 +65,6 @@ const SERVICES: Service[] = [
       'Automation solutions',
       'AI & Machine Learning',
     ],
-    brochure: EXTERNAL.brochureAnalytics,
     to: serviceHref('business-intelligence-analytics'),
   },
   {
@@ -80,7 +76,6 @@ const SERVICES: Service[] = [
       'CRM management',
       'Process outsourcing',
     ],
-    brochure: EXTERNAL.brochureCrunch,
     to: serviceHref('data-engineering-processing'),
   },
 ];
@@ -213,7 +208,7 @@ const Capabilities: React.FC = () => {
             className="flex w-full flex-col items-center lg:w-auto lg:items-end"
           >
           <Button
-            href={EXTERNAL.brochureIndex}
+            to={ROUTES.services}
             size="lg"
             radius="none"
             className="w-[336px] max-w-full self-center shadow-fig-xs lg:w-auto lg:self-auto lg:gap-fig-14 lg:text-btn-lg"
@@ -310,7 +305,7 @@ const Capabilities: React.FC = () => {
                 </ul>
 
                 <Button
-                  {...(service.to ? { to: service.to } : { href: service.brochure })}
+                  to={service.to}
                   variant="secondary"
                   size="lg"
                   className="w-full shadow-fig-xs lg:w-[350px] lg:text-btn-lg"

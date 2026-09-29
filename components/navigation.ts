@@ -80,22 +80,11 @@ export const SERVICE_SECTION_IDS = [
   'our-team',
 ] as const;
 
-const BROCHURE_URL = 'https://demo.officience.com/brochure';
-
 export const EXTERNAL = {
   career: 'https://www.linkedin.com/company/officience/jobs/',
   linkedin: 'https://www.linkedin.com/company/officience/',
   /** Where the footer's "About us" has always pointed. */
   about: 'https://demo.officience.com/',
-  /** The catch-all brochure index behind "View All Brochure". */
-  brochureIndex: BROCHURE_URL,
-  // Named after the brochure slug, not the menu label — the menu calls the
-  // analytics unit "Data" and the data-engineering unit "Crunch", which is the
-  // opposite pairing to what the slugs suggest.
-  brochureCreativeTribe: `${BROCHURE_URL}/creative-tribe`,
-  brochureItCraft: `${BROCHURE_URL}/it-craft`,
-  brochureAnalytics: `${BROCHURE_URL}/analytics`,
-  brochureCrunch: `${BROCHURE_URL}/crunch`,
 } as const;
 
 export type NavTarget =
@@ -127,7 +116,7 @@ export interface NavItem {
 export const MENU: NavItem[] = [
   {
     label: 'Services',
-    target: { kind: 'section', id: 'capabilities' },
+    target: { kind: 'route', to: ROUTES.services },
     children: [
       {
         label: 'Design',
@@ -212,7 +201,7 @@ export const VIEW_ALL_WORK: NavItem = {
 /** Footer "Company" column. */
 export const FOOTER_COMPANY: NavItem[] = [
   { label: 'About us', target: { kind: 'route', to: ROUTES.about } },
-  { label: 'Services', target: { kind: 'section', id: 'capabilities' } },
+  { label: 'Services', target: { kind: 'route', to: ROUTES.services } },
   { label: 'Work', target: { kind: 'section', id: 'proven-results' } },
   { label: 'Career', target: { kind: 'external', href: EXTERNAL.career } },
 ];
@@ -260,7 +249,10 @@ export const useGoToSection = () => {
   const { pathname } = useLocation();
 
   return (id: SectionId) => {
-    if (pathname === ROUTES.home) scrollToSection(id);
+    // The Services hub has its own contact band (Figma 3257:2582), so its
+    // "Contact Us" stays on the page.
+    const onPage = pathname === ROUTES.home || (pathname === ROUTES.services && id === 'contact');
+    if (onPage) scrollToSection(id);
     else navigate(sectionHref(id));
   };
 };
