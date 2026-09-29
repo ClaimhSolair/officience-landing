@@ -135,7 +135,15 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({
                 {pill}
               </span>
             )}
-            <h1 id={titleId} className="whitespace-pre-line font-sans text-h1 font-bold text-white lg:text-display-md lg:font-bold xl:text-display-xl" style={{ maxWidth: titleWidth }}>
+            {/* From lg the box width is in em, at the drawn width for Display-xl
+                (86px). At lg the Display-md title then keeps the artboard's line
+                breaks. With the px box, BI broke as "Business Intelligence /
+                & Analytics" at 1024 and covered a mascot's face. */}
+            <h1
+              id={titleId}
+              className="max-w-[var(--title-px)] whitespace-pre-line font-sans text-h1 font-bold text-white lg:max-w-[var(--title-em)] lg:text-display-md lg:font-bold xl:text-display-xl"
+              style={{ '--title-px': `${titleWidth}px`, '--title-em': `${titleWidth / 86}em` } as React.CSSProperties}
+            >
               {title}
             </h1>
             {subtitle && (

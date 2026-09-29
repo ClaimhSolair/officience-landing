@@ -1110,6 +1110,7 @@ These pictures are live layers and live text in Figma. They look soft on high-de
   - "Double" and "key QC" are two chips.
   - The quote line "Vendor Manager:" has a trailing colon, and it sits in the company slot.
   - The "Ads scraping / collection" card shows the FV Hospital photo (the same file as Software).
+  - The team stat line says "Certified By Documation" (sic, 3716:12188). It ships as drawn.
 - **IT Ops:**
   - Selected Work repeats the three Crunch cards.
   - "Tuan Nho" on the visible plate, where the hidden copy says "Tuan Ngo".
@@ -1146,3 +1147,21 @@ home `Contact` with the hub blurb (3257:2599) and no offices.
     - The hidden 5th Roots logo slot is not built.
     - The contact band keeps the home layout (the text stacks above the panel below 2xl, ruling 2026-09-24), where the
       hub frame draws them side by side at 1440.
+
+**Visual pass (2026-09-30, Chrome, iframe probe at 390 / 1024 / 1280 / 1440).** Four fixes:
+
+19w. **A team statement aligns at the top.** D&D (3494:4864) draws the "Meet the Team" badge level with the first line
+    of the statement. A title and its stat line still align at the bottom.
+19x. **The swipe rail has `overflow-y-hidden`, and its cards start at any visible pixel.** Below lg, a card past the
+    right edge waited for its entrance at y 28px. That offset gave the rail an 11px vertical scrollbar (`menu-scroll`
+    shows scrollbars). With `amount: 0.3` the 78px edge of the next card also stayed at opacity 0, so the rail showed
+    no sign that it scrolls. Now the edge shows, and each card enters when it comes into view.
+19y. **From lg the hero title box is in em (`titleWidth / 86`).** At lg the Display-md title then keeps the artboard's
+    line breaks. With the px box, BI broke as "Business Intelligence / & Analytics" at 1024 and covered a mascot's
+    face. All 8 titles now have the same line count at 1024 and 1440. The smallest gap under the back link is 49px
+    (BI, Crunch at 1024).
+19z. **Four people take four columns only from xl** (the About rule). At 1024 a card was 203px wide, and the name plate
+    covered most of the face. At lg the AI team takes two columns.
+    - **Open, for the user:** at 1280 (268px cards) and 1440 (308px cards), "Dang Chuan NGUYEN" and "Guillaume
+      SARKOZY" wrap to two lines at H2, and the taller plate covers the chin. The names fit on one line at H2 only
+      from about 1800px. Figma draws three 428px cards with the fourth off the frame, so it does not show this case.

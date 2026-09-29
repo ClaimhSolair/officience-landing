@@ -160,13 +160,16 @@ const SelectedWork: React.FC<{ cards: WorkCard[]; label: string }> = ({ cards, l
             {/* Pinned, this reserves the scaled row's height, so the scale
                 shrinks the column's layout and not merely its paint. */}
             <div style={pinned ? { height: geom.trackH } : undefined}>
+              {/* The swipe rail scrolls on x only. A card past the right edge
+                  waits for its entrance at y 28px, and without `overflow-y-hidden`
+                  that offset gives the rail a vertical scrollbar. */}
               <motion.div
                 ref={railRef}
                 {...(pinned ? pinnedDrag : {})}
                 className={
                   pinned
                     ? `${RAIL} touch-pan-y select-none will-change-transform ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`
-                    : `${RAIL} menu-scroll snap-x snap-mandatory overflow-x-auto pb-fig-16 scroll-pl-fig-16 lg:scroll-pl-fig-24 3xl:scroll-pl-fig-64`
+                    : `${RAIL} menu-scroll snap-x snap-mandatory overflow-x-auto overflow-y-hidden pb-fig-16 scroll-pl-fig-16 lg:scroll-pl-fig-24 3xl:scroll-pl-fig-64`
                 }
                 style={pinned ? { x: trackX, scale: geom.scale, transformOrigin: '0% 0%' } : undefined}
                 tabIndex={pinned ? undefined : 0}
@@ -182,7 +185,10 @@ const SelectedWork: React.FC<{ cards: WorkCard[]; label: string }> = ({ cards, l
                       className={`${CARD} snap-start`}
                       initial={enabled ? { y: 28, opacity: 0 } : { opacity: 0 }}
                       whileInView={{ y: 0, opacity: 1 }}
-                      viewport={{ once: true, amount: 0.3 }}
+                      // Any visible pixel starts the entrance. The rail shows only
+                      // a narrow edge of the next card (78 of 280px at 390), and
+                      // that edge is the sign that the rail scrolls.
+                      viewport={{ once: true, amount: 'some' }}
                       transition={{
                         y: enabled
                           ? { duration: SEC.revealFast, ease: EASE.reveal, delay: Math.min(index, 3) * STAGGER.base }

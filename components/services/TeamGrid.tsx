@@ -16,7 +16,7 @@ import { LinkedInIcon } from './parts';
  * plate 360px from the top.
  *
  * Three cards share the row. The AI Insurance page has four people, so it takes
- * four columns (user, 2026-09-29). Every card keeps the 428:479 ratio at every
+ * four columns (user, 2026-09-29), from xl. At lg it keeps two. Every card keeps the 428:479 ratio at every
  * width, and the plate stays at the same place in proportion.
  *
  * A LinkedIn icon shows only when the team gives the URL. None exists yet.
@@ -74,10 +74,14 @@ const TeamGrid: React.FC<{ team: ServicePageContent['team'] }> = ({ team }) => {
   return (
     <section id="our-team" className="bg-surface py-fig-64 lg:py-fig-120">
       <Container className="flex flex-col gap-fig-40 lg:gap-fig-100">
+        {/* A title and its stat line align at the bottom. A statement (D&D
+            3494:4864) aligns at the top, level with the badge. */}
         <Reveal
           as="div"
           stagger={STAGGER.base}
-          className="flex flex-col gap-fig-16 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32"
+          className={`flex flex-col gap-fig-16 lg:flex-row lg:justify-between lg:gap-fig-32 ${
+            team.title ? 'lg:items-end' : 'lg:items-start'
+          }`}
         >
           <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
             <RevealChild as="span" y={20} duration={SEC.revealFast}>
@@ -104,7 +108,9 @@ const TeamGrid: React.FC<{ team: ServicePageContent['team'] }> = ({ team }) => {
         <Reveal
           as="ul"
           stagger={STAGGER.loose}
-          className={`grid grid-cols-1 gap-fig-24 md:grid-cols-2 ${four ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} lg:gap-[54px]`}
+          // Four people take four columns only from xl. At 1024 a quarter of the
+          // row is a 203px card, and its name plate covers most of the face.
+          className={`grid grid-cols-1 gap-fig-24 md:grid-cols-2 ${four ? 'xl:grid-cols-4' : 'lg:grid-cols-3'} lg:gap-[54px]`}
         >
           {team.people.map((p) => (
             <Card key={p.name} person={p} />
