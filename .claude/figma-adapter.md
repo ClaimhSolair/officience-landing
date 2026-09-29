@@ -1185,3 +1185,8 @@ home `Contact` with the hub blurb (3257:2599) and no offices.
     Without it, the three-card decks (Software, Crunch, IT Ops) did not pin at 1536x730, 1280x720 or 1920x1080: three
     cards scaled to fit the window height also fit the width. With it, Software travels 478px at 1280x720, 252px at
     1536x730 and about 600px at 1920x1080 (4 x 570 + 3 x 40 = 2400 against the 1792px column). All seven pages have the card.
+19ac. **A four-person team takes a smaller name (user).** This closes the open item of 19z. At H2, "Dang Chuan NGUYEN"
+    needs 307px, and at H4 it needs 217px. The plate gives 200px at 1280, 258px at 1536 and 325px at 1920. So the
+    four cards take 18px/28px (weight 500) from xl, H4 from 2xl and H2 again from 3xl. All four names are on one line at
+    1280, 1366, 1440, 1536 and 1920. The type scale has no 18px style, so this size is an exception. Three-person
+    teams keep H2.

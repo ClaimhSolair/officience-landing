@@ -29,7 +29,19 @@ import { LinkedInIcon } from './parts';
  */
 const PLATE_BOTTOM = `${((478.659 - 450) / 478.659) * 100}%`;
 
-const Card: React.FC<{ person: TeamMember }> = ({ person }) => {
+/**
+ * The name style. Four columns give a 268-332px card at 1280-1536, and at H2
+ * (28px) "Dang Chuan NGUYEN" wraps and the plate covers the chin (user,
+ * 2026-09-30: a smaller name). The name needs 217px at H4, and the plate gives
+ * 200px at 1280. So the four cards take 18px from xl, H4 (20px) from 2xl, and
+ * H2 again at 3xl, where the card is 408px. The type scale has no 18px style.
+ */
+const NAME = {
+  three: 'text-h3 lg:text-h2',
+  four: 'text-h3 lg:text-h2 xl:text-[18px] xl:font-medium xl:leading-[28px] 2xl:text-h4 3xl:text-h2',
+};
+
+const Card: React.FC<{ person: TeamMember; four: boolean }> = ({ person, four }) => {
   const img = person.photo;
   const widest = img.sources[img.sources.length - 1];
   return (
@@ -50,7 +62,7 @@ const Card: React.FC<{ person: TeamMember }> = ({ person }) => {
         style={{ bottom: PLATE_BOTTOM }}
       >
         <div className="flex min-w-0 flex-col text-text-primary">
-          <p className="font-sans text-h3 lg:text-h2">{person.name}</p>
+          <p className={`font-sans ${four ? NAME.four : NAME.three}`}>{person.name}</p>
           <p className="font-body text-body-md font-normal lg:text-body-lg">{person.role}</p>
         </div>
         {person.linkedin && (
@@ -113,7 +125,7 @@ const TeamGrid: React.FC<{ team: ServicePageContent['team'] }> = ({ team }) => {
           className={`grid grid-cols-1 gap-fig-24 md:grid-cols-2 ${four ? 'xl:grid-cols-4' : 'lg:grid-cols-3'} lg:gap-[54px]`}
         >
           {team.people.map((p) => (
-            <Card key={p.name} person={p} />
+            <Card key={p.name} person={p} four={four} />
           ))}
         </Reveal>
       </Container>
