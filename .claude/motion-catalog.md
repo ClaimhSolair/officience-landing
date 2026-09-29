@@ -806,3 +806,8 @@ The team asked for the Services hub and seven service pages. Phase 1 builds the 
 ## Not verified here
 The pane draws no frames, so the scrub feel, the glide and the marquee motion are for the user to check in a foreground
 browser. The vertical quote loop has no page with three quotes until phase 2 (BI).
+
+## v9.1 — Services phase 2 (2026-09-29)
+- All six pages use the phase-1 motion unchanged. Measured at 1440x900: Selected Work pins on every page that has it (3 to 6
+  cards; the AI runway is 2,912px for 6 cards). BI's five quotes loop for 29.53s (1,772px at 60 px/s) in the 548px box.
+  The strips loop at set width / 60 (BI 148.12s, IT Ops 105.21s, Crunch 47.62s). The D&D, People and AI strips fit and stay fixed.

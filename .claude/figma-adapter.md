@@ -1066,3 +1066,61 @@ Software pilot, the other six pages, the hub). Every frame is 1440 only. No page
 - "Saas Platforms" (not "SaaS"). "Dr.Jean Marcel Guillon" has no space after "Dr.".
 - The Mobile Apps picture group is drawn twice, one copy inside the other (3707:9251 holds 3707:9255). One copy is
   built.
+
+### Phase 2 — the other six pages (2026-09-29)
+Each page is one content file in `content/services/`. The bake scripts are `bake-<slug>.cjs` in the scratchpad.
+
+**Template additions (build):**
+19n. **The hero takes the drawn text-box widths per page** (`titleWidth` and `subtitleWidth`). Software is 684/461,
+    D&D 763/566, Crunch and IT Ops 684/566, People 684/466, and AI 850/887.
+19o. **A `\n` in a hero title or a row title is a drawn line break, from lg** (`whitespace-pre-line`). Two titles use
+    it: IT Ops "IT Operations / & Support" and D&D "Branding & / Visual Identity".
+19p. **The hero title is Display-md at lg and Display-xl from xl.** At 1024 a three-line title (BI, Crunch) at 86px
+    needs about 613px of a 600px photo.
+19q. **The team name plate ends at 450 of 478.66 and grows upward.** Linh Ngo's (IT Ops) 142px plate at y311 ends
+    there too. The stat line keeps its drawn spaces (Crunch and BI use double spaces).
+
+**Stretched Figma fills, and how each is baked:**
+- People: the Nga Bui portrait is stretched 0.762x. It is unstretched at the top-left anchor.
+- IT Ops:
+  - The Linh Ngo portrait is stretched 1.675x (squeezed to 60% width). It is baked as a cover centred in its node box,
+    because the unstretch at the anchor cut the face.
+  - The Tuan Nho portrait (1.122x), row-monitor (0.777x), row-continuity (0.940x) and work-cassim (0.969x) are
+    unstretched at the anchor.
+- Crunch: row-support (0.844x) and work-cassim (0.969x) are unstretched at the anchor.
+- D&D: the Branding leaf photo (0.727x), the Van Duong and Tien Ho portraits (0.747x), FINPIVOT (1.028x) and Offy
+  (1.030x) are unstretched at the anchor.
+- AI: the hero has the drawn navy scrim `rgba(5,8,70,0.42)` baked in. The file shows whole (1920x1277), so the AI hero
+  is 958px tall at 1440, where Figma crops it to 839.
+
+**1x assets (from `get_screenshot`, which caps at 1x):** D&D row-uxui (741), row-webdesign (751) and work-ecoeats (571).
+These pictures are live layers and live text in Figma. They look soft on high-density screens.
+
+**Slips shipped as drawn (phase 2):**
+- **D&D:**
+  - The three note-lines are omitted (ruling 19f). Only Web Design keeps its line.
+  - The quote has straight double quotes in the text.
+  - The quote author has no role.
+- **BI:**
+  - "Our A Team".
+  - "See your business clearly - in real time" (a hyphen).
+  - The strip has 25 logos. Logo 3 is identified by a best guess.
+  - The Azure ML wordmark is white, so it does not show on the white strip.
+- **Crunch:**
+  - "Double" and "key QC" are two chips.
+  - The quote line "Vendor Manager:" has a trailing colon, and it sits in the company slot.
+  - The "Ads scraping / collection" card shows the FV Hospital photo (the same file as Software).
+- **IT Ops:**
+  - Selected Work repeats the three Crunch cards.
+  - "Tuan Nho" on the visible plate, where the hidden copy says "Tuan Ngo".
+  - Linh Ngo's role is three roles with no separators.
+  - Cong Chau's role is "ITs".
+- **People:**
+  - "Work habit" is in lower case.
+  - "Soft power nurture caring" has no punctuation.
+- **AI:**
+  - The work tags look like placeholders, and card 4 repeats card 3's tags.
+  - The card 2 title has its ellipsis typed into the text ("Intelligent document proces...").
+  - The surnames use mixed capitals.
+- **People and AI:** the middle team card hides a leftover "Tuan Ngo" plate, copied from Software. It is not built.
+

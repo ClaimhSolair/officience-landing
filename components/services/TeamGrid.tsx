@@ -22,8 +22,12 @@ import { LinkedInIcon } from './parts';
  * A LinkedIn icon shows only when the team gives the URL. None exists yet.
  */
 
-/** The plate's top edge, as a share of the card height (360 of 478.66). */
-const PLATE_TOP = `${(360 / 478.659) * 100}%`;
+/**
+ * The plate's bottom edge, as a share of the card height. Figma ends the plate
+ * at 450 of 478.66 (a 90px plate at 360). A taller plate (Linh Ngo on IT Ops, 142px
+ * at 311) ends at the same place, so the plate grows upward.
+ */
+const PLATE_BOTTOM = `${((478.659 - 450) / 478.659) * 100}%`;
 
 const Card: React.FC<{ person: TeamMember }> = ({ person }) => {
   const img = person.photo;
@@ -43,7 +47,7 @@ const Card: React.FC<{ person: TeamMember }> = ({ person }) => {
       </div>
       <div
         className="absolute inset-x-[5.1%] flex items-center justify-between gap-fig-12 rounded-fig-xs bg-bg-secondary px-fig-20 py-fig-12"
-        style={{ top: PLATE_TOP }}
+        style={{ bottom: PLATE_BOTTOM }}
       >
         <div className="flex min-w-0 flex-col text-text-primary">
           <p className="font-sans text-h3 lg:text-h2">{person.name}</p>
@@ -91,7 +95,7 @@ const TeamGrid: React.FC<{ team: ServicePageContent['team'] }> = ({ team }) => {
             </RevealChild>
           )}
           {team.stat && (
-            <RevealChild as="p" y={20} duration={SEC.revealFast} className="font-body text-body-xl text-subtitle lg:w-[572px] lg:text-subtitle-1">
+            <RevealChild as="p" y={20} duration={SEC.revealFast} className="whitespace-pre-wrap font-body text-body-xl text-subtitle lg:w-[572px] lg:text-subtitle-1">
               {team.stat}
             </RevealChild>
           )}

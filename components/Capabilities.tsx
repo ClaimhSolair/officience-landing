@@ -44,6 +44,7 @@ const SERVICES: Service[] = [
     promise: 'Design the look and experience of your brand and digital products.',
     offerings: ['Product design', 'Branding & visual identity', 'UX/UI design', 'Web design'],
     brochure: EXTERNAL.brochureCreativeTribe,
+    to: serviceHref('design-digital'),
   },
   {
     title: 'Software & Web Development',
@@ -68,6 +69,7 @@ const SERVICES: Service[] = [
       'AI & Machine Learning',
     ],
     brochure: EXTERNAL.brochureAnalytics,
+    to: serviceHref('business-intelligence-analytics'),
   },
   {
     title: 'Data Engineering & Processing',
@@ -79,6 +81,7 @@ const SERVICES: Service[] = [
       'Process outsourcing',
     ],
     brochure: EXTERNAL.brochureCrunch,
+    to: serviceHref('data-engineering-processing'),
   },
 ];
 

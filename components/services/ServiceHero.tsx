@@ -23,6 +23,9 @@ import { ArrowLeftIcon } from './parts';
  * the box is too short for the copy (228px at 390), so the copy sits under the
  * photo on the dark ground.
  *
+ * At lg (1024-1279) the title is Display-md, not Display-xl. A three-line title
+ * (BI, Crunch) at 86px needs about 613px of a 600px photo at 1024.
+ *
  * Only `lg` is the artboard. No page draws a 390 frame or a 1920 frame.
  */
 
@@ -43,15 +46,37 @@ const COPY_VARIANTS_REDUCED = {
 interface ServiceHeroProps {
   image: Picture;
   title: string;
-  subtitle: string;
+  /** The hub draws no subtitle. */
+  subtitle?: string;
   pill?: string;
+  /** The drawn text-box widths at lg. Software draws 684 and 461. */
+  titleWidth?: number;
+  subtitleWidth?: number;
   /** Shows "Back to All Brochure". The hub has no back link. */
   back?: boolean;
+  /** A black scrim over the photo, as an opacity. The hub draws 0.4. */
+  scrim?: number;
+  /**
+   * The hub centres its copy box (1189 of the 1440 artboard, so it starts at
+   * x 126). With this set, the copy box is that width and centred from lg.
+   */
+  centeredWidth?: number;
   /** The id of the h1, for `aria-labelledby`. */
   titleId?: string;
 }
 
-const ServiceHero: React.FC<ServiceHeroProps> = ({ image, title, subtitle, pill, back = true, titleId = 'service-hero-title' }) => {
+const ServiceHero: React.FC<ServiceHeroProps> = ({
+  image,
+  title,
+  subtitle,
+  pill,
+  titleWidth = 684,
+  subtitleWidth = 461,
+  back = true,
+  scrim,
+  centeredWidth,
+  titleId = 'service-hero-title',
+}) => {
   const motionEnabled = useMotionEnabled();
   const variants = motionEnabled && MOTION.serviceHero ? COPY_VARIANTS : COPY_VARIANTS_REDUCED;
   const widest = image.sources[image.sources.length - 1];
@@ -74,6 +99,7 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({ image, title, subtitle, pill,
           decoding="async"
           {...HIGH_PRIORITY}
         />
+        {scrim ? <div aria-hidden="true" className="absolute inset-0 bg-black" style={{ opacity: scrim }} /> : null}
       </div>
 
       {/* From lg a flex column over the photo: the back link at the top, the
@@ -96,7 +122,8 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({ image, title, subtitle, pill,
 
         <Container>
           <motion.div
-            className="flex flex-col gap-fig-16 lg:gap-fig-24"
+            className={`flex flex-col gap-fig-16 lg:gap-fig-24 ${centeredWidth ? 'mx-auto w-full' : ''}`}
+            style={centeredWidth ? { maxWidth: centeredWidth } : undefined}
             variants={variants}
             initial="hidden"
             whileInView="shown"
@@ -108,10 +135,14 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({ image, title, subtitle, pill,
                 {pill}
               </span>
             )}
-            <h1 id={titleId} className="font-sans text-h1 font-bold text-white lg:max-w-[684px] lg:text-display-xl">
+            <h1 id={titleId} className="whitespace-pre-line font-sans text-h1 font-bold text-white lg:text-display-md lg:font-bold xl:text-display-xl" style={{ maxWidth: titleWidth }}>
               {title}
             </h1>
-            <p className="font-body text-body-xl text-white lg:max-w-[461px] lg:text-subtitle-2">{subtitle}</p>
+            {subtitle && (
+              <p className="font-body text-body-xl text-white lg:text-subtitle-2" style={{ maxWidth: subtitleWidth }}>
+                {subtitle}
+              </p>
+            )}
           </motion.div>
         </Container>
       </div>

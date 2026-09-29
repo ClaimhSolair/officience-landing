@@ -32,7 +32,21 @@ const mapsUrl = (address: string) =>
  */
 interface ContactProps {
   onOpenSurvey: (branch: SurveyBranch) => void;
+  /**
+   * The six offices. The Services hub (Figma 3257:2582) draws the band without
+   * them. Default: shown, as on the home page.
+   */
+  showOffices?: boolean;
+  /** The line under the heading. The hub draws its own (3257:2599). */
+  blurb?: React.ReactNode;
 }
+
+const HOME_BLURB = (
+  <>
+    Our global teams across strategic locations are ready to help you navigate your data &amp; tech
+    challenges.
+  </>
+);
 
 /**
  * Six offices, flat. The July build grouped the two Ho Chi Minh addresses under
@@ -112,7 +126,7 @@ const Chevron: React.FC = () => (
   </>
 );
 
-const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
+const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blurb = HOME_BLURB }) => (
   <section id="contact" className="bg-bg-primary">
     <div className="w-full px-fig-16 py-fig-16 lg:px-fig-24 lg:py-fig-120 3xl:px-[74px]">
       <Reveal
@@ -140,8 +154,7 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
             {/* The 390 frame drops the blurb entirely. Capped at the frame's 686px,
                 so it wraps to 2 lines in both layouts. */}
             <p className="hidden font-body text-subtitle lg:mt-fig-16 lg:block lg:max-w-[686px] lg:text-subtitle-1">
-              Our global teams across strategic locations are ready to help you navigate your data
-              &amp; tech challenges.
+              {blurb}
             </p>
           </div>
 
@@ -187,6 +200,7 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
 
         {/* 390 pads this block by 16 and runs one column; 1920 drops the padding
             and lays the six out three-up on a 160px gutter. */}
+        {showOffices && (
         <Reveal
           as="ul"
           stagger={STAGGER.tight}
@@ -218,6 +232,7 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey }) => (
             </RevealChild>
           ))}
         </Reveal>
+        )}
       </Reveal>
     </div>
   </section>

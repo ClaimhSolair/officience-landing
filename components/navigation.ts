@@ -132,7 +132,7 @@ export const MENU: NavItem[] = [
       {
         label: 'Design',
         description: 'Design & Digital Experience',
-        target: { kind: 'external', href: EXTERNAL.brochureCreativeTribe },
+        target: { kind: 'route', to: serviceHref('design-digital') },
       },
       {
         label: 'Tech',
@@ -142,30 +142,27 @@ export const MENU: NavItem[] = [
       {
         label: 'Data',
         description: 'Business Intelligence & Analytics',
-        target: { kind: 'external', href: EXTERNAL.brochureAnalytics },
+        target: { kind: 'route', to: serviceHref('business-intelligence-analytics') },
       },
       {
         label: 'Crunch',
         description: 'Data Engineering & Processing',
-        target: { kind: 'external', href: EXTERNAL.brochureCrunch },
+        target: { kind: 'route', to: serviceHref('data-engineering-processing') },
       },
       {
         label: 'Rizlum',
         description: 'Trusted AI for business',
-        target: { kind: 'section', id: 'capabilities' },
-        unresolved: 'No Rizlum destination exists yet — the team will supply one.',
+        target: { kind: 'route', to: serviceHref('trusted-ai-insurance') },
       },
       {
         label: 'HR',
         description: 'People Operations',
-        target: { kind: 'section', id: 'capabilities' },
-        unresolved: 'No HR destination exists yet — the team will supply one.',
+        target: { kind: 'route', to: serviceHref('people-talent-solutions') },
       },
       {
         label: 'ITS',
         description: 'Offy IT Super',
-        target: { kind: 'section', id: 'capabilities' },
-        unresolved: 'No ITS destination exists yet — the team will supply one.',
+        target: { kind: 'route', to: serviceHref('it-operations-support') },
       },
     ],
   },

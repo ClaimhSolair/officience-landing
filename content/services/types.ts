@@ -21,6 +21,7 @@ export interface Picture {
 }
 
 export interface ServiceRow {
+  /** A `\n` is a line break that Figma draws. It applies from lg. */
   title: string;
   /**
    * The line under the title. Absent where Figma draws a note to the designer
@@ -71,6 +72,12 @@ export interface ServicePageContent {
     subtitle: string;
     /** A chip above the title ("Officience × Rizlum"). */
     pill?: string;
+    /**
+     * The drawn widths of the title and subtitle text boxes at lg, where a page
+     * differs from Software (684 and 461). They set where the lines wrap.
+     */
+    titleWidth?: number;
+    subtitleWidth?: number;
   };
   rows: ServiceRow[];
   tools?: ToolLogo[];

@@ -33,7 +33,7 @@ const Row: React.FC<{ row: ServiceRow }> = ({ row }) => {
     >
       <RevealChild as="div" y={28} className="flex flex-col gap-fig-24 lg:w-[549px] lg:shrink-0 lg:gap-fig-146">
         <div className="flex flex-col gap-fig-12 lg:gap-fig-24">
-          <h3 className="font-sans text-h1 text-text-primary lg:text-display-md">{row.title}</h3>
+          <h3 className="font-sans text-h1 text-text-primary lg:whitespace-pre-line lg:text-display-md">{row.title}</h3>
           {row.tagline && <p className="font-body text-body-xl text-text-default lg:text-subtitle-2">{row.tagline}</p>}
         </div>
         <ul className="flex flex-wrap gap-fig-8 lg:max-w-[518px] lg:gap-fig-12" aria-label={`${row.title}: what it covers`}>
