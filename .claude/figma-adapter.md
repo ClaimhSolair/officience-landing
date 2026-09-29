@@ -1165,3 +1165,21 @@ home `Contact` with the hub blurb (3257:2599) and no offices.
     - **Open, for the user:** at 1280 (268px cards) and 1440 (308px cards), "Dang Chuan NGUYEN" and "Guillaume
       SARKOZY" wrap to two lines at H2, and the taller plate covers the chin. The names fit on one line at H2 only
       from about 1800px. Figma draws three 428px cards with the fourth off the frame, so it does not show this case.
+
+**User review (2026-09-30).**
+
+19aa. **Some team source files are distorted, and Figma's stretch corrects them.** Tuan Ngo's IT Ops file
+    (1024x1024) is 1.13 wider than the Software copy of the same photo (image registration). Figma stretches it into a
+    427x479 box, which narrows it by 1.12. So the `unstretch` rule (use the file's own ratio) undid Figma's correction
+    for Van, Tien (D&D), Tuan (IT Ops) and Nga (People), and they looked narrow. They now follow Figma's geometry. Their
+    heads measure about 1.03 width to height, against 1.04 for the Software Tuan.
+    - Linh Ngo's IT Ops file is from the same 1024x1024 set, but Figma crops it (no stretch), so Figma shows it wide
+      too. The file is narrowed by 1/1.13 (the factor measured on Tuan) before the crop. This is an estimate.
+    - All other portraits already follow Figma at the file's own ratio. Guillaume's file is 0.957, and Figma draws
+      0.956.
+    - `ASSET_VERSION` is 21 for this upload (10 files).
+19ab. **Selected Work ends with a View All card, as Proven Results does (user).** The header keeps only the badge. The
+    blue end card has the star mark and a white "View All Brochure" button to `/services`. Figma draws no such card.
+    Without it, the three-card decks (Software, Crunch, IT Ops) did not pin at 1536x730, 1280x720 or 1920x1080: three
+    cards scaled to fit the window height also fit the width. With it, Software travels 478px at 1280x720, 252px at
+    1536x730 and about 600px at 1920x1080 (4 x 570 + 3 x 40 = 2400 against the 1792px column). All seven pages have the card.

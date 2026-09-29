@@ -8,6 +8,7 @@ import Button from '../ui/Button';
 import Container from '../ui/Container';
 import Reveal, { RevealChild } from '../ui/Reveal';
 import SectionBadge from '../ui/SectionBadge';
+import StarMark from '../ui/StarMark';
 import type { WorkCard } from '../../content/services/types';
 import { ArrowRightIcon, TagChip } from './parts';
 
@@ -15,8 +16,10 @@ import { ArrowRightIcon, TagChip } from './parts';
  * "Selected Work" — Software 3707:5974, and the cards Figma places to the right
  * of each page (3707:6041 and others).
  *
- * The badge and "View All Brochure" sit on one line, and 64px below them a row
- * of 571x800 cards runs past the right edge of the page. Each card is a 550px
+ * Figma puts the badge and "View All Brochure" on one line. Here the badge is
+ * alone, and "View All Brochure" is a blue end card after the work cards, as on
+ * Proven Results (user, 2026-09-30). 64px below the badge a row of 571x800 cards
+ * runs past the right edge of the page. Each card is a 550px
  * picture over a 250px Primary panel with two chips and a Display-sm title,
  * with a 12px radius and Shadow-sm.
  *
@@ -28,9 +31,10 @@ import { ArrowRightIcon, TagChip } from './parts';
  * frame. A drag on the pinned row moves the page scroll. Only the row pins, not
  * the header line.
  *
- * The pin needs a row wider than the column. Three cards fit a 1792px column,
- * so at 1920 a three-card page shows the plain row (`measureTrack` returns
- * null). Below lg, and with reduced motion, the row is a swipe rail with snap.
+ * The pin needs a row wider than the column. Without the end card, three cards
+ * scaled to a 730px-high window fit a 1536px column, and the page did not pin.
+ * With it, every deck has at least four cards and pins at every desktop size.
+ * Below lg, and with reduced motion, the row is a swipe rail with snap.
  *
  * Figma cuts one AI Insurance title with an ellipsis. The title is built in
  * full and clamped to two lines, and the slip is flagged.
@@ -105,6 +109,47 @@ const PinnedCard: React.FC<{
   );
 };
 
+/**
+ * The deck's end card, as Proven Results has one (user, 2026-09-30). Figma
+ * draws no such card: it puts "View All Brochure" in the header line. The card
+ * makes the deck one card wider, so a three-card deck (Software, Crunch, IT Ops)
+ * also overflows the column and pins, at 1280x720 and 1536x730 too.
+ */
+const VIEW_ALL = 'justify-between px-fig-24 py-fig-32 lg:px-fig-40 lg:py-fig-40';
+
+const ViewAllBody: React.FC = () => (
+  <>
+    <StarMark className="h-[56px] w-[56px] rotate-[91deg] lg:h-[100px] lg:w-[100px]" />
+    <Button
+      to={ROUTES.services}
+      variant="secondary"
+      size="lg"
+      onDark
+      className="w-full border-transparent shadow-fig-xs lg:text-btn-lg"
+      icon={<ArrowRightIcon />}
+    >
+      View All Brochure
+    </Button>
+  </>
+);
+
+/** The end card on the pinned row. It enters as the other cards do. */
+const PinnedViewAll: React.FC<{ progress: MotionValue<number>; win: [number, number] | null | undefined }> = ({
+  progress,
+  win,
+}) => {
+  const { cardY } = useCardEntrance(progress, win);
+  return win ? (
+    <motion.article className={`${CARD} ${VIEW_ALL}`} style={{ y: cardY }}>
+      <ViewAllBody />
+    </motion.article>
+  ) : (
+    <motion.article className={`${CARD} ${VIEW_ALL}`}>
+      <ViewAllBody />
+    </motion.article>
+  );
+};
+
 const SelectedWork: React.FC<{ cards: WorkCard[]; label: string }> = ({ cards, label }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const columnRef = useRef<HTMLDivElement>(null);
@@ -127,22 +172,13 @@ const SelectedWork: React.FC<{ cards: WorkCard[]; label: string }> = ({ cards, l
     // section instead of the viewport.
     <section id="selected-work" className="relative overflow-x-clip bg-surface py-fig-64 lg:py-fig-120">
       <Container>
-        <Reveal as="div" stagger={STAGGER.base} className="flex items-center justify-between gap-fig-16">
+        {/* "View All Brochure" is the deck's end card now, so the header keeps
+            only the badge (user, 2026-09-30). */}
+        <Reveal as="div" stagger={STAGGER.base} className="flex items-center">
           <RevealChild as="span" y={20} duration={SEC.revealFast}>
             <SectionBadge as="h2" size="sm">
               Selected Work
             </SectionBadge>
-          </RevealChild>
-          <RevealChild as="span" y={20} duration={SEC.revealFast}>
-            <Button
-              to={ROUTES.services}
-              variant="tertiary"
-              size="lg"
-              className="px-fig-8 lg:px-fig-24 lg:text-btn-lg"
-              icon={<ArrowRightIcon />}
-            >
-              View All Brochure
-            </Button>
           </RevealChild>
         </Reveal>
       </Container>
@@ -203,6 +239,29 @@ const SelectedWork: React.FC<{ cards: WorkCard[]; label: string }> = ({ cards, l
                       <CardBody card={card} />
                     </motion.article>
                   ),
+                )}
+                {pinned ? (
+                  <PinnedViewAll key="p-view-all" progress={progress} win={geom.windows[cards.length]} />
+                ) : (
+                  <motion.article
+                    key="r-view-all"
+                    className={`${CARD} ${VIEW_ALL} snap-start`}
+                    initial={enabled ? { y: 28, opacity: 0 } : { opacity: 0 }}
+                    whileInView={{ y: 0, opacity: 1 }}
+                    viewport={{ once: true, amount: 'some' }}
+                    transition={{
+                      y: enabled
+                        ? { duration: SEC.revealFast, ease: EASE.reveal, delay: Math.min(cards.length, 3) * STAGGER.base }
+                        : { duration: 0 },
+                      opacity: {
+                        duration: SEC.revealFast,
+                        ease: EASE.reveal,
+                        delay: enabled ? Math.min(cards.length, 3) * STAGGER.base : 0,
+                      },
+                    }}
+                  >
+                    <ViewAllBody />
+                  </motion.article>
                 )}
               </motion.div>
             </div>
