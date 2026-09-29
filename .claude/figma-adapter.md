@@ -1173,8 +1173,10 @@ home `Contact` with the hub blurb (3257:2599) and no offices.
     427x479 box, which narrows it by 1.12. So the `unstretch` rule (use the file's own ratio) undid Figma's correction
     for Van, Tien (D&D), Tuan (IT Ops) and Nga (People), and they looked narrow. They now follow Figma's geometry. Their
     heads measure about 1.03 width to height, against 1.04 for the Software Tuan.
-    - Linh Ngo's IT Ops file is from the same 1024x1024 set, but Figma crops it (no stretch), so Figma shows it wide
-      too. The file is narrowed by 1/1.13 (the factor measured on Tuan) before the crop. This is an estimate.
+    - Linh Ngo (IT Ops): Figma stretches the 1024x1024 file into its 277x464.106 box (37:62) at x 76, y 15, a
+      1.6755 squeeze. The first bake used a crop, and the second a 1/1.13 estimate. Both were wrong. The user's
+      277x464 export of the layer matches the stretch (mean difference 1.61 of 255, against 53.88 for the crop). The
+      file now follows the stretch. `ASSET_VERSION` is 22 for this re-upload (2 files).
     - All other portraits already follow Figma at the file's own ratio. Guillaume's file is 0.957, and Figma draws
       0.956.
     - `ASSET_VERSION` is 21 for this upload (10 files).
