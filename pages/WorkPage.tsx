@@ -102,7 +102,12 @@ const WorkPage: React.FC = () => {
               <p className="font-body text-body-xl text-subtitle">No work matches your search.</p>
               <button
                 type="button"
-                onClick={() => update({ category: '', q: '' })}
+                onClick={() => {
+                  update({ category: '', q: '' });
+                  // The button goes away with the empty result, so the focus
+                  // goes to the Search field, where the user typed.
+                  document.getElementById('work-search')?.focus();
+                }}
                 className="font-sans text-btn-md text-text-primary underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Clear filters

@@ -120,9 +120,12 @@ const Footer: React.FC = () => (
             <ul className="flex flex-col gap-[6px] lg:gap-fig-8">
               {FOOTER_COMPANY.map((item) => (
                 <li key={item.label}>
+                  {/* The invisible area makes the tap target 30px high at 390,
+                      where the text is 20px. A row is 24px with a 6px gap, so
+                      two areas touch and do not overlap. */}
                   <NavLink
                     item={item}
-                    className={`font-body text-[12px] leading-[20px] text-pri-50 lg:text-body-xl lg:text-white ${LINK_HOVER}`}
+                    className={`relative inline-block font-body text-[12px] leading-[20px] text-pri-50 before:absolute before:-inset-y-[5px] before:inset-x-0 before:content-[''] lg:text-body-xl lg:text-white ${LINK_HOVER}`}
                   />
                 </li>
               ))}

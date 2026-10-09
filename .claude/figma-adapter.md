@@ -1294,6 +1294,26 @@ Every frame is 1440 only. No frame is drawn at 390 or 1920.
   file is 400x400 and Figma stretches it into 427x479. The Rapide Tyres file is 512px wide. These look soft on
   high-density screens.
 
+### Open for the design team — text contrast (UI/UX audit, 2026-10-09)
+The build uses the drawn colours. These texts are below the WCAG AA contrast minimum. The design team must decide.
+Do not change the colours without that decision.
+
+| # | Text | Colours | Ratio | Minimum | Suggestion |
+|---|---|---|---|---|---|
+| 1 | Final Impact numbers ("100%", "40%", "50,000H+"), 36px | #FDA948 on #ECF4FF | 1.73:1 | 3:1 | #B45F00 (4.1:1) |
+| 2 | Tech Stack headings ("1. Front-end" etc.), 24px | #FDA948 on white | 1.92:1 | 3:1 | #B45F00 (4.6:1) |
+| 3 | Fact labels (Founded, Location, Industry, Market), 20px at 390, 24px from lg | #A0A0A0 on #F7F7F7 | 2.44:1 | 4.5:1 at 390 | #707070 (4.6:1) |
+| 4 | Pagination numbers and the Search placeholder, 14-16px | #A0A0A0 on white | 2.6:1 | 4.5:1 | #707070 (4.9:1) |
+
+Also open (site-wide, not Work): at 390 the footer legal links (Terms of Use, Privacy Policy, Cookie Settings) are
+20px rows with no gap, below the 24px target minimum. A fix needs a 4px gap between the rows, which is a visual change.
+
+### Accessibility fixes (build, 2026-10-09)
+- After Previous or Next turns off (first or last page), the focus goes to the current page button.
+- After "Clear filters", the focus goes to the Search field (`#work-search`).
+- A pagination button has an invisible 36x44 tap area. The drawn cell stays 30x30.
+- The footer Company links have an invisible 30px-high tap area at 390. The text does not move.
+
 ### Verification
 `.claude/probe-layout.js` (git-ignored dev tooling) loads a page in a same-origin iframe per width and reports leaf
 overflow, clipped text, `data-fit` line counts, `data-aspect` drift, band fit and sticky health. Its `localAssets`

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 /**
  * The pagination of the Work listing — Figma 3426:3756: 30px cells 6px apart,
@@ -23,6 +23,11 @@ const Chevron: React.FC<{ right?: boolean }> = ({ right }) => (
 const CELL =
   'inline-flex h-[30px] min-w-[30px] items-center justify-center rounded-fig-xs px-fig-8 font-body text-body-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
 
+// The tap area of a button. The cell shows 30x30, and this invisible area makes
+// the target 36x44. The 3px at each side fills the 6px gap, so two areas touch
+// and do not overlap.
+const HIT = "relative before:absolute before:-inset-x-[3px] before:-inset-y-[7px] before:content-['']";
+
 /** The page numbers to show, with `null` for an ellipsis. */
 const cells = (page: number, pages: number): (number | null)[] => {
   if (pages <= 5) return Array.from({ length: pages }, (_, i) => i + 1);
@@ -37,15 +42,31 @@ interface WorkPaginationProps {
 }
 
 const WorkPagination: React.FC<WorkPaginationProps> = ({ page, pages, onPage }) => {
+  const nav = useRef<HTMLElement>(null);
+  const keepFocus = useRef(false);
+
+  // Previous is off on the first page and Next is off on the last. A button
+  // that turns off loses the focus, so the focus goes to the current page.
+  useEffect(() => {
+    if (!keepFocus.current) return;
+    keepFocus.current = false;
+    nav.current?.querySelector<HTMLElement>('[aria-current="page"]')?.focus({ preventScroll: true });
+  }, [page]);
+
+  const step = (to: number) => {
+    keepFocus.current = to === 1 || to === pages;
+    onPage(to);
+  };
+
   if (pages <= 1) return null;
   return (
-    <nav aria-label="Work pages" className="flex justify-center">
+    <nav ref={nav} aria-label="Work pages" className="flex justify-center">
       <ul className="flex items-center gap-fig-6">
         <li>
           <button
             type="button"
-            className={`${CELL} text-text-primary disabled:opacity-40`}
-            onClick={() => onPage(page - 1)}
+            className={`${CELL} ${HIT} text-text-primary disabled:opacity-40`}
+            onClick={() => step(page - 1)}
             disabled={page === 1}
             aria-label="Previous page"
           >
@@ -61,7 +82,7 @@ const WorkPagination: React.FC<WorkPaginationProps> = ({ page, pages, onPage }) 
             <li key={p}>
               <button
                 type="button"
-                className={`${CELL} ${p === page ? 'bg-primary text-white' : 'text-gray-fig-400 hover:text-text-primary'}`}
+                className={`${CELL} ${HIT} ${p === page ? 'bg-primary text-white' : 'text-gray-fig-400 hover:text-text-primary'}`}
                 onClick={() => onPage(p)}
                 aria-current={p === page ? 'page' : undefined}
                 aria-label={`Page ${p}`}
@@ -74,8 +95,8 @@ const WorkPagination: React.FC<WorkPaginationProps> = ({ page, pages, onPage }) 
         <li>
           <button
             type="button"
-            className={`${CELL} text-text-primary disabled:opacity-40`}
-            onClick={() => onPage(page + 1)}
+            className={`${CELL} ${HIT} text-text-primary disabled:opacity-40`}
+            onClick={() => step(page + 1)}
             disabled={page === pages}
             aria-label="Next page"
           >

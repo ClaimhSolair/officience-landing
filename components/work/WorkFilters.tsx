@@ -70,6 +70,7 @@ const WorkFilters: React.FC<WorkFiltersProps> = ({ categories, category, q, onCa
     <label className={`flex w-full items-center gap-fig-8 pl-fig-16 pr-fig-12 sm:w-[385px] ${FIELD}`}>
       <span className="sr-only">Search</span>
       <input
+        id="work-search"
         type="search"
         value={q}
         onChange={(e) => onSearch(e.target.value)}
