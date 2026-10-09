@@ -122,7 +122,10 @@ const Layout: React.FC = () => {
         {/* Per-page rhythm lives in the page, not here — see pages/HomePage.tsx. */}
         <main className="relative z-10 flex-grow flex flex-col">
           <ErrorBoundary>
-            <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+            {/* One full screen tall, so the footer paints below the first screen
+                while the page chunk loads. A shorter box showed the footer in
+                view and then pushed it down (CLS 0.27-0.32 on every lazy route). */}
+            <Suspense fallback={<div className="min-h-[100svh]" aria-busy="true" />}>
               <Outlet context={{ openSurvey, splashDone, openApply } satisfies LayoutContext} />
             </Suspense>
           </ErrorBoundary>

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useId, useRef } from 'react';
+import React, { useState, useEffect, useId, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, Check, AlertCircle } from 'lucide-react';
+import { focusTarget } from '../lib/focus';
 import { useModalA11y } from '../lib/modal';
 import { ROUTES } from './navigation';
 import type { SurveyBranch } from '../types';
@@ -110,12 +111,14 @@ const ProgressBar: React.FC<{ labels: [string, string, string]; current: number 
   </div>
 );
 
-const QLabel: React.FC<{ children: React.ReactNode; required?: boolean; hint?: string }> = ({
+/** `id` lets the option group below name itself with this question (`labelledBy`). */
+const QLabel: React.FC<{ children: React.ReactNode; required?: boolean; hint?: string; id?: string }> = ({
   children,
   required,
   hint,
+  id,
 }) => (
-  <h4 className="font-sans font-semibold text-[20px] leading-[28px] text-text-default mb-[12px]">
+  <h4 id={id} className="font-sans font-semibold text-[20px] leading-[28px] text-text-default mb-[12px]">
     {children}
     {required && <span className="text-off-red"> *</span>}
     {hint && <span className="font-body font-normal text-[16px] text-subtitle"> {hint}</span>}
@@ -127,7 +130,9 @@ const ChipGroup: React.FC<{
   value: any;
   onChange: (v: any) => void;
   multi?: boolean;
-}> = ({ options, value, onChange, multi }) => {
+  /** The id of the question label. A screen reader reads it as the group name. */
+  labelledBy?: string;
+}> = ({ options, value, onChange, multi, labelledBy }) => {
   const selected = (opt: string) => (multi ? (value || []).includes(opt) : value === opt);
   const toggle = (opt: string) => {
     if (multi) {
@@ -138,11 +143,13 @@ const ChipGroup: React.FC<{
     }
   };
   return (
-    <div className="flex flex-wrap gap-[12px]">
+    <div role="group" aria-labelledby={labelledBy} className="flex flex-wrap gap-[12px]">
       {options.map((opt) => (
         <button
           key={opt}
           type="button"
+          // Colour and weight alone show the choice. This tells a screen reader.
+          aria-pressed={selected(opt)}
           onClick={() => toggle(opt)}
           /* Figma draws 12/6. The mobile row keeps 12px of vertical padding so the
              chip clears a 44px tap target — an accepted divergence, not a miss. */
@@ -169,7 +176,9 @@ const CardOptions: React.FC<{
   multi?: boolean;
   columns?: 1 | 2;
   boldOnSelect?: boolean;
-}> = ({ options, value, onChange, multi, columns = 1, boldOnSelect }) => {
+  /** The id of the question label. A screen reader reads it as the group name. */
+  labelledBy?: string;
+}> = ({ options, value, onChange, multi, columns = 1, boldOnSelect, labelledBy }) => {
   const selected = (opt: string) => (multi ? (value || []).includes(opt) : value === opt);
   const toggle = (opt: string) => {
     if (multi) {
@@ -180,13 +189,18 @@ const CardOptions: React.FC<{
     }
   };
   return (
-    <div className={`grid gap-[12px] ${columns === 2 ? 'sm:grid-cols-2' : 'grid-cols-1'}`}>
+    <div
+      role="group"
+      aria-labelledby={labelledBy}
+      className={`grid gap-[12px] ${columns === 2 ? 'sm:grid-cols-2' : 'grid-cols-1'}`}
+    >
       {options.map((opt) => {
         const isSel = selected(opt.label);
         return (
         <button
           key={opt.label}
           type="button"
+          aria-pressed={isSel}
           onClick={() => toggle(opt.label)}
           className={`flex items-center gap-[8px] text-left rounded-fig-xs border px-[16px] py-[12px] sm:py-[10px] transition-colors ${
             isSel ? 'border-primary bg-[#ecf4ff]' : 'border-gray-fig-100 hover:border-primary'
@@ -331,6 +345,24 @@ const Survey: React.FC<SurveyProps> = ({
   // out of the dialog into the page behind it.
   useModalA11y({ isOpen, onClose, containerRef: panelRef, backgroundRef });
 
+  // A step change removes the button that had the focus: "Back" goes on step
+  // 0, and "Next step" becomes a disabled "Submit". The focus then falls to the
+  // body. So each step change asks for the focus on the new step title. The
+  // ref callback runs when that title mounts, which is after the exit
+  // animation of the old step. The screen reader then reads the new step.
+  const focusTitle = useRef(false);
+  const titleRef = useCallback((node: HTMLHeadingElement | null) => {
+    if (!node || !focusTitle.current) return;
+    focusTitle.current = false;
+    const body = node.closest<HTMLElement>('[data-lenis-prevent]');
+    if (body) body.scrollTop = 0;
+    focusTarget(node);
+  }, []);
+  const goToStep = (next: number) => {
+    focusTitle.current = true;
+    setStep(next);
+  };
+
   useEffect(() => {
     if (isOpen) {
       setBranch(initialBranch);
@@ -406,6 +438,7 @@ const Survey: React.FC<SurveyProps> = ({
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      focusTitle.current = true;
       setIsCompleted(true);
       onComplete(answers as Record<string, string>);
     } catch (err) {
@@ -418,7 +451,7 @@ const Survey: React.FC<SurveyProps> = ({
 
   const handleNext = () => {
     if (!isStepValid() || isSubmitting) return;
-    if (!isLastInputStep) setStep((p) => p + 1);
+    if (!isLastInputStep) goToStep(step + 1);
     else submitSurvey();
   };
 
@@ -448,12 +481,13 @@ const Survey: React.FC<SurveyProps> = ({
       return (
         <Panel>
           <div>
-            <QLabel required>I am a…</QLabel>
-            <ChipGroup options={WORK_OPTIONS.iAm} value={answers['iAm']} onChange={(v) => set('iAm', v)} />
+            <QLabel id="survey-q-iAm" required>I am a…</QLabel>
+            <ChipGroup labelledBy="survey-q-iAm" options={WORK_OPTIONS.iAm} value={answers['iAm']} onChange={(v) => set('iAm', v)} />
           </div>
           <div>
-            <QLabel required hint="(Multi-Select)">Service I'm interested in</QLabel>
+            <QLabel id="survey-q-services" required hint="(Multi-Select)">Service I'm interested in</QLabel>
             <CardOptions
+              labelledBy="survey-q-services"
               options={WORK_OPTIONS.services.map((s) => ({ label: s }))}
               value={answers['services']}
               onChange={(v) => set('services', v)}
@@ -463,8 +497,9 @@ const Survey: React.FC<SurveyProps> = ({
             />
           </div>
           <div>
-            <QLabel required hint="(Multi-Select)">What are you trying to solve ?</QLabel>
+            <QLabel id="survey-q-solve" required hint="(Multi-Select)">What are you trying to solve ?</QLabel>
             <CardOptions
+              labelledBy="survey-q-solve"
               options={WORK_OPTIONS.solve}
               value={answers['solve']}
               onChange={(v) => set('solve', v)}
@@ -481,12 +516,12 @@ const Survey: React.FC<SurveyProps> = ({
       return (
         <Panel>
           <div>
-            <QLabel required>Timeline</QLabel>
-            <ChipGroup options={WORK_OPTIONS.timeline} value={answers['timeline']} onChange={(v) => set('timeline', v)} />
+            <QLabel id="survey-q-timeline" required>Timeline</QLabel>
+            <ChipGroup labelledBy="survey-q-timeline" options={WORK_OPTIONS.timeline} value={answers['timeline']} onChange={(v) => set('timeline', v)} />
           </div>
           <div>
-            <QLabel required>Budget Expected</QLabel>
-            <ChipGroup options={WORK_OPTIONS.budget} value={answers['budget']} onChange={(v) => set('budget', v)} />
+            <QLabel id="survey-q-budget" required>Budget Expected</QLabel>
+            <ChipGroup labelledBy="survey-q-budget" options={WORK_OPTIONS.budget} value={answers['budget']} onChange={(v) => set('budget', v)} />
           </div>
           <div className="flex flex-col gap-[16px]">
             <QLabel>Contact details</QLabel>
@@ -508,8 +543,8 @@ const Survey: React.FC<SurveyProps> = ({
     if (branch === 'category' && step === 0) {
       return (
         <Panel>
-          <QLabel>What bring you here? We will tailor your next questions just for you</QLabel>
-          <CardOptions options={CATEGORY_CARDS} value={answers['category']} onChange={(v) => set('category', v)} columns={1} />
+          <QLabel id="survey-q-category">What bring you here? We will tailor your next questions just for you</QLabel>
+          <CardOptions labelledBy="survey-q-category" options={CATEGORY_CARDS} value={answers['category']} onChange={(v) => set('category', v)} columns={1} />
         </Panel>
       );
     }
@@ -530,8 +565,8 @@ const Survey: React.FC<SurveyProps> = ({
               <TextField label="Expected Graduation" k="graduation" placeholder="e.g. 2027" answers={answers} set={set} />
             </div>
             <div>
-              <QLabel required>Position interested in</QLabel>
-              <ChipGroup options={DETAIL_OPTIONS.positions} value={answers['positions']} onChange={(v) => set('positions', v)} multi />
+              <QLabel id="survey-q-positions" required>Position interested in</QLabel>
+              <ChipGroup labelledBy="survey-q-positions" options={DETAIL_OPTIONS.positions} value={answers['positions']} onChange={(v) => set('positions', v)} multi />
             </div>
             <div>
               <QLabel required>Portfolio, CV or LinkedIn</QLabel>
@@ -553,16 +588,16 @@ const Survey: React.FC<SurveyProps> = ({
               <TextField label="Email" k="email" type="email" placeholder="name@domain.com" required error={emailError(answers['email'])} answers={answers} set={set} />
             </div>
             <div>
-              <QLabel required>Location</QLabel>
-              <ChipGroup options={DETAIL_OPTIONS.coworkLocation} value={answers['location']} onChange={(v) => set('location', v)} />
+              <QLabel id="survey-q-location" required>Location</QLabel>
+              <ChipGroup labelledBy="survey-q-location" options={DETAIL_OPTIONS.coworkLocation} value={answers['location']} onChange={(v) => set('location', v)} />
             </div>
             <div>
-              <QLabel required>Duration</QLabel>
-              <ChipGroup options={DETAIL_OPTIONS.coworkDuration} value={answers['duration']} onChange={(v) => set('duration', v)} />
+              <QLabel id="survey-q-duration" required>Duration</QLabel>
+              <ChipGroup labelledBy="survey-q-duration" options={DETAIL_OPTIONS.coworkDuration} value={answers['duration']} onChange={(v) => set('duration', v)} />
             </div>
             <div>
-              <QLabel required>Team size</QLabel>
-              <ChipGroup options={DETAIL_OPTIONS.coworkTeam} value={answers['teamSize']} onChange={(v) => set('teamSize', v)} />
+              <QLabel id="survey-q-teamSize" required>Team size</QLabel>
+              <ChipGroup labelledBy="survey-q-teamSize" options={DETAIL_OPTIONS.coworkTeam} value={answers['teamSize']} onChange={(v) => set('teamSize', v)} />
             </div>
           </>
         )}
@@ -576,8 +611,8 @@ const Survey: React.FC<SurveyProps> = ({
               <TextField label="Role / Job Title" k="role" placeholder="e.g. Partner Representative" required answers={answers} set={set} />
             </div>
             <div>
-              <QLabel required>What partnership model ?</QLabel>
-              <ChipGroup options={DETAIL_OPTIONS.partnershipModel} value={answers['partnershipModel']} onChange={(v) => set('partnershipModel', v)} />
+              <QLabel id="survey-q-partnershipModel" required>What partnership model ?</QLabel>
+              <ChipGroup labelledBy="survey-q-partnershipModel" options={DETAIL_OPTIONS.partnershipModel} value={answers['partnershipModel']} onChange={(v) => set('partnershipModel', v)} />
             </div>
           </>
         )}
@@ -649,7 +684,7 @@ const Survey: React.FC<SurveyProps> = ({
         <div data-lenis-prevent className="px-[16px] sm:px-[32px] py-[24px] overflow-y-auto">
           {isCompleted ? (
             <div className="flex flex-col gap-[24px]">
-              <h2 id={titleId} className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">
+              <h2 id={titleId} ref={titleRef} className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">
                 {branch === 'work' ? 'Work with Officience' : 'Category inquiries'}
               </h2>
               <div className="bg-bg-default rounded-fig-xs p-[24px] flex flex-col gap-[12px]">
@@ -674,7 +709,7 @@ const Survey: React.FC<SurveyProps> = ({
                 className="flex flex-col gap-[24px]"
               >
                 <div className="flex flex-col gap-[4px]">
-                  <h2 id={titleId} className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">{title}</h2>
+                  <h2 id={titleId} ref={titleRef} className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">{title}</h2>
                   <p className="font-body text-[14px] leading-[20px] text-subtitle">{subtitle}</p>
                 </div>
                 {(() => {
@@ -731,7 +766,7 @@ const Survey: React.FC<SurveyProps> = ({
                 <span />
               ) : (
                 <button
-                  onClick={() => setStep((p) => p - 1)}
+                  onClick={() => goToStep(step - 1)}
                   disabled={isSubmitting}
                   className="inline-flex items-center min-h-[48px] sm:min-h-0 px-2 -ml-2 sm:px-0 sm:ml-0 font-sans font-medium text-[16px] leading-[24px] text-primary hover:opacity-70 transition-opacity disabled:opacity-50"
                 >
