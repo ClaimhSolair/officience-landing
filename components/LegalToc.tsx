@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { sectionAnchor, sectionHeading } from './LegalDocument';
 import type { LegalSection } from './legalContent';
@@ -34,6 +34,20 @@ const LegalToc: React.FC<LegalTocProps> = ({ sections, offset = 140 }) => {
 
   const [active, setActive] = useState(() => items[0]?.id ?? '');
   const [open, setOpen] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // The panel can be taller than a laptop screen, so from lg it scrolls on its
+  // own. Keep the current row in view inside it. A scroll of the panel only,
+  // because `scrollIntoView` would also move the page.
+  useEffect(() => {
+    const box = listRef.current;
+    const row = box?.querySelector<HTMLElement>('[aria-current]');
+    if (!box || !row || box.scrollHeight <= box.clientHeight) return;
+    const top = row.offsetTop - box.offsetTop;
+    const bottom = top + row.offsetHeight;
+    if (top < box.scrollTop) box.scrollTop = top;
+    else if (bottom > box.scrollTop + box.clientHeight) box.scrollTop = bottom - box.clientHeight;
+  }, [active]);
 
   const sync = useCallback(() => {
     let current = items[0]?.id ?? '';
@@ -116,9 +130,14 @@ const LegalToc: React.FC<LegalTocProps> = ({ sections, offset = 140 }) => {
         />
       </button>
 
+      {/* From lg the list stops 40px above the screen bottom (sticky top 140)
+          and scrolls inside. At 1024x768 to 1536x864 it was 1-4 rows taller
+          than the screen, so those rows and their focus were out of reach. */}
       <div
+        ref={listRef}
         id="legal-toc-list"
-        className={`px-fig-16 pb-fig-12 lg:block lg:p-fig-32 ${open ? 'block' : 'hidden'}`}
+        data-lenis-prevent
+        className={`menu-scroll px-fig-16 pb-fig-12 lg:block lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto lg:p-fig-32 ${open ? 'block' : 'hidden'}`}
       >
         {list}
       </div>

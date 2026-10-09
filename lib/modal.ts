@@ -21,6 +21,31 @@ const FOCUSABLE =
 let lockCount = 0;
 let savedScrollY = 0;
 let savedStyles: Partial<CSSStyleDeclaration> = {};
+/** The history entry that was current when the lock started. */
+let lockedKey: string | undefined;
+
+/**
+ * The router keeps a key for each history entry in `history.state`. The lock
+ * needs it to see a route change under an open overlay.
+ */
+const historyKey = (): string | undefined => (window.history.state as { key?: string } | null)?.key;
+
+/**
+ * The last scroll offset of each history entry. A Back step while an overlay is
+ * open happens under the lock: the body is fixed, so the browser cannot put the
+ * earlier page back at its offset. The unlock then reads the offset here.
+ */
+const entryScrollY = new Map<string, number>();
+if (typeof window !== 'undefined') {
+  window.addEventListener(
+    'scroll',
+    () => {
+      const key = historyKey();
+      if (lockCount === 0 && key) entryScrollY.set(key, window.scrollY);
+    },
+    { passive: true },
+  );
+}
 
 /**
  * `overflow: hidden` on the body does not hold on iOS Safari — the page still
@@ -38,6 +63,7 @@ export const lockBodyScroll = () => {
   // not a point in the middle of a glide.
   stopScroll();
   savedScrollY = window.scrollY;
+  lockedKey = historyKey();
   savedStyles = {
     position: body.style.position,
     top: body.style.top,
@@ -63,7 +89,12 @@ export const unlockBodyScroll = () => {
   body.style.width = savedStyles.width ?? '';
   // Jump straight back — an animated restore reads as the page scrolling itself.
   // Through the helper, so the smooth-scroll layer also learns the position.
-  scrollToY(savedScrollY, false);
+  // When the route changed under the lock, the saved offset belongs to the old
+  // page. Then use the offset of the entry now current: its last offset for a
+  // Back step, or the top for a new entry. A hash target is held in place by
+  // `ScrollManager` and corrects this within 100ms.
+  const key = historyKey();
+  scrollToY(key === lockedKey ? savedScrollY : (key && entryScrollY.get(key)) || 0, false);
   startScroll();
 };
 

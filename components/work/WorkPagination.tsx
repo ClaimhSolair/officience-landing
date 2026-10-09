@@ -83,7 +83,9 @@ const WorkPagination: React.FC<WorkPaginationProps> = ({ page, pages, onPage }) 
               <button
                 type="button"
                 className={`${CELL} ${HIT} ${p === page ? 'bg-primary text-white' : 'text-gray-fig-400 hover:text-text-primary'}`}
-                onClick={() => onPage(p)}
+                // The current page does nothing. A new entry for the same URL
+                // added a Back step and sent the view to the top.
+                onClick={() => p !== page && onPage(p)}
                 aria-current={p === page ? 'page' : undefined}
                 aria-label={`Page ${p}`}
               >

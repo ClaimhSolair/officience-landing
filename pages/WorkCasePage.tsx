@@ -46,7 +46,7 @@ const CASE_BLURB = (
 );
 
 const CaseBody: React.FC<{ data: WorkCase }> = ({ data }) => {
-  usePageView(`${data.name} — Officience`);
+  usePageView(`${data.name} — Officience`, data.hero.subtitle);
   useSectionViews(CASE_SECTION_IDS, `work/${data.slug}`);
   const { openSurvey } = useOutletContext<LayoutContext>();
 

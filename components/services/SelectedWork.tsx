@@ -77,7 +77,9 @@ const CardBody: React.FC<{ card: WorkCard; opacity?: MotionValue<number> }> = ({
             <TagChip key={tag}>{tag}</TagChip>
           ))}
         </ul>
-        <h3 className="line-clamp-2 font-sans text-h2 font-medium text-white lg:text-display-sm">{card.title}</h3>
+        {/* Three lines below md: at 232px two titles need three lines, and the
+            two-line clamp cut them. From md every title fits in two. */}
+        <h3 className="line-clamp-3 font-sans text-h2 font-medium text-white md:line-clamp-2 lg:text-display-sm">{card.title}</h3>
       </div>
     </>
   );

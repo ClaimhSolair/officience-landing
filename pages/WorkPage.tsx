@@ -39,8 +39,11 @@ const HERO = {
 
 const CATEGORIES = categoriesOf(WORK_PROJECTS);
 
+const SUBTITLE =
+  "Explore our most impactful and diverse projects — from web apps and design to data and AI. Browse our portfolio to see how we've helped clients achieve their goals.";
+
 const WorkPage: React.FC = () => {
-  usePageView('Work — Officience');
+  usePageView('Work — Officience', SUBTITLE);
   useSectionViews(WORK_SECTION_IDS, 'work');
 
   const [params, setParams] = useSearchParams();
@@ -60,7 +63,8 @@ const WorkPage: React.FC = () => {
 
   const goToPage = (n: number) => {
     update({ page: n });
-    scrollToId('work-grid');
+    // The pagination sets the focus itself (aba51b1), so the scroll does not move it.
+    scrollToId('work-grid', false);
   };
 
   return (
@@ -70,7 +74,7 @@ const WorkPage: React.FC = () => {
         titleId="work-hero-title"
         image={HERO}
         title="Showcase of work"
-        subtitle="Explore our most impactful and diverse projects — from web apps and design to data and AI. Browse our portfolio to see how we've helped clients achieve their goals."
+        subtitle={SUBTITLE}
         titleWidth={658}
         subtitleWidth={658}
         scrim={0.4}
@@ -89,7 +93,10 @@ const WorkPage: React.FC = () => {
             onCategory={(value) => update({ category: value })}
             onSearch={(value) => update({ q: value }, true)}
           />
+          {/* The page goes in the status too. With the count only, a page change
+              gave the same text, so a screen reader announced nothing. */}
           <p className="sr-only" role="status" aria-live="polite">
+            {pages > 1 && `Page ${page} of ${pages}, `}
             {filtered.length} {filtered.length === 1 ? 'project' : 'projects'}
           </p>
           {items.length > 0 ? (

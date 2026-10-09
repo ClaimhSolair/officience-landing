@@ -18,6 +18,29 @@ const GA4_NEEDS_MANUAL_PAGE_VIEW = false;
  */
 export const INITIAL_TITLE = document.title;
 
+/** The home description in index.html, captured the same way. */
+const metaTag = (selector: string) => document.querySelector<HTMLMetaElement>(selector);
+const INITIAL_DESCRIPTION = metaTag('meta[name="description"]')?.content ?? '';
+
+/**
+ * Sets the description and the social title and description for a route.
+ * Without this, every route kept the home text. A route with no description of
+ * its own keeps the home description. Google runs JavaScript and reads these
+ * values; a social scraper does not, so a social card still needs a server
+ * render (see `setCanonical`).
+ */
+const setMeta = (title: string, description: string) => {
+  const set = (selector: string, value: string) => {
+    const tag = metaTag(selector);
+    if (tag) tag.content = value;
+  };
+  set('meta[name="description"]', description);
+  set('meta[property="og:title"]', title);
+  set('meta[property="og:description"]', description);
+  set('meta[name="twitter:title"]', title);
+  set('meta[name="twitter:description"]', description);
+};
+
 /**
  * The first pageview of a visit is not ours to send. index.html already reports
  * it — `gtag('config', …)` for GA4, and `_paq.push(['trackPageView'])` inside
@@ -77,7 +100,7 @@ const setCanonical = (path: string) => {
  * firing on the URL change would report every page under the previous page's
  * title.
  */
-export const usePageView = (title: string = INITIAL_TITLE) => {
+export const usePageView = (title: string = INITIAL_TITLE, description: string = INITIAL_DESCRIPTION) => {
   const location = useLocation();
   const lastKey = useRef<string | null>(null);
 
@@ -89,6 +112,7 @@ export const usePageView = (title: string = INITIAL_TITLE) => {
     lastKey.current = location.key;
 
     document.title = title;
+    setMeta(title, description);
 
     // The canonical belongs to the route, so it is set on the first page too —
     // before the early return that skips the duplicate first pageview.
@@ -114,5 +138,5 @@ export const usePageView = (title: string = INITIAL_TITLE) => {
     }
 
     // Clarity and Vercel Analytics both hook history themselves — nothing to do.
-  }, [location.key, location.pathname, location.search, location.hash, title]);
+  }, [location.key, location.pathname, location.search, location.hash, title, description]);
 };

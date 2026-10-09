@@ -102,25 +102,20 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDone }) => {
             style={{ aspectRatio: isMobile ? '682/632' : '2314/1500' }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Desktop Image */}
-            <img
-              src={DESKTOP_IMAGE}
-              alt="Welcome to Officience"
-              width={2314}
-              height={1500}
-              className={`hidden md:block w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl ${isMobile ? 'hidden' : ''}`}
-              loading="eager"
-            />
-
-            {/* Mobile Image */}
-            <img
-              src={MOBILE_IMAGE}
-              alt="Welcome to Officience"
-              width={682}
-              height={632}
-              className="md:hidden w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
-              loading="eager"
-            />
+            {/* One <picture>, so the browser downloads one file. Two <img>
+                with one hidden by CSS downloaded both (290 KB + 1.7 MB) on
+                every first visit. The media query is the md breakpoint. */}
+            <picture>
+              <source media="(min-width: 768px)" srcSet={DESKTOP_IMAGE} width={2314} height={1500} />
+              <img
+                src={MOBILE_IMAGE}
+                alt="Welcome to Officience"
+                width={682}
+                height={632}
+                className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
+                loading="eager"
+              />
+            </picture>
           </motion.div>
         </motion.div>
       )}

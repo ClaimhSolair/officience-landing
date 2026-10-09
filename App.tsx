@@ -78,9 +78,14 @@ const Layout: React.FC = () => {
   const pageRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
 
-  // A route change while the menu is open would leave it covering the new page.
+  // A route change while an overlay is open would leave it covering the new
+  // page, with the page still locked and inert. On a phone the Back gesture is
+  // the normal way to leave a full-screen form, so every overlay closes here.
+  // The apply form keeps its `form` key, so its draft stays (ruling 21u).
   useEffect(() => {
     setIsMenuOpen(false);
+    setIsSurveyOpen(false);
+    setApply((s) => (s.open ? { ...s, open: false } : s));
   }, [pathname]);
 
   // The splash only renders on the home route, so everywhere else there is

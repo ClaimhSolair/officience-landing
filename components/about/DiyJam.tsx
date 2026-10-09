@@ -78,6 +78,9 @@ const DiyJam: React.FC = () => {
             <motion.div
               whileHover={enabled ? { y: -2 } : undefined}
               whileTap={enabled ? { scale: 0.97 } : undefined}
+              // whileTap makes Framer Motion add tabindex="0" to this wrapper. The
+              // button inside takes the focus, so the wrapper stays out of the tab order.
+              tabIndex={-1}
               transition={{ type: 'spring', ...SPRING.hover }}
             >
               <Button
@@ -92,6 +95,9 @@ const DiyJam: React.FC = () => {
             <motion.div
               whileHover={enabled ? { y: -2 } : undefined}
               whileTap={enabled ? { scale: 0.97 } : undefined}
+              // whileTap makes Framer Motion add tabindex="0" to this wrapper. The
+              // button inside takes the focus, so the wrapper stays out of the tab order.
+              tabIndex={-1}
               transition={{ type: 'spring', ...SPRING.hover }}
             >
               <Button

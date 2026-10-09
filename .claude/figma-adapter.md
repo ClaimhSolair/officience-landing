@@ -1396,3 +1396,23 @@ These differ from Figma on purpose. Do not set them back to the drawn values.
 - `node scripts/probe/apply-harness.mjs`: 9 cases against `api/apply.ts` with a stub mail transport.
 - Not yet verified: motion in a live browser (the pane runs 0 rAF), the apply form's exit fade, and a real send to
   jobs@ on a Vercel preview.
+
+## 22 — Site-wide UI/UX E2E test (2026-10-09)
+
+The full log is `.claude/uiux-e2e-2026-10-09/README.md` (git-ignored). The U-numbers refer to it. The code fixes
+are in the log. This section records only the items that the drawn design causes. The build keeps the drawn
+design until the design team decides.
+
+### Open for the design team
+
+| # | Item | Where | Measured | Suggestion |
+|---|---|---|---|---|
+| U-13 | The logo marquee and the service quote loops pause only on mouse hover. A keyboard user cannot pause them (WCAG 2.2.2). On touch, a tap latches `:hover` and pauses the loop. | Home client logos; Software, BI, D&D and Crunch quotes, from 1024 | 40 s infinite loop; no control | A small pause/play control on each loop |
+| U-23 | The apply form fields are 14px. iOS Safari zooms in on a field below 16px. Not checked on a real iPhone. | `/career/*` apply form, below md | 7 fields at 14px | 16px below md (`text-[16px] md:text-body-md`) |
+| U-24 | The hero headline is below the first screen. | Career hub at 1910x940 and 1536x730; About at 1280x720 (1536 and 1920 are in ruling 18b) | Career h1 at 821-1011px in a 940px screen | Cap the hero height from xl, or move the copy up. This changes rulings 21m and 18b. |
+| U-25 | The survey "Next step" is disabled and gives no reason. | Contact survey, both steps | No message; white on #D9D9D9 | Keep the button active; on click, show which answer is missing |
+| U-26 | The grey clause in the Our Journey intro is below the large-text minimum. | About, "shared vision turned into a global journey." | #A0A0A0 on #F7F7F7, 2.44:1, min 3:1 | #8A8A8A (3:1) or #707070 (4.6:1) |
+| U-27 | Legal text lines are too long at 1920. Figma draws only 1440 for these pages. | `/terms-of-use`, `/privacy-policy` | 115-118 characters a line (good: 45-90) | Cap the text column at about 760px |
+| U-30 | Mobile tap targets below 44px. | Header icons 32x32, footer social 29x29, splash X 36x36, apply chips 36px | Pass the 24px minimum | Invisible hit areas (code) or larger drawn targets |
+| U-42 | Body copy is 12px on phones. | About paragraphs, Services lists, Contact, footer at 390 | 12px | 14px at 390 |
+| U-43 | Pictures that are soft on 2x screens and are not on the earlier source-limit lists. | Home C.M.P and FunPass; Work hero; Career `hero-1643`, `culture-3-1392`; Services hub hero, `stationf-973`, AI and People heroes; About `offy-friday-1672` | 0.78-1.42 file px per CSS px at DPR 2 (target 1.5) | Originals at about 2x the displayed size |

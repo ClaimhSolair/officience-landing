@@ -26,7 +26,7 @@ import { useSectionViews } from '../lib/sectionViews';
  */
 
 const ServiceBody: React.FC<{ page: ServicePageContent }> = ({ page }) => {
-  usePageView(`${page.name} — Officience`);
+  usePageView(`${page.name} — Officience`, page.hero.subtitle);
 
   useSectionViews(SERVICE_SECTION_IDS, page.slug);
 

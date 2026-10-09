@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { SurveyBranch } from '../types';
+import { focusTarget } from '../lib/focus';
 import { scrollToElement } from '../lib/scroll';
 
 /** Routes served by the SPA. `vercel.json` rewrites every non-api path to index.html. */
@@ -234,13 +235,18 @@ export const FOOTER_LEGAL: NavItem[] = [
  * Scrolls to any element on the current page, honouring a reduced-motion
  * preference. It does nothing when the id is absent, so a caller on the wrong
  * page fails quietly rather than throwing.
+ *
+ * `focus` moves the keyboard focus to the target too. Without it, the next Tab
+ * starts from the button that was clicked and the page jumps back to it. A
+ * caller that sets the focus itself (the Work pages) passes false.
  */
-export const scrollToId = (id: string) => {
+export const scrollToId = (id: string, focus = true) => {
   const el = document.getElementById(id);
   if (!el) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // Through the helper, so the smooth-scroll layer does the glide when it is on.
   scrollToElement(el, !reduced);
+  if (focus) focusTarget(el);
 };
 
 /** Scrolls to a home-page section. */

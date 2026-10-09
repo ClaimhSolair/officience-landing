@@ -1,4 +1,11 @@
-import { useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react';
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type FocusEvent as ReactFocusEvent,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
+} from 'react';
 import { useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { HEADER_H, useScrub } from './motion';
 import { dragScrollTo, scrollToY } from './scroll';
@@ -308,6 +315,35 @@ export const useTrackDrag = (geom: TrackGeometry | null, wrapRef: RefObject<HTML
     scrollToY(clamp(window.scrollY - d.v * GLIDE_MS * s.perPx, s), true);
   };
 
+  /**
+   * A Tab onto a card past the frame edge left the focus off screen: the track
+   * moves only with the page scroll, and the browser does not scroll sideways
+   * for the focus. So a focus in the track scrolls the page to the point where
+   * the track shows the whole card, with the least movement. The timer lets the
+   * browser's own focus scroll finish first.
+   */
+  const onFocus = (e: ReactFocusEvent<HTMLElement>) => {
+    const track = e.currentTarget;
+    const kids = Array.from(track.children) as HTMLElement[];
+    const card = kids.find((kid) => kid.contains(e.target as Node));
+    if (!card || !geom) return;
+    window.setTimeout(() => {
+      const s = scale();
+      if (!s) return;
+      const cs = getComputedStyle(track);
+      const inner = track.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const left = (card.offsetLeft - kids[0].offsetLeft) * geom.scale;
+      const right = left + card.offsetWidth * geom.scale;
+      const at = (window.scrollY - s.from) / s.perPx;
+      const now = Math.min(geom.travel, Math.max(0, at));
+      let shift = now;
+      if (left < now) shift = left;
+      else if (right > now + inner) shift = right - inner;
+      shift = Math.min(geom.travel, Math.max(0, shift));
+      if (shift !== now) scrollToY(s.from + shift * s.perPx, false);
+    }, 0);
+  };
+
   return {
     dragging,
     handlers: {
@@ -315,6 +351,7 @@ export const useTrackDrag = (geom: TrackGeometry | null, wrapRef: RefObject<HTML
       onPointerMove,
       onPointerUp: endDrag,
       onPointerCancel: endDrag,
+      onFocus,
     },
   };
 };
