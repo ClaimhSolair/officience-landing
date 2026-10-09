@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
@@ -40,10 +40,17 @@ const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
 const WorkPage = React.lazy(() => import('./pages/WorkPage'));
 const WorkCasePage = React.lazy(() => import('./pages/WorkCasePage'));
 
+// The Career hub and the job pages. Each is a chunk of its own.
+const CareerPage = React.lazy(() => import('./pages/CareerPage'));
+const JobPage = React.lazy(() => import('./pages/JobPage'));
+const ApplyModal = React.lazy(() => import('./components/career/ApplyModal'));
+
 export interface LayoutContext {
   openSurvey: (branch?: SurveyBranch) => void;
   /** False only while the once-a-day splash is still covering the page. */
   splashDone: boolean;
+  /** Opens the Career apply form. A job slug selects that job's role chip. */
+  openApply: (jobSlug?: string) => void;
 }
 
 /**
@@ -56,6 +63,15 @@ const Layout: React.FC = () => {
   const [, setSurveyData] = useState<Record<string, string> | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
+  // The apply form mounts on the first open only, so its chunk stays out of
+  // every page load until a visitor asks for it. `opens` keys the form, so each
+  // open mounts a clean form: a reset after mount would swap the content under
+  // the focus that the modal hook has just placed.
+  const [apply, setApply] = useState<{ open: boolean; mounted: boolean; opens: number; jobSlug?: string }>({
+    open: false,
+    mounted: false,
+    opens: 0,
+  });
   const pageRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
 
@@ -76,6 +92,9 @@ const Layout: React.FC = () => {
   };
   const closeSurvey = () => setIsSurveyOpen(false);
 
+  const openApply = (jobSlug?: string) => setApply((s) => ({ open: true, mounted: true, opens: s.opens + 1, jobSlug }));
+  const closeApply = useCallback(() => setApply((s) => ({ ...s, open: false })), []);
+
   return (
     <div className="bg-background min-h-screen w-full box-border flex flex-col font-sans text-gray-900 selection:bg-yellow-400 selection:text-black">
       <ScrollManager />
@@ -93,7 +112,7 @@ const Layout: React.FC = () => {
         <main className="relative z-10 flex-grow flex flex-col">
           <ErrorBoundary>
             <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
-              <Outlet context={{ openSurvey, splashDone } satisfies LayoutContext} />
+              <Outlet context={{ openSurvey, splashDone, openApply } satisfies LayoutContext} />
             </Suspense>
           </ErrorBoundary>
         </main>
@@ -114,6 +133,20 @@ const Layout: React.FC = () => {
         initialBranch={surveyBranch}
         backgroundRef={pageRef}
       />
+
+      {/* The Career apply form. Outside the page wrapper for the same reason
+          as the survey, and mounted on the first open only. */}
+      {apply.mounted && (
+        <Suspense fallback={null}>
+          <ApplyModal
+            key={apply.opens}
+            isOpen={apply.open}
+            onClose={closeApply}
+            jobSlug={apply.jobSlug}
+            backgroundRef={pageRef}
+          />
+        </Suspense>
+      )}
 
       {/* Cookie consent banner (Google Consent Mode v2) */}
       <CookieConsent />
@@ -140,6 +173,8 @@ const App = () => (
           <Route path={`${ROUTES.services}/:slug`} element={<ServicePage />} />
           <Route path={ROUTES.work} element={<WorkPage />} />
           <Route path={`${ROUTES.work}/:slug`} element={<WorkCasePage />} />
+          <Route path={ROUTES.career} element={<CareerPage />} />
+          <Route path={`${ROUTES.career}/:slug`} element={<JobPage />} />
           <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
           <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />
           <Route path="*" element={<Navigate to={ROUTES.home} replace />} />

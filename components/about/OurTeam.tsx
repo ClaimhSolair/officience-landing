@@ -6,7 +6,7 @@ import Container from '../ui/Container';
 import Button from '../ui/Button';
 import Reveal, { RevealChild } from '../ui/Reveal';
 import SectionBadge from '../ui/SectionBadge';
-import { EXTERNAL } from '../navigation';
+import { ROUTES } from '../navigation';
 import { MOTION, SEC, SPRING, STAGGER, useMotionEnabled } from '../../lib/motion';
 
 /**
@@ -121,7 +121,7 @@ const OurTeam: React.FC = () => {
               transition={enabled ? { duration: 3, repeat: Infinity, ease: 'easeInOut' } : undefined}
             >
               <Button
-                href={EXTERNAL.career}
+                to={ROUTES.career}
                 variant="secondary"
                 size="xl"
                 className="w-full sm:w-[270px]"

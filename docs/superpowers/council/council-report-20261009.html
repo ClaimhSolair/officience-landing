@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Career Plan Council</title>
+<style>
+  :root { --bg:#fff; --fg:#0f1219; --muted:#5a5a5a; --line:#e5e5e5; --accent:#1f49bf; --soft:#ecf4ff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f1219; --fg:#f2f2f2; --muted:#a0a0a0; --line:#2a2e36; --accent:#8fb4ff; --soft:#16203a; } }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+  main { max-width:880px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:26px; margin:0 0 4px; } h2 { font-size:19px; margin:32px 0 8px; }
+  .q { color:var(--muted); }
+  .verdict { border:1px solid var(--line); border-left:4px solid var(--accent); padding:16px 20px; background:var(--soft); border-radius:6px; }
+  table { border-collapse:collapse; width:100%; font-size:14px; } td, th { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
+  details { border:1px solid var(--line); border-radius:6px; padding:8px 12px; margin:8px 0; } summary { cursor:pointer; font-weight:600; }
+  footer { margin-top:40px; color:var(--muted); font-size:13px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Career plan — council verdict</h1>
+<p class="q">Question: how to adopt the 1440-only Figma design proportionally and faithfully, with an in-browser test after each checkpoint.</p>
+
+<div class="verdict">
+<p><strong>Recommendation.</strong> Build one saved iframe probe first (CP0). Gate every section with numeric checks before the next one starts. Boxes scale as fractions of the content box. Type stays fixed and swaps per breakpoint. Drawn spacing (24/100 gaps, the 40px band bottom, the 253px Apply column) stays fixed px. Probe at 1910, not 1920.</p>
+<p><strong>First thing.</strong> Ask the open rulings — answered: Lucide icons; the CV upload is a Career-only exception; all 4 jobs ship on the preview and the merge is blocked.</p>
+</div>
+
+<h2>Advisor positions</h2>
+<table>
+<tr><th>Topic</th><th>Contrarian</th><th>First Principles</th><th>Expansionist</th><th>Outsider</th><th>Executor</th></tr>
+<tr><td>Probe first</td><td>Yes</td><td>Yes, after a signed table</td><td>Yes, plus geometry file</td><td>Yes, criteria first</td><td>Yes</td></tr>
+<tr><td>Band bottom</td><td>% at xl</td><td>fraction</td><td>4.65%</td><td>ratio</td><td>40px fixed</td></tr>
+<tr><td>Job rows at 1024</td><td>do not fit</td><td>stack below xl</td><td>fit</td><td>—</td><td>compute</td></tr>
+<tr><td>Guards</td><td>duplicate</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>Chairman ruling</td><td colspan="5">40px fixed bottom, 83.05% wide; rows fit at 1024 (gap 442), stack below md; job page 2 columns from xl; duplicate guards; skip geometry.ts.</td></tr>
+</table>
+
+<h2>Blind spots from peer review</h2>
+<ul>
+<li>Probing at 1920 fires <code>3xl</code>; a maximised browser reports ~1910. Probe at 1910.</li>
+<li>Keep a Figma slips list that each gate checks.</li>
+<li><code>object-position</code> comes from the Figma fill crop.</li>
+<li>Compare the 1440 render with Figma <code>get_screenshot</code>.</li>
+<li>Test the upload with <code>DataTransfer</code>; prove <code>formData()</code> on Vercel's handler first.</li>
+<li>The 1170px modal scrolls inside on a 730px viewport.</li>
+</ul>
+
+<details><summary>Full advisor responses and peer reviews</summary>
+<p>See <code>council-transcript-20261009.md</code> in this folder.</p>
+</details>
+
+<footer>Council run 2026-10-09 on the plan <code>figma-mcp-established-implement-soft-sparkle.md</code>.</footer>
+</main>
+</body>
+</html>

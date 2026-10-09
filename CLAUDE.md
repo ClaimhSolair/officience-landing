@@ -26,7 +26,10 @@ officience/
     LegalPage.tsx      # /terms-of-use and /privacy-policy (lazy-loaded)
     WorkPage.tsx       # /work - the Work listing: hero, filter bar, card grid, pages
     WorkCasePage.tsx   # /work/:slug - a case study (IOGA is the template)
+    CareerPage.tsx     # /career - hero, Our Culture, Job Openings, Benefits
+    JobPage.tsx        # /career/:slug - one job; the apply form opens from it
   content/work/        # The Work listing data and one file per case study
+  content/careers/     # jobs.ts (the open jobs) and culture.ts (culture cards, benefits)
   lib/
     modal.ts           # iOS-safe body scroll lock + focus trap for overlays
     pageMeta.ts        # usePageView: sets document.title and reports the pageview
@@ -50,6 +53,7 @@ officience/
     ErrorBoundary.tsx  # Recovers from stale lazy chunks after a redeploy
     navigation.ts      # Every nav destination, in one table
     work/              # Work listing parts; case/ holds the case-study layout and sections
+    career/            # Career hub and job page parts; ApplyModal (lazy, mounted from Layout)
     ui/                # Container, Button, SectionBadge, ApproachMark, CarouselDots
 ```
 
@@ -89,6 +93,12 @@ Upload with `npm run upload-assets` (approval-gated, and it re-uploads *all* of 
   - Work with Officience (Flow 1), Partnership & referral, Other inquiries → `contact@officience.com` (via `SURVEY_TO` env, else `DEFAULT_TO`)
 - `SURVEY_TO` env now only overrides the **fallback** recipient (the contact@ flows), not the jobs@/hr@ routes.
 - SMTP always authenticates as `SMTP_USER` (contact@officience.com) and sends TO the routed address; visitor's email is set as reply-to.
+
+## Career Apply Routing
+- The Career apply form POSTs multipart to `api/apply.ts`, which sends to `jobs@officience.com` (`APPLY_TO` overrides) with the CV attached. It is the only form that takes a file (adapter ruling 21j). The survey stays links-only.
+- The CV is one PDF of 4 MB or less, because Vercel rejects a body above 4.5 MB. The server checks the `%PDF` signature, not the MIME type. Nothing is stored.
+- `node scripts/probe/apply-harness.mjs` tests the function locally with a stub transport. A real send needs a Vercel preview.
+- Jobs live in `content/careers/jobs.ts`. `npm run build` warns while a job is `placeholder: true`. No placeholder job may ship to `main`.
 
 ## Commands
 - `npm run dev` - Start dev server (or `npx vite --host`)

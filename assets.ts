@@ -51,6 +51,16 @@ export const serviceSources = (slug: string, name: string, widths: number[]): Im
   [...widths].sort((x, y) => x - y).map((w) => ({ url: serviceAsset(slug, `${name}-${w}.webp`), w }));
 
 /**
+ * A file of the Career pages, from `assets-src/career/`. Each picture is baked
+ * at the box aspect that Figma draws, so `object-fit` has no effect in CSS.
+ */
+export const careerAsset = (file: string) => a(`/career/${file}`);
+
+/** One Career picture at several widths (`<name>-<w>.webp`), narrowest first. */
+export const careerSources = (name: string, widths: number[]): ImageSource[] =>
+  [...widths].sort((x, y) => x - y).map((w) => ({ url: careerAsset(`${name}-${w}.webp`), w }));
+
+/**
  * A file of the Work pages, from `assets-src/work-page/<dir>/`. The `dir` is
  * `listing` for the Work listing and the slug for a case study. This is not
  * `works/`, which the home page's Proven Results uses.

@@ -88,6 +88,36 @@
       ]
     },
     {
+      "source": "/career",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
+      "source": "/career/senior-php-developer",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
+      "source": "/career/middle-backend-developer",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
+      "source": "/career/software-web-developer",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
+      "source": "/career/business-intelligence-analytics-officer",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
       "source": "/terms-of-use",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, follow" }

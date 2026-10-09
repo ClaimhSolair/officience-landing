@@ -1299,3 +1299,65 @@ Every frame is 1440 only. No frame is drawn at 390 or 1920.
 overflow, clipped text, `data-fit` line counts, `data-aspect` drift, band fit and sticky health. Its `localAssets`
 option serves files that are not uploaded yet. It ran clean at 375, 390, 768, 1023, 1024, 1279, 1280, 1440, 1535,
 1536 and 1910 on both pages.
+
+## 21 — Career hub, job pages and the apply form (started 2026-10-09)
+
+Plan: `C:\Users\Admin\.claude\plans\figma-mcp-established-implement-soft-sparkle.md`. Spec with the per-width
+derivation grid: `docs/superpowers/specs/2026-10-09-career-page-design.md`. Council review:
+`docs/superpowers/council/`. Every frame is 1440 only. No page draws a 390 frame or a 1920 frame.
+
+### Node map
+- Hub `3297:2342` (1440x7691): hero `3310:2393`, Our Culture `3321:2570`, Job Openings `3325:2946`, Benefits
+  `3387:3287`.
+- Job page `3864:16770` (drawn for Senior PHP Developer): top row `3878:18802`, main column `3878:18827`, sidebar
+  `3878:18908` (Overview `3878:18909`, Job Openings `3878:18931`).
+- Apply form `3881:4477` (empty) and `3869:17497` (filled); success `3869:17432`.
+
+### Rulings (user, 2026-10-09, unless marked "build")
+21a. **Jobs are a TS file** (`content/careers/jobs.ts`). A new job is a commit and a deploy.
+21b. **The CV is a real PDF upload**, emailed to jobs@ as an attachment (`api/apply.ts`), 4 MB at most. Figma says
+    5 MB, which the 4.5 MB Vercel body limit does not allow.
+21c. **No mobile artboards.** 390-1024 and 1910 come from the derivation grid in the spec.
+21d. **Seed = the four drawn jobs.** Only Senior PHP has full copy; the other three are `placeholder: true`.
+21e. **The job page sidebar lists the other open jobs**, not the drawn industry names.
+21f. **"Save for later" is a drawn placeholder** with no behaviour (`aria-disabled`).
+21g. **The role chip of the job is selected first** in the apply form. The visitor can change it.
+21h. **The stacked benefit photos are static**: the top photo of each mask only.
+21i. **Icons are Lucide** (the standing ruling holds over the drawn Iconly set).
+21j. **The CV upload is a Career-only exception.** The contact survey stays links-only.
+21k. **All four jobs ship on the preview; the merge is blocked** until HR replaces or removes the placeholders.
+    `scripts/check-career-placeholders.mjs` warns on every `npm run build`.
+21l. Build: **sections sit 120px apart** (top padding only; the last section adds the bottom padding).
+21m. Build: **the hero is `CareerHero`, not a ServiceHero option.** Same rules as 18b (whole photo at its ratio; copy
+    under the photo below lg), plus the drawn gradient over the lower 467/839 of the photo from lg.
+21n. Build: **the culture band is 83.05% of the card, centred, 40px off the bottom, and hugs its text** from lg. Below
+    lg it sits under the photo. Culture headline: Heading-H1 at lg, Display-sm from xl.
+21o. Build: **job rows keep a 253px right column** and a fluid title column (Figma gap 442), so a row fits at 1024;
+    rows stack below md.
+21p. Build: **benefits are 3 columns from xl, 2 at md-lg, 1 below md.** At 1024 a 309px tile is too short for the
+    text. A text tile's 447/367 ratio is a minimum, so at 320 it grows to fit. Below xl the wide photo is a single tile.
+21q. Build: **the job page is 2 columns (849:463, 80 gap) from xl**; below, it stacks with Overview first, then the
+    details, then the other openings. `grid-rows-[auto_1fr]` keeps the list card under the Overview.
+21r. Build: **the apply form** is one 968px panel that scrolls inside on a short screen; no close cross (none drawn);
+    square corners (none drawn); the error state (not drawn) is one line above the buttons.
+
+### Assets (`assets-src/career/`, not uploaded yet)
+- Fill modes measured against Figma renders, then baked at the box ratio: culture 1 top-anchored cover, culture 2
+  full stretch, culture 3 offset crop; the job picture is Figma's stretch of an 842x1017 portrait into 461x398.
+- Benefit tiles are rebuilt from the full-res sources by the mask geometry (diff 3-10 against Figma's 1x renders).
+- Source limits: culture 1/2 top out at 1022/1024px, benefit-c at 447px, benefit-wide at 918px.
+- The three placeholder jobs reuse the sidebar otter art (it / ecom / pr).
+
+### Slips (flagged)
+- "Summited!" ships as "Submitted!" (user may veto). "(06 jobs available)" over 3 rows: the count comes from the data.
+- Culture card 2's band is 64px off the bottom (1 and 3: 40px); card 1's band is 200px for 216px of text.
+- Benefit rows are 367/372/361px; all use 367. The row is ~1390 wide in a 1392 column.
+- Benefit tiles are Be Vietnam Pro at 23.17/18.54px (a scaled component); the site fonts take their place.
+- Sidebar titles are Inter; Lexend here. "Officier" ships as drawn. The Figma header/footer show the 20th logo.
+
+### Verification
+- `scripts/probe/career-probe.js`: `gate(section, widths)` per checkpoint (shell, hero, culture, openings, benefits,
+  job, modal) at 320-1910, and `modalFlow(width)` for the form's behaviour. Probe at 1910, never 1920.
+- `node scripts/probe/apply-harness.mjs`: 9 cases against `api/apply.ts` with a stub mail transport.
+- Not yet verified: motion in a live browser (the pane runs 0 rAF), the apply form's exit fade, and a real send to
+  jobs@ on a Vercel preview.

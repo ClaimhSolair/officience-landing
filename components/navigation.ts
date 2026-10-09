@@ -14,6 +14,8 @@ export const ROUTES = {
   services: '/services',
   /** The Work listing. A case study is `/work/<slug>`. */
   work: '/work',
+  /** The Career hub. Each job page is `/career/<slug>`. */
+  career: '/career',
 } as const;
 
 /**
@@ -36,6 +38,15 @@ export const serviceHref = (slug: ServiceSlug) => `${ROUTES.services}/${slug}`;
 
 /** The URL of a case study. The slug is the key of its content in `content/work/`. */
 export const workHref = (slug: string) => `${ROUTES.work}/${slug}`;
+
+/** The URL of a job page. The slug is the key of the job in `content/careers/jobs.ts`. */
+export const jobHref = (slug: string) => `${ROUTES.career}/${slug}`;
+
+/**
+ * Anchor targets on the Career hub, and its `section_view` keys. A separate set,
+ * like the About ids, so it cannot disturb another page's dashboard history.
+ */
+export const CAREER_SECTION_IDS = ['career-hero', 'our-culture', 'job-openings', 'benefits'] as const;
 
 /**
  * Anchor targets on the home page. These ids are also the keys Vercel Analytics
@@ -86,7 +97,6 @@ export const SERVICE_SECTION_IDS = [
 ] as const;
 
 export const EXTERNAL = {
-  career: 'https://www.linkedin.com/company/officience/jobs/',
   linkedin: 'https://www.linkedin.com/company/officience/',
   /** Where the footer's "About us" has always pointed. */
   about: 'https://demo.officience.com/',
@@ -161,7 +171,7 @@ export const MENU: NavItem[] = [
     ],
   },
   { label: 'Work', target: { kind: 'route', to: ROUTES.work } },
-  { label: 'Career', target: { kind: 'external', href: EXTERNAL.career } },
+  { label: 'Career', target: { kind: 'route', to: ROUTES.career } },
   { label: 'About Us', target: { kind: 'route', to: ROUTES.about } },
 ];
 
@@ -207,7 +217,7 @@ export const FOOTER_COMPANY: NavItem[] = [
   { label: 'About us', target: { kind: 'route', to: ROUTES.about } },
   { label: 'Services', target: { kind: 'route', to: ROUTES.services } },
   { label: 'Work', target: { kind: 'route', to: ROUTES.work } },
-  { label: 'Career', target: { kind: 'external', href: EXTERNAL.career } },
+  { label: 'Career', target: { kind: 'route', to: ROUTES.career } },
 ];
 
 /**
