@@ -36,7 +36,8 @@ const JobOverview: React.FC<{ job: Job; onApply: () => void }> = ({ job, onApply
         <Fact icon={Folder}>{job.category}</Fact>
         <Fact icon={Clock}>
           <span className="block">{job.employment.type}</span>
-          <span className="block text-body-md text-gray-fig-400">{job.employment.term}</span>
+          {/* gray-quiet, not the drawn #A0A0A0: small text needs 4.5:1 on #F7F7F7. */}
+          <span className="block text-body-md text-gray-quiet">{job.employment.term}</span>
         </Fact>
         <Fact icon={Users}>{job.teamSize}</Fact>
       </ul>

@@ -64,13 +64,16 @@ const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
   // The apply form mounts on the first open only, so its chunk stays out of
-  // every page load until a visitor asks for it. `opens` keys the form, so each
-  // open mounts a clean form: a reset after mount would swap the content under
-  // the focus that the modal hook has just placed.
-  const [apply, setApply] = useState<{ open: boolean; mounted: boolean; opens: number; jobSlug?: string }>({
+  // every page load until a visitor asks for it. `form` keys the form. It stays
+  // the same while the visitor reopens the form for the same job, so the
+  // entries stay. It changes for a different job and after a successful send,
+  // so that open mounts a clean form. A reset after mount would swap the
+  // content under the focus that the modal hook has just placed.
+  const [apply, setApply] = useState<{ open: boolean; mounted: boolean; form: number; sent: boolean; jobSlug?: string }>({
     open: false,
     mounted: false,
-    opens: 0,
+    form: 0,
+    sent: false,
   });
   const pageRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
@@ -92,8 +95,16 @@ const Layout: React.FC = () => {
   };
   const closeSurvey = () => setIsSurveyOpen(false);
 
-  const openApply = (jobSlug?: string) => setApply((s) => ({ open: true, mounted: true, opens: s.opens + 1, jobSlug }));
+  const openApply = (jobSlug?: string) =>
+    setApply((s) => ({
+      open: true,
+      mounted: true,
+      form: s.sent || jobSlug !== s.jobSlug ? s.form + 1 : s.form,
+      sent: false,
+      jobSlug,
+    }));
   const closeApply = useCallback(() => setApply((s) => ({ ...s, open: false })), []);
+  const applySent = useCallback(() => setApply((s) => ({ ...s, sent: true })), []);
 
   return (
     <div className="bg-background min-h-screen w-full box-border flex flex-col font-sans text-gray-900 selection:bg-yellow-400 selection:text-black">
@@ -139,9 +150,10 @@ const Layout: React.FC = () => {
       {apply.mounted && (
         <Suspense fallback={null}>
           <ApplyModal
-            key={apply.opens}
+            key={apply.form}
             isOpen={apply.open}
             onClose={closeApply}
+            onSent={applySent}
             jobSlug={apply.jobSlug}
             backgroundRef={pageRef}
           />

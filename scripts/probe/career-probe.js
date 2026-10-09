@@ -311,7 +311,9 @@ SECTIONS.modal = {
     const checked = h.one('input[name="position"]:checked');
     out.push(['role chip pre-selected', checked?.value === 'Back-end', checked?.value ?? 'none']);
     const submit = h.one('[data-probe="apply-submit"]');
-    out.push(['submit disabled while empty', !!submit && submit.disabled, String(submit?.disabled)]);
+    // Submit keeps the grey look of Figma while the form is not ready, but it
+    // stays clickable, so a click can show what is missing.
+    out.push(['submit looks off while empty', !!submit && submit.dataset.ready === 'false' && !submit.disabled, `ready=${submit?.dataset.ready} disabled=${submit?.disabled}`]);
     const page = h.doc.querySelector('main')?.closest('[inert]');
     out.push(['page behind is inert', !!page, page ? 'inert' : 'not inert']);
     return out;
@@ -369,20 +371,20 @@ export async function modalFlow(width = 1440) {
     setVal(field('location'), 'Ho Chi Minh City, Viet Nam');
     field('consent').click();
     await sleep(150);
-    add('submit stays off without a CV', submit().disabled);
+    add('submit stays off without a CV', submit().dataset.ready === 'false');
 
     await putFile(new Uint8Array([104, 105]), 'notes.txt', 'text/plain');
-    add('a .txt is refused inline', /PDF/i.test(cvError()) && submit().disabled, cvError());
+    add('a .txt is refused inline', /PDF/i.test(cvError()) && submit().dataset.ready === 'false', cvError());
 
     const big = new Uint8Array(5 * 1024 * 1024);
     big.set([37, 80, 68, 70]);
     await putFile(big, 'big.pdf', 'application/pdf');
-    add('a 5 MB PDF is refused inline', /4 MB/.test(cvError()) && submit().disabled, cvError());
+    add('a 5 MB PDF is refused inline', /4 MB/.test(cvError()) && submit().dataset.ready === 'false', cvError());
 
     const ok = new Uint8Array(2048);
     ok.set([37, 80, 68, 70]);
     await putFile(ok, 'cv.pdf', 'application/pdf');
-    add('a valid form turns Submit on', !submit().disabled && cvError() === '', `disabled=${submit().disabled} err=${cvError()}`);
+    add('a valid form turns Submit on', submit().dataset.ready === 'true' && cvError() === '', `ready=${submit().dataset.ready} err=${cvError()}`);
 
     // Escape closes and gives focus back to the button that opened the form.
     doc.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
@@ -466,6 +468,128 @@ export async function reopenFlow(width = 1440) {
     add('reopen shows a fresh form', !!dialog()?.querySelector('form') && !dialog()?.querySelector('[role="status"]'));
     add('reopen selects the new job\'s chip', checked === 'Front-end', checked);
     add('reopen puts focus inside the form', !!dialog()?.querySelector('form')?.contains(doc.activeElement), doc.activeElement?.tagName);
+  } catch (e) {
+    add('flow error', false, e.message);
+  } finally {
+    f.remove();
+  }
+  return { width, pass: out.every((r) => r[1]), fails: out.filter((r) => !r[1]).map((r) => `${r[0]}: ${r[2]}`), checks: out.length };
+}
+
+/**
+ * Audit defect 1: a click on Submit with missing or bad fields shows an error
+ * under each invalid field, links it with aria-describedby, moves focus to the
+ * first invalid field, and sends nothing.
+ */
+export async function validateFlow(width = 1440) {
+  const { f, win, doc } = await loadFrame('/career/senior-php-developer', width, 900);
+  const out = [];
+  const add = (name, ok, detail = '') => out.push([name, !!ok, detail]);
+  try {
+    let sends = 0;
+    win.fetch = async () => {
+      sends += 1;
+      return new win.Response('{}', { status: 200 });
+    };
+    const h = helpers(doc, win, width);
+    await openApplyForm(h);
+    const dlg = doc.querySelector('[data-probe="apply-dialog"]');
+    const field = (n) => dlg.querySelector(`[name="${n}"]`);
+    const errorOf = (el) => {
+      const ids = (el?.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean);
+      // Only error lines count: the CV field also points to its help text.
+      return ids
+        .map((id) => doc.getElementById(id))
+        .filter((e) => e?.hasAttribute('data-field-error'))
+        .map((e) => e.textContent)
+        .join(' ')
+        .trim();
+    };
+    const submit = dlg.querySelector('[data-probe="apply-submit"]');
+    add('submit is clickable while empty', !submit.disabled, String(submit.disabled));
+    submit.click();
+    await sleep(300);
+    const required = ['name', 'email', 'school', 'phone', 'location', 'cv', 'consent'];
+    const bad = required.filter((n) => field(n)?.getAttribute('aria-invalid') === 'true' && errorOf(field(n)) !== '');
+    add('each empty required field shows a linked error', bad.length === required.length, `${bad.length}/${required.length}: ${bad.join(',')}`);
+    add('focus moves to the first invalid field', doc.activeElement === field('name'), doc.activeElement?.getAttribute('name') ?? doc.activeElement?.tagName);
+    add('nothing is sent', sends === 0, String(sends));
+
+    const setVal = (el, v) => {
+      Object.getOwnPropertyDescriptor(win.HTMLInputElement.prototype, 'value').set.call(el, v);
+      el.dispatchEvent(new win.Event('input', { bubbles: true }));
+    };
+    setVal(field('name'), 'Alex');
+    setVal(field('email'), 'name@domain');
+    await sleep(200);
+    add('a fixed field loses its error', field('name').getAttribute('aria-invalid') !== 'true' && errorOf(field('name')) === '', errorOf(field('name')));
+    add('a bad email says why', /email/i.test(errorOf(field('email'))) && field('email').getAttribute('aria-invalid') === 'true', errorOf(field('email')));
+  } catch (e) {
+    add('flow error', false, e.message);
+  } finally {
+    f.remove();
+  }
+  return { width, pass: out.every((r) => r[1]), fails: out.filter((r) => !r[1]).map((r) => `${r[0]}: ${r[2]}`), checks: out.length };
+}
+
+/**
+ * Audit defect 2: a closed form keeps its entries when the visitor opens it
+ * again for the same job. A successful send clears them for the next open.
+ */
+export async function draftFlow(width = 1440) {
+  const { f, win, doc } = await loadFrame('/career', width, 900);
+  const out = [];
+  const add = (name, ok, detail = '') => out.push([name, !!ok, detail]);
+  try {
+    win.fetch = async () => new win.Response(JSON.stringify({ ok: true }), { status: 200 });
+    const dialog = () => doc.querySelector('[data-probe="apply-dialog"]');
+    const form = () => dialog()?.querySelector('form');
+    const applyButtons = () => [...doc.querySelectorAll('[data-probe="job-row"] [data-probe="apply"] button')];
+    const open = async (i) => {
+      applyButtons()[i].click();
+      for (let n = 0; n < 40 && !form(); n += 1) await sleep(100);
+      await sleep(300);
+    };
+    const close = async () => {
+      [...form().querySelectorAll('button')].find((b) => b.textContent.trim() === 'Back').click();
+      await sleep(400);
+    };
+    const fld = (n) => form().querySelector(`[name="${n}"]`);
+    const setVal = (el, v) => {
+      Object.getOwnPropertyDescriptor(win.HTMLInputElement.prototype, 'value').set.call(el, v);
+      el.dispatchEvent(new win.Event('input', { bubbles: true }));
+    };
+    const putCv = () => {
+      const dt = new win.DataTransfer();
+      const pdf = new Uint8Array(2048);
+      pdf.set([37, 80, 68, 70]);
+      dt.items.add(new win.File([pdf], 'alex-cv.pdf', { type: 'application/pdf' }));
+      fld('cv').files = dt.files;
+      fld('cv').dispatchEvent(new win.Event('change', { bubbles: true }));
+    };
+
+    await open(0);
+    setVal(fld('name'), 'Alex');
+    putCv();
+    await sleep(200);
+    await close();
+    await open(0);
+    add('reopen keeps the typed name', fld('name')?.value === 'Alex', fld('name')?.value);
+    add('reopen keeps the chosen CV', /alex-cv\.pdf/.test(form()?.textContent ?? ''), '');
+
+    setVal(fld('email'), 'a@b.co');
+    setVal(fld('school'), 'FTU');
+    setVal(fld('phone'), '+84 1');
+    setVal(fld('location'), 'HCMC');
+    fld('consent').click();
+    await sleep(200);
+    form().querySelector('[data-probe="apply-submit"]').click();
+    await sleep(600);
+    add('the send succeeds with the kept CV', !!dialog()?.querySelector('[role="status"]'), '');
+    [...dialog().querySelectorAll('button')].find((b) => b.textContent === 'Close').click();
+    await sleep(400);
+    await open(0);
+    add('after a send, the next open is empty', fld('name')?.value === '' && !/alex-cv\.pdf/.test(form()?.textContent ?? ''), fld('name')?.value);
   } catch (e) {
     add('flow error', false, e.message);
   } finally {

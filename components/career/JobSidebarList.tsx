@@ -46,10 +46,13 @@ const JobSidebarList: React.FC<{ slug: string }> = ({ slug }) => {
               />
               <span className="flex min-w-0 flex-1 flex-col gap-fig-16">
                 <span className="flex items-center justify-between gap-fig-8">
-                  <span className="rounded-fig-xs bg-[#63A4FC] px-[10px] py-fig-2 font-body text-[11px] font-bold leading-[16px] text-white">
+                  {/* Figma draws white on #63A4FC at 11px (2.55:1) and a 10px #A0A0A0
+                      date. The audit sets 12px, white on #2D6DE0 (4.80:1), and
+                      gray-quiet, so both reach 4.5:1. */}
+                  <span className="rounded-fig-xs bg-[#2D6DE0] px-[10px] py-fig-2 font-body text-[12px] font-bold leading-[16px] text-white">
                     {job.category}
                   </span>
-                  <span className="whitespace-nowrap font-body text-[10px] font-medium leading-[16px] text-gray-fig-400">
+                  <span className="whitespace-nowrap font-body text-[12px] font-medium leading-[16px] text-gray-quiet">
                     {formatPosted(job.postedAt)}
                   </span>
                 </span>

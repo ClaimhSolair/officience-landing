@@ -70,7 +70,9 @@ const OurCulture: React.FC = () => (
             1024 the 561px box takes Heading-H1. */}
         <RevealChild as="p" y={28} className="font-sans text-h1 lg:w-[57.54%] xl:text-display-sm xl:font-medium">
           <span className="text-text-default">Find Out Why Our Team Loves Working Here Every Day</span>{' '}
-          <span className="text-gray-fig-400">and What Makes This More Than Just a Place to Work.</span>
+          {/* Figma draws #A0A0A0 (2.61:1). #8C8C8C is the lightest grey that gives
+              large text 3:1 on white (Career UX audit). */}
+          <span className="text-[#8C8C8C]">and What Makes This More Than Just a Place to Work.</span>
         </RevealChild>
       </Reveal>
 

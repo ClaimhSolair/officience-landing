@@ -18,10 +18,13 @@ import { ROUTES } from '../navigation';
  * - The CV is one PDF of 4 MB or less (ruling 21b; Figma says 5 MB, which the
  *   Vercel body limit does not allow). The file is checked when it is chosen,
  *   and again by api/apply.ts.
- * - Submit stays off until every required field is valid. Figma draws it grey
- *   in the empty state.
- * - The error state is not drawn. A failed send shows one line above the
- *   buttons, in the house error red.
+ * - Submit is grey until every required field is valid, as Figma draws it in
+ *   the empty state. It stays clickable: a click on a form that is not ready
+ *   shows an error under each invalid field and moves focus to the first one.
+ * - The error state is not drawn. The field errors and the line for a failed
+ *   send use the house error red.
+ * - The entries stay when the visitor closes the form and opens it again for
+ *   the same job. Layout clears them after a successful send.
  * - On a short screen the fields scroll inside the panel, and the buttons stay
  *   in view.
  *
@@ -34,6 +37,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 interface ApplyModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Tells Layout that the send succeeded, so the next open gets a clean form. */
+  onSent: () => void;
   jobSlug?: string;
   backgroundRef: RefObject<HTMLElement>;
 }
@@ -64,7 +69,7 @@ const EMPTY: Fields = {
 
 const LABEL = 'font-sans text-h3 leading-[32px] text-text-default';
 const INPUT =
-  'w-full rounded-fig-xs border border-border-frame bg-white px-fig-16 font-body text-body-md text-text-default placeholder:text-gray-fig-400 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30';
+  'w-full rounded-fig-xs border border-border-frame bg-white px-fig-16 font-body text-body-md text-text-default placeholder:text-gray-quiet aria-[invalid=true]:border-err focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30';
 
 const Required = () => (
   <span className="text-sec-500" aria-hidden="true">
@@ -80,20 +85,46 @@ const checkCv = (file: File | null): string => {
   return '';
 };
 
-const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backgroundRef }) => {
+type FieldKey = 'name' | 'email' | 'school' | 'phone' | 'position' | 'location' | 'cv' | 'consent';
+
+/** The order of the fields on screen. Focus goes to the first invalid one. */
+const FIELD_ORDER: FieldKey[] = ['name', 'email', 'school', 'phone', 'position', 'location', 'cv', 'consent'];
+
+const findErrors = (f: Fields, cv: File | null, cvError: string): Partial<Record<FieldKey, string>> => {
+  const out: Partial<Record<FieldKey, string>> = {};
+  const email = f.email.trim();
+  if (!f.name.trim()) out.name = 'Enter your full name.';
+  if (!email) out.email = 'Enter your email address.';
+  else if (!EMAIL_RE.test(email)) out.email = 'Enter a correct email address, for example name@domain.com.';
+  if (!f.school.trim()) out.school = 'Enter your university or school.';
+  if (!f.phone.trim()) out.phone = 'Enter your phone number.';
+  if (!f.position) out.position = 'Select a position.';
+  if (!f.location.trim()) out.location = 'Enter your city and country.';
+  if (cvError) out.cv = cvError;
+  else if (!cv) out.cv = 'Attach your CV as a PDF.';
+  if (!f.consent) out.consent = 'Accept the Terms of Use and the Privacy Policy.';
+  return out;
+};
+
+const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, onSent, jobSlug, backgroundRef }) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const job = jobBySlug(jobSlug);
-  // Layout keys this component per open, so every open mounts a clean form for
-  // the job it came from. No reset effect: a reset after mount would replace
-  // the content that the modal hook has just put focus in.
+  // Layout keys this component per job, and again after each successful send.
+  // The component stays mounted while the form is closed, so the entries stay
+  // for the next open. No reset effect: a reset after mount would replace the
+  // content that the modal hook has just put focus in.
   const [fields, setFields] = useState<Fields>(() => ({ ...EMPTY, position: job?.applyRole ?? '' }));
   const [cv, setCv] = useState<File | null>(null);
   const [cvError, setCvError] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [error, setError] = useState('');
+  // True after the first click on Submit. From then on, the field errors show
+  // and update as the visitor types.
+  const [tried, setTried] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useModalA11y({ isOpen, onClose, containerRef: panelRef, backgroundRef });
 
@@ -105,16 +136,19 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
 
   const set = <K extends keyof Fields>(k: K, v: Fields[K]) => setFields((f) => ({ ...f, [k]: v }));
 
-  const valid =
-    fields.name.trim() !== '' &&
-    EMAIL_RE.test(fields.email.trim()) &&
-    fields.school.trim() !== '' &&
-    fields.phone.trim() !== '' &&
-    fields.position !== '' &&
-    fields.location.trim() !== '' &&
-    fields.consent &&
-    !!cv &&
-    cvError === '';
+  const errors = findErrors(fields, cv, cvError);
+  const valid = Object.keys(errors).length === 0;
+  // A field shows its error after the first Submit. A refused file shows at once.
+  const shown = (k: FieldKey) => (tried || (k === 'cv' && cvError) ? errors[k] : undefined);
+  const errorId = (k: FieldKey) => `${titleId}-${k}-error`;
+  const invalidProps = (k: FieldKey) =>
+    shown(k) ? { 'aria-invalid': true as const, 'aria-describedby': errorId(k) } : {};
+  const fieldError = (k: FieldKey) =>
+    shown(k) ? (
+      <span id={errorId(k)} data-field-error className="block font-body text-caption leading-[16px] text-err">
+        {shown(k)}
+      </span>
+    ) : null;
 
   const onCv = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
@@ -125,7 +159,18 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!valid || status === 'sending' || !cv) return;
+    if (status === 'sending') return;
+    if (!valid || !cv) {
+      setTried(true);
+      const first = FIELD_ORDER.find((k) => errors[k]);
+      // The selected chip, or the first one, takes focus for the position group.
+      const target =
+        first === 'position'
+          ? formRef.current?.querySelector<HTMLInputElement>('input[name="position"]')
+          : formRef.current?.querySelector<HTMLInputElement>(`[name="${first}"]`);
+      target?.focus();
+      return;
+    }
     setStatus('sending');
     setError('');
 
@@ -153,6 +198,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
         throw new Error(data?.error || `Request failed (${res.status})`);
       }
       setStatus('sent');
+      onSent();
     } catch (err) {
       console.error('Application error:', err);
       setStatus('idle');
@@ -207,7 +253,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
                 </button>
               </div>
             ) : (
-              <form onSubmit={submit} noValidate className="flex min-h-0 flex-col gap-fig-16">
+              <form ref={formRef} onSubmit={submit} noValidate className="flex min-h-0 flex-col gap-fig-16">
                 {/* Bots fill this hidden field; api/apply.ts drops what they send. */}
                 <input
                   type="text"
@@ -262,14 +308,16 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
                               placeholder={placeholder}
                               value={fields[k]}
                               onChange={(e) => set(k, e.target.value)}
+                              {...invalidProps(k)}
                               className={`${INPUT} h-[36px]`}
                             />
+                            {fieldError(k)}
                           </label>
                         ))}
                       </div>
                     </fieldset>
 
-                    <fieldset className="flex flex-col gap-fig-12">
+                    <fieldset className="flex flex-col gap-fig-12" {...invalidProps('position')}>
                       <legend className={`${LABEL} mb-fig-12`}>
                         Position interested in <Required />
                       </legend>
@@ -298,6 +346,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
                           );
                         })}
                       </div>
+                      {fieldError('position')}
                     </fieldset>
 
                     <label className="flex flex-col gap-fig-8">
@@ -325,8 +374,10 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
                         placeholder="City, Country"
                         value={fields.location}
                         onChange={(e) => set('location', e.target.value)}
+                        {...invalidProps('location')}
                         className={`${INPUT} h-[50px]`}
                       />
+                      {fieldError('location')}
                     </label>
 
                     <div className="flex flex-col gap-fig-20">
@@ -342,23 +393,24 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
                             accept="application/pdf,.pdf"
                             required
                             onChange={onCv}
-                            aria-describedby={`${titleId}-cv-help`}
-                            aria-invalid={cvError ? true : undefined}
+                            aria-describedby={shown('cv') ? `${titleId}-cv-help ${errorId('cv')}` : `${titleId}-cv-help`}
+                            aria-invalid={shown('cv') ? true : undefined}
                             className="sr-only"
                           />
-                          <span className="shrink-0 rounded-fig-xs border border-border-field px-[5px] py-fig-2 font-body text-body-md text-gray-fig-400">
+                          <span className="shrink-0 rounded-fig-xs border border-border-field px-[5px] py-fig-2 font-body text-body-md text-gray-quiet">
                             Choose File
                           </span>
-                          <span className={`truncate font-body text-body-md ${cv ? 'text-text-default' : 'text-gray-fig-400'}`}>
+                          <span className={`truncate font-body text-body-md ${cv ? 'text-text-default' : 'text-gray-quiet'}`}>
                             {cv ? cv.name : 'No file chosen'}
                           </span>
                         </label>
-                        <p id={`${titleId}-cv-help`} className="font-body text-caption leading-[16px] text-gray-fig-400">
+                        <p id={`${titleId}-cv-help`} className="font-body text-caption leading-[16px] text-gray-quiet">
                           File upload PDF · Max 4MB
                         </p>
-                        {cvError && (
-                          <p data-probe="cv-error" role="alert" className="font-body text-body-md text-err">
-                            {cvError}
+                        {/* role="alert" reads a refused file at once. */}
+                        {shown('cv') && (
+                          <p id={errorId('cv')} data-probe="cv-error" data-field-error role="alert" className="font-body text-body-md text-err">
+                            {shown('cv')}
                           </p>
                         )}
                       </div>
@@ -376,31 +428,36 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
                       />
                     </label>
 
-                    <label className="flex cursor-pointer items-start gap-fig-8 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary">
-                      <input
-                        name="consent"
-                        type="checkbox"
-                        checked={fields.consent}
-                        onChange={(e) => set('consent', e.target.checked)}
-                        className="sr-only"
-                      />
-                      {fields.consent ? (
-                        <SquareCheck className="h-[24px] w-[24px] shrink-0 text-primary" strokeWidth={1.75} aria-hidden="true" />
-                      ) : (
-                        <Square className="h-[24px] w-[24px] shrink-0 text-gray-fig-400" strokeWidth={1.75} aria-hidden="true" />
-                      )}
-                      <span className="font-body text-body-md text-subtitle">
-                        I confirm that I have read and accepted the{' '}
-                        <Link to={ROUTES.terms} target="_blank" className="text-text-primary underline">
-                          Terms of Use
-                        </Link>{' '}
-                        and{' '}
-                        <Link to={ROUTES.privacy} target="_blank" className="text-text-primary underline">
-                          Privacy Policy
-                        </Link>{' '}
-                        of Officience.
-                      </span>
-                    </label>
+                    <div className="flex flex-col gap-fig-6">
+                      <label className="flex cursor-pointer items-start gap-fig-8 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary">
+                        <input
+                          name="consent"
+                          type="checkbox"
+                          checked={fields.consent}
+                          onChange={(e) => set('consent', e.target.checked)}
+                          {...invalidProps('consent')}
+                          className="sr-only"
+                        />
+                        {fields.consent ? (
+                          <SquareCheck className="h-[24px] w-[24px] shrink-0 text-primary" strokeWidth={1.75} aria-hidden="true" />
+                        ) : (
+                          // The box edge needs 3:1 against white (WCAG 1.4.11). #A0A0A0 gives 2.61:1.
+                          <Square className="h-[24px] w-[24px] shrink-0 text-gray-quiet" strokeWidth={1.75} aria-hidden="true" />
+                        )}
+                        <span className="font-body text-body-md text-subtitle">
+                          I confirm that I have read and accepted the{' '}
+                          <Link to={ROUTES.terms} target="_blank" className="text-text-primary underline">
+                            Terms of Use
+                          </Link>{' '}
+                          and{' '}
+                          <Link to={ROUTES.privacy} target="_blank" className="text-text-primary underline">
+                            Privacy Policy
+                          </Link>{' '}
+                          of Officience.
+                        </span>
+                      </label>
+                      {fieldError('consent')}
+                    </div>
                   </div>
                 </div>
 
@@ -418,11 +475,18 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
                   >
                     Back
                   </button>
+                  {/* Not `disabled`: a click on a form that is not ready shows the
+                      field errors. aria-disabled tells assistive tech that the
+                      form is not ready yet. */}
                   <button
                     type="submit"
                     data-probe="apply-submit"
-                    disabled={!valid || status === 'sending'}
-                    className="flex h-[56px] w-[168px] items-center justify-center gap-fig-8 bg-primary font-sans text-btn-md text-white transition-colors hover:bg-[#000086] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:bg-gray-fig-100 motion-reduce:transition-none"
+                    data-ready={valid}
+                    aria-disabled={!valid || undefined}
+                    disabled={status === 'sending'}
+                    className={`flex h-[56px] w-[168px] items-center justify-center gap-fig-8 font-sans text-btn-md text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-wait motion-reduce:transition-none ${
+                      valid ? 'bg-primary hover:bg-[#000086]' : 'bg-gray-fig-100'
+                    }`}
                   >
                     {status === 'sending' ? 'Sending…' : 'Submit'}
                     <ArrowRight className="h-[20px] w-[20px] shrink-0" strokeWidth={2} aria-hidden="true" />

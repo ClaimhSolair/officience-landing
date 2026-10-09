@@ -1375,9 +1375,24 @@ derivation grid: `docs/superpowers/specs/2026-10-09-career-page-design.md`. Coun
 - Benefit tiles are Be Vietnam Pro at 23.17/18.54px (a scaled component); the site fonts take their place.
 - Sidebar titles are Inter; Lexend here. "Officier" ships as drawn. The Figma header/footer show the 20th logo.
 
+### UX audit deviations (user-approved, 2026-10-09)
+These differ from Figma on purpose. Do not set them back to the drawn values.
+- 21s — Contrast. Small text that Figma draws in `#A0A0A0` (2.44-2.61:1) uses the token `gray-quiet` `#707070`
+  (4.95:1 on white, 4.62:1 on `#F7F7F7`). This applies to the Overview term, the CV help text, "Choose File",
+  "No file chosen", the input placeholders and the consent box edge. The grey half of the Our Culture headline uses
+  `#8C8C8C` (3.36:1, large text). The sidebar tag is white on `#2D6DE0` (4.80:1), and the tag and the date are
+  12px, not 11px and 10px.
+- 21t — Apply form validation. Submit keeps the grey look while the form is not ready, but it is not `disabled`
+  (it has `aria-disabled`). A click shows an error under each invalid field (`aria-describedby`, red border) and
+  moves focus to the first invalid field. Figma draws no error state.
+- 21u — Apply form drafts. The entries stay when the visitor closes the form and opens it again for the same job.
+  A different job or a successful send gives a clean form (Layout keys the form on `apply.form`).
+- Not changed: the red required `*` (`sec-500`, 4.32:1 at 14px) and the "Save for later" grey (disabled, ruling 21f).
+
 ### Verification
 - `scripts/probe/career-probe.js`: `gate(section, widths)` per checkpoint (shell, hero, culture, openings, benefits,
   job, modal) at 320-1910, and `modalFlow(width)` for the form's behaviour. Probe at 1910, never 1920.
+  `validateFlow(width)` and `draftFlow(width)` cover rulings 21t and 21u.
 - `node scripts/probe/apply-harness.mjs`: 9 cases against `api/apply.ts` with a stub mail transport.
 - Not yet verified: motion in a live browser (the pane runs 0 rAF), the apply form's exit fade, and a real send to
   jobs@ on a Vercel preview.
