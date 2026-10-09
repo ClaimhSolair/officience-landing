@@ -88,6 +88,18 @@
       ]
     },
     {
+      "source": "/work",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
+      "source": "/work/ioga",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
       "source": "/career",
       "headers": [
         { "key": "X-Robots-Tag", "value": "index, follow" }

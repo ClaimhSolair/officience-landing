@@ -7,7 +7,6 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import MenuOverlay from './components/MenuOverlay';
 import Survey from './components/Survey';
-import SplashScreen from './components/SplashScreen';
 import CookieConsent from './components/CookieConsent';
 import ScrollManager from './components/ScrollManager';
 import SmoothScroll from './components/SmoothScroll';
@@ -47,8 +46,6 @@ const ApplyModal = React.lazy(() => import('./components/career/ApplyModal'));
 
 export interface LayoutContext {
   openSurvey: (branch?: SurveyBranch) => void;
-  /** False only while the once-a-day splash is still covering the page. */
-  splashDone: boolean;
   /** Opens the Career apply form. A job slug selects that job's role chip. */
   openApply: (jobSlug?: string) => void;
 }
@@ -62,7 +59,6 @@ const Layout: React.FC = () => {
   const [surveyBranch, setSurveyBranch] = useState<SurveyBranch>('work');
   const [, setSurveyData] = useState<Record<string, string> | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [splashDone, setSplashDone] = useState(false);
   // The apply form mounts on the first open only, so its chunk stays out of
   // every page load until a visitor asks for it. `form` keys the form. It stays
   // the same while the visitor reopens the form for the same job, so the
@@ -88,12 +84,6 @@ const Layout: React.FC = () => {
     setApply((s) => (s.open ? { ...s, open: false } : s));
   }, [pathname]);
 
-  // The splash only renders on the home route, so everywhere else there is
-  // nothing to wait for.
-  useEffect(() => {
-    if (pathname !== ROUTES.home) setSplashDone(true);
-  }, [pathname]);
-
   const openSurvey = (branch: SurveyBranch = 'work') => {
     setSurveyBranch(branch);
     setIsSurveyOpen(true);
@@ -115,8 +105,6 @@ const Layout: React.FC = () => {
     <div className="bg-background min-h-screen w-full box-border flex flex-col font-sans text-gray-900 selection:bg-yellow-400 selection:text-black">
       <ScrollManager />
 
-      {/* Splash is a home-page welcome, not a site-wide interstitial. */}
-      {pathname === ROUTES.home && <SplashScreen onDone={() => setSplashDone(true)} />}
 
       {/* Stacking context for the whole page; overlays below sit above it. */}
       <div ref={pageRef} className="flex-1 relative isolate flex flex-col min-h-screen">
@@ -131,7 +119,7 @@ const Layout: React.FC = () => {
                 while the page chunk loads. A shorter box showed the footer in
                 view and then pushed it down (CLS 0.27-0.32 on every lazy route). */}
             <Suspense fallback={<div className="min-h-[100svh]" aria-busy="true" />}>
-              <Outlet context={{ openSurvey, splashDone, openApply } satisfies LayoutContext} />
+              <Outlet context={{ openSurvey, openApply } satisfies LayoutContext} />
             </Suspense>
           </ErrorBoundary>
         </main>

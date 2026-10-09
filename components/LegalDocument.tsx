@@ -85,10 +85,14 @@ const LegalDocument: React.FC<{ sections: LegalSection[] }> = ({ sections }) => 
       const heading = sectionHeading(section);
       const isClosing = !section.id && !section.title;
       return (
+        // No scroll margin: the global `scroll-padding-top` (index.html) already
+        // clears the header. A 120px margin added to it and stopped each section
+        // 119px low, below the contents spy line, so a clicked row lost its
+        // highlight to the row above (UI/UX E2E test U-19).
         <section
           key={si}
           id={heading ? sectionAnchor(section, si) : undefined}
-          className="flex flex-col gap-fig-16 scroll-mt-[120px] lg:gap-fig-24"
+          className="flex flex-col gap-fig-16 lg:gap-fig-24"
         >
           {heading && <h2 className="font-sans text-h2 text-text-default lg:text-display-sm">{heading}</h2>}
           {section.clauses.map((clause, ci) => (

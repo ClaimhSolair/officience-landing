@@ -45,7 +45,6 @@ officience/
     WhyOfficience.tsx  # "Why Choose Us" - 4 values in a crosshair, inlined pinwheel
     Contact.tsx        # "Connect With Us" - survey entry rows + 6 offices, own blue
     Footer.tsx         # Footer - brand, Company links, partner tiles, legal row
-    SplashScreen.tsx   # Once-per-day splash (home route only)
     Survey.tsx         # Contact survey modal
     CookieConsent.tsx  # Consent banner (Google Consent Mode v2)
     LegalDocument.tsx  # Renders structured legal copy from legalContent.ts
@@ -72,18 +71,15 @@ officience/
 
 ## Image buckets (Cloudflare R2)
 Three buckets, all named in `assets.ts`:
-- `pub-e3bac769…` — legacy; splash-screen art only.
+- `pub-e3bac769…` — legacy; nothing in the build uses it since the splash screen was removed (2026-10-09).
 - `pub-37210447…` — **production origin for officience.com. Read-only during the redesign** — uploads overwrite in place with no cache header and no rollback.
 - `pub-767c5aeb…` — staging; every Sept-2026 asset. Becomes the production origin at merge (URL flip, no copy).
 
 Upload with `npm run upload-assets` (approval-gated, and it re-uploads *all* of `assets-src/`). Bump `ASSET_VERSION` on every re-upload.
 
-## Splash Screen Logic
-- Rendered on the `/` route only. Decision 2026-08-20: **kept as-is for now**, so it still serves 20th-anniversary art from the legacy bucket and that bucket's preconnect stays. If it is ever reskinned, give it a new localStorage key so it re-shows.
-- Shows once per calendar day (localStorage key: `officience_splash_20th`)
-- Desktop: 5s auto-dismiss, Mobile: 4s auto-dismiss
-- Skip via X button or clicking backdrop
-- Mobile breakpoint: `window.innerWidth < 768`
+## Splash Screen
+- Removed on 2026-10-09 (user decision, UI/UX E2E test U-9/U-11). It was not a real dialog, and it covered `/#contact` for a first-time visitor. The hero entrance now starts on mount.
+- Visitors keep an old `officience_splash_20th` key in localStorage. Nothing reads it. A new splash needs a new key.
 
 ## Survey Email Routing
 - Survey submissions POST to `api/survey.ts` (Vercel Node function; **does not run under Vite** — e2e only on a Vercel deploy).
@@ -132,7 +128,7 @@ A screenshot is not verification. Do this before reporting any layout/responsive
 
 ## Verification Procedure — motion & state changes
 From the Sept-2026 motion retro (v4→v6.4): every lost review round was a *default* state never probed. Do this before reporting any motion/animation change as done.
-- **Probe the default state first, the built state second.** The axis matrix: width × viewport height × `prefers-reduced-motion` (**both states, every suite** — Windows reports `reduce` whenever "Animation effects" is off, which is common; a rig that forces `no-preference` to make motion visible is structurally unable to see motion's absence) × origin (localhost vs the deployed host — `sessionStorage`/`localStorage` overrides are per-origin and do not travel) × first-visit state (splash, consent banner, empty storage).
+- **Probe the default state first, the built state second.** The axis matrix: width × viewport height × `prefers-reduced-motion` (**both states, every suite** — Windows reports `reduce` whenever "Animation effects" is off, which is common; a rig that forces `no-preference` to make motion visible is structurally unable to see motion's absence) × origin (localhost vs the deployed host — `sessionStorage`/`localStorage` overrides are per-origin and do not travel) × first-visit state (consent banner, empty storage).
 - **Two strikes ⇒ change the mechanism, not the parameter.** If the same complaint survives one parameter tweak (a threshold, an offset, a duration), the shape is wrong. Worked example: the laptop-pin saga took three rounds because round two tightened a fit threshold (≥845px) instead of switching to scale-to-fit.
 - **Observer/mover checks before committing motion code** (each has bitten twice as prose): a `useInView`/`whileInView` target must not be the element that is transformed, nor sit inside its own `overflow-hidden` window; initial gate states must equal the fallback (start `false`, enhance after measurement — an optimistic initial strands MotionValues); never re-prop one motion element between style-MotionValue and variant modes — branch to keyed elements.
 - **Stranger-test every handoff.** Before declaring a link shareable, open the exact URL as a stranger: fresh profile, logged out, no query params. Every claim in a handoff message is either verified (say how) or labeled unverified — a handoff claim is a premise, same rule as choices. Vercel preview URLs are SSO-walled (bare `*.vercel.app` 302s to a login); share the Shareable Link, never a guessed alias.

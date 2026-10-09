@@ -20,8 +20,7 @@ import {
  * 1920 sets the brand block against the link columns; 390 stacks every block in
  * one column on a flat 32px rhythm. The anniversary lockup and the watermark
  * band are unchanged from the July build — byte-identical files, still in the
- * bucket — so the footer still carries 20th-anniversary branding, consistent
- * with the decision to leave the splash art alone.
+ * bucket — so the footer still carries 20th-anniversary branding.
  *
  * The mail, phone and four social glyphs are all inlined (`ui/FooterIcons`), taken
  * from this footer's own frame. MenuOverlay still draws the bucket set from its own

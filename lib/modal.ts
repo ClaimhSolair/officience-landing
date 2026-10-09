@@ -2,7 +2,7 @@ import { useEffect, useRef, type RefObject } from 'react';
 import { scrollToY, startScroll, stopScroll } from './scroll';
 
 /**
- * Shared modal plumbing for every overlay surface (menu, survey, splash):
+ * Shared modal plumbing for every overlay surface (menu, survey, apply form):
  * a scroll lock that also works on iOS, plus focus containment.
  */
 

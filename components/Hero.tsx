@@ -26,7 +26,7 @@ const SUBTITLE =
  * **The headline never animates.** It is the largest text above the fold and so
  * the LCP element; starting it at opacity 0 postpones the page's first meaningful
  * paint by the length of the animation, and no entrance is worth that. Everything
- * around it is free to arrive, and does, once the splash is out of the way.
+ * around it is free to arrive, and does.
  *
  * The five floating 3D shapes are the one thing here Figma cannot address: they
  * render in the 1440 frame but carry no node id, no asset and no coordinates, so
@@ -92,16 +92,12 @@ const Shape: React.FC<{
     />
   );
 };
-interface HeroProps {
-  /** The entrance waits for this, so it is not spent behind the splash overlay. */
-  splashDone: boolean;
-}
-
-const Hero: React.FC<HeroProps> = ({ splashDone }) => {
+const Hero: React.FC = () => {
   const bandRef = useRef<HTMLElement>(null);
   const motionOn = useMotionEnabled();
   const animating = motionOn && MOTION.hero;
-  const state = !animating || splashDone ? 'shown' : 'hidden';
+  // The splash screen is gone (user, 2026-10-09), so the entrance starts on mount.
+  const state = 'shown';
 
   const { scrollYProgress } = useScroll({ target: bandRef, offset: ['start start', 'end start'] });
   // Smoothed once for every shape, so the drift glides between wheel notches.

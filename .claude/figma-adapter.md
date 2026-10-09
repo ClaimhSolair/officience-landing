@@ -575,7 +575,7 @@ of decision, not by section.
 
 | Bucket | Public host | Role |
 |---|---|---|
-| legacy | `pub-e3bac769…` | Splash-screen art only. Still referenced by `SplashScreen.tsx`; preconnect stays while the splash ships. |
+| legacy | `pub-e3bac769…` | Not used since the splash screen was removed (2026-10-09). The preconnect is gone too. |
 | **production** | `pub-37210447…` | **Serves every image on officience.com today.** Read-only for this redesign — writing here changes the live site, with no cache header, deploy gate, or rollback. |
 | **staging** | `pub-767c5aeb…` | Bucket name `redesignsept2026`. Every Sept-2026 asset goes here. Becomes the production origin at merge (URL flip, no copy), leaving production intact as the rollback. |
 
