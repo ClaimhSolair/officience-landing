@@ -339,10 +339,12 @@ export const ASSETS = {
   } satisfies Record<string, ImageSource[]>,
   testimonials: {
     quote: a('/testimonials/quote.svg'),
+    // 112px WebP: the circle shows at 52px (desktop, 2x) and 36px (phone, 3x).
+    // The PNG sources were 512-1024px and 637 KB together for three avatars.
     authors: [
-      a('/testimonials/author-1.png'),
-      a('/testimonials/author-2.png'),
-      a('/testimonials/author-3.png'),
+      a('/testimonials/author-1-112.webp'),
+      a('/testimonials/author-2-112.webp'),
+      a('/testimonials/author-3-112.webp'),
     ],
   },
   /**
