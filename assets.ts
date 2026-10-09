@@ -51,6 +51,17 @@ export const serviceSources = (slug: string, name: string, widths: number[]): Im
   [...widths].sort((x, y) => x - y).map((w) => ({ url: serviceAsset(slug, `${name}-${w}.webp`), w }));
 
 /**
+ * A file of the Work pages, from `assets-src/work-page/<dir>/`. The `dir` is
+ * `listing` for the Work listing and the slug for a case study. This is not
+ * `works/`, which the home page's Proven Results uses.
+ */
+export const workAsset = (dir: string, file: string) => a(`/work-page/${dir}/${file}`);
+
+/** One Work picture at several widths (`<name>-<w>.webp`), narrowest first. */
+export const workSources = (dir: string, name: string, widths: number[]): ImageSource[] =>
+  [...widths].sort((x, y) => x - y).map((w) => ({ url: workAsset(dir, `${name}-${w}.webp`), w }));
+
+/**
  * One photo of a marquee row. `w` x `h` is the file's own ratio, and the tile
  * box takes that ratio, so no tile crops or stretches at any height.
  */

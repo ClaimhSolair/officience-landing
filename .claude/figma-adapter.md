@@ -1230,3 +1230,72 @@ home `Contact` with the hub blurb (3257:2599) and no offices.
     four cards take 18px/28px (weight 500) from xl, H4 from 2xl and H2 again from 3xl. All four names are on one line at
     1280, 1366, 1440, 1536 and 1920. The type scale has no 18px style, so this size is an exception. Three-person
     teams keep H2.
+
+## 20 — The Work listing and the case studies (started 2026-10-09)
+
+Spec and plan: `C:\Users\Admin\.claude\plans\figma-mcp-establish-implement-silly-cocoa.md` (the council verdict, the fit
+table and the checkpoints). The ledger is `.superpowers/sdd/figma-mcp-establish-implement-silly-cocoa/progress.md`.
+Every frame is 1440 only. No frame is drawn at 390 or 1920.
+
+### Node map
+- Listing `3353:3329` (hero `3770:4571`, filter bar `3353:3338`, cards 1-6 `3353:3341`, pagination `3426:3756`) and
+  cards 7-12 `3403:3521`.
+- IOGA case study `3770:4574` (the layer is named "Brochure Rizlum"): hero `3779:4995`, back link `3816:7991`, sidebar
+  `3825:8852`, main column `3816:7969`, team `3816:8585` + `3816:8634`, "Discover Other Works" `3816:7868`, contact
+  band `3816:8130`.
+
+### Rulings (user, 2026-10-09, unless marked "build")
+20a. **Only IOGA has a case study.** Only its listing card is a link. A new case study is one file in `content/work/`.
+20b. **The filter bar works.** Category (the union of the card tags), Search (title and tags, no case, no accents) and
+    six cards to a page. The state is in the URL (`?category=&q=&page=`). Typing replaces the history entry.
+20c. **The IOGA team has six people** in a two-column grid in the main column.
+20d. **"Discover Other Works" follows 19ab**: the three cards and a blue "View All Work" end card to `/work`. The header
+    link is dropped.
+20e. **The fact sidebar is sticky.** It stops at the end of the main column.
+20f. Build: **routes** `/work` and `/work/:slug`. An unknown slug or a project without a case study goes to `/work`.
+20g. **A card title row wraps per card.** The chips stay on the title line where they fit. At 1440 and wider every
+    row is one line, as drawn. At 1280 only "Passerelles Numériques" wraps (it needs 671px of a 604px card).
+20h. **The sidebar sits beside the column from xl** (amends 20e "from lg"). At 1024 its track is 267px, and "Corporates
+    & SMEs" needs 230px of the 203px inside the padding. Below xl the facts are a grid above the column.
+20i. **The type keeps the drawn sizes above 1440.** The boxes grow with the window (1.29x at a 1910 window).
+20j. Build: **the case body uses shares.** From xl the tracks are `381fr 144fr 867fr` (24 + 381 + 144 + 867 + 24 =
+    1440). From lg to xl the facts and the column keep the drawn 867px width, centred, so 1024-1279 shows the 1440
+    column at its drawn size.
+20k. Build: **Final Impact cards are as tall as their copy** (Figma draws no fixed height), three across from lg.
+    The one-line label "Knowledge Consumed" needs 238px. A card is 273px at lg, 240px at 1280 and 229px at 768.
+20l. Build: **the Tech Stack groups keep the drawn heights** (173 / 190 / 185px) as a minimum from lg.
+20m. Build: **the case hero bake** is the 1440x840 part of Figma's 1443x960 box under the header (y 120-960), mirrored
+    as drawn, with the drawn dark-left gradient baked in. The site header is solid, so the copy then sits 120px over
+    the bottom edge and the back link 60px under the top edge, as drawn. The bake differs from the Figma render by a
+    mean of 4.75/255.
+20n. Build: **the query string does not scroll to the top.** `ScrollManager` skips a change of the query string only.
+
+### Assets
+- `assets-src/work-page/listing/` (12 cards at 700/1400, ECOEATS at 684, the hero at 800/1440/1920) and
+  `assets-src/work-page/ioga/` (hero, challenge, three solution pictures, six portraits at 548/1096, two avatars, and
+  `stack/` with 11 logos at 3x). Each file follows Figma's own crop and scale (19aa). The bake scripts are
+  `bake-lib.cjs`, `bake-listing.cjs` and `bake-case.cjs` in the session scratchpad.
+- "Discover Other Works" reuses the Crunch cards (`crunch.work`): the same files and crops.
+
+### Slips shipped as drawn
+- The back link says "Back to All Brochure" on a Work page. It goes to `/work`.
+- The third team card has the "ThanhCong" photo with the plate "Cong Chau, ITs" (the IT Ops copy). The hidden "Tuan
+  Ngo" plates in both team rows are not built.
+- "Ads scraping / collection" is not a listing project, and its picture is the FV Hospital file (as on Crunch).
+- The listing pagination draws five pages with page 2 current. The build shows two pages, with page 1 first.
+- The IOGA hero chips ("SaaS", "E-Learning Platform") are not the listing chips ("Software Development", "Mobile App").
+- Figma draws the header white on the listing and transparent on the case study. The build keeps the blue header.
+- The 3403:3521 frame is #F7F7F7. The listing is white, as the main frame 3353:3329 draws it.
+- The pagination numbers are #A0A0A0 on white (2.6:1).
+
+### Placeholders and soft assets
+- The empty filter state is not drawn: "No work matches your search." and "Clear filters" are placeholder copy.
+- ECOEATS is live text in Figma, and `get_screenshot` gives 1x only, so its card is 684px wide. Phat Vo's portrait
+  file is 400x400 and Figma stretches it into 427x479. The Rapide Tyres file is 512px wide. These look soft on
+  high-density screens.
+
+### Verification
+`.claude/probe-layout.js` (git-ignored dev tooling) loads a page in a same-origin iframe per width and reports leaf
+overflow, clipped text, `data-fit` line counts, `data-aspect` drift, band fit and sticky health. Its `localAssets`
+option serves files that are not uploaded yet. It ran clean at 375, 390, 768, 1023, 1024, 1279, 1280, 1440, 1535,
+1536 and 1910 on both pages.

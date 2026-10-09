@@ -117,40 +117,63 @@ const PinnedCard: React.FC<{
  */
 const VIEW_ALL = 'justify-between px-fig-24 py-fig-32 lg:px-fig-40 lg:py-fig-40';
 
-const ViewAllBody: React.FC = () => (
+/** Where the end card goes. The service pages go to the hub. */
+interface ViewAllLink {
+  label: string;
+  to: string;
+}
+
+const BROCHURE: ViewAllLink = { label: 'View All Brochure', to: ROUTES.services };
+
+const ViewAllBody: React.FC<{ link: ViewAllLink }> = ({ link }) => (
   <>
     <StarMark className="h-[56px] w-[56px] rotate-[91deg] lg:h-[100px] lg:w-[100px]" />
     <Button
-      to={ROUTES.services}
+      to={link.to}
       variant="secondary"
       size="lg"
       onDark
       className="w-full border-transparent shadow-fig-xs lg:text-btn-lg"
       icon={<ArrowRightIcon />}
     >
-      View All Brochure
+      {link.label}
     </Button>
   </>
 );
 
 /** The end card on the pinned row. It enters as the other cards do. */
-const PinnedViewAll: React.FC<{ progress: MotionValue<number>; win: [number, number] | null | undefined }> = ({
-  progress,
-  win,
-}) => {
+const PinnedViewAll: React.FC<{
+  progress: MotionValue<number>;
+  win: [number, number] | null | undefined;
+  link: ViewAllLink;
+}> = ({ progress, win, link }) => {
   const { cardY } = useCardEntrance(progress, win);
   return win ? (
     <motion.article className={`${CARD} ${VIEW_ALL}`} style={{ y: cardY }}>
-      <ViewAllBody />
+      <ViewAllBody link={link} />
     </motion.article>
   ) : (
     <motion.article className={`${CARD} ${VIEW_ALL}`}>
-      <ViewAllBody />
+      <ViewAllBody link={link} />
     </motion.article>
   );
 };
 
-const SelectedWork: React.FC<{ cards: WorkCard[]; label: string }> = ({ cards, label }) => {
+interface SelectedWorkProps {
+  cards: WorkCard[];
+  label: string;
+  /** The section id, which is also the `section_view` key. */
+  id?: string;
+  /**
+   * A Display-md heading in place of the "Selected Work" badge. A case study
+   * draws "Discover Other Works" (3818:8794).
+   */
+  heading?: string;
+  /** The end card's link. A case study goes to the Work listing (ruling 20d). */
+  viewAll?: ViewAllLink;
+}
+
+const SelectedWork: React.FC<SelectedWorkProps> = ({ cards, label, id = 'selected-work', heading, viewAll = BROCHURE }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const columnRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLDivElement>(null);
@@ -170,16 +193,22 @@ const SelectedWork: React.FC<{ cards: WorkCard[]; label: string }> = ({ cards, l
     // `overflow-x-clip`, not `overflow-hidden`: a hidden overflow makes the
     // section a scroll container, and the pinned frame would then stick to the
     // section instead of the viewport.
-    <section id="selected-work" className="relative overflow-x-clip bg-surface py-fig-64 lg:py-fig-120">
+    <section id={id} className="relative overflow-x-clip bg-surface py-fig-64 lg:py-fig-120">
       <Container>
         {/* "View All Brochure" is the deck's end card now, so the header keeps
-            only the badge (user, 2026-09-30). */}
+            only the badge (user, 2026-09-30), or the heading of a case study. */}
         <Reveal as="div" stagger={STAGGER.base} className="flex items-center">
-          <RevealChild as="span" y={20} duration={SEC.revealFast}>
-            <SectionBadge as="h2" size="sm">
-              Selected Work
-            </SectionBadge>
-          </RevealChild>
+          {heading ? (
+            <RevealChild as="span" y={28}>
+              <h2 className="font-sans text-h1 font-medium text-text-primary lg:text-display-md">{heading}</h2>
+            </RevealChild>
+          ) : (
+            <RevealChild as="span" y={20} duration={SEC.revealFast}>
+              <SectionBadge as="h2" size="sm">
+                Selected Work
+              </SectionBadge>
+            </RevealChild>
+          )}
         </Reveal>
       </Container>
 
@@ -241,7 +270,7 @@ const SelectedWork: React.FC<{ cards: WorkCard[]; label: string }> = ({ cards, l
                   ),
                 )}
                 {pinned ? (
-                  <PinnedViewAll key="p-view-all" progress={progress} win={geom.windows[cards.length]} />
+                  <PinnedViewAll key="p-view-all" progress={progress} win={geom.windows[cards.length]} link={viewAll} />
                 ) : (
                   <motion.article
                     key="r-view-all"
@@ -260,7 +289,7 @@ const SelectedWork: React.FC<{ cards: WorkCard[]; label: string }> = ({ cards, l
                       },
                     }}
                   >
-                    <ViewAllBody />
+                    <ViewAllBody link={viewAll} />
                   </motion.article>
                 )}
               </motion.div>

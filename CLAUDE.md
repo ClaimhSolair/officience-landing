@@ -24,9 +24,14 @@ officience/
   pages/
     HomePage.tsx       # The long marketing page; owns its own vertical rhythm
     LegalPage.tsx      # /terms-of-use and /privacy-policy (lazy-loaded)
+    WorkPage.tsx       # /work - the Work listing: hero, filter bar, card grid, pages
+    WorkCasePage.tsx   # /work/:slug - a case study (IOGA is the template)
+  content/work/        # The Work listing data and one file per case study
   lib/
     modal.ts           # iOS-safe body scroll lock + focus trap for overlays
     pageMeta.ts        # usePageView: sets document.title and reports the pageview
+    workFilter.ts      # Work filter, search and pagination (pure; tests/workFilter.test.ts)
+  tests/               # node --test tests/workFilter.test.ts (Node 24 strips the types)
   components/
     Header.tsx         # Sticky nav bar
     Hero.tsx           # Hero section with tagline
@@ -44,6 +49,7 @@ officience/
     ScrollManager.tsx  # Scroll position and hash targets on route change
     ErrorBoundary.tsx  # Recovers from stale lazy chunks after a redeploy
     navigation.ts      # Every nav destination, in one table
+    work/              # Work listing parts; case/ holds the case-study layout and sections
     ui/                # Container, Button, SectionBadge, ApproachMark, CarouselDots
 ```
 

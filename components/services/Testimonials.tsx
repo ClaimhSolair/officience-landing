@@ -25,9 +25,13 @@ import type { Quote } from '../../content/services/types';
 
 const GAP = 64;
 
-const Card: React.FC<{ q: Quote; hidden?: boolean }> = ({ q, hidden }) => (
+/**
+ * One quote card. The service pages draw it white on BG/Secondary. A case
+ * study draws it BG/Secondary on white (IOGA 3820:8835), so `grey` sets that fill.
+ */
+export const QuoteCard: React.FC<{ q: Quote; hidden?: boolean; grey?: boolean }> = ({ q, hidden, grey }) => (
   <li
-    className="flex flex-col gap-fig-16 rounded-fig-xs bg-surface p-fig-24 lg:gap-fig-20 lg:p-fig-40"
+    className={`flex flex-col gap-fig-16 rounded-fig-xs p-fig-24 lg:gap-fig-20 lg:p-fig-40 ${grey ? 'bg-bg-secondary' : 'bg-surface'}`}
     aria-hidden={hidden || undefined}
   >
     <p className="font-body text-body-lg text-text-default lg:text-body-xl">{q.quote}</p>
@@ -77,7 +81,7 @@ const Testimonials: React.FC<{ quotes: Quote[] }> = ({ quotes }) => {
             <Marquee
               items={quotes}
               itemKey={(q) => q.author}
-              renderItem={(q, _i, hidden) => <Card q={q} hidden={hidden} />}
+              renderItem={(q, _i, hidden) => <QuoteCard q={q} hidden={hidden} />}
               label="What our clients say"
               direction="y"
               gap={GAP}
@@ -87,7 +91,7 @@ const Testimonials: React.FC<{ quotes: Quote[] }> = ({ quotes }) => {
           ) : (
             <Reveal as="ul" y={28} className="flex flex-col gap-fig-24 lg:gap-fig-64">
               {quotes.map((q) => (
-                <Card key={q.author} q={q} />
+                <QuoteCard key={q.author} q={q} />
               ))}
             </Reveal>
           )}

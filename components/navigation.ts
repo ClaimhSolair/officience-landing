@@ -12,6 +12,8 @@ export const ROUTES = {
   privacy: '/privacy-policy',
   /** The Services hub. Each service page is `/services/<slug>`. */
   services: '/services',
+  /** The Work listing. A case study is `/work/<slug>`. */
+  work: '/work',
 } as const;
 
 /**
@@ -31,6 +33,9 @@ export const SERVICE_SLUGS = [
 export type ServiceSlug = (typeof SERVICE_SLUGS)[number];
 
 export const serviceHref = (slug: ServiceSlug) => `${ROUTES.services}/${slug}`;
+
+/** The URL of a case study. The slug is the key of its content in `content/work/`. */
+export const workHref = (slug: string) => `${ROUTES.work}/${slug}`;
 
 /**
  * Anchor targets on the home page. These ids are also the keys Vercel Analytics
@@ -155,7 +160,7 @@ export const MENU: NavItem[] = [
       },
     ],
   },
-  { label: 'Work', target: { kind: 'section', id: 'proven-results' } },
+  { label: 'Work', target: { kind: 'route', to: ROUTES.work } },
   { label: 'Career', target: { kind: 'external', href: EXTERNAL.career } },
   { label: 'About Us', target: { kind: 'route', to: ROUTES.about } },
 ];
@@ -191,18 +196,17 @@ export const DIY_JAM_CTAS: NavItem[] = [
   },
 ];
 
-/** "View All Work" on the Proven Results deck. */
+/** "View All Work" on the Proven Results deck. It goes to the Work listing. */
 export const VIEW_ALL_WORK: NavItem = {
   label: 'View All Work',
-  target: { kind: 'section', id: 'proven-results' },
-  unresolved: 'There is no work archive page — destination pending from the team.',
+  target: { kind: 'route', to: ROUTES.work },
 };
 
 /** Footer "Company" column. */
 export const FOOTER_COMPANY: NavItem[] = [
   { label: 'About us', target: { kind: 'route', to: ROUTES.about } },
   { label: 'Services', target: { kind: 'route', to: ROUTES.services } },
-  { label: 'Work', target: { kind: 'section', id: 'proven-results' } },
+  { label: 'Work', target: { kind: 'route', to: ROUTES.work } },
   { label: 'Career', target: { kind: 'external', href: EXTERNAL.career } },
 ];
 
@@ -249,9 +253,10 @@ export const useGoToSection = () => {
   const { pathname } = useLocation();
 
   return (id: SectionId) => {
-    // The Services hub has its own contact band (Figma 3257:2582), so its
-    // "Contact Us" stays on the page.
-    const onPage = pathname === ROUTES.home || (pathname === ROUTES.services && id === 'contact');
+    // The Services hub (Figma 3257:2582) and each case study (3816:8130) have
+    // their own contact band, so their "Contact Us" stays on the page.
+    const ownContact = pathname === ROUTES.services || pathname.startsWith(`${ROUTES.work}/`);
+    const onPage = pathname === ROUTES.home || (ownContact && id === 'contact');
     if (onPage) scrollToSection(id);
     else navigate(sectionHref(id));
   };

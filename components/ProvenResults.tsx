@@ -10,7 +10,7 @@ import CarouselDots from './ui/CarouselDots';
 import Reveal, { RevealChild } from './ui/Reveal';
 import { EASE, MOTION, PINNED_H, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
 import { useCardEntrance, usePinnedTrack } from '../lib/pinnedTrack';
-import { EXTERNAL, VIEW_ALL_WORK } from './navigation';
+import { ROUTES, VIEW_ALL_WORK } from './navigation';
 
 /**
  * Figma 3137:2069 (1920), 2943:1579 (1440, the only frame holding the View All
@@ -347,7 +347,7 @@ const ProvenResults: React.FC = () => {
                       {VIEW_ALL_BLURB}
                     </p>
                     <Button
-                      href={VIEW_ALL_WORK.target.kind === 'external' ? VIEW_ALL_WORK.target.href : EXTERNAL.about}
+                      to={VIEW_ALL_WORK.target.kind === 'route' ? VIEW_ALL_WORK.target.to : ROUTES.work}
                       variant="secondary"
                       size="lg"
                       onDark

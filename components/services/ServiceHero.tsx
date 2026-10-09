@@ -49,11 +49,22 @@ interface ServiceHeroProps {
   /** The hub draws no subtitle. */
   subtitle?: string;
   pill?: string;
+  /**
+   * A row of chips above the title, in the pill style. A case study draws two
+   * (IOGA 3779:4998), 42px above the title.
+   */
+  tags?: string[];
   /** The drawn text-box widths at lg. Software draws 684 and 461. */
   titleWidth?: number;
   subtitleWidth?: number;
-  /** Shows "Back to All Brochure". The hub has no back link. */
-  back?: boolean;
+  /**
+   * `true` shows "Back to All Brochure" to the hub. An object gives another
+   * label and destination (a case study goes back to the Work listing). The hub
+   * and the Work listing have no back link.
+   */
+  back?: boolean | { label: string; to: string };
+  /** The section id, which is also the `section_view` key. */
+  id?: string;
   /** A black scrim over the photo, as an opacity. The hub draws 0.4. */
   scrim?: number;
   /**
@@ -70,20 +81,23 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({
   title,
   subtitle,
   pill,
+  tags,
   titleWidth = 684,
   subtitleWidth = 461,
   back = true,
   scrim,
   centeredWidth,
   titleId = 'service-hero-title',
+  id = 'service-hero',
 }) => {
   const motionEnabled = useMotionEnabled();
   const variants = motionEnabled && MOTION.serviceHero ? COPY_VARIANTS : COPY_VARIANTS_REDUCED;
   const widest = image.sources[image.sources.length - 1];
+  const backLink = back === true ? { label: 'Back to All Brochure', to: ROUTES.services } : back || null;
 
   return (
     <section
-      id="service-hero"
+      id={id}
       className="relative isolate w-full overflow-hidden bg-black-900"
       aria-labelledby={titleId}
     >
@@ -106,15 +120,15 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({
           copy at the bottom. Each sits in its own Container, because the
           Container's outer box takes no height of its own. */}
       <div className="relative flex flex-col gap-fig-16 pb-fig-32 pt-fig-24 lg:absolute lg:inset-0 lg:justify-end lg:gap-0 lg:pb-[116px] lg:pt-[60px]">
-        {back && (
+        {backLink && (
           <div className="lg:mb-auto">
             <Container>
               <Link
-                to={ROUTES.services}
+                to={backLink.to}
                 className="inline-flex h-[56px] items-center gap-fig-4 pl-fig-4 pr-fig-24 font-sans text-btn-md text-white drop-shadow-[0_1px_1px_#0F1219] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 <ArrowLeftIcon />
-                Back to All Brochure
+                {backLink.label}
               </Link>
             </Container>
           </div>
@@ -134,6 +148,18 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({
               <span className="self-start rounded-fig-xs bg-pri-50 p-fig-8 font-sans text-btn-md text-text-primary lg:text-btn-lg">
                 {pill}
               </span>
+            )}
+            {tags && (
+              <ul className="flex flex-wrap gap-fig-12 lg:mb-fig-16 lg:gap-fig-20" aria-label="Project type">
+                {tags.map((tag) => (
+                  <li
+                    key={tag}
+                    className="rounded-fig-xs bg-pri-50 p-fig-8 font-sans text-btn-md text-text-primary lg:text-btn-lg"
+                  >
+                    {tag}
+                  </li>
+                ))}
+              </ul>
             )}
             {/* From lg the box width is in em, at the drawn width for Display-xl
                 (86px). At lg the Display-md title then keeps the artboard's line

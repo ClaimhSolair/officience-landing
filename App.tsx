@@ -36,6 +36,10 @@ const ServicePage = React.lazy(() => import('./pages/ServicePage'));
 // The Services hub, which points to the seven service pages.
 const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
 
+// The Work listing and the case studies. Each is a chunk of its own.
+const WorkPage = React.lazy(() => import('./pages/WorkPage'));
+const WorkCasePage = React.lazy(() => import('./pages/WorkCasePage'));
+
 export interface LayoutContext {
   openSurvey: (branch?: SurveyBranch) => void;
   /** False only while the once-a-day splash is still covering the page. */
@@ -134,6 +138,8 @@ const App = () => (
           <Route path={ROUTES.diyJam} element={<DiyJamStoryPage />} />
           <Route path={ROUTES.services} element={<ServicesPage />} />
           <Route path={`${ROUTES.services}/:slug`} element={<ServicePage />} />
+          <Route path={ROUTES.work} element={<WorkPage />} />
+          <Route path={`${ROUTES.work}/:slug`} element={<WorkCasePage />} />
           <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
           <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />
           <Route path="*" element={<Navigate to={ROUTES.home} replace />} />

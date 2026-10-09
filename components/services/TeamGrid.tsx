@@ -81,6 +81,13 @@ const Card: React.FC<{ person: TeamMember; four: boolean }> = ({ person, four })
   );
 };
 
+/**
+ * One portrait card, for a page that lays out its own team. It is a
+ * `RevealChild`, so it goes inside a `Reveal as="ul"`. The IOGA case study
+ * (3816:8585) uses it in a two-column grid.
+ */
+export const TeamCard = Card;
+
 const TeamGrid: React.FC<{ team: ServicePageContent['team'] }> = ({ team }) => {
   const four = team.people.length >= 4;
   return (

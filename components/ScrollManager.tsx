@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { scrollToElement, scrollToY } from '../lib/scroll';
 
@@ -22,8 +22,17 @@ declare global {
 const ScrollManager = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
+  const last = useRef({ pathname: location.pathname, search: location.search });
 
   useEffect(() => {
+    // When only the query string changes (the Work filters and pages), the
+    // reader stays on the same page. The page sets its own scroll, so this
+    // does not go to the top. A link to the same URL still goes to the top.
+    const queryOnly =
+      last.current.pathname === location.pathname && last.current.search !== location.search && !location.hash;
+    last.current = { pathname: location.pathname, search: location.search };
+    if (queryOnly) return;
+
     // POP is the back/forward button: the browser restores the previous offset
     // itself, and scrolling here would fight it.
     if (navigationType === 'POP') return;
