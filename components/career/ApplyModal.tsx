@@ -234,9 +234,12 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, jobSlug, backg
 
                   <div className="flex flex-col gap-fig-32 bg-white p-fig-20">
                     <fieldset className="flex flex-col gap-fig-12">
+                      {/* Figma draws the heading and the subtitle in one 54px frame with no gap. */}
                       <legend className="contents">
-                        <span className="block font-sans text-h3 leading-[28px] text-text-default">Tell us about yourself</span>
-                        <span className="block font-body text-body-md text-subtitle">We read every application carefully</span>
+                        <span className="block pb-fig-6">
+                          <span className="block font-sans text-h3 leading-[28px] text-text-default">Tell us about yourself</span>
+                          <span className="block font-body text-body-md text-subtitle">We read every application carefully</span>
+                        </span>
                       </legend>
                       <div className="grid grid-cols-1 gap-x-fig-12 gap-y-fig-8 md:grid-cols-2">
                         {(
