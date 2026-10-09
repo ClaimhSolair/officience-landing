@@ -199,14 +199,19 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
         </div>
 
         {/* 390 pads this block by 16 and runs one column; 1920 drops the padding
-            and lays the six out three-up on a 160px gutter. */}
+            and lays the six out three-up on a 160px gutter. The longest label,
+            "Vietnam_CrunchBase" at 24px, needs a 293px column. Three columns
+            on the 160px gutter give that only from about 1375px, and at 1024
+            three columns are too narrow with no gutter. So the list runs two-up
+            at lg, three-up on an 80px gutter at xl, and takes the drawn 160px
+            gutter at 2xl. */}
         {showOffices && (
         <Reveal
           as="ul"
           stagger={STAGGER.tight}
           enabled={MOTION.contact}
           amount={0.2}
-          className="grid gap-fig-12 p-fig-16 lg:grid-cols-3 lg:gap-x-fig-160 lg:gap-y-fig-48 lg:p-0"
+          className="grid gap-fig-12 p-fig-16 lg:grid-cols-2 lg:gap-x-fig-80 lg:gap-y-fig-48 lg:p-0 xl:grid-cols-3 2xl:gap-x-fig-160"
         >
           {OFFICES.map((office) => (
             <RevealChild as="li" key={office.city} y={20} duration={SEC.revealFast}>
@@ -219,7 +224,7 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
               >
                 <LocationPin />
                 <div className="flex min-w-0 flex-1 flex-col gap-[2px] lg:gap-fig-8 lg:max-w-[383px]">
-                  <p className="font-body font-bold text-[14px] leading-[22px] text-text-default group-hover:text-text-primary transition-colors motion-reduce:transition-none lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
+                  <p className="break-words font-body font-bold text-[14px] leading-[22px] text-text-default group-hover:text-text-primary transition-colors motion-reduce:transition-none lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
                     {office.city}
                   </p>
                   <p className="font-body text-[12px] leading-[20px] text-subtitle lg:text-body-xl">
