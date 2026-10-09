@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { ChevronDown, X } from 'lucide-react';
 import { setInert, useModalA11y } from '../lib/modal';
 import { CSS_EASE, EASE, MOTION, MS, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
@@ -127,9 +127,11 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
     }
     if (item.target.kind === 'route') {
       return (
-        <Link to={item.target.to} className={className} onClick={onClose}>
+        // NavLink marks the current page with aria-current="page". A visible
+        // state is for the design team (adapter section 22).
+        <NavLink to={item.target.to} end className={className} onClick={onClose}>
           {children}
-        </Link>
+        </NavLink>
       );
     }
     return (

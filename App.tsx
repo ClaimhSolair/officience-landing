@@ -15,6 +15,8 @@ import { ROUTES } from './components/navigation';
 import HomePage from './pages/HomePage';
 import type { SurveyBranch } from './types';
 import { MOTION_FORCED } from './lib/motion';
+import { focusTarget } from './lib/focus';
+import { scrollToElement } from './lib/scroll';
 
 // Legal copy is long and rarely read — it leaves the home bundle.
 const LegalPage = React.lazy(() => import('./pages/LegalPage'));
@@ -105,6 +107,21 @@ const Layout: React.FC = () => {
     <div className="bg-background min-h-screen w-full box-border flex flex-col font-sans text-gray-900 selection:bg-yellow-400 selection:text-black">
       <ScrollManager />
 
+      {/* Skip link: the first Tab stop on every page, visible only with the focus.
+          A click handler and not a plain #main link, so the URL gets no hash. */}
+      <a
+        href="#main"
+        onClick={(e) => {
+          e.preventDefault();
+          const main = document.getElementById('main');
+          if (!main) return;
+          scrollToElement(main, false);
+          focusTarget(main);
+        }}
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[300] focus:rounded-fig-xs focus:bg-bg-primary focus:px-fig-16 focus:py-fig-12 focus:font-sans focus:text-[16px] focus:font-medium focus:text-white focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-white"
+      >
+        Skip to content
+      </a>
 
       {/* Stacking context for the whole page; overlays below sit above it. */}
       <div ref={pageRef} className="flex-1 relative isolate flex flex-col min-h-screen">
@@ -113,7 +130,7 @@ const Layout: React.FC = () => {
         <Header onOpenMenu={() => setIsMenuOpen(true)} isMenuOpen={isMenuOpen} />
 
         {/* Per-page rhythm lives in the page, not here — see pages/HomePage.tsx. */}
-        <main className="relative z-10 flex-grow flex flex-col">
+        <main id="main" className="relative z-10 flex-grow flex flex-col">
           <ErrorBoundary>
             {/* One full screen tall, so the footer paints below the first screen
                 while the page chunk loads. A shorter box showed the footer in

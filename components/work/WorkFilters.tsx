@@ -75,7 +75,8 @@ const WorkFilters: React.FC<WorkFiltersProps> = ({ categories, category, q, onCa
         value={q}
         onChange={(e) => onSearch(e.target.value)}
         placeholder="Search"
-        className="h-full min-w-0 flex-1 bg-transparent text-text-default outline-none placeholder:text-gray-fig-400"
+        // Figma draws only the glass. Chromium added its own clear "x" beside it.
+        className="h-full min-w-0 flex-1 bg-transparent text-text-default outline-none placeholder:text-gray-fig-400 [&::-webkit-search-cancel-button]:appearance-none"
       />
       <SearchGlass />
     </label>

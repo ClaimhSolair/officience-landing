@@ -319,7 +319,8 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, onSent, jobSlu
 
                     <fieldset className="flex flex-col gap-fig-12" {...invalidProps('position')}>
                       <legend className={`${LABEL} mb-fig-12`}>
-                        Position interested in <Required />
+                        {/* A no-break space, so the "*" never wraps onto a line of its own at 375. */}
+                        Position interested in{' '}<Required />
                       </legend>
                       <div className="flex flex-wrap gap-fig-12">
                         {APPLY_ROLES.map((role) => {
@@ -339,6 +340,9 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, onSent, jobSlu
                                 value={role}
                                 checked={on}
                                 onChange={() => set('position', role)}
+                                // The visible "*" is hidden from screen readers. The form is
+                                // noValidate, so this only tells them the group is required.
+                                required
                                 className="sr-only"
                               />
                               {role}
@@ -358,6 +362,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, onSent, jobSlu
                         placeholder="https://linkedin.com/in/ ..."
                         value={fields.linkedin}
                         onChange={(e) => set('linkedin', e.target.value)}
+                        autoComplete="url"
                         className={`${INPUT} h-[43px]`}
                       />
                     </label>
@@ -435,6 +440,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ isOpen, onClose, onSent, jobSlu
                           type="checkbox"
                           checked={fields.consent}
                           onChange={(e) => set('consent', e.target.checked)}
+                          required
                           {...invalidProps('consent')}
                           className="sr-only"
                         />

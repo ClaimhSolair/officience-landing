@@ -1309,7 +1309,7 @@ Also open (site-wide, not Work): at 390 the footer legal links (Terms of Use, Pr
 20px rows with no gap, below the 24px target minimum. A fix needs a 4px gap between the rows, which is a visual change.
 
 ### Accessibility fixes (build, 2026-10-09)
-- After Previous or Next turns off (first or last page), the focus goes to the current page button.
+- ~~After Previous or Next turns off (first or last page), the focus goes to the current page button.~~ Superseded by 22d: every page change moves the focus to the top of the grid.
 - After "Clear filters", the focus goes to the Search field (`#work-search`).
 - A pagination button has an invisible 36x44 tap area. The drawn cell stays 30x30.
 - The footer Company links have an invisible 30px-high tap area at 390. The text does not move.
@@ -1416,3 +1416,26 @@ design until the design team decides.
 | U-30 | Mobile tap targets below 44px. | Header icons 32x32, footer social 29x29, splash X 36x36, apply chips 36px | Pass the 24px minimum | Invisible hit areas (code) or larger drawn targets |
 | U-42 | Body copy is 12px on phones. | About paragraphs, Services lists, Contact, footer at 390 | 12px | 14px at 390 |
 | U-43 | Pictures that are soft on 2x screens and are not on the earlier source-limit lists. | Home C.M.P and FunPass; Work hero; Career `hero-1643`, `culture-3-1392`; Services hub hero, `stationf-973`, AI and People heroes; About `offy-friday-1672` | 0.78-1.42 file px per CSS px at DPR 2 (target 1.5) | Originals at about 2x the displayed size |
+| U-37 | The menu shows no current page. The code now sets `aria-current="page"` (NavLink); a visible state needs a design. | Menu overlay on every route | No visual difference | A drawn current state, e.g. the primary colour or an underline |
+| U-46 | Apply form copy: the phone placeholder "+84" looks like a typed value; the school placeholder is cut at "Paris" at 375; the panel header and the first group repeat one sentence. The lone "*" is fixed in code (no-break space). | `/career/*` apply form at 375 | — | "e.g. +84 912 345 678"; a shorter school example; one of the two sentences |
+| U-48 | The DIY Jam story page has no closing link. Figma 3830:8872 draws none. | `/about-us/diy-jam` | `main` has no link or button | "Back to About Us" or "Join our team" |
+| U-49 | "Join our team" pulses with no end (deliberate in the code). | About, Our Team | Scale 1.00-1.02, 3 s loop | Stop after 2-3 cycles, or play once on view |
+| U-50 | The D&D hero subtitle sits on a busy part of the photo, with no scrim. Check Figma 3494:4864 first. | `/services/design-digital` at 1440 | Visual judgement | A left gradient scrim from lg |
+
+### Open for the content owners
+
+| # | Item | Where | Suggestion |
+|---|---|---|---|
+| U-21 | Home, About, the Services hub, Career and the job pages keep the home meta description. The code takes a description per route. | `usePageView(title, description)` | One sentence for each page |
+| U-28 | Three job pages show HR placeholder copy (rulings 21d, 21k). No placeholder job may ship to `main`. | `content/careers/jobs.ts` | HR replaces or removes the three jobs |
+| U-44 | "Cassim's Brother" shows Data Scraping / Qualification on `/work` and Dashboard / WordPress on the IOGA "Discover Other Works" card. | `content/work/index.ts`, `content/services/data-engineering-processing.ts` | One pair in both places |
+| U-45 | The Work Category list has 17 entries for 12 projects, with overlaps ("Branding" / "Logo & Branding"; "Development" / "Software Development" / "Application"). The "all" option reads "Category". | `/work` filter | A shorter list; "All categories" |
+| U-47 | Job excerpts end in a cut word and four dots ("iter...."); one has "insights. automating". "About us" says "For over 15 years" against "since 2006". | `content/careers/jobs.ts` | Full excerpts; the correct year count |
+
+### Rulings (user, 2026-10-09, from the E2E test)
+22a. **The splash screen is removed** (U-9, U-11). Do not restore it. A new splash needs a new localStorage key.
+22b. **Legal sections land directly under the header** (U-19). The 120px scroll margin is gone; the clicked contents row keeps its highlight.
+22c. **The Work pages are indexed** (U-22): `/work` and `/work/ioga` are in `sitemap.xml` with `index, follow`.
+22d. **A Work page change moves the focus to the top of the grid** (U-17). This replaces the aba51b1 rule ("focus goes to the current page button").
+22e. **The Category select replaces the history entry**, as the search does (U-39). This extends ruling 20b.
+22f. **Social cards per route are deferred** (U-51). A scraper sees the home head on every route until a prerender step or Edge Middleware exists.

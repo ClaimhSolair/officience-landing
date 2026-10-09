@@ -104,7 +104,11 @@ const TeamGrid: React.FC<{ team: ServicePageContent['team'] }> = ({ team }) => {
         >
           <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
             <RevealChild as="span" y={20} duration={SEC.revealFast}>
-              <SectionBadge size="sm">Meet the Team</SectionBadge>
+              {/* With no title, the badge is the section heading, so a screen
+                  reader can jump to the team with the heading keys. */}
+              <SectionBadge size="sm" as={team.title ? undefined : 'h2'}>
+                Meet the Team
+              </SectionBadge>
             </RevealChild>
             {team.title && (
               <RevealChild as="span" y={28}>

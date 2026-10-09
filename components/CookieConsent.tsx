@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { focusTarget } from '../lib/focus';
 import { ROUTES } from './navigation';
 
 // Persisted visitor choice; index.html reads the same key on load to set
@@ -25,14 +26,30 @@ const readStored = (): string | null => {
 
 const CookieConsent: React.FC = () => {
   const [visible, setVisible] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  // The control that reopened the banner ("Cookie Settings"). The focus goes
+  // into the banner on a reopen and comes back here after the choice. A first
+  // visit does not take the focus: the banner is not modal.
+  const opener = useRef<HTMLElement | null>(null);
+  const [reopened, setReopened] = useState(false);
 
   useEffect(() => {
     if (readStored() === null) setVisible(true);
     // Footer "Cookie Settings" re-opens the banner so consent can be withdrawn.
-    const reopen = () => setVisible(true);
+    const reopen = () => {
+      opener.current = document.activeElement as HTMLElement | null;
+      setReopened(true);
+      setVisible(true);
+    };
     window.addEventListener('officience:cookie-settings', reopen);
     return () => window.removeEventListener('officience:cookie-settings', reopen);
   }, []);
+
+  // The banner is last in the tab order, so a reopen moved nothing for a
+  // keyboard user. Move the focus to its first button.
+  useEffect(() => {
+    if (visible && reopened) bannerRef.current?.querySelector<HTMLElement>('button')?.focus();
+  }, [visible, reopened]);
 
   const choose = useCallback((granted: boolean) => {
     try {
@@ -47,6 +64,15 @@ const CookieConsent: React.FC = () => {
       window.__loadClarity?.();
       window.__loadMatomo?.();
     }
+    // The choice removes the focused button, and the focus then fell to the
+    // body. Return it to the opener, or to the page content.
+    if (bannerRef.current?.contains(document.activeElement)) {
+      const back = opener.current;
+      if (back?.isConnected) back.focus({ preventScroll: true });
+      else focusTarget(document.querySelector<HTMLElement>('main'));
+    }
+    opener.current = null;
+    setReopened(false);
     setVisible(false);
   }, []);
 
@@ -54,6 +80,7 @@ const CookieConsent: React.FC = () => {
     <AnimatePresence>
       {visible && (
         <motion.div
+          ref={bannerRef}
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 40, opacity: 0 }}

@@ -108,10 +108,12 @@ function Marquee<T>({
     : `marquee-track flex w-max animate-marquee motion-reduce:animate-none ${trackClassName}`;
 
   return (
-    <div ref={rowRef} className={windowCls.trim()}>
+    // The window carries the name. With reduced motion it scrolls, and the
+    // browser puts a scroll box in the tab order. Without a name a screen reader
+    // announced an empty stop there.
+    <div ref={rowRef} role="group" aria-label={label} className={windowCls.trim()}>
       <ul
         ref={trackRef}
-        aria-label={label}
         className={trackCls.trim()}
         style={{
           gap,

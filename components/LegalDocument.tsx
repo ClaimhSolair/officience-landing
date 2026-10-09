@@ -67,9 +67,22 @@ const Block: React.FC<{ block: LegalBlock; muted?: boolean }> = ({ block, muted 
   );
 };
 
-/** Stable anchor id for a section, so the table of contents can deep-link to it. */
+/** Lower case, no accents, words joined by "-": "Governing Law" -> "governing-law". */
+const slugify = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+/**
+ * Stable anchor id for a section, so the table of contents can deep-link to it.
+ * It comes from the title, so a link reads "#governing-law" and stays right when
+ * a section is added before it. The old ids were "#s-0" to "#s-11".
+ */
 export const sectionAnchor = (section: LegalSection, index: number): string =>
-  section.id ? `s-${section.id}` : `s-${index}`;
+  section.title ? slugify(section.title) : `s-${index}`;
 
 /** Heading text as rendered: "12. Governing Law", or a bare title, or nothing. */
 export const sectionHeading = (section: LegalSection): string =>

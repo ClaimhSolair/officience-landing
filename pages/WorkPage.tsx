@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ServiceHero from '../components/services/ServiceHero';
 import WorkFilters from '../components/work/WorkFilters';
@@ -52,6 +52,17 @@ const WorkPage: React.FC = () => {
   const filtered = useMemo(() => filterProjects(WORK_PROJECTS, { category, q }), [category, q]);
   const { items, page, pages } = paginate(filtered, Number(params.get('page') ?? 1));
 
+  // The page shows clamped values, so the URL must show them too. An invalid
+  // category or page stayed in the URL, and a shared link then differed from
+  // what the sender saw. Replace, so the correction adds no Back step.
+  useEffect(() => {
+    const next = new URLSearchParams(params);
+    const set = (key: string, value: string) => (value ? next.set(key, value) : next.delete(key));
+    set('category', category);
+    set('page', page > 1 ? String(page) : '');
+    if (next.toString() !== params.toString()) setParams(next, { replace: true });
+  }, [params, setParams, category, page]);
+
   const update = (next: { category?: string; q?: string; page?: number }, replace = false) => {
     const p = new URLSearchParams(params);
     const set = (key: string, value: string) => (value ? p.set(key, value) : p.delete(key));
@@ -63,8 +74,9 @@ const WorkPage: React.FC = () => {
 
   const goToPage = (n: number) => {
     update({ page: n });
-    // The pagination sets the focus itself (aba51b1), so the scroll does not move it.
-    scrollToId('work-grid', false);
+    // The view goes up to the grid, and the focus goes with it (user, 2026-10-09).
+    // It stayed on the pagination, off screen, and the next Tab went to the footer.
+    scrollToId('work-grid');
   };
 
   return (
@@ -90,7 +102,10 @@ const WorkPage: React.FC = () => {
             categories={CATEGORIES}
             category={category}
             q={q}
-            onCategory={(value) => update({ category: value })}
+            // Replace, as the search does (ruling 20b, extended by the user on
+            // 2026-10-09). On Windows each arrow key on the select is a change,
+            // and a push gave one Back step for each option.
+            onCategory={(value) => update({ category: value }, true)}
             onSearch={(value) => update({ q: value }, true)}
           />
           {/* The page goes in the status too. With the count only, a page change

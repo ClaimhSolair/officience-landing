@@ -273,8 +273,11 @@ const MarqueeRow: React.FC<{ tiles: Tile[]; reverse?: boolean }> = ({ tiles, rev
   }, []);
 
   return (
+    // Named, because with reduced motion the row scrolls and takes a tab stop.
     <div
       ref={rowRef}
+      role="group"
+      aria-label="Photos of working life at Officience"
       className="menu-scroll flex overflow-hidden motion-reduce:overflow-x-auto"
       style={{ maskImage: MARQUEE_MASK, WebkitMaskImage: MARQUEE_MASK }}
     >

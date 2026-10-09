@@ -93,7 +93,7 @@ const PROGRESS_LABELS: Record<SurveyBranch, [string, string, string]> = {
 const ProgressBar: React.FC<{ labels: [string, string, string]; current: number }> = ({ labels, current }) => (
   <div className="flex flex-1 gap-[8px]">
     {labels.map((label, i) => (
-      <div key={label} className="flex flex-1 flex-col gap-[4px]">
+      <div key={label} aria-current={i === current ? 'step' : undefined} className="flex flex-1 flex-col gap-[4px]">
         <span
           className={`font-body font-bold text-[10px] uppercase leading-[14px] ${
             i <= current ? 'text-primary' : 'text-gray-fig-400'
@@ -118,11 +118,11 @@ const QLabel: React.FC<{ children: React.ReactNode; required?: boolean; hint?: s
   hint,
   id,
 }) => (
-  <h4 id={id} className="font-sans font-semibold text-[20px] leading-[28px] text-text-default mb-[12px]">
+  <h3 id={id} className="font-sans font-semibold text-[20px] leading-[28px] text-text-default mb-[12px]">
     {children}
     {required && <span className="text-off-red"> *</span>}
     {hint && <span className="font-body font-normal text-[16px] text-subtitle"> {hint}</span>}
-  </h4>
+  </h3>
 );
 
 const ChipGroup: React.FC<{
@@ -229,6 +229,15 @@ const CardOptions: React.FC<{
   );
 };
 
+/** The browser autofill token for each answer key. A key not here gets none. */
+const AUTOCOMPLETE: Record<string, string> = {
+  name: 'name',
+  email: 'email',
+  company: 'organization',
+  role: 'organization-title',
+  phone: 'tel',
+};
+
 const TextField: React.FC<{
   label: string;
   k: string;
@@ -239,7 +248,9 @@ const TextField: React.FC<{
   error?: string;
   answers: Record<string, any>;
   set: (k: string, v: any) => void;
-}> = ({ label, k, placeholder, required, type = 'text', error, answers, set }) => (
+}> = ({ label, k, placeholder, required, type = 'text', error, answers, set }) => {
+  const errorId = useId();
+  return (
   <label className="flex flex-col gap-[6px]">
     <span className="font-body font-bold text-[14px] leading-[20px] text-text-default">
       {label}
@@ -250,18 +261,24 @@ const TextField: React.FC<{
       placeholder={placeholder}
       value={answers[k] || ''}
       onChange={(e) => set(k, e.target.value)}
+      autoComplete={AUTOCOMPLETE[k]}
+      // The red "*" is visual only, so the required state goes to the screen reader here.
+      aria-required={required || undefined}
       aria-invalid={error ? true : undefined}
-      className={`w-full rounded-fig-xs border px-[14px] py-[14px] sm:py-[10px] font-body text-[16px] sm:text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary transition-colors ${
+      aria-describedby={error ? errorId : undefined}
+      // A 1px border colour change was the only focus sign. The ring shows only for the keyboard.
+      className={`w-full rounded-fig-xs border px-[14px] py-[14px] sm:py-[10px] font-body text-[16px] sm:text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/40 transition-colors ${
         error ? 'border-err' : 'border-[#c6c6c6]'
       }`}
     />
     {error && (
-      <span role="alert" className="font-body text-[12px] leading-[16px] text-err">
+      <span id={errorId} role="alert" className="font-body text-[12px] leading-[16px] text-err">
         {error}
       </span>
     )}
   </label>
-);
+  );
+};
 
 const TextArea: React.FC<{
   placeholder: string;
@@ -276,7 +293,7 @@ const TextArea: React.FC<{
     aria-label={placeholder}
     value={answers[k] || ''}
     onChange={(e) => set(k, e.target.value)}
-    className="w-full rounded-fig-xs border border-[#c6c6c6] px-[14px] py-[10px] font-body text-[16px] sm:text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary transition-colors resize-none"
+    className="w-full rounded-fig-xs border border-[#c6c6c6] px-[14px] py-[10px] font-body text-[16px] sm:text-[14px] leading-[20px] text-text-default placeholder:text-subtitle focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/40 transition-colors resize-none"
   />
 );
 
@@ -555,7 +572,7 @@ const Survey: React.FC<SurveyProps> = ({
         {isTalent && (
           <>
             <div>
-              <h4 className="font-sans font-semibold text-[20px] leading-[28px] text-text-default">Tell us about yourself</h4>
+              <h3 className="font-sans font-semibold text-[20px] leading-[28px] text-text-default">Tell us about yourself</h3>
               <p className="font-body text-[14px] leading-[20px] text-subtitle">We read every application carefully</p>
             </div>
             <div className="grid sm:grid-cols-2 gap-[16px]">

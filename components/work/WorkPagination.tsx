@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
 /**
  * The pagination of the Work listing — Figma 3426:3756: 30px cells 6px apart,
@@ -42,25 +42,14 @@ interface WorkPaginationProps {
 }
 
 const WorkPagination: React.FC<WorkPaginationProps> = ({ page, pages, onPage }) => {
-  const nav = useRef<HTMLElement>(null);
-  const keepFocus = useRef(false);
-
-  // Previous is off on the first page and Next is off on the last. A button
-  // that turns off loses the focus, so the focus goes to the current page.
-  useEffect(() => {
-    if (!keepFocus.current) return;
-    keepFocus.current = false;
-    nav.current?.querySelector<HTMLElement>('[aria-current="page"]')?.focus({ preventScroll: true });
-  }, [page]);
-
-  const step = (to: number) => {
-    keepFocus.current = to === 1 || to === pages;
-    onPage(to);
-  };
+  // A page change moves the focus to the top of the grid (`WorkPage`), so a
+  // button that turns off (Previous on page 1, Next on the last page) no longer
+  // drops the focus. This replaces the aba51b1 rule (user, 2026-10-09).
+  const step = (to: number) => onPage(to);
 
   if (pages <= 1) return null;
   return (
-    <nav ref={nav} aria-label="Work pages" className="flex justify-center">
+    <nav aria-label="Work pages" className="flex justify-center">
       <ul className="flex items-center gap-fig-6">
         <li>
           <button

@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useOutletContext, useParams } from 'react-router-dom';
 import type { LayoutContext } from '../App';
 import Contact from '../components/Contact';
-import { ROUTES } from '../components/navigation';
+import { ROUTES, workHref } from '../components/navigation';
 import SelectedWork from '../components/services/SelectedWork';
 import ServiceHero from '../components/services/ServiceHero';
 import CaseLayout from '../components/work/case/CaseLayout';
@@ -87,6 +87,12 @@ const CaseBody: React.FC<{ data: WorkCase }> = ({ data }) => {
 const WorkCasePage: React.FC = () => {
   const { slug = '' } = useParams();
   const data = Object.prototype.hasOwnProperty.call(WORK_CASES, slug) ? WORK_CASES[slug] : undefined;
+  // Slugs are lower case. A typed or shared "/work/IOGA" goes to the real URL,
+  // not to the listing.
+  const lower = slug.toLowerCase();
+  if (!data && lower !== slug && Object.prototype.hasOwnProperty.call(WORK_CASES, lower)) {
+    return <Navigate to={workHref(lower)} replace />;
+  }
   if (!data) return <Navigate to={ROUTES.work} replace />;
   // Keyed by slug, so a move between two case studies mounts a fresh page.
   return <CaseBody key={data.slug} data={data} />;
