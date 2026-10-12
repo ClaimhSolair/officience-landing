@@ -74,14 +74,23 @@ const STEPS: Step[] = [
 ];
 
 /**
- * How the pinned runway is divided. Step i occupies `[START + i*PITCH, + SPAN]`,
- * which leaves a beat of stillness at the end before the section releases —
- * without it the last step is still arriving as the pin lets go, and the whole
- * procession reads as unfinished.
+ * How the pinned runway is divided, in vh of scroll. Step i occupies
+ * `[START + i*PITCH, + SPAN]`. A hold follows the last step before the section
+ * releases. Without it the last step is still arriving as the pin lets go, and
+ * the procession reads as unfinished.
+ *
+ * The steps keep the scroll lengths they had on a 90vh travel. The hold was 18vh.
+ * The team asked for more reading time after the third card (2026-10-12), so the
+ * hold is now 63vh. Tune `HOLD_VH`. The step timing does not change with it.
  */
-const START = 0.06;
-const PITCH = 0.3;
-const SPAN = 0.14;
+const START_VH = 5.4;
+const PITCH_VH = 27;
+const SPAN_VH = 12.6;
+const HOLD_VH = 63;
+const TRAVEL_VH = START_VH + 2 * PITCH_VH + SPAN_VH + HOLD_VH;
+const START = START_VH / TRAVEL_VH;
+const PITCH = PITCH_VH / TRAVEL_VH;
+const SPAN = SPAN_VH / TRAVEL_VH;
 
 /** Unpinned fallback: the same arrival, on its own clock. */
 const STEP_VARIANTS: Variants = {
@@ -214,7 +223,8 @@ const HowWeEngage: React.FC = () => {
   }, [wantsPin]);
 
   // Runs from the moment the section's top reaches the top of the screen until
-  // its bottom reaches the bottom — 90vh of scroll spent pinned at 190vh.
+  // its bottom reaches the bottom. The runway is 100vh + TRAVEL_VH, so the pin
+  // holds for TRAVEL_VH of scroll.
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] });
   // Smoothed once for all three steps.
   const progress = useScrub(scrollYProgress);
@@ -225,7 +235,11 @@ const HowWeEngage: React.FC = () => {
           off, below lg, or on a viewport far too short to hold the deck even
           scaled, the wrapper collapses to its contents so nobody scrolls through
           an empty runway. */}
-      <div ref={wrapRef} className={`relative ${pinned ? 'lg:h-[190vh]' : ''}`}>
+      <div
+        ref={wrapRef}
+        className="relative"
+        style={pinned ? { height: `${100 + TRAVEL_VH}vh` } : undefined}
+      >
         <div
           className={`${
             pinned

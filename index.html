@@ -285,6 +285,25 @@
         background-color: #B1D1FD;
         border-radius: 999px;
       }
+      /* The survey body. Figma draws no bar for the survey, so this one takes the
+         menu bar's shape (10px, fully rounded) with colours for the light panel:
+         a blue thumb on a light grey track. */
+      .survey-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #3C8DFB #E6E6E6;
+      }
+      .survey-scroll::-webkit-scrollbar {
+        display: block;
+        width: 10px;
+      }
+      .survey-scroll::-webkit-scrollbar-track {
+        background-color: #E6E6E6;
+        border-radius: 999px;
+      }
+      .survey-scroll::-webkit-scrollbar-thumb {
+        background-color: #3C8DFB;
+        border-radius: 999px;
+      }
       /* ---- LEGACY typography tokens (July-2026 scale) ----
          Frozen verbatim: every component still on the old design consumes these.
          The Sept-2026 scale lives in tailwind.config.fontSize as `text-*` utilities

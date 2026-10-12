@@ -155,10 +155,10 @@ const ChipGroup: React.FC<{
              chip clears a 44px tap target — an accepted divergence, not a miss. */
           className={`rounded-fig-xs border px-[12px] py-[12px] font-body text-[14px] leading-[20px] transition-colors motion-reduce:transition-none sm:py-[6px] ${
             selected(opt)
-              /* White, not the pale blue the option cards use — Figma's Form
-                 Input Chip (3329:2505) fills the selected chip white and carries
-                 the state on the border and the bold blue label. */
-              ? 'border-primary bg-white font-bold text-primary'
+              /* The same pale blue as the option cards. The step frames
+                 (2809:2846, 3333:2525) draw a selected chip with a blue border,
+                 a pale blue fill and a bold blue label (tracker row 15). */
+              ? 'border-primary bg-[#ecf4ff] font-bold text-primary'
               : 'border-border-field font-medium text-subtitle hover:border-primary'
           }`}
         >
@@ -697,8 +697,10 @@ const Survey: React.FC<SurveyProps> = ({
           </button>
         </div>
 
-        {/* Body. data-lenis-prevent lets the wheel scroll this panel natively. */}
-        <div data-lenis-prevent className="px-[16px] sm:px-[32px] py-[24px] overflow-y-auto">
+        {/* Body. data-lenis-prevent lets the wheel scroll this panel natively.
+            .survey-scroll shows a scrollbar, so the reader knows that more
+            questions and the consent line are below (tracker row 15). */}
+        <div data-lenis-prevent className="survey-scroll px-[16px] sm:px-[32px] py-[24px] overflow-y-auto">
           {isCompleted ? (
             <div className="flex flex-col gap-[24px]">
               <h2 id={titleId} ref={titleRef} className="font-sans font-semibold text-[24px] leading-[32px] text-text-default">

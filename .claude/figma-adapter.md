@@ -1439,3 +1439,40 @@ design until the design team decides.
 22d. **A Work page change moves the focus to the top of the grid** (U-17). This replaces the aba51b1 rule ("focus goes to the current page button").
 22e. **The Category select replaces the history entry**, as the search does (U-39). This extends ruling 20b.
 22f. **Social cards per route are deferred** (U-51). A scraper sees the home head on every route until a prerender step or Edge Middleware exists.
+
+## 23 — Design-team feedback round (2026-10-12)
+
+Source: the "Feedback Bug Tracker" sheet in `Officience website_2026_Plan.xlsx` (rows 12, 13, 15, 21, 24-27) and a chat
+note. The team tested before the 2026-10-09 fixes. Rows 12 and 21 wait for a re-test on the latest preview.
+
+### Figma changed after the build
+- **Logo band (row 26).** Frame 3137:2138 is now 240px tall around a 120px row (it was 312 / 140.5). The 390 frame
+  3153:8647 did not change (160 / 58.2). `LogoMarquee.tsx`: `lg:h-[240px]`, `--logo-scale` 0.8541 (120 / 140.499).
+- **Survey chips (row 15).** The step frames 2809:2846, 2809:2247, 3333:2525 and 2809:2567 draw a selected chip with a
+  pale blue fill (#ECF4FF), a blue border and a bold blue label, like the option cards. The earlier white fill came
+  from the Form Input Chip instance 3329:2505. The frames win.
+
+### Rulings (user, 2026-10-12)
+23a. **Testimonial cards fill the column** (row 25): 847px at 1920, as frame 3151:2378 draws. This replaces the 545px
+     cap from frame 3129:3363. The design team's screenshot is the 1920 frame.
+23b. **Testimonial slide-in starts from staggered offsets** (row 13): 230 / 540 / 840px, read from the team's sketch.
+     Card 3 starts past the screen edge; the section's `overflow-x-clip` hides it. No rule behind the cards.
+23c. **Services titles are one 36px line from lg** (row 27, the build's recommended option). The goal is all four
+     titles on one screen. PEEK is 138 (64 padding + 44 title + 30 gap). The offering list is 16px on a 22px line,
+     4px apart, so the band ends at the bottom of the third line. The promise is Subtitle-1, 30px under the title,
+     and the rail gap is 40px. All are divergences from frame 3137:1931. Measured: at the landing point the four
+     titles sit at 64 / 202 / 340 / 478 at 1024x768, 1280x720, 1440x900 and 1920x1080.
+     Known limit: the last row has only the 28px runway (the 200px seam ruling), so the four-title state holds for
+     about 60px of scroll before row 4 slides over row 3. A longer hold needs more runway, which widens the seam.
+23d. **Rizlum footer logo at Figma's 73x15.2** (row 24). This reverses the 105x21.9 of item 20.
+23e. **Survey body scrollbar** (row 15). `.survey-scroll` in index.html: the menu bar's shape (10px, rounded), blue
+     thumb #3C8DFB on a #E6E6E6 track. Figma has no survey scrollbar node; the colours are a build choice.
+23f. **Proven Results image zoom on hover** (row 12): 1.06 over 700ms, clipped by an image box. Off under reduced
+     motion. The arrival keeps its "no zoom" rule.
+23g. **Our Approach holds longer after the third card** (chat note). The steps keep their scroll lengths; the hold
+     is 63vh (was 18vh). The runway is 235vh (was 190vh). Knob: `HOLD_VH` in `HowWeEngage.tsx`.
+
+### Waiting for the design or content team
+- Hero CTA wording (header and hero both say "Contact Us"), the logo-section colour change and showcase animation,
+  the "20 years" KPI, and country flags on the offices. None is in Figma.
+- Two slips in survey frame 2809:2567: "Transmission competed!" and "bussiness days". The build keeps its corrected text.

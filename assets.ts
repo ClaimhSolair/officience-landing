@@ -403,9 +403,9 @@ export const ASSETS = {
       { name: 'Officonnect', url: a('/footer/partners/officonnect.webp'), w: 113.235, h: 32.12 },
       // Tight-cropped to the artwork and exported at 3x, unlike its siblings: the
       // only source is a YouTube-thumbnail frame, so Figma's own padded 94x32 image
-      // box left the logo at ~2x and reading as blurry. Sized to its siblings'
-      // visual weight rather than Figma's noticeably smaller 53%-of-tile placement.
-      { name: 'Rizlum', url: a('/footer/partners/rizlum.webp'), w: 105, h: 21.9 },
+      // box left the logo at ~2x and reading as blurry. Drawn at Figma's size: the
+      // design team found the earlier 105x21.9 too large (tracker row 24).
+      { name: 'Rizlum', url: a('/footer/partners/rizlum.webp'), w: 73, h: 15.2 },
       { name: 'OpenReal', url: a('/footer/partners/openreal.webp'), w: 90.724, h: 21.645 },
       { name: 'Uniques', url: a('/footer/partners/uniques.webp'), w: 80.099, h: 20.706 },
     ],

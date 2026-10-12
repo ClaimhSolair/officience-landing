@@ -3,8 +3,10 @@ import { ASSETS } from '../assets';
 
 /**
  * Figma 3137:2138 (1920) and 3153:8647 (390) — the client wall under People
- * Trust Us. A white band, full-bleed, with the logos centred in it: 312px tall
- * at 1920 around a 140.5px row, 160px tall at 390 around a 58.2px row.
+ * Trust Us. A white band, full-bleed, with the logos centred in it: 240px tall
+ * at 1920 around a 120px row, 160px tall at 390 around a 58.2px row. The team
+ * changed the 1920 frame from 312px / 140.5px (tracker row 26, 2026-10-12).
+ * The 390 frame did not change.
  *
  * Figma draws it as a track far wider than the artboard and clips — the layout
  * way of saying "this scrolls" — so the movement itself comes from the live
@@ -17,9 +19,10 @@ import { ASSETS } from '../assets';
  * hover state. That state is pointer-only by nature, so touch visitors see the
  * greyscale band throughout — which is exactly the resting state Figma draws.
  *
- * Every size derives from `--logo-scale`, the one number separating the two
- * artboards (58.204 / 140.499 = 0.4143, and the 118.8px gap scales with it), so
- * the eleven logo sizes are stated once in `assets.ts` and never per breakpoint.
+ * Every size derives from `--logo-scale`. The sizes in `assets.ts` are the old
+ * 140.5px row. The 1920 frame now draws a 120px row (120 / 140.499 = 0.8541) and
+ * 390 draws a 58.2px row (58.204 / 140.499 = 0.4143). The 118.8px gap scales with
+ * it, so the eleven logo sizes are stated once and never per breakpoint.
  */
 const GAP = 'calc(118.8px * var(--logo-scale))';
 
@@ -58,7 +61,7 @@ const LogoMarquee: React.FC = () => (
     aria-label="Clients we work with"
     /* Reduced motion stops the track, which would otherwise strand ten of the
        eleven logos off-screen — so the band becomes a plain scrollable row. */
-    className="flex h-[160px] items-center overflow-hidden bg-bg-default [--logo-scale:0.4143] motion-reduce:overflow-x-auto lg:h-[312px] lg:[--logo-scale:1]"
+    className="flex h-[160px] items-center overflow-hidden bg-bg-default [--logo-scale:0.4143] motion-reduce:overflow-x-auto lg:h-[240px] lg:[--logo-scale:0.8541]"
     style={{
       // Figma clips the track dead at the artboard edge. The live build dissolves
       // it into the band instead, and that is the treatment being carried over.

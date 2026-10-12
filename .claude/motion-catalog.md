@@ -811,3 +811,12 @@ browser. The vertical quote loop has no page with three quotes until phase 2 (BI
 - All six pages use the phase-1 motion unchanged. Measured at 1440x900: Selected Work pins on every page that has it (3 to 6
   cards; the AI runway is 2,912px for 6 cards). BI's five quotes loop for 29.53s (1,772px at 60 px/s) in the 548px box.
   The strips loop at set width / 60 (BI 148.12s, IT Ops 105.21s, Crunch 47.62s). The D&D, People and AI strips fit and stay fixed.
+
+# v10 — design-team feedback round (2026-10-12)
+- **Item 13 (testimonials):** the start offset is per card, 230 / 540 / 840px (was 160px for all). No rule behind the
+  cards. The cards fill the column (847px at 1920).
+- **Item 8 (Services):** PEEK 248 → 138, with one-line 36px titles, so all four titles show when row 4 lands.
+- **Item 9 (Approach):** the hold after step 3 is 63vh (was 18vh); the runway is 235vh. Step timing is unchanged in vh.
+- **Item 10 (Proven Results):** image zoom on hover (1.06, 700ms, clipped). Not a scroll effect.
+- Verified with headless Playwright on the dev server (the pane froze rAF): eight widths, no overflow; `?motion=off`
+  plus reduced motion at 390 / 1024 / 1920; the hover zoom is off under reduce.

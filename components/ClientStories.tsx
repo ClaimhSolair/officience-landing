@@ -51,29 +51,32 @@ const TESTIMONIALS = [
 
 /**
  * Slide-in, adapted from the outsourceconsultants.com PROCESS deck (measured law
- * in `.claude/motion-catalog.md`, Item 13: x = 150·N, scrubbed to rest). The user
- * set a pure horizontal slide here: each card enters from the right, behind an
- * `overflow-x-clip`, and settles at its resting position — no rise and no tilt.
- * The reference is drawn on the site's own blue grid; the user chose a single
- * subtle neutral rule instead.
+ * in `.claude/motion-catalog.md`, Item 13: x = 150·N, scrubbed to rest). Each card
+ * enters from the right, behind an `overflow-x-clip`, and settles at its resting
+ * position. There is no rise and no tilt.
  *
- * One constant; tune here.
+ * Each card starts further right than the one above it, as the design team's
+ * sketch draws (tracker row 13). Card 1 moves in a short distance, card 2 starts
+ * at the edge of the column, and card 3 starts past the edge of the screen. The
+ * values come from that sketch. Tune here.
  */
-const SLIDE_X = 160;
+const SLIDE_X = [230, 540, 840];
 
 /**
- * The card box, shared by the static and the scrubbed branch. Capped at the
- * frame's 545px on lg (3129:3363) and left-aligned in the wider column, so the
- * open space on its right is the room the slide-in enters from.
+ * The card box, shared by the static and the scrubbed branch. It fills the
+ * column, which is 847px at 1920, as frame 3151:2378 draws it. An earlier
+ * 545px cap (from frame 3129:3363) left an empty band on the right of the
+ * cards (tracker row 25).
  */
 const CARD =
-  'flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:max-w-[545px] lg:gap-fig-20 lg:rounded-fig-l lg:p-fig-40';
+  'flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:gap-fig-20 lg:rounded-fig-l lg:p-fig-40';
 
 const Testimonial: React.FC<{
   t: (typeof TESTIMONIALS)[number];
+  index: number;
   scrub: boolean;
   motionOn: boolean;
-}> = ({ t, scrub, motionOn }) => {
+}> = ({ t, index, scrub, motionOn }) => {
   // The observed li never transforms, so its measured position stays honest —
   // the moving box is the inner div. (Capabilities ServiceRow, same reason.)
   const ref = useRef<HTMLLIElement>(null);
@@ -81,9 +84,9 @@ const Testimonial: React.FC<{
   // Smoothed so the card glides between wheel notches; overdamped, so it never
   // overshoots its resting position.
   const p = useScrub(scrollYProgress);
-  // Card slides in from the right and settles at its resting position; clamped at
-  // rest after. No rise, no tilt — a pure horizontal slide.
-  const x = useTransform(p, [0, 1], [SLIDE_X, 0]);
+  // The card slides in from the right and stops at its resting position. After
+  // that, the value stays at rest. No rise, no tilt.
+  const x = useTransform(p, [0, 1], [SLIDE_X[index] ?? SLIDE_X[SLIDE_X.length - 1], 0]);
 
   const body = (
     <>
@@ -194,19 +197,9 @@ const ClientStories: React.FC = () => {
         enabled={MOTION.clients}
         className="relative flex w-full flex-col gap-fig-20 lg:max-w-[847px] lg:flex-1 lg:gap-fig-100"
       >
-        {/* The spine. A single thin neutral rule down the centre of the 545px
-            card, behind the cards (z-0 against their z-10), so it reads only in
-            the gaps between them — the reference look, without its full blue
-            grid. Centred on the card (273 ≈ 545/2), not the wider column, now
-            the cards are left-aligned. Appears only when the scrub does. */}
-        {scrub && (
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute left-[273px] top-0 z-0 hidden h-full w-px -translate-x-1/2 bg-border-field lg:block"
-          />
-        )}
-        {TESTIMONIALS.map((t) => (
-          <Testimonial key={t.name} t={t} scrub={scrub} motionOn={motionOn} />
+        {/* No rule behind the cards. The design team removed it (tracker row 13). */}
+        {TESTIMONIALS.map((t, i) => (
+          <Testimonial key={t.name} t={t} index={i} scrub={scrub} motionOn={motionOn} />
         ))}
       </Reveal>
     </Container>

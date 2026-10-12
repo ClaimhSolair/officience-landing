@@ -148,8 +148,14 @@ const WorkCard: React.FC<{
   const { imgOpacity, cardY } = useCardEntrance(progress, win);
 
   // The image is 528 of the frame's 751-tall card (3129:3298), so it takes the
-  // top 70.3% and the title block below it takes the rest.
-  const imgCls = 'h-[220px] w-full object-cover md:h-[70.3%]';
+  // top 70.3% and the title block below it takes the rest. The box clips the
+  // image, so the hover zoom stays inside it and never covers the title block.
+  const boxCls = 'h-[220px] w-full shrink-0 overflow-hidden md:h-[70.3%]';
+  // Hover zoom (tracker row 12, as the elytetemplate reference does). It is a
+  // hover state, not a scroll effect, so the "no zoom" rule above still holds
+  // for the arrival. Reduced motion keeps the image still.
+  const imgCls =
+    'h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100';
   const imgProps = {
     ...media,
     sizes: '(min-width: 1024px) 680px, (min-width: 768px) 320px, 240px',
@@ -163,34 +169,40 @@ const WorkCard: React.FC<{
     // never opens on a row of dimmed, half-arrived cards.
     if (!win) {
       return (
-        <motion.article className={className}>
-          <img {...imgProps} className={imgCls} />
+        <motion.article className={`group ${className}`}>
+          <div className={boxCls}>
+            <img {...imgProps} className={imgCls} />
+          </div>
           {children}
         </motion.article>
       );
     }
     return (
-      <motion.article className={className} style={{ y: cardY }}>
-        <motion.img {...imgProps} className={imgCls} style={{ opacity: imgOpacity }} />
+      <motion.article className={`group ${className}`} style={{ y: cardY }}>
+        <div className={boxCls}>
+          <motion.img {...imgProps} className={imgCls} style={{ opacity: imgOpacity }} />
+        </div>
         {children}
       </motion.article>
     );
   }
 
   return (
-    <Reveal as="article" className={className} enabled={MOTION.work} y={60}>
-      {MOTION.work ? (
-        <motion.img
-          {...imgProps}
-          className={imgCls}
-          initial={{ opacity: 0.1 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: SEC.revealBase, ease: [...EASE.reveal] }}
-        />
-      ) : (
-        <img {...imgProps} className={imgCls} />
-      )}
+    <Reveal as="article" className={`group ${className}`} enabled={MOTION.work} y={60}>
+      <div className={boxCls}>
+        {MOTION.work ? (
+          <motion.img
+            {...imgProps}
+            className={imgCls}
+            initial={{ opacity: 0.1 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: SEC.revealBase, ease: [...EASE.reveal] }}
+          />
+        ) : (
+          <img {...imgProps} className={imgCls} />
+        )}
+      </div>
       {children}
     </Reveal>
   );

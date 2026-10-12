@@ -82,16 +82,20 @@ const SERVICES: Service[] = [
 
 
 /**
- * How much of a covered row still shows. The band holds the row's top padding,
- * its title, and the offering list beside it — so the next row covers exactly
- * the promise line and the brochure button, and a covered card still reads as
- * its name plus what it does.
+ * How much of a covered row still shows: the row's 64px top padding, the title,
+ * and 30px of space under it (64 + 44 + 30 = 138). The design team asked to see
+ * all four titles on one screen (tracker row 27, 2026-10-12). For this, the
+ * desktop titles are one line at 36px, not two lines at 64px, and the offering
+ * list is 16px. Both are deliberate divergences from frame 3137:1931.
  *
- * The promise starts at 312px and the button at 312-344, so 248 clears the
- * longest offering list (244px) and still covers both. 112 showed only 48px of
- * a 148px two-line title, cutting the names mid-glyph.
+ * The offering list sits beside the title, so the band also shows its top. The
+ * list lines are 22px on a 26px pitch, so the 74px under the padding ends on
+ * the bottom of the third line, not through a line of text.
+ *
+ * The earlier value was 248: the 64px two-line title and the full list. With
+ * it, the fourth row landed too low to see all four titles together.
  */
-const PEEK = 248;
+const PEEK = 138;
 
 /**
  * One service row. From lg it pins under the header and the next row slides over
@@ -278,12 +282,14 @@ const Capabilities: React.FC = () => {
             >
               {/* Name + promise. The column takes the slack up to 800px, which
                   leaves the artboard's 642px trough at 1920 and closes it as the
-                  viewport narrows. */}
-              <div className="flex flex-col gap-fig-12 lg:flex-1 lg:gap-fig-100 lg:max-w-[800px]">
-                <h3 className="font-sans text-h3 text-text-primary lg:text-display-md">
+                  viewport narrows. The title is one 36px line from lg, and the
+                  promise sits 30px under it, so the PEEK band ends at the
+                  promise (tracker row 27). */}
+              <div className="flex flex-col gap-fig-12 lg:flex-1 lg:gap-[30px] lg:max-w-[800px]">
+                <h3 className="font-sans text-h3 text-text-primary lg:text-h1">
                   {service.title}
                 </h3>
-                <p className="font-body text-body-md text-subtitle lg:text-subtitle-2 lg:text-text-default">
+                <p className="font-body text-body-md text-subtitle lg:text-subtitle-1 lg:text-text-default">
                   {service.promise}
                 </p>
               </div>
@@ -296,9 +302,11 @@ const Capabilities: React.FC = () => {
                 y={24}
                 delay={0.1}
                 duration={SEC.revealFast}
-                className="flex flex-col gap-fig-12 lg:w-[350px] lg:shrink-0 lg:gap-fig-100"
+                className="flex flex-col gap-fig-12 lg:w-[350px] lg:shrink-0 lg:gap-fig-40"
               >
-                <ul className="flex flex-col gap-fig-2 font-body text-caption text-subtitle lg:gap-fig-4 lg:text-right lg:text-body-xl">
+                {/* 16px on a 22px line from lg, 4px apart (tracker row 27). See
+                    PEEK for why the line box is 22px. */}
+                <ul className="flex flex-col gap-fig-2 font-body text-caption text-subtitle lg:gap-fig-4 lg:text-right lg:text-[16px] lg:leading-[22px]">
                   {service.offerings.map((offering) => (
                     <li key={offering}>{offering}</li>
                   ))}
