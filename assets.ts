@@ -107,17 +107,28 @@ export const ASSETS = {
   // petals are knock-outs that show whatever sits behind them.
   brand: { flower: a('/brand/officience-flower.svg') },
   icons: { eyebrow: a('/icons/eyebrow-mark.svg') },
-  // The hero's five floating 3D shapes. Delivered by the team as 1080x1080 PNGs
-  // (~915kB all told) after Figma proved unable to export them; trimmed to their
-  // artwork and re-encoded WebP q88 at 380px, which is 2x the widest slot a 1920
-  // hero gives them. They sit above the fold, so the weight matters.
+  // The hero banner, Figma 3938:5217 (drift D2). The source is 1747x900, and
+  // Figma shows its centre 1728x900 (the 1440:750 box in FILL mode). That is
+  // the largest file: the source has no more pixels. `mobile` is a 4:3 crop
+  // that keeps the otter group (art direction for <picture>, below md).
+  // WebP q90, because the soft blue gradients show banding at lower quality.
   hero: {
-    shapes: {
-      leaf: a('/hero/leaf.webp'),
-      asterisk: a('/hero/asterisk.webp'),
-      ring: a('/hero/ring.webp'),
-      star: a('/hero/star.webp'),
-      ellipse: a('/hero/ellipse.webp'),
+    banner: {
+      w: 1440,
+      h: 750,
+      sources: [
+        { url: a('/hero/banner-960.webp'), w: 960 },
+        { url: a('/hero/banner-1440.webp'), w: 1440 },
+        { url: a('/hero/banner-1728.webp'), w: 1728 },
+      ],
+    },
+    bannerMobile: {
+      w: 960,
+      h: 720,
+      sources: [
+        { url: a('/hero/banner-mobile-780.webp'), w: 780 },
+        { url: a('/hero/banner-mobile-960.webp'), w: 960 },
+      ],
     },
   },
   // Story-card photography. Two independent sets, because the artboards frame
@@ -135,9 +146,15 @@ export const ASSETS = {
   about: {
     cards: [
       {
-        small: a('/about/card-1-900.webp'),
-        large: a('/about/card-1-1800.webp'),
-        largeWidth: 1800,
+        // Card 1 is the exception to the "whole frame" rule above. Figma 3137:1917
+        // zoom-crops the photo (image 142.42% x 178.21% of the box, at -20.23% /
+        // -64.38%). The crop window (494,707) 2443x1098 of the 3480x1957 original
+        // is baked into the file at the 1792/860 box aspect, with Figma's 0.936
+        // horizontal squeeze, so object-fill is a no-op (drift 2026-10-12, #1).
+        small: a('/about/card-1-lg-1144.webp'),
+        smallWidth: 1144,
+        large: a('/about/card-1-lg-2288.webp'),
+        largeWidth: 2288,
         mobile: [
           { url: a('/about/card-1-mobile-800.webp'), w: 800 },
           { url: a('/about/card-1-mobile-1600.webp'), w: 1600 },
@@ -145,6 +162,7 @@ export const ASSETS = {
       },
       {
         small: a('/about/card-2-900.webp'),
+        smallWidth: 900,
         large: a('/about/card-2-1024.webp'),
         largeWidth: 1024,
         mobile: [
@@ -154,6 +172,7 @@ export const ASSETS = {
       },
       {
         small: a('/about/card-3-900.webp'),
+        smallWidth: 900,
         large: a('/about/card-3-1024.webp'),
         largeWidth: 1024,
         mobile: [
@@ -403,10 +422,15 @@ export const ASSETS = {
       { name: 'Officonnect', url: a('/footer/partners/officonnect.webp'), w: 113.235, h: 32.12 },
       // Tight-cropped to the artwork and exported at 3x, unlike its siblings: the
       // only source is a YouTube-thumbnail frame, so Figma's own padded 94x32 image
-      // box left the logo at ~2x and reading as blurry. Drawn at Figma's size: the
-      // design team found the earlier 105x21.9 too large (tracker row 24).
-      { name: 'Rizlum', url: a('/footer/partners/rizlum.webp'), w: 73, h: 15.2 },
-      { name: 'OpenReal', url: a('/footer/partners/openreal.webp'), w: 90.724, h: 21.645 },
+      // box left the logo at ~2x and reading as blurry. The design team found the
+      // earlier 105x21.9 too large (tracker row 24). Figma's 73x15.2 still drew the
+      // letters about 10% larger than the other logos: cap R 12.5 against
+      // OpenReal's 11.25, x-height 9.5 against 8.9 (measured at 1440). So the box
+      // is 0.92 of Figma's, which matches the OpenReal and Uniques letters (user,
+      // 2026-10-13).
+      { name: 'Rizlum', url: a('/footer/partners/rizlum.webp'), w: 67.16, h: 13.98 },
+      // Figma 3151:2562 draws the image box 80 x 19.09 (drift 2026-10-12, #15).
+      { name: 'OpenReal', url: a('/footer/partners/openreal.webp'), w: 80, h: 19.087 },
       { name: 'Uniques', url: a('/footer/partners/uniques.webp'), w: 80.099, h: 20.706 },
     ],
   },

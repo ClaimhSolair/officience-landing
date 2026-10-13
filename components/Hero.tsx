@@ -1,173 +1,120 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, type MotionValue, type Variants } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
+import React from 'react';
+import { motion, type Variants } from 'framer-motion';
 import { ASSETS } from '../assets';
 import Container from './ui/Container';
-import Button from './ui/Button';
-import { EASE, MOTION, SEC, STAGGER, useMotionEnabled, useScrub } from '../lib/motion';
-import { scrollToSection } from './navigation';
+import { EASE, MOTION, SEC, useMotionEnabled } from '../lib/motion';
 
-const HEADLINE_LEAD = 'Full-stack';
-const HEADLINE_REST = 'data solutions to empower your business.';
-const SUBTITLE =
-  "We're architects of visual identities — Crafting unique brands that stand out from the noise.";
-
-/**
- * Figma 3187:3985 (390) · 3396:3227 (1440) · 3144:2249 (1920).
- *
- * A blue full-bleed band. Desktop puts the headline and the CTA column on one
- * bottom-aligned row at opposite ends of the content width; mobile stacks them.
- *
- * The headline is deliberately two type styles: the first word is Display-xl
- * (86/95 bold) in salmon, the remainder Size/7xl (75/86 semibold) in white.
- * That mix is what produces the 353px block the artboard draws — a single size
- * cannot.
- *
- * **The headline never animates.** It is the largest text above the fold and so
- * the LCP element; starting it at opacity 0 postpones the page's first meaningful
- * paint by the length of the animation, and no entrance is worth that. Everything
- * around it is free to arrive, and does.
- *
- * The five floating 3D shapes are the one thing here Figma cannot address: they
- * render in the 1440 frame but carry no node id, no asset and no coordinates, so
- * SHAPE_PLACEMENT below is measured off that frame's render rather than read from
- * it. The 1920 frame draws no shapes at all, so widths above 1440 extrapolate the
- * 1440 composition. They are placed on the band rather than the content column
- * because the band is full-bleed, and only from xl up — below that the hero stacks
- * into one column and a shape would land on the headline.
- */
-
-/**
- * Measured off the 1440 render (3396:3227): left/top as fractions of the band,
- * width in pixels.
- *
- * The positions are proportional but the widths are not, and that asymmetry is
- * deliberate. The band's height is pinned (742px, 875 at 3xl) while its width
- * tracks the viewport, so a width-relative size that is correct at 1440 overshoots
- * badly by 1920 — the asterisk reaches 187px against the 141px the artboard draws,
- * and the star grows until it clips through the bottom of the band. Pinning the
- * widths to their 1440 pixel values reproduces the artboard exactly at 1440 and
- * keeps the shapes at an honest size above it, which matters because the 1920
- * frame draws no shapes at all to check against.
- */
-const SHAPE_PLACEMENT = [
-  { key: 'leaf', src: ASSETS.hero.shapes.leaf, left: '19.1%', top: '1.5%', width: 101, depth: 34 },
-  { key: 'asterisk', src: ASSETS.hero.shapes.asterisk, left: '58.6%', top: '9.2%', width: 141, depth: 58 },
-  { key: 'ring', src: ASSETS.hero.shapes.ring, left: '48.0%', top: '50.7%', width: 138, depth: 22 },
-  { key: 'star', src: ASSETS.hero.shapes.star, left: '23.2%', top: '74.9%', width: 141, depth: 46 },
-  { key: 'ellipse', src: ASSETS.hero.shapes.ellipse, left: '79.3%', top: '77.3%', width: 124, depth: 30 },
+const HEADLINE = [
+  { text: 'Building ', accent: false },
+  { text: 'Data Driven', accent: true },
+  { br: true },
+  { text: '& Human-Centered', accent: true },
+  { br: true },
+  { text: 'Digital Products', accent: false },
 ] as const;
+const SUBTITLE =
+  'We integrate robust IT infrastructure, advanced analytics, and intuitive design to scale your business.';
 
-const SHAPE_VARIANTS: Variants = {
-  hidden: { opacity: 0, scale: 0.7 },
-  shown: { opacity: 1, scale: 1, transition: { duration: SEC.revealBase, ease: [...EASE.roll] } },
-};
+/**
+ * Figma 3928:4916 (1440x750): the banner image 3938:5217 fills the frame, the
+ * header 3929:4939 sits on its top 113px, and the copy column 3929:4925 starts
+ * at x 24, y 192. Figma has this frame at 1440 only (drift D2, 2026-10-13).
+ *
+ * From md, the section is the banner at 1440:750 and the copy sits on it. The
+ * banner is an aspect box, so it fills the width at every width up to 2560
+ * and nothing is cropped. All other values are fixed px per step (user, 2026-10-13):
+ *
+ *   step        pull-up  copy top  headline   subtitle         gap
+ *   md   768    60       102       36/44      14/22, 280 wide  16
+ *   lg   1024   80       137       50/58      20/28, 360 wide  24
+ *   xl   1280   100      171       64/74      24/36, 448 wide  24
+ *   1400        header   192       75/86      24/36, 448 wide  24   (the 1440 frame)
+ *   fhd  1880   header   256       100/115    32/48, 597 wide  32   (1440 x 1.333)
+ *
+ * The pull-up moves the section under the header. Below 1400 it is less than
+ * the header height, so the rocket tip stays out from under the fixed header.
+ * The copy top is from the top of the banner. The 1400 step is the narrowest
+ * width where the 75px headline keeps 24px or more from the otter. 2560 keeps
+ * the fhd values. No value is behind 3xl.
+ *
+ * Below md, the copy is on the blue band and a 4:3 crop of the otter group
+ * comes under it. This is art direction, so the crop is a second file in a
+ * <picture> source (CLAUDE.md, Figma Fidelity Rules).
+ *
+ * The CTA button 3928:4887 is removed (D2). The header has the Contact CTA.
+ *
+ * **The headline and the banner never animate.** They are the LCP candidates.
+ * Only the subtitle has an entrance.
+ */
 
 const COPY_VARIANTS: Variants = {
   hidden: { y: 24, opacity: 0 },
-  shown: { y: 0, opacity: 1, transition: { duration: SEC.revealFast, ease: [...EASE.reveal] } },
+  shown: { y: 0, opacity: 1, transition: { duration: SEC.revealFast, delay: 0.1, ease: [...EASE.reveal] } },
 };
 
-/**
- * One floating shape. They drift as the hero scrolls away — decorative layers
- * only, never the headline or the CTA, where movement costs reading comfort and
- * buys nothing. `depth` stays small enough that the group never visibly desyncs
- * from the band it sits on.
- */
-const Shape: React.FC<{
-  shape: (typeof SHAPE_PLACEMENT)[number];
-  progress: MotionValue<number>;
-  drifting: boolean;
-}> = ({ shape, progress, drifting }) => {
-  const y = useTransform(progress, [0, 1], [0, -shape.depth]);
-  return (
-    <motion.img
-      src={shape.src}
-      alt=""
-      className="absolute max-w-none"
-      style={{ left: shape.left, top: shape.top, width: shape.width, ...(drifting ? { y } : {}) }}
-      variants={SHAPE_VARIANTS}
-      decoding="async"
-      referrerPolicy="no-referrer"
-    />
-  );
-};
+// React 18 does not know the camelCase `fetchPriority` prop, so the attribute
+// goes in lowercase, as in AboutHero.
+const HIGH_PRIORITY = { fetchpriority: 'high' } as Record<string, string>;
+
+const srcSet = (sources: readonly { url: string; w: number }[]) => sources.map((s) => `${s.url} ${s.w}w`).join(', ');
+
 const Hero: React.FC = () => {
-  const bandRef = useRef<HTMLElement>(null);
   const motionOn = useMotionEnabled();
   const animating = motionOn && MOTION.hero;
   // The splash screen is gone (user, 2026-10-09), so the entrance starts on mount.
   const state = 'shown';
-
-  const { scrollYProgress } = useScroll({ target: bandRef, offset: ['start start', 'end start'] });
-  // Smoothed once for every shape, so the drift glides between wheel notches.
-  const drift = useScrub(scrollYProgress);
+  const { banner, bannerMobile } = ASSETS.hero;
 
   return (
-  <section ref={bandRef} className="relative overflow-hidden bg-bg-primary">
-    {/* Decorative only: no alt text, out of the a11y tree, and never a click
-        target. No loading="lazy" either — these are above the fold, where lazy
-        loading only delays them. */}
-    <motion.div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 hidden xl:block"
-      variants={{ shown: { transition: { staggerChildren: STAGGER.tight } } }}
-      initial={animating ? 'hidden' : false}
-      animate={state}
-    >
-      {SHAPE_PLACEMENT.map((shape) => (
-        <Shape key={shape.key} shape={shape} progress={drift} drifting={animating} />
-      ))}
-    </motion.div>
-
-    {/* Two levels on purpose: the outer box owns the band's height and centres
-        its contents vertically, the inner row centres the CTA column against the
-        headline. The 2026-08-27 review asked for the reference layout — a narrow,
-        tall headline block with the copy+CTA balanced beside its middle — which is
-        a divergence from the artboard's wider, bottom-aligned headline. */}
-    {/* The row lands at xl, not lg. The two columns are ~600 + 448 = ~1048px wide;
-        at 1024 there is only ~976px of content width, so they would shrink and
-        squeeze the headline. Below 1280 they stack, at the desktop type sizes. */}
-    <Container className="relative flex items-center py-fig-40 lg:min-h-[742px] lg:py-0 3xl:min-h-[875px]">
-      <div className="flex w-full flex-col items-center gap-fig-24 xl:flex-row xl:items-center xl:justify-between xl:gap-fig-32">
-        <h1 className="w-full font-sans text-white lg:w-[600px] 3xl:w-[720px]">
-          {/* The separating space lives inside a sized span. Left bare between
-              the two spans it renders at the h1's inherited size and the words
-              very nearly touch. */}
-          <span className="text-h2 text-sec-200 lg:text-display-xl lg:font-bold">{HEADLINE_LEAD}</span>
-          <span className="text-h2 lg:text-display-lg">{` ${HEADLINE_REST}`}</span>
-        </h1>
-
-        <motion.div
-          className="flex w-full flex-col items-start gap-fig-24 lg:w-[448px] lg:gap-fig-32 3xl:w-[500px]"
-          variants={{ shown: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } } }}
-          initial={animating ? 'hidden' : false}
-          animate={state}
-        >
+    <section className="relative overflow-hidden bg-bg-primary md:-mt-[60px] lg:-mt-[80px] xl:-mt-[100px] min-[1400px]:-mt-[var(--header-h)]">
+      {/* The copy. Below md it is in the flow, above the picture. From md it is
+          a layer on the picture, with the step values above. */}
+      <div className="relative z-10 md:absolute md:inset-0 md:pt-[102px] lg:pt-[137px] xl:pt-[171px] min-[1400px]:pt-[192px] fhd:pt-[256px]">
+        <Container className="flex flex-col gap-fig-24 pb-fig-16 pt-fig-40 md:gap-fig-16 md:p-0 lg:gap-fig-24 fhd:gap-fig-32">
+          <h1 className="font-sans text-h2 font-semibold text-white md:text-h1 md:font-semibold md:tracking-[-0.03em] lg:text-display-sm lg:font-semibold lg:tracking-[-0.03em] xl:text-display-md xl:font-semibold min-[1400px]:text-display-lg fhd:text-[100px] fhd:leading-[115px]">
+            {HEADLINE.map((part, i) =>
+              'br' in part ? (
+                // The space keeps the words apart in textContent, as in Figma.
+                <React.Fragment key={i}>{' '}<br /></React.Fragment>
+              ) : (
+                <span key={i} className={part.accent ? 'text-off-yellow' : undefined}>
+                  {part.text}
+                </span>
+              ),
+            )}
+          </h1>
           <motion.p
             variants={COPY_VARIANTS}
-            className="font-body font-medium text-[14px] leading-[22px] text-white lg:text-subtitle-1 lg:font-normal"
+            initial={animating ? 'hidden' : false}
+            animate={state}
+            className="font-body text-[14px] font-medium leading-[22px] text-white md:w-[280px] lg:w-[360px] lg:text-body-xl lg:font-normal xl:w-[448px] xl:text-subtitle-1 fhd:w-[597px] fhd:text-[32px] fhd:leading-[48px]"
           >
             {SUBTITLE}
           </motion.p>
-          <motion.span variants={COPY_VARIANTS} className="flex w-full flex-col items-center lg:items-stretch">
-          {/* Button-md at 390, Button-lg from 1440 up — the artboards step the
-              label size as well as the icon gap. */}
-          <Button
-            variant="secondary"
-            size="lg"
-            onDark
-            onClick={() => scrollToSection('contact')}
-            className="w-[336px] max-w-full self-center border-transparent shadow-fig-xs lg:w-full lg:self-auto lg:gap-fig-14 lg:text-btn-lg"
-            icon={<ArrowUpRight className="h-[24px] w-[24px] shrink-0" strokeWidth={2} aria-hidden="true" />}
-          >
-            Contact Us
-          </Button>
-          </motion.span>
-        </motion.div>
+        </Container>
       </div>
-    </Container>
-  </section>
+
+      {/* Decorative: the headline carries the message, so the alt is empty.
+          Not lazy and high priority, because the banner is the largest paint
+          above the fold. The aspect classes equal the file aspects, so
+          object-cover does nothing and CSS distorts nothing. The bottom of the
+          mobile crop is the floor of the scene, and the flower band joins it. */}
+      <picture>
+        <source media="(min-width: 768px)" srcSet={srcSet(banner.sources)} sizes="100vw" />
+        <img
+          src={bannerMobile.sources[bannerMobile.sources.length - 1].url}
+          srcSet={srcSet(bannerMobile.sources)}
+          sizes="100vw"
+          width={bannerMobile.w}
+          height={bannerMobile.h}
+          alt=""
+          {...HIGH_PRIORITY}
+          decoding="async"
+          referrerPolicy="no-referrer"
+          className="block aspect-[4/3] h-auto w-full object-cover [mask-image:linear-gradient(to_bottom,transparent,#000_12%)] md:aspect-[1440/750] md:[mask-image:none]"
+        />
+      </picture>
+    </section>
   );
 };
 

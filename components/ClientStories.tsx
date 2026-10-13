@@ -11,7 +11,7 @@ import { ASSETS } from '../assets';
  *
  * Three quotes on a fixed stack — neither artboard draws a carousel, so this is
  * the one deck on the page with no controls. 1920 sets the header beside the
- * quotes in a 600px column and gives the stack 847px; 390 puts the header above
+ * quotes in a 632px column and gives the stack 847px; 390 puts the header above
  * and the cards run the full content width.
  *
  * The card is drawn twice with real differences, all reproduced below:
@@ -28,7 +28,8 @@ import { ASSETS } from '../assets';
 const TESTIMONIALS = [
   {
     // 390 writes "had become"; 1920 writes "has". Following 1920 — it is the
-    // frame the copy was set in, and the tense is right.
+    // frame the copy was set in, and the tense is right. Figma sets a straight
+    // apostrophe in "don't"; the build keeps the typographic one (FIGMA-SLIP).
     quote: '"Officience has become our main partner and I don’t regret it a single day."',
     name: 'Dr. Jean Marcel Guillon',
     role: 'FV Hospital',
@@ -67,9 +68,14 @@ const SLIDE_X = [230, 540, 840];
  * column, which is 847px at 1920, as frame 3151:2378 draws it. An earlier
  * 545px cap (from frame 3129:3363) left an empty band on the right of the
  * cards (tracker row 25).
+ *
+ * At 1920 the card is 200 tall, as 3151:2378 draws: 40 above the quote and 38
+ * under the author row, because the drawn rule takes no height. The rule here
+ * takes back its 1px with a negative margin (`RULE`). It is a min-height, not a
+ * fixed height, so a quote that wraps at a narrower width grows the card.
  */
 const CARD =
-  'flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:gap-fig-20 lg:rounded-fig-l lg:p-fig-40';
+  'flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:gap-fig-20 lg:rounded-fig-l lg:px-fig-40 lg:pb-[38px] lg:pt-fig-40';
 
 const Testimonial: React.FC<{
   t: (typeof TESTIMONIALS)[number];
@@ -95,7 +101,7 @@ const Testimonial: React.FC<{
           separates the quote from its attribution rather than the two simply
           appearing together. */}
       <motion.hr
-        className="w-full origin-left border-0 border-t border-border-frame"
+        className="w-full origin-left border-0 border-t border-border-frame lg:-mb-px"
         initial={motionOn && MOTION.clients ? { scaleX: 0 } : false}
         whileInView={{ scaleX: 1 }}
         viewport={{ once: true, amount: 0.6 }}
@@ -163,23 +169,23 @@ const ClientStories: React.FC = () => {
   // the entrance never widens the page. It clips the x axis only, so the card
   // rule draw and the rest of the column are untouched.
   <section id="clients" className="overflow-x-clip bg-bg-secondary">
-    {/* 1920 lays the two columns out at 600 / 146 / 847 inside the 1792 content
+    {/* 1920 lays the two columns out at 632 / 146 / 847 inside the 1792 content
         width. The 146px gap belongs at lg, not 3xl: a maximised 1920x1080 browser
         reports about 1910px of viewport, so 3xl (1920px) never fires there and the
         cards used to sit 82px left of the artboard. Fixed step rather than a
         percentage, because breakpoints in this project swap values instead of
         interpolating them. */}
     <Container className="flex flex-col gap-fig-24 py-fig-32 lg:flex-row lg:items-start lg:gap-fig-146 lg:py-fig-100">
-      {/* The heading is nowrap only from 2xl. Figma lets it overrun its own column
-          — 632px of text in a 600px frame — which is fine at 1920 because the cards
-          start 114px further right, but between lg and 2xl the column shrinks with
-          the viewport while the 86px type does not, and the heading ran straight
-          over the cards. Below 2xl it wraps inside its column instead. */}
+      {/* The column hugs the 632px heading (3137:2109, Figma changed), so the
+          cards start at x 842 at 1920. 632 / 1792 = 35.27%. The heading is nowrap
+          only from 2xl. Below 1920 the column shrinks with the viewport and the
+          86px type does not. From 2xl the heading runs into the 146px gap, which
+          has room for it. Below 2xl it wraps inside its column. */}
       <Reveal
         as="div"
         stagger={STAGGER.base}
         enabled={MOTION.clients}
-        className="flex flex-col items-start gap-fig-8 lg:w-[35%] lg:max-w-[600px] lg:shrink-0 lg:gap-fig-16"
+        className="flex flex-col items-start gap-fig-8 lg:w-[35.27%] lg:max-w-[632px] lg:shrink-0 lg:gap-fig-16"
       >
         <RevealChild as="span" y={20} duration={SEC.revealFast}>
           <SectionBadge>Client Review</SectionBadge>

@@ -73,7 +73,9 @@ const STORY_CARDS: StoryCard[] = [
     title: '20 Years of Delivery',
     body: "Since 2006, we've completed hundreds of projects for clients across Europe, Asia and beyond",
     tint: 'bg-pri-100',
-    fit: 'object-cover object-[49%_64%]',
+    // Below lg: the baked mobile crop. From lg: the crop of 3137:1917, baked into
+    // the file at the box aspect (see `assets.ts`). Both fits are no-ops.
+    fit: 'object-cover lg:object-fill',
     aspect: 'aspect-[358/220]',
     alt: 'Officience team members gathered around a meeting-room table',
   },
@@ -203,7 +205,7 @@ const StoryCardArticle: React.FC<{
         <picture>
           <source
             media="(min-width: 1024px)"
-            srcSet={`${img.small} 900w, ${img.large} ${img.largeWidth}w`}
+            srcSet={`${img.small} ${img.smallWidth}w, ${img.large} ${img.largeWidth}w`}
             sizes="(min-width: 1920px) 1792px, calc(100vw - 48px)"
           />
           <motion.img
@@ -211,7 +213,9 @@ const StoryCardArticle: React.FC<{
             srcSet={srcSetOf(img.mobile)}
             sizes="calc(100vw - 32px)"
             alt={card.alt}
-            className={`block w-full ${card.aspect} lg:aspect-[1792/860] ${card.fit} ${zooming ? 'will-change-transform' : ''}`}
+            className={`block w-full ${card.aspect} lg:aspect-[1792/860] ${card.fit} ${
+              zooming ? 'will-change-transform' : ''
+            }`}
             loading="lazy"
             decoding="async"
             referrerPolicy="no-referrer"
@@ -299,7 +303,9 @@ const AboutUs: React.FC = () => {
 
   return (
     <section id="about" className="bg-bg-secondary">
-      <Container className="flex flex-col gap-fig-64 py-fig-64 lg:gap-fig-100 lg:py-fig-100">
+      {/* From lg the two seams differ, as 3137:1883 draws: 64 from the header to
+          the milestone row, 100 from the milestone row to the cards. */}
+      <Container className="flex flex-col gap-fig-64 py-fig-64 lg:gap-0 lg:py-fig-100">
         {/* Manifesto. The badge hugs the left edge while the text block sits on
             the right at desktop; they stack in reading order below xl. */}
         <Reveal
@@ -328,7 +334,7 @@ const AboutUs: React.FC = () => {
                 tab. The old external anchor opened the legacy about site. */}
             <Link
               to={ROUTES.about}
-              className="inline-flex min-h-[44px] items-center gap-fig-8 px-fig-24 font-sans font-semibold text-btn-lg text-text-primary transition-colors hover:text-[#000086] motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="inline-flex min-h-[44px] items-center lg:min-h-[56px] gap-fig-8 px-fig-24 font-sans font-semibold text-btn-lg text-text-primary transition-colors hover:text-[#000086] motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               {DISCOVER_OUR_STORY.label}
               <ArrowRight className="h-[20px] w-[20px] shrink-0" strokeWidth={2} aria-hidden="true" />
@@ -338,7 +344,13 @@ const AboutUs: React.FC = () => {
           </div>
         </Reveal>
 
-        {/* Milestones — two columns at 390, four from lg. */}
+        {/* Milestones — two columns at 390, four from lg. From lg the row is the
+            frame's 1630 of 1792 (four 250 columns, 210 gaps, 77 in from the left
+            edge), in percentages so it scales with the column. The labels do not
+            wrap: at 1024 a column is 136px and a label is up to 160px, so the
+            label runs into the gap and stays on one line, centred. From fhd the
+            row takes the drawn px values. The row has
+            6px above and below its items (3137:1902 is 122 tall). */}
         {/* The four arrive left to right, so the row reads as a row rather than
             as four numbers that happened to appear together. The odometers start
             their own roll on the same cue. */}
@@ -346,20 +358,20 @@ const AboutUs: React.FC = () => {
           as="ul"
           stagger={STAGGER.loose}
           amount={0.4}
-          className="grid grid-cols-2 gap-x-fig-20 gap-y-fig-20 lg:grid-cols-4 lg:gap-x-fig-32"
+          className="grid grid-cols-2 gap-x-fig-20 gap-y-fig-20 lg:ml-[4.297%] lg:mt-fig-64 lg:w-[90.96%] lg:grid-cols-4 lg:gap-x-[12.883%] lg:py-[6px] fhd:ml-[77px] fhd:w-[1630px] fhd:gap-x-[210px]"
         >
           {MILESTONES.map(({ value, label }) => (
             <RevealChild as="li" key={label} y={28} duration={SEC.revealFast} className="flex flex-col items-center gap-fig-16 lg:gap-fig-8">
               <span className="font-sans font-medium text-display-sm text-text-primary lg:font-semibold lg:text-[86px] lg:leading-[74px] lg:tracking-[-0.03em]">
                 {MOTION.counters ? <Odometer value={value} armed={countersArmed} /> : value}
               </span>
-              <span className="text-center font-body text-body-lg text-subtitle lg:text-body-xl">{label}</span>
+              <span className="text-center font-body text-body-lg text-subtitle lg:whitespace-nowrap lg:text-body-xl">{label}</span>
             </RevealChild>
           ))}
         </Reveal>
 
         {/* Story cards */}
-        <div ref={cardsRef} className="flex flex-col gap-fig-56 lg:gap-fig-64">
+        <div ref={cardsRef} className="flex flex-col gap-fig-56 lg:mt-fig-100 lg:gap-fig-64">
           {STORY_CARDS.map((card, i) => (
             <StoryCardArticle
               key={card.title}

@@ -113,6 +113,14 @@ const CARD_H = 'h-[314px] md:h-auto md:aspect-[580/751] lg:aspect-auto lg:h-[var
  */
 const CARD_HEIGHT = 'min(751px, calc(100svh - 200px))';
 
+/**
+ * The section gutter (D6, user 2026-10-13), in steps: 16 below lg, 24 from lg
+ * (2943:1579 at 1440), 40 from fhd (3137:2069 at 1920). Above 1920 the header
+ * stops at 1840px and the track at 1920px, so both edges stay in line.
+ */
+const PR_MAX = 'max-w-[1840px]';
+const PR_GUTTER = '[--pr-gutter:16px] lg:[--pr-gutter:24px] fhd:[--pr-gutter:40px]';
+
 /** The pale chips over the blue caption. */
 const Tag: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <span className="shrink-0 rounded-[2px] bg-pri-50 px-fig-4 py-fig-2 font-body text-[10px] font-semibold leading-[16px] text-text-primary lg:rounded-fig-xs lg:p-fig-8 lg:font-sans lg:text-btn-lg">
@@ -228,7 +236,7 @@ const ProvenResults: React.FC = () => {
   // Local, so that TypeScript narrows `geom` wherever `pinned` is true.
   const pinned = wantsPin && geom !== null;
 
-  const cardBase = `${CARD} ${CARD_H} overflow-hidden rounded-fig-xs bg-bg-primary lg:rounded-fig-l`;
+  const cardBase = `${CARD} ${CARD_H} overflow-hidden rounded-fig-xs bg-bg-primary lg:rounded-fig-m`;
   const cardCls = pinned ? cardBase : `${cardBase} snap-start`;
 
   return (
@@ -256,7 +264,10 @@ const ProvenResults: React.FC = () => {
                 static alike (user, 2026-09-18). The wider seam raises the pinned
                 column's height, so `measureDeck` scales the deck a little more to
                 keep it fitting the viewport — the trade for the roomier gap. */}
-            <Container innerRef={headerRef} className="mb-fig-24 flex flex-col gap-fig-8 lg:mb-fig-100 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32">
+            {/* Not `Container`: this section uses a 40px gutter at 1920 (3137:2069,
+                3151:2815) and 24 at 1440 (2943:1579). See PR_GUTTER. */}
+            <div className={`w-full px-[var(--pr-gutter)] ${PR_GUTTER}`}>
+            <div ref={headerRef} className={`mx-auto w-full ${PR_MAX} mb-fig-24 flex flex-col gap-fig-8 lg:mb-fig-100 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32`}>
               <Reveal as="div" stagger={STAGGER.base} className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
                 <RevealChild as="span" y={20} duration={SEC.revealFast}>
                   <SectionBadge>Proof Of Work</SectionBadge>
@@ -278,10 +289,11 @@ const ProvenResults: React.FC = () => {
               >
                 Crafting solutions for global innovators. See our latest chapters.
               </Reveal>
-            </Container>
+            </div>
+            </div>
 
-            {/* Full-bleed to 1920 so the padding lands on the same gutters Container
-                uses, while the next card can still peek past the content edge. When
+            {/* Full-bleed to 1920 so the padding lands on the same gutter as the
+                header above, while the next card can still peek past the content edge. When
                 pinned it reserves the scaled deck's height, so scaling the track
                 shrinks the column's layout and not merely its paint. */}
             <div
@@ -297,18 +309,24 @@ const ProvenResults: React.FC = () => {
                 /* `scroll-padding` has to mirror `padding`, or mandatory snapping
                    aligns the first card to the scrollport edge and eats the gutter —
                    the deck ends up a full gutter left of the heading. Scrollbars are
-                   killed globally in index.html, so the track needs no opt-out. */
-                className={`flex items-start gap-[22px] md:gap-[48px] px-fig-16 lg:px-fig-24 3xl:px-fig-64 ${
+                   killed globally in index.html, so the track needs no opt-out.
+                   The card gap is 48 below fhd (2943:1579 at 1440) and 40 from fhd
+                   (3137:2069 and 3151:2815 at 1920). */
+                className={`flex items-start gap-[22px] md:gap-[48px] fhd:gap-[40px] px-[var(--pr-gutter)] ${PR_GUTTER} ${
                   pinned
                     ? 'will-change-transform'
-                    : 'snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-pl-fig-16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:scroll-pl-fig-24 3xl:scroll-pl-fig-64'
+                    : 'snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-pl-[var(--pr-gutter)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
                 }`}
+                /* The pinned scale turns on the first card's left edge, not on the
+                   track's edge. With '0% 0%' the scale also shrank the gutter, so the
+                   deck started 3.7px left of the heading at 1920x1080. `measureTrack`
+                   already measures from the first card. */
                 style={
                   pinned
                     ? {
                         x: trackX,
                         scale: geom.scale,
-                        transformOrigin: '0% 0%',
+                        transformOrigin: 'var(--pr-gutter) 0px',
                         ['--card-h' as string]: CARD_HEIGHT,
                       }
                     : ({ ['--card-h' as string]: CARD_HEIGHT } as React.CSSProperties)
@@ -327,7 +345,10 @@ const ProvenResults: React.FC = () => {
                       alt: project.alt,
                     }}
                   >
-                    <div className="flex flex-1 flex-col justify-center gap-fig-6 px-fig-16 py-fig-20 lg:gap-fig-16 lg:p-fig-40">
+                    {/* From lg the caption is top-aligned, as 2943:1739 and 3151:2833 draw:
+                        48 above the tags at a 751 card, 14 between tags and title. The
+                        48 scales with the card height, so a short card keeps its title. */}
+                    <div className="flex flex-1 flex-col justify-center gap-fig-6 px-fig-16 py-fig-20 lg:justify-start lg:gap-fig-14 lg:px-fig-40 lg:pb-0 lg:pt-[calc(var(--card-h)*48/751)]">
                       <div className="flex flex-wrap items-center gap-[5px] lg:gap-fig-12">
                         {project.tags.map((tag) => (
                           <Tag key={tag}>{tag}</Tag>
@@ -343,18 +364,23 @@ const ProvenResults: React.FC = () => {
                 {/* The deck's last slide. Only the 1440 frame draws it, and only at
                     desktop size — the 390 treatment is scaled from it. */}
                 <article
-                  className={`${CARD} ${CARD_H} flex flex-col justify-between overflow-hidden rounded-fig-xs bg-bg-primary px-fig-16 py-fig-20 lg:rounded-fig-l lg:px-fig-24 lg:py-fig-32 ${
+                  className={`${CARD} ${CARD_H} flex flex-col justify-between overflow-hidden rounded-fig-xs bg-bg-primary px-fig-16 py-fig-20 lg:rounded-fig-m lg:px-fig-24 lg:py-fig-32 ${
                     pinned ? '' : 'snap-start'
                   }`}
                 >
-                  <div className="flex items-start justify-between">
-                    <StarMark className="h-[56px] w-[56px] rotate-[91deg] lg:h-[100px] lg:w-[100px]" />
+                  {/* 2943:1747 and 3151:2841 draw this row 522.83 wide, not 532, so the
+                      pill ends 33 from the card edge. The star box sits 2.6px lower than
+                      a top-aligned 100px box gives. */}
+                  <div className="flex items-start justify-between lg:pr-[9.17px]">
+                    <StarMark className="h-[56px] w-[56px] rotate-[91deg] lg:mt-[2.6px] lg:h-[100px] lg:w-[100px]" />
                     <span className="shrink-0 rounded-[2px] bg-pri-50 px-fig-4 py-fig-2 font-body text-[10px] font-semibold leading-[16px] text-text-primary lg:rounded-fig-xs lg:px-[10px] lg:py-fig-8 lg:font-sans lg:text-btn-lg">
                       10+ Works
                     </span>
                   </div>
 
-                  <div className="flex flex-col items-center gap-fig-12 lg:gap-fig-28">
+                  {/* The drawn block is 524 wide (2943:1752), so the blurb and the button
+                      start 62 from the card edge, not 66. */}
+                  <div className="flex flex-col items-center gap-fig-12 lg:gap-fig-28 lg:pr-fig-8">
                     <p className="font-body text-[12px] leading-[20px] text-white lg:max-w-[448px] lg:text-subtitle-1">
                       {VIEW_ALL_BLURB}
                     </p>

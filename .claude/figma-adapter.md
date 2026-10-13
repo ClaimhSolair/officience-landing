@@ -1476,3 +1476,101 @@ note. The team tested before the 2026-10-09 fixes. Rows 12 and 21 wait for a re-
 - Hero CTA wording (header and hero both say "Contact Us"), the logo-section colour change and showcase animation,
   the "20 years" KPI, and country flags on the offices. None is in Figma.
 - Two slips in survey frame 2809:2567: "Transmission competed!" and "bussiness days". The build keeps its corrected text.
+
+## 24 — Figma drift round (2026-10-12 check, 2026-10-13 fixes)
+
+Source: the drift check in `.claude/drift-2026-10-12/` (README.md and seven reports) and the fix notes
+`fix-{hero,nav,survey,legal,home}.md` there. Each fix note holds the full change table and the measured values.
+User decisions of 2026-10-13: stick with Figma; the new hero banner; "Submit" in the survey; the legal .docx
+is the source of truth for content; the 751px Proven Results cap stays; the Figma side margins; the survey
+frames are final; the 1440 frames scale in **steps**, not fluid.
+
+### Scale model
+24a. **The `fhd` screen (1880px) is the large-desktop step.** A maximised 1920 browser reports about 1910px, so
+     `3xl` (1920) never fires there. The 1440 values hold from lg (or the step the section names) up to below
+     fhd. From fhd: the 1920 frame values where a 1920 frame exists, else the 1440 values x1.333 in fixed px.
+     2560 keeps the fhd values. Type stays fixed px per step: no vw, no clamp. Do not put a desktop-critical
+     value behind `3xl:` alone.
+24b. **The survey does not step.** Its frames are 968px modal frames, not a 1440 page. They hold from 1000px up.
+
+### Hero
+24c. **Home hero = frame `3928:4916`** (user-confirmed 2026-10-13). The banner `3938:5217` fills the band. The
+     copy sits top-left at x 24, y 192 at 1440. The hero CTA `3928:4887` is removed (the header CTA is the
+     only "Contact Us"). The five 3D shapes are removed. **This replaces the 2026-08-27 headline-block ruling.**
+24d. The band is `aspect-[1440/750]` from md, full width up to 2560, no crop. Copy steps: md / lg / xl / 1400
+     (the 1440 frame) / fhd (x1.333). The table is in `fix-hero.md`. The 1400 step keeps 24px or more between
+     the copy and the otter. The pull-up under the header is 60 / 80 / 100 at md / lg / xl, and `--header-h`
+     from 1400. The copy stays in `Container`, so it is on the page column (x 64 at 1920, x 384 at 2560).
+24e. Below md (no Figma frame, build choice): the copy on the blue band, then a pre-cropped 4:3 file of the
+     otter group with a 12% top fade. Ask the design team for a 390 frame.
+24f. Banner files `/hero/banner-{960,1440,1728}.webp` and `/hero/banner-mobile-{780,960}.webp` (staging bucket,
+     uploaded and byte-checked 2026-10-13, new keys, no `ASSET_VERSION` bump). The Figma source is only
+     1747x900, so the banner is soft at DPR 2 and at 2560. Ask the design team for the 2880px+ original.
+
+### Header and menu
+24g. **Header gutter 24px** at every desktop width (16 below lg), full bleed, no 1792 cap (D6). The bar does not
+     use `Container`.
+24h. The glass hairline is an inset box-shadow, so the bar is 69 / 113 / 119 in both states. The icons fill their
+     drawn boxes (32 / 48 / 56). The 390 mail button is a bare 20px glyph with an invisible 44px tap area.
+24i. The 1920 header applies from fhd. `--header-h` and `scroll-padding-top` step at fhd too. Keep the three in step.
+24j. **Transparent header on `/`** at the page top, from 1400 (the banner frame draws the header on it). Below
+     1400 it stays solid, because the hero pull-up is less than the bar height there. Other routes stay solid.
+     The glass state after 69px does not change. The 1400 width belongs to the hero pull-up (24d).
+24k. Menu overlay = `3275:2328` in fixed px from lg, x1.333 from fhd. Dim layer 60%, tracking -3%, nav top 80,
+     2 x 1fr service columns with a 30px gap, close X 28px ink. `RollText` is `align-top`, because the baseline
+     adds the descender to the line. The collapsed Services default (`f7864bf`) stays.
+24l. **Scrollbars:** the `scrollbar-*` properties apply only inside `@supports not selector(::-webkit-scrollbar)`,
+     because in Chrome 121+ they switch off the `::-webkit-scrollbar` rules. `.menu-scroll` takes its colours
+     from `--sb-track` / `--sb-thumb`. The overlay sets the Figma 40% pair; other surfaces keep the opaque 10px bar.
+
+### Survey (frames final, D7)
+24m. The survey follows `2822:6528`: square modal, 5-layer shadow, 760 progress bar, H4 titles, H3 questions,
+     36px chips and inputs, a 24px consent box (still a real checkbox), 168x56 buttons. Below 968 the bar scales
+     in %. Below sm the build uses its own compact step (table in `fix-survey.md`).
+24n. The last button says "Submit". The category complete step has its own copy: "Category inquiries: <flow>",
+     "Submitted!", "We will reach out within 5 days." The Full-time career title is the build's own (no frame).
+     The category name field is "Name" / "Full name".
+24o. FIGMA-SLIPs: "Summited!" (built "Submitted!"); the 2px gap that clips the 60px option card (built without it).
+
+### Legal (content = .docx, styling = Figma)
+24p. Privacy keeps its 9 sections and the .docx wording. One date per page, in the hero ("1 June 2026" for
+     Privacy; "June 2026" for Terms, because the Terms .docx has no date).
+24q. The Privacy intro is a full-width lead block: 24/36 `#5A5A5A` from lg, at Figma's x 51 (a FIGMA-SLIP that
+     aligns with nothing, reproduced). Body `#0F1219`, sub-headings Montserrat Bold 16/26, 26px paragraph gaps,
+     120px body top gap, 784 column (1045 from fhd), rule `#C6C6C6`, hero copy at x 42.
+24r. One list style: disc, 24px indent, plain term (Figma's majority style). Inline links stay underlined (WCAG 1.4.1).
+24s. From fhd the legal page uses its own 1856 column (1392 x1.333), because the scaled layout does not fit 1792.
+     The 1024 contents card stays 448 (a 387px text column).
+
+### Homepage
+24t. The Services offerings follow Figma. Software adds "Testing & QA" and writes "E-commerce" / "Enterprise auto"
+     (the text node holds "Enterprise auto" in full; the content team must confirm it). Data Engineering is
+     "Data entry / Data collect / Data process / Business support". Ruling 23c still holds (titles at
+     64/202/340/478). The Services hub (`HubServices.tsx`) uses the same two lists (user, 2026-10-13), so those
+     two hub rows do not follow the hub frame 3109:1869.
+24u. About card 1 desktop crop = the crop of `3137:1917`, baked from the 3480x1957 original: window (494,707)
+     2443x1098, resized to the 1792/860 box with Figma's 0.936 horizontal squeeze. Files
+     `/about/card-1-lg-{1144,2288}.webp` (staging, uploaded and byte-checked 2026-10-13, new keys). Mean pixel
+     difference against the Figma render of the node: 2.69/255. This replaces the tuned `object-position` of
+     ruling 18. `card-1-900` / `card-1-1800` are no longer used.
+24v. Proven Results: gutter 24 from lg, 40 from fhd (D6); gap 48 below fhd, 40 from fhd; radius 8 (both state
+     frames); caption 48/14. The 751 cap and scale-to-fit stay (D5). The pinned scale turns on the gutter.
+24w. Client Review: the header column hugs the 632px heading (cards at x 842 at 1920), cards 200 tall. The curly
+     apostrophe stays (Figma's straight one is a slip).
+24x. Logo band at rest (reduced motion): hard clip, no edge fade, starts on the content column.
+24y. Contact: "1-chome" never splits; option rows 104, panel 458; the Contact gutter steps at fhd.
+24z. **Footer master = the 1440 frame `4028:6376`** (user, 2026-10-13): 1440 values from lg, x4/3 from fhd. The
+     1920 footer frame `3151:2509` is retired. The rule and separators are solid white. OpenReal is 80 x 19.1.
+24aa. The outline "View Brochure" buttons have no rest fill (the Figma instance). The variant's grey hover is the
+     same grey as the section, so the hover is `pri-50` #ECF4FF (user, 2026-10-13). The pressed fill does not change.
+24ac. **Rizlum footer logo at 0.92 of Figma's box: 67.16 x 13.98** (user, 2026-10-13). One scale applies to all
+     five logos, but Figma's 73x15.2 drew the Rizlum letters about 10% larger than the others. Measured from the
+     source files at 1440: cap R 12.62 against OpenReal's 11.53, x-height 9.6 against 9.06. At 0.92: cap 11.61,
+     x-height 8.8. This replaces the size in 23d.
+24ab. Stale note: step 7 "Shadow-sm rendered via shadow-fig-sm" is wrong since `c0c2e30` (no card shadows).
+
+### Open after this round
+- "Enterprise auto" (content team); a 390 hero frame and the 2880px banner original; the survey progress labels
+  wrap on phones. The service pages for Software and Data Engineering were not checked against the new lists.
+- With motion on, a legal contents click scrolls down, the header hides, and a blank band shows above the
+  section. This is the hide-on-scroll ruling, not a new bug.

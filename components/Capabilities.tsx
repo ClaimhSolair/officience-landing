@@ -47,12 +47,15 @@ const SERVICES: Service[] = [
   {
     title: 'Software & Web Development',
     promise: 'Build the technology behind your business.',
+    // Six items in 3137:1976 (Figma changed, 2026-10-12). Text node 3137:1982
+    // holds "Enterprise auto" in full; the box does not cut it.
     offerings: [
       'Web applications',
-      'E-commerce platforms',
+      'E-commerce',
       'SaaS platforms',
       'Mobile apps',
-      'System integrations',
+      'Enterprise auto',
+      'Testing & QA',
     ],
     to: serviceHref('software-web-development'),
   },
@@ -70,12 +73,8 @@ const SERVICES: Service[] = [
   {
     title: 'Data Engineering & Processing',
     promise: 'Manage and process data to support your business operations.',
-    offerings: [
-      'Data entry & processing',
-      'Data cleaning and enrichment',
-      'CRM management',
-      'Process outsourcing',
-    ],
+    // 3137:2024 (Figma changed, 2026-10-12).
+    offerings: ['Data entry', 'Data collect', 'Data process', 'Business support'],
     to: serviceHref('data-engineering-processing'),
   },
 ];
@@ -316,7 +315,12 @@ const Capabilities: React.FC = () => {
                   to={service.to}
                   variant="secondary"
                   size="lg"
-                  className="w-full shadow-fig-xs lg:w-[350px] lg:text-btn-lg"
+                  /* No fill at rest: the instance draws none, so the section grey
+                     shows through (drift 2026-10-12, #6). The selector outranks the
+                     variant's white fill. The variant's grey hover is the same grey
+                     as the section, so the hover uses pri-50 (user, 2026-10-13).
+                     The pressed fill does not change. */
+                  className="w-full shadow-fig-xs [&:not(:hover):not(:active)]:bg-transparent [&:hover:not(:active)]:bg-pri-50 lg:w-[350px] lg:text-btn-lg"
                   icon={
                     <ArrowRight
                       className="h-[20px] w-[20px] shrink-0"

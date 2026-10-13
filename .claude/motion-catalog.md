@@ -820,3 +820,12 @@ browser. The vertical quote loop has no page with three quotes until phase 2 (BI
 - **Item 10 (Proven Results):** image zoom on hover (1.06, 700ms, clipped). Not a scroll effect.
 - Verified with headless Playwright on the dev server (the pane froze rAF): eight widths, no overflow; `?motion=off`
   plus reduced motion at 390 / 1024 / 1920; the hover zoom is off under reduce.
+
+## v11 — Figma drift round (2026-10-13)
+- **Hero:** the five floating shapes and their scroll drift are removed (adapter 24c). The top-left copy of
+  frame `3928:4916` replaces the headline block of 2026-08-27. Only the subtitle fades in. The headline and the
+  banner do not animate, because the banner is the LCP image. The older hero notes in this file are history.
+- **Header:** transparent at the top of `/` from 1400 (adapter 24j). The glass state and hide-on-scroll do not change.
+- **Logo band at rest:** under reduced motion the row has a hard clip and no fade (adapter 24x).
+- Verified with headless Playwright on the dev server: 12 routes x 10 widths with reduced motion, plus 390 /
+  1440 / 1910 with motion on. No overflow and no console errors.

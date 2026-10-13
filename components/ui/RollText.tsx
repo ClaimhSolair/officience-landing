@@ -16,6 +16,12 @@ import { CSS_EASE, MS, useMotionEnabled } from '../../lib/motion';
  * negative margin keeps the occupied height unchanged, so nothing in the
  * approved layout moves.
  *
+ * `align-top` keeps the line box at the line height. An `inline-block` with
+ * `overflow-hidden` sits with its bottom edge on the baseline, so the line box
+ * also added the descender space below it: 63px for a 58px menu line, 33px for
+ * a 28px sub-item title. In a flex parent the span is a flex item, and the
+ * alignment has no effect there.
+ *
  * Hover and focus-visible only — there is no hover on touch, and the reference
  * has no touch equivalent.
  *
@@ -33,7 +39,7 @@ const RollText: React.FC<{
   const motionOn = useMotionEnabled();
 
   return (
-  <span className={`inline-block overflow-hidden -my-[0.15em] ${className}`}>
+  <span className={`inline-block align-top overflow-hidden -my-[0.15em] ${className}`}>
     <span
       className={`relative block py-[0.15em] transition-transform ${
         motionOn ? 'group-hover:-translate-y-full group-focus-visible:-translate-y-full' : ''

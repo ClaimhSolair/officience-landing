@@ -56,12 +56,26 @@ const HOME_BLURB = (
  * Copy is Figma's verbatim, including the missing commas in the first three
  * addresses and the underscored Vietnam labels — see the adapter backlog, both
  * read as slips rather than decisions and both are one edit to correct.
+ *
+ * `display` is the shown text when it differs from `address`, which also goes
+ * to Google Maps. Japan keeps "1-chome" in one piece: the free wrap split it
+ * as "1- / chome". With the word held together, the line breaks after
+ * "Akasaka", as 3151:2444 draws it.
  */
-const OFFICES = [
+const OFFICES: { city: string; address: string; display?: React.ReactNode }[] = [
   { city: 'France', address: '47 Boulevard de Sébastopol 75001 Paris, France' },
   { city: 'USA', address: '8 The Green, Suite #4511, Dover Delaware 19901, USA' },
   { city: 'Singapore', address: '9 Kallang Place, #04-08 Singapore 339154' },
-  { city: 'Japan', address: 'Ark Mori Bldg. 7F, 12-32, Akasaka 1-chome, Minato-ku, Tokyo 107-6006' },
+  {
+    city: 'Japan',
+    address: 'Ark Mori Bldg. 7F, 12-32, Akasaka 1-chome, Minato-ku, Tokyo 107-6006',
+    display: (
+      <>
+        Ark Mori Bldg. 7F, 12-32, Akasaka <span className="whitespace-nowrap">1-chome,</span> Minato-ku, Tokyo
+        107-6006
+      </>
+    ),
+  },
   { city: 'Vietnam_OffyPlex', address: '16A Le Hong Phong Street, Hoa Hung Ward, Ho Chi Minh City' },
   {
     city: 'Vietnam_CrunchBase',
@@ -128,7 +142,7 @@ const Chevron: React.FC = () => (
 
 const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blurb = HOME_BLURB }) => (
   <section id="contact" className="bg-bg-primary">
-    <div className="w-full px-fig-16 py-fig-16 lg:px-fig-24 lg:py-fig-120 3xl:px-[74px]">
+    <div className="w-full px-fig-16 py-fig-16 lg:px-fig-24 lg:py-fig-120 fhd:px-[74px]">
       <Reveal
         as="div"
         y={40}
@@ -177,10 +191,12 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
                   duration={SEC.revealFast}
                   className="block w-full"
                 >
+                {/* From lg the row is 104 tall, as drawn: Figma puts the stroke
+                    inside the box, so the padding is 19 plus the 1px border. */}
                 <button
                   type="button"
                   onClick={() => onOpenSurvey(opt.branch)}
-                  className="flex w-full items-center justify-between gap-fig-12 rounded-fig-xs border border-gray-fig-100 bg-bg-secondary p-fig-12 text-left transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none lg:p-fig-20"
+                  className="flex w-full items-center justify-between gap-fig-12 rounded-fig-xs border border-gray-fig-100 bg-bg-secondary p-fig-12 text-left transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none lg:p-[19px]"
                 >
                   <span className="flex min-w-0 flex-col lg:gap-[4px]">
                     <span className="font-body font-bold text-[14px] leading-[22px] text-text-primary lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
@@ -229,7 +245,7 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
                   </p>
                   <p className="font-body text-[12px] leading-[20px] text-subtitle lg:text-body-xl">
                     <span className="bg-gradient-to-r from-current to-current bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-200 group-hover:bg-[length:100%_1px] motion-reduce:transition-none">
-                      {office.address}
+                      {office.display ?? office.address}
                     </span>
                   </p>
                 </div>

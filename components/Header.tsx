@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Mail, Menu } from 'lucide-react';
 import { ASSETS } from '../assets';
-import Container from './ui/Container';
 import { ROUTES, useGoToSection } from './navigation';
 import { MOTION, MS, useMotionEnabled, useScrollDirection, useScrolledPast } from '../lib/motion';
 import { scrollToY } from '../lib/scroll';
@@ -29,9 +28,16 @@ interface HeaderProps {
 
 /**
  * Solid blue bar, fixed height per artboard (69 / 113 / 119px at 390 / 1440 /
- * 1920 — Figma 3133:6748, 3275:2336, 3137:1822). The heights are the logo
+ * 1920 — Figma 3133:6748, 3275:2336, 3137:1822). The 1920 values start at fhd
+ * (1880), because a maximised 1920 browser is about 1910 wide. The heights are the logo
  * lockup plus its vertical padding, so nothing here scales with the viewport;
- * `scroll-padding-top` in index.html mirrors the same three values.
+ * `scroll-padding-top` in index.html mirrors the same three values. The bar has
+ * no border, so its height is the row height.
+ *
+ * The bar does not use `Container`. Figma draws it with a 24px side margin at
+ * every desktop width (16px at 390), and without the 1792px column cap. So the
+ * logo starts at x 24 and the CTA ends 24px from the right edge, also at 1920
+ * and wider, where the page sections keep their 64px column (drift D6).
  *
  * All navigation lives in the overlay menu — the bar itself carries only the
  * logo, the contact CTA, and the hamburger. The menu is rendered by the layout
@@ -44,7 +50,8 @@ interface HeaderProps {
  * `backdrop-filter` is supported, so browsers without it keep the solid bar
  * instead of a washed-out one. A hairline along the bottom edge comes with the
  * same state: once the bar is translucent it needs an edge of its own, or it
- * dissolves into whichever pale section happens to be behind it.
+ * dissolves into whichever pale section happens to be behind it. The hairline is
+ * an inset shadow, not a border, so it does not add 1px to the bar height.
  *
  * The bar also retracts while the reader scrolls down and returns the moment
  * they scroll up, which gives the long sections their full viewport height back.
@@ -62,7 +69,14 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   const goToContact = () => goToSection('contact');
   // One bar height at the narrowest breakpoint. The three heights differ by less
   // than a flick of the wheel, so a single threshold reads the same at all of them.
-  const glass = useScrolledPast(69) && MOTION.headerGlass;
+  const scrolled = useScrolledPast(69);
+  const glass = scrolled && MOTION.headerGlass;
+  // The hero frame 3928:4916 draws the bar transparent on the banner. So on the
+  // home page, before the glass state, the bar has no fill from 1400. At 1400
+  // the hero moves up by the full bar height (Hero.tsx), so the banner is
+  // behind all of the bar. Below 1400 the hero moves up less, and the page
+  // background shows above it, so the bar stays solid there.
+  const overBanner = pathname === ROUTES.home && !scrolled;
 
   const motionOn = useMotionEnabled();
   // True only while the bar holds KEYBOARD focus. A bar that retracts under the
@@ -91,12 +105,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
           retracted ? '-translate-y-full' : 'translate-y-0'
         } ${
           glass
-            ? 'backdrop-blur-md supports-[backdrop-filter]:bg-bg-primary/70 supports-[backdrop-filter]:border-b supports-[backdrop-filter]:border-white/10'
-            : 'border-b border-transparent'
-        }`}
+            ? 'backdrop-blur-md supports-[backdrop-filter]:bg-bg-primary/70 supports-[backdrop-filter]:shadow-[inset_0_-1px_0_rgba(255,255,255,0.1)]'
+            : ''
+        } ${overBanner ? 'min-[1400px]:bg-transparent' : ''}`}
         style={{ transitionDuration: `${MS.glass}ms, ${MS.glass}ms, ${MS.headerSlide}ms` }}
       >
-        <Container className="h-[69px] lg:h-[113px] 3xl:h-[119px] flex items-center justify-between gap-fig-16">
+        <div className="w-full px-fig-16 lg:px-fig-24 h-[69px] lg:h-[113px] fhd:h-[119px] flex items-center justify-between gap-fig-16">
           {/* The lockup art is a single blue-on-transparent PNG shared with the
               old header; on this blue bar it is inverted to solid white rather
               than shipping a second copy of the same artwork. */}
@@ -117,21 +131,25 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
             <img
               src={LOGO_URL}
               alt="Officience — 20 Years Anniversary"
-              className="h-[37px] lg:h-[65px] 3xl:h-[71px] w-auto object-contain [filter:brightness(0)_invert(1)]"
+              className="h-[37px] lg:h-[65px] fhd:h-[71px] w-auto object-contain [filter:brightness(0)_invert(1)]"
               referrerPolicy="no-referrer"
             />
           </Link>
 
           {/* Mobile puts the contact affordance before the hamburger and shrinks
-              it to an icon; desktop reverses the order and spells it out. */}
+              it to an icon; desktop reverses the order and spells it out. Figma
+              draws the mobile icon bare: a 20px envelope, no border, no radius.
+              The button keeps the drawn 32px box, and an invisible ::before
+              makes the tap area 44px (U-30). The 8px gap to the hamburger keeps
+              the two tap areas apart. */}
           <div className="flex items-center gap-fig-8 lg:gap-fig-32">
             <button
               type="button"
               onClick={goToContact}
               aria-label="Contact us"
-              className="lg:hidden h-[32px] w-[32px] inline-flex items-center justify-center rounded-fig-xs border border-white text-white hover:bg-white/10 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="lg:hidden relative h-[32px] w-[32px] inline-flex items-center justify-center text-white before:absolute before:-inset-[6px] before:content-[''] hover:bg-white/10 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
-              <Mail className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              <Mail className="h-[20px] w-[20px]" strokeWidth={1.5} />
             </button>
 
             <button
@@ -139,20 +157,23 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
               onClick={onOpenMenu}
               aria-label="Open menu"
               aria-expanded={isMenuOpen}
-              className="h-[32px] w-[32px] lg:h-[48px] lg:w-[48px] 3xl:h-[56px] 3xl:w-[56px] inline-flex items-center justify-center text-white hover:bg-white/10 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="h-[32px] w-[32px] lg:h-[48px] lg:w-[48px] fhd:h-[56px] fhd:w-[56px] inline-flex items-center justify-center text-white hover:bg-white/10 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
-              <Menu className="h-[26px] w-[26px] lg:h-[32px] lg:w-[32px] 3xl:h-[36px] 3xl:w-[36px]" strokeWidth={2} />
+              {/* The glyph fills its box, as Figma draws it: ink 24 x 18 in 32,
+                  36 x 27 in 48, 42 x 33 in 56. Stroke 1.5 gives the drawn 2-3px
+                  bars; 1.75 from fhd gives the drawn 4px. */}
+              <Menu className="h-[32px] w-[32px] lg:h-[48px] lg:w-[48px] fhd:h-[56px] fhd:w-[56px] fhd:[stroke-width:1.75]" strokeWidth={1.5} />
             </button>
 
             <button
               type="button"
               onClick={goToContact}
-              className="hidden lg:inline-flex w-[224px] 3xl:w-[336px] h-[56px] items-center justify-center bg-surface text-text-primary font-sans text-btn-md hover:bg-bg-secondary active:bg-pri-50 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="hidden lg:inline-flex w-[224px] fhd:w-[336px] h-[56px] items-center justify-center bg-surface text-text-primary font-sans text-btn-md hover:bg-bg-secondary active:bg-pri-50 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Contact Us
             </button>
           </div>
-        </Container>
+        </div>
       </header>
   );
 };

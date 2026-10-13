@@ -51,6 +51,11 @@
         theme: {
           extend: {
             screens: {
+              // The large-desktop step. A maximised 1920x1080 browser reports
+              // about 1910px, so 3xl never fires there. A 1440 frame steps up
+              // here (x1.333 where no 1920 frame exists). Keep it before 3xl,
+              // because the media query order sets the cascade.
+              'fhd': '1880px',
               // The third artboard. Sizes step up here (header, logo, buttons);
               // gutters don't — the 1792px content cap already yields 64px at 1920.
               '3xl': '1920px',
@@ -233,7 +238,8 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-R8R4KL5WGL"></script>
     <style>
       /* Anchor targets clear the sticky header, whose height is a fixed value
-         per artboard: 69 / 113 / 119px at 390 / 1440 / 1920. */
+         per artboard: 69 / 113 / 119px at 390 / 1440 / 1920. The 1920 value starts
+         at fhd (1880), as in Header.tsx: a maximised 1920 browser is about 1910 wide. */
       html {
         scroll-padding-top: 69px;
         scrollbar-width: none;
@@ -248,7 +254,7 @@
       @media (min-width: 1024px) {
         html { scroll-padding-top: 113px; --header-h: 113px; }
       }
-      @media (min-width: 1920px) {
+      @media (min-width: 1880px) {
         html { scroll-padding-top: 119px; --header-h: 119px; }
       }
       /* Anchor scrolling animates only for visitors who haven't asked for less motion. */
@@ -268,30 +274,43 @@
       /* The rules above hide every scrollbar in the document. Surfaces that need a
          visible one (the overlay menu's scrolling panel) opt back in with .menu-scroll.
          Figma draws a 10px fully-rounded bar (node 3275:2472). Firefox can only
-         approximate it: `scrollbar-width: thin` ignores the width and the radius. */
-      .menu-scroll {
-        scrollbar-width: thin;
-        scrollbar-color: #B1D1FD #3C8DFB;
+         approximate it: `scrollbar-width: thin` ignores the width and the radius.
+
+         The `scrollbar-*` rules are only for browsers without ::-webkit-scrollbar
+         (Firefox). Chrome 121+ supports both, and when `scrollbar-width` or
+         `scrollbar-color` is set, it ignores the ::-webkit-scrollbar rules and
+         draws its standard bar with arrow buttons.
+
+         The colours are custom properties. The default is the opaque pair, for
+         the rails on light sections. The overlay menu sets the Figma 40% pair
+         (MenuOverlay.tsx). --sb-size sets a larger bar (the menu at fhd). */
+      @supports not selector(::-webkit-scrollbar) {
+        .menu-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: var(--sb-thumb, #B1D1FD) var(--sb-track, #3C8DFB);
+        }
+        .survey-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: #3C8DFB #E6E6E6;
+        }
       }
       .menu-scroll::-webkit-scrollbar {
         display: block;
-        width: 10px;
+        width: var(--sb-size, 10px);
+        height: 10px;
       }
       .menu-scroll::-webkit-scrollbar-track {
-        background-color: #3C8DFB;
+        background-color: var(--sb-track, #3C8DFB);
         border-radius: 999px;
       }
       .menu-scroll::-webkit-scrollbar-thumb {
-        background-color: #B1D1FD;
+        background-color: var(--sb-thumb, #B1D1FD);
         border-radius: 999px;
       }
       /* The survey body. Figma draws no bar for the survey, so this one takes the
          menu bar's shape (10px, fully rounded) with colours for the light panel:
-         a blue thumb on a light grey track. */
-      .survey-scroll {
-        scrollbar-width: thin;
-        scrollbar-color: #3C8DFB #E6E6E6;
-      }
+         a blue thumb on a light grey track. The `scrollbar-*` rules are in the
+         @supports block above. */
       .survey-scroll::-webkit-scrollbar {
         display: block;
         width: 10px;

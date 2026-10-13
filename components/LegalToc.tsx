@@ -73,7 +73,7 @@ const LegalToc: React.FC<LegalTocProps> = ({ sections, offset = 140 }) => {
   const activeLabel = items.find((item) => item.id === active)?.label ?? items[0]?.label ?? '';
 
   const list = (
-    <ol className="flex flex-col gap-[14px]">
+    <ol className="flex flex-col gap-[14px] fhd:gap-[19px]">
       {items.map((item) => {
         const isActive = item.id === active;
         return (
@@ -90,7 +90,7 @@ const LegalToc: React.FC<LegalTocProps> = ({ sections, offset = 140 }) => {
                 setOpen(false);
               }}
               aria-current={isActive ? 'true' : undefined}
-              className={`block px-fig-20 py-fig-12 font-sans text-h3 transition-colors motion-reduce:transition-none ${
+              className={`block px-fig-20 py-fig-12 font-sans text-h3 transition-colors motion-reduce:transition-none fhd:px-[27px] fhd:py-[16px] fhd:text-[32px] fhd:leading-[37px] ${
                 isActive ? 'bg-bg-primary text-white' : 'text-subtitle hover:text-text-primary'
               }`}
             >
@@ -132,12 +132,15 @@ const LegalToc: React.FC<LegalTocProps> = ({ sections, offset = 140 }) => {
 
       {/* From lg the list stops 40px above the screen bottom (sticky top 140)
           and scrolls inside. At 1024x768 to 1536x864 it was 1-4 rows taller
-          than the screen, so those rows and their focus were out of reach. */}
+          than the screen, so those rows and their focus were out of reach.
+          From fhd the card is the 1440 card x1.333: 597 wide, 43px padding,
+          69px rows of 32/37 type. The sticky top stays 140, because it follows
+          the header, not the frame. */}
       <div
         ref={listRef}
         id="legal-toc-list"
         data-lenis-prevent
-        className={`menu-scroll px-fig-16 pb-fig-12 lg:block lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto lg:p-fig-32 ${open ? 'block' : 'hidden'}`}
+        className={`menu-scroll px-fig-16 pb-fig-12 lg:block lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto lg:p-fig-32 fhd:p-[43px] ${open ? 'block' : 'hidden'}`}
       >
         {list}
       </div>

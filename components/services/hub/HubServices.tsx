@@ -51,7 +51,10 @@ const ROWS: HubRow[] = [
     titleW: 527,
     line: 'Build the technology behind your business.',
     lineW: 607,
-    items: ['Web applications', 'E-commerce platforms', 'SaaS platforms', 'Mobile apps', 'Enterprise tools', 'System integrations'],
+    // The home page lists (Figma changed, 2026-10-12). The user asked the hub
+    // to use them too (2026-10-13), so this row and Data Engineering do not
+    // follow 3109:1869.
+    items: ['Web applications', 'E-commerce', 'SaaS platforms', 'Mobile apps', 'Enterprise auto', 'Testing & QA'],
   },
   {
     slug: 'business-intelligence-analytics',
@@ -67,7 +70,7 @@ const ROWS: HubRow[] = [
     titleW: 705,
     line: 'Manage and process data to support your business operations.',
     lineW: 605,
-    items: ['Data entry & processing', 'Data cleaning and enrichment', 'Workflow support', 'Process outsourcing', 'CRM and operational data management'],
+    items: ['Data entry', 'Data collect', 'Data process', 'Business support'],
   },
   {
     slug: 'it-operations-support',

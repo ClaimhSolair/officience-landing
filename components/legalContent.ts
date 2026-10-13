@@ -9,7 +9,9 @@
 // and bare URLs found in paragraph text — keep those as plain strings here.
 
 export type LegalBlock =
-  | { kind: 'p'; lead?: string; text: string } // optional bold lead-in, e.g. "Services:"
+  // Optional bold lead-in, e.g. "Services:". `bullet` is a presentation marker only:
+  // the renderer puts adjacent bullet blocks in one list and shows the lead as plain text.
+  | { kind: 'p'; lead?: string; text: string; bullet?: true }
   | { kind: 'ul'; items: string[] }
   | { kind: 'address'; lines: string[] }; // boxed postal address
 
@@ -79,9 +81,9 @@ export const TERMS_SECTIONS: LegalSection[] = [
         heading: 'Form Submissions and Data Accuracy',
         blocks: [
           { kind: 'p', text: `Whenever you interact with our multi-step inquiry forms, you expressly agree to the following provisions:` },
-          { kind: 'p', lead: 'Accuracy and Truthfulness:', text: `You must provide true, accurate, current, and complete information. You are strictly prohibited from impersonating any person or entity, creating false identities, or misrepresenting your professional role, academic credentials, company affiliation, or authority to act on behalf of a business.` },
-          { kind: 'p', lead: 'Third-Party Rights:', text: `You warrant that you own or possess all necessary rights, licenses, and consents to upload and share any documents, portfolios, text, or links (such as LinkedIn and GitHub profiles). Your submissions must not violate or infringe upon the intellectual property, privacy, or publicity rights of any third party.` },
-          { kind: 'p', lead: 'Right to Screen and Reject:', text: `Officience reserves the right, at its sole discretion, to review, decline, or delete any User Submission that we deem false, incomplete, inappropriate, or in violation of these Terms, without prior notice.` },
+          { kind: 'p', bullet: true, lead: 'Accuracy and Truthfulness:', text: `You must provide true, accurate, current, and complete information. You are strictly prohibited from impersonating any person or entity, creating false identities, or misrepresenting your professional role, academic credentials, company affiliation, or authority to act on behalf of a business.` },
+          { kind: 'p', bullet: true, lead: 'Third-Party Rights:', text: `You warrant that you own or possess all necessary rights, licenses, and consents to upload and share any documents, portfolios, text, or links (such as LinkedIn and GitHub profiles). Your submissions must not violate or infringe upon the intellectual property, privacy, or publicity rights of any third party.` },
+          { kind: 'p', bullet: true, lead: 'Right to Screen and Reject:', text: `Officience reserves the right, at its sole discretion, to review, decline, or delete any User Submission that we deem false, incomplete, inappropriate, or in violation of these Terms, without prior notice.` },
         ],
       },
       {
@@ -99,8 +101,8 @@ export const TERMS_SECTIONS: LegalSection[] = [
       {
         blocks: [
           { kind: 'p', text: `Our Website may display photos, videos, corporate updates, social media posts, and other media materials (collectively, "Company Content") to showcase Officience's culture and updates.` },
-          { kind: 'p', lead: 'Intellectual Property:', text: `All Company Content displayed on this Website is the exclusive property of Officience or its licensors and is protected by copyright and other intellectual property laws. You may not download, copy, reproduce, or redistribute any photos, videos, or text for commercial purposes without our prior written consent.` },
-          { kind: 'p', lead: 'Third-Party Media:', text: `If we share or embed media posts, links, or content from third-party social media platforms, such content remains subject to the terms and privacy policies of those respective platforms.` },
+          { kind: 'p', bullet: true, lead: 'Intellectual Property:', text: `All Company Content displayed on this Website is the exclusive property of Officience or its licensors and is protected by copyright and other intellectual property laws. You may not download, copy, reproduce, or redistribute any photos, videos, or text for commercial purposes without our prior written consent.` },
+          { kind: 'p', bullet: true, lead: 'Third-Party Media:', text: `If we share or embed media posts, links, or content from third-party social media platforms, such content remains subject to the terms and privacy policies of those respective platforms.` },
         ],
       },
     ],
@@ -231,7 +233,6 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     clauses: [
       {
         blocks: [
-          { kind: 'p', text: `Last updated: 1 June 2026` },
           { kind: 'p', text: `This Privacy Policy describes Our policies and procedures on the collection, use, and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You.` },
           { kind: 'p', text: `We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.` },
         ],
@@ -252,17 +253,17 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
         heading: '1.2. Definitions',
         blocks: [
           { kind: 'p', text: `For the purposes of this Privacy Policy:` },
-          { kind: 'p', lead: 'Account', text: `means a unique account created for You to access our Service or parts of our Service.` },
-          { kind: 'p', lead: 'Company', text: `(referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to Officience, 16A Le Hong Phong Street, Ward 12, District 10, Ho Chi Minh City` },
-          { kind: 'p', lead: 'Cookies', text: `are small files that are placed on Your computer, mobile device, or any other device by a website, containing the details of Your browsing history on that website among its many uses.` },
-          { kind: 'p', lead: 'Country', text: `refers to Vietnam.` },
-          { kind: 'p', lead: 'Device', text: `means any device that can access the Service such as a computer, a cellphone, or a digital tablet.` },
-          { kind: 'p', lead: 'Personal Data', text: `is any information that relates to an identified or identifiable individual.` },
-          { kind: 'p', lead: 'Service', text: `refers to the Website.` },
-          { kind: 'p', lead: 'Service Provider', text: `means any natural or legal person who processes the data on behalf of the Company. It refers to third-party companies or individuals employed by the Company to facilitate the Service, to provide the Service on behalf of the Company, to perform services related to the Service, or to assist the Company in analyzing how the Service is used.` },
-          { kind: 'p', lead: 'Usage Data', text: `refers to data collected automatically, either generated by the use of the Service or from the Service infrastructure itself (for example, the duration of a page visit).` },
-          { kind: 'p', lead: 'Website', text: `refers to Officience, accessible from https://officience.com.` },
-          { kind: 'p', lead: 'You', text: `mean the individual accessing or using the Service, or the company, or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.` },
+          { kind: 'p', bullet: true, lead: 'Account', text: `means a unique account created for You to access our Service or parts of our Service.` },
+          { kind: 'p', bullet: true, lead: 'Company', text: `(referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to Officience, 16A Le Hong Phong Street, Ward 12, District 10, Ho Chi Minh City` },
+          { kind: 'p', bullet: true, lead: 'Cookies', text: `are small files that are placed on Your computer, mobile device, or any other device by a website, containing the details of Your browsing history on that website among its many uses.` },
+          { kind: 'p', bullet: true, lead: 'Country', text: `refers to Vietnam.` },
+          { kind: 'p', bullet: true, lead: 'Device', text: `means any device that can access the Service such as a computer, a cellphone, or a digital tablet.` },
+          { kind: 'p', bullet: true, lead: 'Personal Data', text: `is any information that relates to an identified or identifiable individual.` },
+          { kind: 'p', bullet: true, lead: 'Service', text: `refers to the Website.` },
+          { kind: 'p', bullet: true, lead: 'Service Provider', text: `means any natural or legal person who processes the data on behalf of the Company. It refers to third-party companies or individuals employed by the Company to facilitate the Service, to provide the Service on behalf of the Company, to perform services related to the Service, or to assist the Company in analyzing how the Service is used.` },
+          { kind: 'p', bullet: true, lead: 'Usage Data', text: `refers to data collected automatically, either generated by the use of the Service or from the Service infrastructure itself (for example, the duration of a page visit).` },
+          { kind: 'p', bullet: true, lead: 'Website', text: `refers to Officience, accessible from https://officience.com.` },
+          { kind: 'p', bullet: true, lead: 'You', text: `mean the individual accessing or using the Service, or the company, or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.` },
         ],
       },
     ],
@@ -275,13 +276,13 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
         heading: 'Personal Data',
         blocks: [
           { kind: 'p', text: `While using Our Service, We may ask You to provide Us with certain personally identifiable information that can be used to contact or identify You, or to evaluate your specific requests submitted through our interactive multi-step forms. Personally identifiable information may include, but is not limited to:` },
-          { kind: 'p', lead: 'Identity & Contact Information:', text: `First name, last name, work or personal email address, and phone number.` },
-          { kind: 'p', lead: 'Professional & Employment Application Data:', text: `Professional experience, employment history, desired position (such as Design/UX, Front-end, Back-end, Data/AI, QA, BPO), portfolio URLs, LinkedIn profile URL, and any information contained in uploaded files (including CVs and resumes in PDF format).` },
-          { kind: 'p', lead: 'Academic Data:', text: `Name of University/School attended and expected or actual graduation year.` },
-          { kind: 'p', lead: 'Business & Organization Data:', text: `Company or organization name, organization type (including Independent, Agency, Startup, SME, Enterprise, Social Venture), and your specific job role or title.` },
-          { kind: 'p', lead: 'Project & Financial Request Data:', text: `Technology services of interest, business challenges or objectives you are trying to solve, estimated project timelines, and expected budget ranges.` },
-          { kind: 'p', lead: 'Workspace Preferences:', text: `Preferred co-working location (Ho Chi Minh City, Paris, or both), intended rental duration (Daily, Weekly, Monthly, or Long-term), and your team size.` },
-          { kind: 'p', lead: 'Partnership & Collaboration Data:', text: `Preferred partnership or delivery models (including Referral, Subcontracting, and Co-delivery).` },
+          { kind: 'p', bullet: true, lead: 'Identity & Contact Information:', text: `First name, last name, work or personal email address, and phone number.` },
+          { kind: 'p', bullet: true, lead: 'Professional & Employment Application Data:', text: `Professional experience, employment history, desired position (such as Design/UX, Front-end, Back-end, Data/AI, QA, BPO), portfolio URLs, LinkedIn profile URL, and any information contained in uploaded files (including CVs and resumes in PDF format).` },
+          { kind: 'p', bullet: true, lead: 'Academic Data:', text: `Name of University/School attended and expected or actual graduation year.` },
+          { kind: 'p', bullet: true, lead: 'Business & Organization Data:', text: `Company or organization name, organization type (including Independent, Agency, Startup, SME, Enterprise, Social Venture), and your specific job role or title.` },
+          { kind: 'p', bullet: true, lead: 'Project & Financial Request Data:', text: `Technology services of interest, business challenges or objectives you are trying to solve, estimated project timelines, and expected budget ranges.` },
+          { kind: 'p', bullet: true, lead: 'Workspace Preferences:', text: `Preferred co-working location (Ho Chi Minh City, Paris, or both), intended rental duration (Daily, Weekly, Monthly, or Long-term), and your team size.` },
+          { kind: 'p', bullet: true, lead: 'Partnership & Collaboration Data:', text: `Preferred partnership or delivery models (including Referral, Subcontracting, and Co-delivery).` },
         ],
       },
       {
@@ -297,9 +298,9 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
         heading: 'Tracking Technologies and Cookies',
         blocks: [
           { kind: 'p', text: `We use cookies and similar tracking technologies to track the activity on Our Service and store certain information. Tracking technologies used are beacons, tags, and scripts to collect and track information and to improve and analyze Our Service. The technologies We use may include:` },
-          { kind: 'p', lead: 'Cookies or Browser Cookies.', text: `A cookie is a small file placed on Your Device. You can instruct Your browser to refuse all Cookies or to indicate when a cookie is being sent. However, if You do not accept Cookies, You may not be able to use some parts of our Service. Unless you have adjusted Your browser setting so that it will refuse cookies, our Service may use Cookies.` },
-          { kind: 'p', lead: 'Flash Cookies.', text: `Certain features of our Service may use local stored objects (or Flash cookies) to collect and store information about Your preferences or Your activity on our Service. Flash Cookies are not managed by the same browser settings as those used for Browser Cookies. For more information on how You can delete Flash Cookies, please read "Where can I change the settings for disabling, or deleting local shared objects?" available at https://helpx.adobe.com/flash-player/kb/disable-local-shared-objects-flash.html` },
-          { kind: 'p', lead: 'Web Beacons.', text: `Certain sections of our Service and our emails may contain small electronic files known as web beacons (also referred to as clear gifs, pixel tags, and single-pixel gifs) that permit the Company, for example, to count users who have visited those pages or opened an email and for other related website statistics (for example, recording the popularity of a certain section and verifying system and server integrity).` },
+          { kind: 'p', bullet: true, lead: 'Cookies or Browser Cookies.', text: `A cookie is a small file placed on Your Device. You can instruct Your browser to refuse all Cookies or to indicate when a cookie is being sent. However, if You do not accept Cookies, You may not be able to use some parts of our Service. Unless you have adjusted Your browser setting so that it will refuse cookies, our Service may use Cookies.` },
+          { kind: 'p', bullet: true, lead: 'Flash Cookies.', text: `Certain features of our Service may use local stored objects (or Flash cookies) to collect and store information about Your preferences or Your activity on our Service. Flash Cookies are not managed by the same browser settings as those used for Browser Cookies. For more information on how You can delete Flash Cookies, please read "Where can I change the settings for disabling, or deleting local shared objects?" available at https://helpx.adobe.com/flash-player/kb/disable-local-shared-objects-flash.html` },
+          { kind: 'p', bullet: true, lead: 'Web Beacons.', text: `Certain sections of our Service and our emails may contain small electronic files known as web beacons (also referred to as clear gifs, pixel tags, and single-pixel gifs) that permit the Company, for example, to count users who have visited those pages or opened an email and for other related website statistics (for example, recording the popularity of a certain section and verifying system and server integrity).` },
           { kind: 'p', text: `Cookies can be "Persistent" or "Session" Cookies. Persistent Cookies remain on Your personal computer or mobile device when You go offline, while Session Cookies are deleted as soon as You close Your web browser.` },
           { kind: 'p', text: `We use both Session and Persistent Cookies for the purposes set out below:` },
           { kind: 'p', lead: 'Necessary / Essential Cookies', text: `` },
@@ -332,17 +333,17 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
       {
         blocks: [
           { kind: 'p', text: `The Company may use Personal Data for the following purposes:` },
-          { kind: 'p', lead: 'To provide, maintain, and monitor our Service:', text: `Including evaluating and tracking the usage and technical performance of our Website.` },
-          { kind: 'p', lead: 'To manage Your Account:', text: `To manage Your registration as a user of the Service and grant access to specific functionalities reserved for registered users.` },
-          { kind: 'p', lead: 'To evaluate and fulfill Business Requests:', text: `To process your project requirements, analyze your business challenges, estimate project scopes, and provide tailored technological consulting, quotes, and service proposals.` },
-          { kind: 'p', lead: 'To process Employment & Internship Applications:', text: `To review your qualifications, evaluate submitted CVs, resumes, and portfolios, verify academic and professional credentials, and manage communication throughout the recruitment process.` },
-          { kind: 'p', lead: 'To manage Co-working Space Inquiries:', text: `To assess availability, manage desk or office reservations, coordinate logistics based on your team size and preferred location, and facilitate onboarding to our physical workspaces.` },
-          { kind: 'p', lead: 'To establish Partnerships & Collaborations:', text: `To evaluate organizational profiles for potential strategic alliances, subcontractor arrangements, or referral networks.` },
-          { kind: 'p', lead: 'To contact You:', text: `To communicate with You by email, telephone calls, SMS, or other equivalent forms of electronic communication regarding updates, informative announcements, or security alerts related to our services and contract implementation.` },
-          { kind: 'p', lead: 'To provide marketing and promotional updates:', text: `To send you news, special offers, and general information about other services, events, or resources we offer that are similar to those you have already inquired about, unless You have opted out of receiving such communications.` },
-          { kind: 'p', lead: 'To manage and attend to Your requests:', text: `To process, answer, and manage any general inquiries or messages You send to Us.` },
-          { kind: 'p', lead: 'For business transfers:', text: `To evaluate or conduct a merger, divestiture, restructuring, reorganization, dissolution, or other sale or transfer of some or all of Our assets, where Personal Data held by Us is among the transferred assets.` },
-          { kind: 'p', lead: 'For data analysis and improvement:', text: `To identify usage trends, determine the effectiveness of our promotional campaigns, and evaluate and enhance our Website, services, marketing strategies, and your overall user experience.` },
+          { kind: 'p', bullet: true, lead: 'To provide, maintain, and monitor our Service:', text: `Including evaluating and tracking the usage and technical performance of our Website.` },
+          { kind: 'p', bullet: true, lead: 'To manage Your Account:', text: `To manage Your registration as a user of the Service and grant access to specific functionalities reserved for registered users.` },
+          { kind: 'p', bullet: true, lead: 'To evaluate and fulfill Business Requests:', text: `To process your project requirements, analyze your business challenges, estimate project scopes, and provide tailored technological consulting, quotes, and service proposals.` },
+          { kind: 'p', bullet: true, lead: 'To process Employment & Internship Applications:', text: `To review your qualifications, evaluate submitted CVs, resumes, and portfolios, verify academic and professional credentials, and manage communication throughout the recruitment process.` },
+          { kind: 'p', bullet: true, lead: 'To manage Co-working Space Inquiries:', text: `To assess availability, manage desk or office reservations, coordinate logistics based on your team size and preferred location, and facilitate onboarding to our physical workspaces.` },
+          { kind: 'p', bullet: true, lead: 'To establish Partnerships & Collaborations:', text: `To evaluate organizational profiles for potential strategic alliances, subcontractor arrangements, or referral networks.` },
+          { kind: 'p', bullet: true, lead: 'To contact You:', text: `To communicate with You by email, telephone calls, SMS, or other equivalent forms of electronic communication regarding updates, informative announcements, or security alerts related to our services and contract implementation.` },
+          { kind: 'p', bullet: true, lead: 'To provide marketing and promotional updates:', text: `To send you news, special offers, and general information about other services, events, or resources we offer that are similar to those you have already inquired about, unless You have opted out of receiving such communications.` },
+          { kind: 'p', bullet: true, lead: 'To manage and attend to Your requests:', text: `To process, answer, and manage any general inquiries or messages You send to Us.` },
+          { kind: 'p', bullet: true, lead: 'For business transfers:', text: `To evaluate or conduct a merger, divestiture, restructuring, reorganization, dissolution, or other sale or transfer of some or all of Our assets, where Personal Data held by Us is among the transferred assets.` },
+          { kind: 'p', bullet: true, lead: 'For data analysis and improvement:', text: `To identify usage trends, determine the effectiveness of our promotional campaigns, and evaluate and enhance our Website, services, marketing strategies, and your overall user experience.` },
         ],
       },
     ],
@@ -387,11 +388,11 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
         blocks: [
           { kind: 'p', text: `As a technology outsourcing company, Officience processes your Personal Data based on distinct, transparent legal grounds depending on the nature of your interaction through our survey forms. Our primary objective in gathering this data is to better understand your specific business demands, technical challenges, and operational needs to deliver highly customized solutions.` },
           { kind: 'p', text: `We rely on the following legal bases under applicable data protection laws (including the EU GDPR and Vietnam's Decree No. 13/2023/ND-CP):` },
-          { kind: 'p', lead: 'Consent:', text: `We process your data when you explicitly grant us permission by voluntarily filling out and submitting our multi-step inquiry forms. You have the right to withdraw this consent at any time.` },
-          { kind: 'p', lead: 'Performance of a Contract or Pre-contractual Measures:', text: `For Clients, Partners, and Co-working Inquirers, processing your information is necessary to take steps at your request prior to entering into a formal business contract, Master Services Agreement, or lease agreement.` },
-          { kind: 'p', lead: 'Legitimate Interests:', text: `We process your data when it is necessary for the legitimate business interests pursued by Officience, such as analyzing survey data to deeply understand market demands, improve our technological services, and tailor our B2B consultancies.` },
-          { kind: 'p', lead: 'Legitimate Recruitment and Pre-employment Purposes:', text: `For Job and Internship Candidates, processing your credentials and CVs is necessary to assess your suitability for open positions prior to establishing any potential employment relationship.` },
-          { kind: 'p', lead: 'Compliance with Legal Obligations:', text: `We may process your data when it is required to comply with statutory legal requirements or regulatory audits.` },
+          { kind: 'p', bullet: true, lead: 'Consent:', text: `We process your data when you explicitly grant us permission by voluntarily filling out and submitting our multi-step inquiry forms. You have the right to withdraw this consent at any time.` },
+          { kind: 'p', bullet: true, lead: 'Performance of a Contract or Pre-contractual Measures:', text: `For Clients, Partners, and Co-working Inquirers, processing your information is necessary to take steps at your request prior to entering into a formal business contract, Master Services Agreement, or lease agreement.` },
+          { kind: 'p', bullet: true, lead: 'Legitimate Interests:', text: `We process your data when it is necessary for the legitimate business interests pursued by Officience, such as analyzing survey data to deeply understand market demands, improve our technological services, and tailor our B2B consultancies.` },
+          { kind: 'p', bullet: true, lead: 'Legitimate Recruitment and Pre-employment Purposes:', text: `For Job and Internship Candidates, processing your credentials and CVs is necessary to assess your suitability for open positions prior to establishing any potential employment relationship.` },
+          { kind: 'p', bullet: true, lead: 'Compliance with Legal Obligations:', text: `We may process your data when it is required to comply with statutory legal requirements or regulatory audits.` },
         ],
       },
       {
@@ -455,11 +456,11 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
       {
         blocks: [
           { kind: 'p', text: `Regardless of your location, Officience respects your statutory privacy rights. You have the right to:` },
-          { kind: 'p', lead: 'Access and Portability:', text: `Request a copy of your Personal Data currently held by us.` },
-          { kind: 'p', lead: 'Correction:', text: `Request the correction of incomplete or inaccurate data.` },
-          { kind: 'p', lead: 'Erasure (Right to be Forgotten):', text: `Request the deletion of your Personal Data from our systems, subject to legal retention requirements.` },
-          { kind: 'p', lead: 'Withdraw Consent:', text: `Withdraw your consent to data processing (such as opting out of marketing emails) at any time.` },
-          { kind: 'p', lead: 'Restriction and Objection:', text: `Object to or restrict the processing of your data for specific purposes.` },
+          { kind: 'p', bullet: true, lead: 'Access and Portability:', text: `Request a copy of your Personal Data currently held by us.` },
+          { kind: 'p', bullet: true, lead: 'Correction:', text: `Request the correction of incomplete or inaccurate data.` },
+          { kind: 'p', bullet: true, lead: 'Erasure (Right to be Forgotten):', text: `Request the deletion of your Personal Data from our systems, subject to legal retention requirements.` },
+          { kind: 'p', bullet: true, lead: 'Withdraw Consent:', text: `Withdraw your consent to data processing (such as opting out of marketing emails) at any time.` },
+          { kind: 'p', bullet: true, lead: 'Restriction and Objection:', text: `Object to or restrict the processing of your data for specific purposes.` },
           { kind: 'p', text: `To exercise any of these rights, please contact us at engage@officience.com.` },
         ],
       },
