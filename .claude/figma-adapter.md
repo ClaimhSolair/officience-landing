@@ -1554,7 +1554,7 @@ frames are final; the 1440 frames scale in **steps**, not fluid.
      difference against the Figma render of the node: 2.69/255. This replaces the tuned `object-position` of
      ruling 18. `card-1-900` / `card-1-1800` are no longer used.
 24v. Proven Results: gutter 24 from lg, 40 from fhd (D6); gap 48 below fhd, 40 from fhd; radius 8 (both state
-     frames); caption 48/14. The 751 cap and scale-to-fit stay (D5). The pinned scale turns on the gutter.
+     frames); caption 48/14. The pinned scale turns on the gutter. **The 751 cap is replaced by 25a.**
 24w. Client Review: the header column hugs the 632px heading (cards at x 842 at 1920), cards 200 tall. The curly
      apostrophe stays (Figma's straight one is a slip).
 24x. Logo band at rest (reduced motion): hard clip, no edge fade, starts on the content column.
@@ -1574,3 +1574,29 @@ frames are final; the 1440 frames scale in **steps**, not fluid.
   wrap on phones. The service pages for Software and Data Engineering were not checked against the new lists.
 - With motion on, a legal contents click scrolls down, the header hides, and a blank band shows above the
   section. This is the hide-on-scroll ruling, not a new bug.
+
+## 25 — Proven Results: exactly three cards (2026-10-14)
+
+The design team asked for the exact layout of frame `3137:2069`: three equal cards that fill the content column
+(3 x 586.67 + 2 x 40 = 1840 at 1920). The build showed 3.3 to 5 cards on common laptops, because the 2026-09-18
+ruling sized the cards by height. The user chose option 1 of two (the other was a static row with no pin).
+
+25a. **The cards are sized by width from lg.** `--card-w = (min(100vw, 1920px) - 2 gutters - 2 gaps) / 3`, and
+     `--card-h` follows the frame aspect 586.67:800. Exactly three cards fill the column at every desktop width;
+     above 1920 the cards stay 586.67 x 800. This **replaces the 2026-09-18 "fit wins" ruling and the 751 cap**
+     (also D5 of 2026-10-13).
+25b. **Only the card row pins.** The heading is outside the pinned column and scrolls away, so the row has the full
+     window height. While pinned, the heading margin is `100px - (100vh - card) / 2`, so the gap is 100px when the
+     pin starts. During the sideways scrub the heading is above the screen (the design team was told).
+25c. **The fit check leaves the header out** (`usePinnedTrack({ ignoreHeader: true })`), because the bar hides on a
+     scroll down. With a header budget, short windows shrank the row by 3-6% and a sliver of the fourth card showed.
+     Trade: while the page scrolls back up through the pin, the bar returns and can cover the top ~15px of the row on
+     a 1280x600 window. Our Journey and Selected Work keep the default budget (no change for them).
+25d. **The caption keeps its height, the image gives way.** From md the card is a flex column: the caption takes its
+     own height (at least 250/800 of the card from lg) and the image takes the rest. At 1920 the split is Figma's
+     550 / 250. Below fhd the chip and title type steps down with the card: chips 12/16 (lg), 14/20 (xl), 16/24
+     (fhd); title 28/36, 40/48, 50/58. The View All card steps its star (56/72/100) and blurb (14/22, 18/28,
+     Subtitle-1) the same way.
+25e. Measured at the pin start with motion on (1920x1080, 1910x940, 1536x730, 1440x790, 1366x650, 1280x600,
+     1024x680): three full cards from the heading edge to the column edge, the fourth card off screen, gap 100.
+     Static (reduced motion) the same at 1024-2560. No caption overflow at 375-2560 (768 clipped the title before).

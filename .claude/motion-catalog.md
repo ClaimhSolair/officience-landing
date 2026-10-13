@@ -829,3 +829,8 @@ browser. The vertical quote loop has no page with three quotes until phase 2 (BI
 - **Logo band at rest:** under reduced motion the row has a hard clip and no fade (adapter 24x).
 - Verified with headless Playwright on the dev server: 12 routes x 10 widths with reduced motion, plus 390 /
   1440 / 1910 with motion on. No overflow and no console errors.
+
+## v12 — Proven Results: exactly three cards (2026-10-14)
+- The cards are sized by width (three fill the column) and only the card row pins; the heading scrolls away
+  first (adapter 25). The hold, scrub, dwell and per-card entrance are unchanged. The fit check leaves the
+  header bar out for this section only (`ignoreHeader`), because the bar hides on a scroll down.

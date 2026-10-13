@@ -39,15 +39,14 @@ import { ROUTES, VIEW_ALL_WORK } from './navigation';
  * retiring them at that width returns the section to what the artboards show.
  * Below lg the swipe rail and its controls are exactly as shipped.
  *
- * **Fit wins over an exact count (user decision 2026-09-18).** The pinned deck is
- * sized by HEIGHT to fit the viewport, its width taken from the frame's 580:751
- * aspect; if the header, gap and card together still overrun the frame, the whole
- * deck scales down (transform) to fit. Nothing is ever clipped. The trade the user
- * accepted for keeping the pin and full visibility: the number of cards on screen
- * is what the width leaves room for — about 2.5-2.9 on a normal desktop — and
- * drifts with the viewport, rather than being pinned to an exact 2.5. The gap is
- * kept compact while pinned so the deck stays near the frame's 1:1 size; the full
- * 100px seam shows in the static / reduced-motion view.
+ * **Exactly three cards (user decision 2026-10-14, adapter 25a).** From lg the
+ * cards are sized by WIDTH: three cards and two gaps fill the content column, as
+ * frame 3137:2069 draws them (3 x 586.67 + 2 x 40 = 1840 at 1920). The height
+ * follows the frame's 586.67:800 aspect. Only the card row pins. The heading
+ * scrolls away above it, so the row has the full window height. If the row is
+ * still too tall for the window, `measureTrack` scales it down, and three cards
+ * still show. This replaces the 2026-09-18 "fit wins" ruling (height-sized cards,
+ * the 751px cap), which showed 3.3 to 5 cards on common laptops.
  */
 
 interface Project {
@@ -88,42 +87,43 @@ const VIEW_ALL_BLURB =
   'Providing bespoke web development services that optimize user experience, elevate brand visibility, and drive measurable business results.';
 
 /**
- * Card sizing across three breakpoints, settled 2026-09-18:
- *  - 390: one fixed 240x314 card, one peek — unchanged.
- *  - md (tablet, no pin): a share of the track so 3 cards show, on a 48px gap.
- *  - lg (desktop, pinned): sized by HEIGHT to fit the pinned viewport, width from
- *    the frame's 580:751 aspect. `--card-h` caps at the frame's 751; a shorter
- *    window takes `100svh - 200`, and `measureDeck` scales the whole deck down if
- *    the column still overruns. The number of cards on screen is therefore what
- *    the width leaves room for — about 2.5-2.9 on a normal desktop — and varies
- *    with the viewport. The user chose this (pin + full visibility) over a fixed
- *    2.5 count, which could not fit a card taller than the frame.
+ * Card sizing:
+ *  - 390: one fixed 240x314 card, one peek. No change.
+ *  - md (tablet, no pin): three cards share the track on a 48px gap.
+ *  - lg and up: three cards and two gaps fill the track, `--card-w` below. The
+ *    height comes from the frame's 586.67:800 aspect, `--card-h`.
+ * `--card-w` uses `100vw`, which equals the page width because the site hides
+ * its scrollbars. Above 1920 the track stops at 1920, so the cards stay at the
+ * frame's 586.67 x 800.
  */
-const CARD = 'w-[240px] shrink-0 md:w-[calc((100%_-_96px)/3)] lg:w-[calc(var(--card-h)*580/751)]';
-/** Project and View All cards share the frame's 580:751 footprint. */
-const CARD_H = 'h-[314px] md:h-auto md:aspect-[580/751] lg:aspect-auto lg:h-[var(--card-h)]';
-
-/**
- * The pinned card's height, and through the 580:751 aspect its width too. It caps
- * at the frame's 751; a shorter window takes the viewport less the header and a
- * margin, so the whole card stays on screen at 100% zoom instead of running off
- * the bottom. `measureDeck` scales the deck further if the header, gap and card
- * together still overrun the pinned frame. `svh`, not `vh`: on a phone `vh` is the
- * tallest the viewport ever gets, so a card sized in `vh` hides under the chrome.
- */
-const CARD_HEIGHT = 'min(751px, calc(100svh - 200px))';
+const CARD = 'w-[240px] shrink-0 md:w-[calc((100%_-_2*var(--pr-gap))/3)] lg:w-[var(--card-w)]';
+/** Project and View All cards share the frame's 586.67:800 footprint. */
+const CARD_H = 'h-[314px] md:h-auto md:aspect-[586.67/800] lg:aspect-auto lg:h-[var(--card-h)]';
 
 /**
  * The section gutter (D6, user 2026-10-13), in steps: 16 below lg, 24 from lg
  * (2943:1579 at 1440), 40 from fhd (3137:2069 at 1920). Above 1920 the header
- * stops at 1840px and the track at 1920px, so both edges stay in line.
+ * stops at 1840px and the track at 1920px, so both edges stay in line. The card
+ * gap is 48 below fhd (2943:1579) and 40 from fhd (3137:2069).
  */
 const PR_MAX = 'max-w-[1840px]';
-const PR_GUTTER = '[--pr-gutter:16px] lg:[--pr-gutter:24px] fhd:[--pr-gutter:40px]';
+const PR_GUTTER =
+  '[--pr-gutter:16px] [--pr-gap:22px] md:[--pr-gap:48px] lg:[--pr-gutter:24px] fhd:[--pr-gutter:40px] fhd:[--pr-gap:40px]';
+/** The card box from lg, set on the section so the heading can read it too. */
+const PR_CARD_VARS =
+  'lg:[--card-w:calc((min(100vw,1920px)_-_2*var(--pr-gutter)_-_2*var(--pr-gap))/3)] lg:[--card-h:calc(var(--card-w)*800/586.67)]';
 
-/** The pale chips over the blue caption. */
+/**
+ * The pale chips over the blue caption. The card is narrower than the frame below
+ * fhd (293px at 1024, 432px at 1440), so the chip type steps down with it:
+ * 12/16 from lg, 14/20 from xl, and the frame's Button-lg 16/24 from fhd.
+ */
+const TAG_STEPS =
+  'lg:rounded-fig-xs lg:px-fig-6 lg:py-fig-4 lg:font-sans lg:text-[12px] lg:leading-[16px] xl:px-fig-8 xl:py-fig-6 xl:text-[14px] xl:leading-[20px] fhd:p-fig-8 fhd:text-btn-lg';
 const Tag: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span className="shrink-0 rounded-[2px] bg-pri-50 px-fig-4 py-fig-2 font-body text-[10px] font-semibold leading-[16px] text-text-primary lg:rounded-fig-xs lg:p-fig-8 lg:font-sans lg:text-btn-lg">
+  <span
+    className={`shrink-0 rounded-[2px] bg-pri-50 px-fig-4 py-fig-2 font-body text-[10px] font-semibold leading-[16px] text-text-primary ${TAG_STEPS}`}
+  >
     {children}
   </span>
 );
@@ -155,10 +155,12 @@ const WorkCard: React.FC<{
   // Fade and lift only — no scale (lib/pinnedTrack.ts).
   const { imgOpacity, cardY } = useCardEntrance(progress, win);
 
-  // The image is 528 of the frame's 751-tall card (3129:3298), so it takes the
-  // top 70.3% and the title block below it takes the rest. The box clips the
-  // image, so the hover zoom stays inside it and never covers the title block.
-  const boxCls = 'h-[220px] w-full shrink-0 overflow-hidden md:h-[70.3%]';
+  // The image is 550 of the frame's 800-tall card (3137:2069). From md the
+  // caption takes its own height (at least 250/800 of the card from lg) and the
+  // image takes the rest, so a narrow card with wrapped chips loses image, not
+  // caption. At 768 the card is 213px wide and the chips wrap to two lines. The
+  // box clips the image, so the hover zoom stays inside it.
+  const boxCls = 'h-[220px] w-full shrink-0 overflow-hidden md:h-auto md:min-h-0 md:flex-1';
   // Hover zoom (tracker row 12, as the elytetemplate reference does). It is a
   // hover state, not a scroll effect, so the "no zoom" rule above still holds
   // for the arrival. Reduced motion keeps the image still.
@@ -219,55 +221,49 @@ const WorkCard: React.FC<{
 const ProvenResults: React.FC = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const columnRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const motionOn = useMotionEnabled();
   const wide = useMinWidth(1024);
 
   const wantsPin = motionOn && wide && MOTION.work;
-  // The heading block pins with the deck, so it counts as chrome.
+  // Only the card row pins. The heading scrolls away above it, so it is not
+  // chrome. The header bar hides on a scroll down, so the fit check leaves it out.
   const { geom, progress, trackX } = usePinnedTrack(wantsPin, {
     wrapRef,
     columnRef,
     trackRef,
-    headerRef,
+    ignoreHeader: true,
   });
   // Local, so that TypeScript narrows `geom` wherever `pinned` is true.
   const pinned = wantsPin && geom !== null;
 
-  const cardBase = `${CARD} ${CARD_H} overflow-hidden rounded-fig-xs bg-bg-primary lg:rounded-fig-m`;
+  const cardBase = `${CARD} ${CARD_H} overflow-hidden rounded-fig-xs bg-bg-primary md:flex md:flex-col lg:rounded-fig-m`;
   const cardCls = pinned ? cardBase : `${cardBase} snap-start`;
 
   return (
     /* The seam to Our Approach is 120px, which the user set on 2026-09-10. The
-       two pinned sections' own paddings give 40px, so the balance sits here —
-       outside the pinned column, where it cannot eat the pin's height budget.
+       two pinned sections' own paddings give 40px, so the balance sits here.
        The unpinned branch already runs 100 + 120 and needs nothing. */
     <section
       id="proven-results"
-      className={`bg-bg-secondary ${wantsPin ? 'lg:pt-[80px]' : ''}`}
+      className={`bg-bg-secondary ${PR_GUTTER} ${PR_CARD_VARS} ${wantsPin ? 'lg:pt-[80px]' : ''}`}
     >
-      <div ref={wrapRef} className="relative" style={pinned ? { height: geom.height } : undefined}>
+      {/* The heading is outside the pinned column, so it scrolls away and the
+          card row gets the full window height. Not `Container`: this section
+          uses a 40px gutter at 1920 (3137:2069, 3151:2815) and 24 at 1440
+          (2943:1579). See PR_GUTTER. */}
+      <div className={`w-full px-[var(--pr-gutter)] pt-fig-32 ${wantsPin ? 'lg:pt-fig-16' : 'lg:pt-fig-120'}`}>
+        {/* 100px from the title to the cards (3137:2069). When pinned, the row is
+            centred in a frame of the window height, so the frame already puts
+            (100vh - card) / 2 above the row. The margin takes that off, so the
+            gap is 100px when the pin starts. It is negative on a tall window: the
+            empty top of the frame then lies over the heading. */}
         <div
-          className={
-            pinned
-              ? `sticky ${STICKY_TOP} ${PIN_FOLLOW} flex ${PINNED_H} flex-col justify-center overflow-x-clip`
-              : ''
-          }
+          className={`mx-auto w-full ${PR_MAX} mb-fig-24 flex flex-col gap-fig-8 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32 ${
+            pinned ? 'lg:mb-[calc(100px_-_(100vh_-_var(--card-h))/2)]' : 'lg:mb-fig-100'
+          }`}
         >
-          {/* The pinned column keeps a compact vertical padding so header + gap +
-              card fit the viewport it pins into; the static rail takes the full
-              flow rhythm. `measureDeck` scales the deck to fit against this. */}
-          <div ref={columnRef} className={`flex flex-col py-fig-32 ${wantsPin ? 'lg:py-fig-16' : 'lg:py-fig-120'}`}>
-            {/* 100px from the title to the cards (frame 3129:3294), pinned and
-                static alike (user, 2026-09-18). The wider seam raises the pinned
-                column's height, so `measureDeck` scales the deck a little more to
-                keep it fitting the viewport — the trade for the roomier gap. */}
-            {/* Not `Container`: this section uses a 40px gutter at 1920 (3137:2069,
-                3151:2815) and 24 at 1440 (2943:1579). See PR_GUTTER. */}
-            <div className={`w-full px-[var(--pr-gutter)] ${PR_GUTTER}`}>
-            <div ref={headerRef} className={`mx-auto w-full ${PR_MAX} mb-fig-24 flex flex-col gap-fig-8 lg:mb-fig-100 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32`}>
               <Reveal as="div" stagger={STAGGER.base} className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
                 <RevealChild as="span" y={20} duration={SEC.revealFast}>
                   <SectionBadge>Proof Of Work</SectionBadge>
@@ -289,13 +285,24 @@ const ProvenResults: React.FC = () => {
               >
                 Crafting solutions for global innovators. See our latest chapters.
               </Reveal>
-            </div>
-            </div>
+        </div>
+      </div>
 
+      <div ref={wrapRef} className="relative" style={pinned ? { height: geom.height } : undefined}>
+        <div
+          className={
+            pinned
+              ? `sticky ${STICKY_TOP} ${PIN_FOLLOW} flex ${PINNED_H} flex-col justify-center overflow-x-clip`
+              : ''
+          }
+        >
+          {/* No vertical padding while pinned: the row is centred in the frame,
+              and the whole window height is for the cards. */}
+          <div ref={columnRef} className={`flex flex-col pb-fig-32 ${wantsPin ? 'lg:pb-0' : 'lg:pb-fig-120'}`}>
             {/* Full-bleed to 1920 so the padding lands on the same gutter as the
-                header above, while the next card can still peek past the content edge. When
-                pinned it reserves the scaled deck's height, so scaling the track
-                shrinks the column's layout and not merely its paint. */}
+                heading above. When pinned it reserves the scaled deck's height,
+                so scaling the track shrinks the column's layout and not merely
+                its paint. */}
             <div
               ref={deckRef}
               className="mx-auto w-full max-w-[1920px]"
@@ -310,9 +317,8 @@ const ProvenResults: React.FC = () => {
                    aligns the first card to the scrollport edge and eats the gutter —
                    the deck ends up a full gutter left of the heading. Scrollbars are
                    killed globally in index.html, so the track needs no opt-out.
-                   The card gap is 48 below fhd (2943:1579 at 1440) and 40 from fhd
-                   (3137:2069 and 3151:2815 at 1920). */
-                className={`flex items-start gap-[22px] md:gap-[48px] fhd:gap-[40px] px-[var(--pr-gutter)] ${PR_GUTTER} ${
+                   The gutter and the gap come from the section (PR_GUTTER). */
+                className={`flex items-start gap-[var(--pr-gap)] px-[var(--pr-gutter)] ${
                   pinned
                     ? 'will-change-transform'
                     : 'snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-pl-[var(--pr-gutter)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
@@ -323,13 +329,8 @@ const ProvenResults: React.FC = () => {
                    already measures from the first card. */
                 style={
                   pinned
-                    ? {
-                        x: trackX,
-                        scale: geom.scale,
-                        transformOrigin: 'var(--pr-gutter) 0px',
-                        ['--card-h' as string]: CARD_HEIGHT,
-                      }
-                    : ({ ['--card-h' as string]: CARD_HEIGHT } as React.CSSProperties)
+                    ? { x: trackX, scale: geom.scale, transformOrigin: 'var(--pr-gutter) 0px' }
+                    : undefined
                 }
               >
                 {PROJECTS.map((project, i) => (
@@ -346,15 +347,17 @@ const ProvenResults: React.FC = () => {
                     }}
                   >
                     {/* From lg the caption is top-aligned, as 2943:1739 and 3151:2833 draw:
-                        48 above the tags at a 751 card, 14 between tags and title. The
-                        48 scales with the card height, so a short card keeps its title. */}
-                    <div className="flex flex-1 flex-col justify-center gap-fig-6 px-fig-16 py-fig-20 lg:justify-start lg:gap-fig-14 lg:px-fig-40 lg:pb-0 lg:pt-[calc(var(--card-h)*48/751)]">
-                      <div className="flex flex-wrap items-center gap-[5px] lg:gap-fig-12">
+                        48 above the tags at an 800 card, 14 between tags and title. The
+                        48 scales with the card height. The caption is at least 250/800
+                        of the card; on a narrow card it grows and the image gives way.
+                        The padding and the title step down below fhd with the card. */}
+                    <div className="flex flex-1 flex-col justify-center gap-fig-6 px-fig-16 py-fig-20 md:flex-none lg:min-h-[calc(var(--card-h)*250/800)] lg:justify-start lg:gap-fig-8 lg:px-fig-20 lg:pb-fig-20 lg:pt-[calc(var(--card-h)*48/800)] xl:gap-fig-12 xl:px-fig-32 fhd:gap-fig-14 fhd:px-fig-40 fhd:pb-0">
+                      <div className="flex flex-wrap items-center gap-[5px] lg:gap-fig-8 fhd:gap-fig-12">
                         {project.tags.map((tag) => (
                           <Tag key={tag}>{tag}</Tag>
                         ))}
                       </div>
-                      <h3 className="font-sans font-semibold text-[24px] leading-[32px] text-white lg:font-medium lg:text-display-sm">
+                      <h3 className="font-sans font-semibold text-[24px] leading-[32px] text-white lg:font-medium lg:text-[28px] lg:leading-[36px] xl:text-[40px] xl:leading-[48px] fhd:text-display-sm">
                         {project.name}
                       </h3>
                     </div>
@@ -363,25 +366,27 @@ const ProvenResults: React.FC = () => {
 
                 {/* The deck's last slide. Only the 1440 frame draws it, and only at
                     desktop size — the 390 treatment is scaled from it. */}
+                {/* The type and the star step down below fhd with the card width:
+                    the card is 293px at 1024 and 432px at 1440. */}
                 <article
-                  className={`${CARD} ${CARD_H} flex flex-col justify-between overflow-hidden rounded-fig-xs bg-bg-primary px-fig-16 py-fig-20 lg:rounded-fig-m lg:px-fig-24 lg:py-fig-32 ${
+                  className={`${CARD} ${CARD_H} flex flex-col justify-between overflow-hidden rounded-fig-xs bg-bg-primary px-fig-16 py-fig-20 lg:rounded-fig-m lg:px-fig-20 lg:py-fig-24 fhd:px-fig-24 fhd:py-fig-32 ${
                     pinned ? '' : 'snap-start'
                   }`}
                 >
                   {/* 2943:1747 and 3151:2841 draw this row 522.83 wide, not 532, so the
                       pill ends 33 from the card edge. The star box sits 2.6px lower than
                       a top-aligned 100px box gives. */}
-                  <div className="flex items-start justify-between lg:pr-[9.17px]">
-                    <StarMark className="h-[56px] w-[56px] rotate-[91deg] lg:mt-[2.6px] lg:h-[100px] lg:w-[100px]" />
-                    <span className="shrink-0 rounded-[2px] bg-pri-50 px-fig-4 py-fig-2 font-body text-[10px] font-semibold leading-[16px] text-text-primary lg:rounded-fig-xs lg:px-[10px] lg:py-fig-8 lg:font-sans lg:text-btn-lg">
+                  <div className="flex items-start justify-between fhd:pr-[9.17px]">
+                    <StarMark className="h-[56px] w-[56px] rotate-[91deg] xl:h-[72px] xl:w-[72px] fhd:mt-[2.6px] fhd:h-[100px] fhd:w-[100px]" />
+                    <span className={`shrink-0 rounded-[2px] bg-pri-50 px-fig-4 py-fig-2 font-body text-[10px] font-semibold leading-[16px] text-text-primary ${TAG_STEPS} fhd:px-[10px]`}>
                       10+ Works
                     </span>
                   </div>
 
                   {/* The drawn block is 524 wide (2943:1752), so the blurb and the button
                       start 62 from the card edge, not 66. */}
-                  <div className="flex flex-col items-center gap-fig-12 lg:gap-fig-28 lg:pr-fig-8">
-                    <p className="font-body text-[12px] leading-[20px] text-white lg:max-w-[448px] lg:text-subtitle-1">
+                  <div className="flex flex-col items-center gap-fig-12 lg:gap-fig-16 xl:gap-fig-20 fhd:gap-fig-28 fhd:pr-fig-8">
+                    <p className="font-body text-[12px] leading-[20px] text-white lg:max-w-[448px] lg:text-[14px] lg:leading-[22px] xl:text-[18px] xl:leading-[28px] fhd:text-subtitle-1">
                       {VIEW_ALL_BLURB}
                     </p>
                     <Button

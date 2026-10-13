@@ -80,7 +80,11 @@ export const DWELL = 0.3;
  *
  * `chrome` is the height that the pinned column needs beside the track.
  */
-export const measureTrack = (track: HTMLElement, chrome: number): TrackGeometry | null => {
+export const measureTrack = (
+  track: HTMLElement,
+  chrome: number,
+  headerBudget: number = HEADER_H.xl3,
+): TrackGeometry | null => {
   const kids = Array.from(track.children) as HTMLElement[];
   if (kids.length < 2) return null;
 
@@ -92,10 +96,11 @@ export const measureTrack = (track: HTMLElement, chrome: number): TrackGeometry 
   // The whole pinned column must clear the frame, not just the card: the header
   // block, the section paddings and the dots row take vertical space beside the
   // track (`chrome`, measured), and the frame is the viewport less the header it
-  // pins beneath. Budget against the tallest header (119, 3xl) so the check never
-  // promises a fit the 3xl bar would eat. Below MIN_SCALE the track is too small
-  // to pin for, so the section keeps the swipe rail instead.
-  const frame = window.innerHeight - HEADER_H.xl3;
+  // pins beneath. By default the budget is the tallest header (119, from fhd), so
+  // the check never promises a fit that the tallest bar would eat. A caller can
+  // pass 0 (see `ignoreHeader`). Below MIN_SCALE the track is too small to
+  // pin for, so the section keeps the swipe rail instead.
+  const frame = window.innerHeight - headerBudget;
   const scale = Math.min(1, (frame - chrome) / cardH);
   if (scale < MIN_SCALE) return null;
   // Reserved on the wrapper so the column's layout height drops with the scale,
@@ -144,6 +149,15 @@ interface PinnedTrackRefs {
   trackRef: RefObject<HTMLElement>;
   /** A heading block pinned in the same column, if there is one. */
   headerRef?: RefObject<HTMLElement>;
+  /**
+   * Leave the header bar out of the fit check. The bar hides while the page
+   * scrolls down, so a forward pass through the pin has the full window height.
+   * While the page scrolls back up, the bar returns and can cover the top few
+   * pixels of a tall row on a short window. Proven Results uses it, because its
+   * cards are sized to fill the width, and a header budget shrank them on short
+   * windows so that a sliver of the fourth card showed (user, 2026-10-14).
+   */
+  ignoreHeader?: boolean;
 }
 
 /**
@@ -157,7 +171,7 @@ interface PinnedTrackRefs {
  * at all, so the page is never briefly taller than it should be.
  */
 export const usePinnedTrack = (wantsPin: boolean, refs: PinnedTrackRefs) => {
-  const { wrapRef, columnRef, trackRef, headerRef } = refs;
+  const { wrapRef, columnRef, trackRef, headerRef, ignoreHeader } = refs;
   const [geom, setGeom] = useState<TrackGeometry | null>(null);
 
   useLayoutEffect(() => {
@@ -179,7 +193,7 @@ export const usePinnedTrack = (wantsPin: boolean, refs: PinnedTrackRefs) => {
       const cs = getComputedStyle(col);
       let chrome = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
       if (header) chrome += header.offsetHeight + parseFloat(getComputedStyle(header).marginBottom);
-      setGeom(measureTrack(track, Math.max(0, chrome)));
+      setGeom(measureTrack(track, Math.max(0, chrome), ignoreHeader ? 0 : HEADER_H.xl3));
     };
     read();
 
