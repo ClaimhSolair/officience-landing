@@ -834,3 +834,7 @@ browser. The vertical quote loop has no page with three quotes until phase 2 (BI
 - The cards are sized by width (three fill the column) and only the card row pins; the heading scrolls away
   first (adapter 25). The hold, scrub, dwell and per-card entrance are unchanged. The fit check leaves the
   header bar out for this section only (`ignoreHeader`), because the bar hides on a scroll down.
+
+## v13 — Approach pin top-aligned (2026-10-14)
+- The pinned Our Approach column is top-aligned, not centred, so the Services seam is a fixed 200px (adapter 26a).
+  Step timing, the hold and the runway do not change.

@@ -1,6 +1,7 @@
 import React from 'react';
 import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
+import Flag, { type FlagCode } from './ui/Flags';
 import { MOTION, SEC, STAGGER } from '../lib/motion';
 import type { SurveyBranch } from '../types';
 
@@ -62,12 +63,13 @@ const HOME_BLURB = (
  * as "1- / chome". With the word held together, the line breaks after
  * "Akasaka", as 3151:2444 draws it.
  */
-const OFFICES: { city: string; address: string; display?: React.ReactNode }[] = [
-  { city: 'France', address: '47 Boulevard de Sébastopol 75001 Paris, France' },
-  { city: 'USA', address: '8 The Green, Suite #4511, Dover Delaware 19901, USA' },
-  { city: 'Singapore', address: '9 Kallang Place, #04-08 Singapore 339154' },
+const OFFICES: { city: string; flag: FlagCode; address: string; display?: React.ReactNode }[] = [
+  { city: 'France', flag: 'fr', address: '47 Boulevard de Sébastopol 75001 Paris, France' },
+  { city: 'USA', flag: 'us', address: '8 The Green, Suite #4511, Dover Delaware 19901, USA' },
+  { city: 'Singapore', flag: 'sg', address: '9 Kallang Place, #04-08 Singapore 339154' },
   {
     city: 'Japan',
+    flag: 'jp',
     address: 'Ark Mori Bldg. 7F, 12-32, Akasaka 1-chome, Minato-ku, Tokyo 107-6006',
     display: (
       <>
@@ -76,9 +78,10 @@ const OFFICES: { city: string; address: string; display?: React.ReactNode }[] = 
       </>
     ),
   },
-  { city: 'Vietnam_OffyPlex', address: '16A Le Hong Phong Street, Hoa Hung Ward, Ho Chi Minh City' },
+  { city: 'Vietnam_OffyPlex', flag: 'vn', address: '16A Le Hong Phong Street, Hoa Hung Ward, Ho Chi Minh City' },
   {
     city: 'Vietnam_CrunchBase',
+    flag: 'vn',
     address: '262/18 Huynh Van Banh Street, Phu Nhuan Ward, Ho Chi Minh City',
   },
 ];
@@ -95,20 +98,6 @@ const OPTIONS: { branch: SurveyBranch; title: string; desc: string }[] = [
     desc: 'Internship, co-working, partnership & more.',
   },
 ];
-
-/**
- * Iconly Light-Outline/Location, drawn 16.5x19.5 inside a 24px box. Figma masks
- * it with a full-bounds white rect — a no-op, so the mask is dropped and the
- * artwork is simply offset into a 24x24 viewBox.
- */
-const LocationPin: React.FC = () => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" className="h-[24px] w-[24px] shrink-0">
-    <g transform="translate(4 2)" fill="#DD3C57" fillRule="evenodd" clipRule="evenodd">
-      <path d="M8.2505 6.5C7.2855 6.5 6.5005 7.285 6.5005 8.251C6.5005 9.216 7.2855 10 8.2505 10C9.2155 10 10.0005 9.216 10.0005 8.251C10.0005 7.285 9.2155 6.5 8.2505 6.5M8.2505 11.5C6.4585 11.5 5.0005 10.043 5.0005 8.251C5.0005 6.458 6.4585 5 8.2505 5C10.0425 5 11.5005 6.458 11.5005 8.251C11.5005 10.043 10.0425 11.5 8.2505 11.5" />
-      <path d="M8.2495 1.5C4.5275 1.5 1.4995 4.557 1.4995 8.313C1.4995 13.092 7.1235 17.748 8.2495 17.996C9.3755 17.747 14.9995 13.091 14.9995 8.313C14.9995 4.557 11.9715 1.5 8.2495 1.5V1.5ZM8.2495 19.5C6.4555 19.5 -0.0005 13.948 -0.0005 8.313C-0.0005 3.729 3.7005 0 8.2495 0C12.7985 0 16.4995 3.729 16.4995 8.313C16.4995 13.948 10.0435 19.5 8.2495 19.5V19.5Z" />
-    </g>
-  </svg>
-);
 
 /**
  * The row's chevron. Figma draws it at two optical weights — a light one inside
@@ -238,7 +227,13 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
                 aria-label={`Open ${office.city} office in Google Maps`}
                 className="group flex items-start gap-fig-8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
-                <LocationPin />
+                {/* The country flag takes the place of the location pin (user,
+                    2026-10-14). The box is the city line's height, so the flag
+                    centres on the first line. The address underline on hover
+                    stays the cue that the row opens Google Maps. */}
+                <span className="flex h-[22px] w-[24px] shrink-0 items-center lg:h-[32px]">
+                  <Flag code={office.flag} />
+                </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-[2px] lg:gap-fig-8 lg:max-w-[383px]">
                   <p className="break-words font-body font-bold text-[14px] leading-[22px] text-text-default group-hover:text-text-primary transition-colors motion-reduce:transition-none lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
                     {office.city}

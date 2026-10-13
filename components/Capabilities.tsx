@@ -252,11 +252,11 @@ const Capabilities: React.FC = () => {
         amount={0.1}
         enabled={MOTION.services}
         /* The runway under the last row gives it a beat before it releases into
-           Our Approach. The user wants the TOTAL empty gap from the last row to the
-           "Our Approach" heading to read 200px (2026-09-18). That total is this
-           runway + the section's own 100px bottom padding + the 72px of Approach's
-           header above its heading, so the runway itself is 28px (28 + 100 + 72 =
-           200). All three are fixed px, so the 200px holds on every screen. */
+           Our Approach. The gap from the last row to the "How We Work" badge is
+           Figma's 100 + 100 = 200px (user, 2026-10-14). Pinned, it is this 28px
+           runway + the section's own 100px bottom padding + 72px in Our Approach
+           (48 above its pin + 24 of column padding). All are fixed px, so the
+           200px holds on every screen. */
         className={`flex flex-col ${decking ? 'pb-[28px]' : ''}`}
       >
         {SERVICES.map((service, i) => {

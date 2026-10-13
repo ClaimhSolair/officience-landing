@@ -1600,3 +1600,17 @@ ruling sized the cards by height. The user chose option 1 of two (the other was 
 25e. Measured at the pin start with motion on (1920x1080, 1910x940, 1536x730, 1440x790, 1366x650, 1280x600,
      1024x680): three full cards from the heading edge to the column edge, the fourth card off screen, gap 100.
      Static (reduced motion) the same at 1024-2560. No caption overflow at 375-2560 (768 clipped the title before).
+
+## 26 — Services seam and office flags (2026-10-14)
+
+26a. **Services → Our Approach seam = Figma's 100 + 100 = 200px**, from the last service row to the "How We Work"
+     badge, with motion on and off (user sent the annotated 1920 frame). With motion on, the pinned Approach column
+     was centred in a window-high frame, so the seam grew with the window: 300px at 1920x1080. The pinned column is
+     now top-aligned, and 48px of section padding sits outside the pin (28 runway + 100 + 48 + 24 = 200). Measured
+     200 at 1440x900 to 2560x1400; 188 at 1280x600 and 1024x680, where the column scales to fit. While pinned, the
+     Approach column now sits at the top of the screen, so a tall window shows space under the steps. This
+     replaces the 2026-09-18 note "200px to the heading" (it measured 248-348 in practice).
+26b. **Country flags on the office list** (user, 2026-10-14; not in Figma). A 24x16 inline-SVG flag (`ui/Flags.tsx`,
+     3:2, 2px corners, hairline ring) replaces the red location pin before the country name, centred on the name
+     line. Inline SVG, because Windows shows flag emoji as letters. The detail is reduced for 24px (a dot grid for
+     the US stars, simplified Singapore stars). The address underline on hover stays the Google Maps cue.

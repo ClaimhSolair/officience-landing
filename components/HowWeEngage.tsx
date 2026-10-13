@@ -230,7 +230,12 @@ const HowWeEngage: React.FC = () => {
   const progress = useScrub(scrollYProgress);
 
   return (
-    <section id="approach" className="bg-bg-secondary">
+    /* The seam from the last service row to the "How We Work" badge is Figma's
+       100 + 100 = 200px (user, 2026-10-14). Pinned, Services gives 128 (its 100
+       plus the 28px deck runway) and the column's own top padding gives 24, so
+       48px sits here, outside the pin. Unpinned, Services gives 100 and the
+       column's 100 top padding gives the rest. */
+    <section id="approach" className={`bg-bg-secondary ${pinned ? 'lg:pt-[48px]' : ''}`}>
       {/* The extra height only exists when something is pinned to it. With motion
           off, below lg, or on a viewport far too short to hold the deck even
           scaled, the wrapper collapses to its contents so nobody scrolls through
@@ -243,7 +248,10 @@ const HowWeEngage: React.FC = () => {
         <div
           className={`${
             pinned
-              ? `lg:sticky ${STICKY_TOP} ${PIN_FOLLOW} lg:flex lg:h-[calc(100vh_-_var(--header-h)*var(--header-shown))] lg:flex-col lg:justify-center`
+              ? /* Top-aligned, not centred: a centred column put (window - column) / 2
+                   above the header, so the seam to Services grew with the window
+                   height (300px at 1920x1080 against Figma's 200). */
+                `lg:sticky ${STICKY_TOP} ${PIN_FOLLOW} lg:flex lg:h-[calc(100vh_-_var(--header-h)*var(--header-shown))] lg:flex-col lg:justify-start`
               : ''
           } overflow-x-clip`}
         >
