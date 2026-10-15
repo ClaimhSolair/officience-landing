@@ -8,7 +8,7 @@ import StarMark from './ui/StarMark';
 import CarouselDots from './ui/CarouselDots';
 import Reveal from './ui/Reveal';
 import { HomeColumn, SectionHeader } from './ui/HomeSection';
-import { EASE, MOTION, PINNED_H, PIN_FOLLOW, SEC, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
+import { EASE, MOTION, PIN_FOLLOW, SEC, useMinWidth, useMotionEnabled } from '../lib/motion';
 import { useCardEntrance, usePinnedTrack, useTrackDrag } from '../lib/pinnedTrack';
 import { VIEW_ALL_WORK, ROUTES, workHref } from './navigation';
 
@@ -24,8 +24,9 @@ import { VIEW_ALL_WORK, ROUTES, workHref } from './navigation';
  * vertical scroll moves it sideways. The track starts on the column's left edge
  * and stops when the right edge of the View All card is on the column's right
  * edge. Only the card row pins: the heading scrolls away above it. The fit check
- * leaves the header bar out (`ignoreHeader`). The cards have a fixed size (640 x
- * the scale `--u`). The "exactly three cards" width of 25a is gone.
+ * leaves the header bar out (`ignoreHeader`). The pinned frame is the row's own
+ * height at the top of the window (`fitFrame`, ruling 27k). The cards have a
+ * fixed size (640 x the scale `--u`). The "exactly three cards" width of 25a is gone.
  *
  * **Motion off, or below lg.** The row is a horizontal scroller with snap points.
  * Below lg, dots under the row show the position.
@@ -213,6 +214,7 @@ const ProvenResults: React.FC = () => {
     columnRef,
     trackRef,
     ignoreHeader: true,
+    fitFrame: true,
   });
   // A local value, so that TypeScript narrows `geom` where `pinned` is true.
   const pinned = wantsPin && geom !== null;
@@ -221,13 +223,15 @@ const ProvenResults: React.FC = () => {
   // track shows the full card. The deck takes only the focus handler, not the drag.
   const { handlers: pinnedDrag } = useTrackDrag(pinned ? geom : null, wrapRef);
 
-  // When pinned, the row is in the centre of a frame that is one window high. So
-  // the frame has (100vh - row) / 2 of empty space above and below the row. The
-  // heading margin and the wrapper margin remove that space. Then the gap is 64
-  // from the heading to the row when the pin starts, and 24 from the row to the
-  // logo band when the pin stops. The empty frame space goes over the heading
-  // and over the logo band, which show through it.
-  const frameSpare = pinned ? `(100vh - ${geom.trackH}px) / 2` : null;
+  // When pinned, the frame is the height of the row and sits at the top (ruling
+  // 27k, the same rule as "How we work"). The sticky top follows the header, but
+  // it never puts the row bottom below the window. On a scroll up the header
+  // comes back and pushes the row down into the empty space under it, so the row
+  // does not go over the logo band. The 64 gap above the row and the 24 gap to
+  // the logo band are the normal flow gaps.
+  const pinTop = pinned
+    ? `min(calc(var(--header-h) * var(--header-shown)), calc(100vh - ${geom.frame}px))`
+    : undefined;
 
   const cardBase = `group relative flex shrink-0 flex-col overflow-hidden ${CARD_W} ${CARD_RADIUS} ${pinned ? '' : 'snap-start'}`;
 
@@ -242,10 +246,7 @@ const ProvenResults: React.FC = () => {
       {/* The heading is out of the pinned column, so it scrolls away and the row
           gets the full window height. 64 to the row from lg; 32 and 48 below lg
           are build choices. */}
-      <HomeColumn
-        className="mb-[32px] md:mb-[48px] lg:mb-[calc(64*var(--u))]"
-        style={frameSpare ? { marginBottom: `calc(64 * var(--u) - ${frameSpare})` } : undefined}
-      >
+      <HomeColumn className="mb-[32px] md:mb-[48px] lg:mb-[calc(64*var(--u))]">
         <SectionHeader
           headingId="proven-results-heading"
           headline="Success Stories"
@@ -257,13 +258,9 @@ const ProvenResults: React.FC = () => {
       <div
         ref={wrapRef}
         className="relative"
-        style={pinned ? { height: geom.height, marginBottom: `calc(0px - ${frameSpare})` } : undefined}
+        style={pinned ? { height: geom.height } : undefined}
       >
-        <div
-          className={
-            pinned ? `sticky ${STICKY_TOP} ${PIN_FOLLOW} flex ${PINNED_H} flex-col justify-center overflow-x-clip` : ''
-          }
-        >
+        <div className={pinned ? `sticky ${PIN_FOLLOW} overflow-x-clip` : ''} style={pinned ? { top: pinTop } : undefined}>
           <div ref={columnRef} className="flex flex-col">
             {/* When pinned, this box keeps the height of the scaled track, so the
                 scale makes the layout smaller and not only the paint. */}

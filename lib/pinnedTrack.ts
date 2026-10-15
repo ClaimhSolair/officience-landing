@@ -48,6 +48,11 @@ export interface TrackGeometry {
    * screen when the pin engages — those are shown settled, not animated in.
    */
   windows: ([number, number] | null)[];
+  /**
+   * The height of the pinned frame. It is the window height, or the column
+   * height with `fitFrame`. The runway is `height - frame`.
+   */
+  frame: number;
 }
 
 /**
@@ -84,6 +89,7 @@ export const measureTrack = (
   track: HTMLElement,
   chrome: number,
   headerBudget: number = HEADER_H.xl3,
+  fitFrame = false,
 ): TrackGeometry | null => {
   const kids = Array.from(track.children) as HTMLElement[];
   if (kids.length < 2) return null;
@@ -137,7 +143,11 @@ export const measureTrack = (
     return [start, Math.max(end, start + 0.05)] as [number, number];
   });
 
-  return { travel, scale, trackH, height: window.innerHeight + runway, holdEnd, scrubEnd, windows };
+  // With `fitFrame` the pinned frame is the column (the scaled track and its
+  // chrome), not the window. The pin then releases when the wrapper bottom
+  // reaches the frame bottom.
+  const pinFrame = fitFrame ? trackH + chrome : window.innerHeight;
+  return { travel, scale, trackH, height: pinFrame + runway, holdEnd, scrubEnd, windows, frame: pinFrame };
 };
 
 interface PinnedTrackRefs {
@@ -158,6 +168,12 @@ interface PinnedTrackRefs {
    * windows so that a sliver of the fourth card showed (user, 2026-10-14).
    */
   ignoreHeader?: boolean;
+  /**
+   * Make the pinned frame the height of the column, not of the window. The
+   * caller aligns the frame to the top (ruling 27k). The progress then ends
+   * where the pin releases. Success Stories uses it.
+   */
+  fitFrame?: boolean;
 }
 
 /**
@@ -171,7 +187,7 @@ interface PinnedTrackRefs {
  * at all, so the page is never briefly taller than it should be.
  */
 export const usePinnedTrack = (wantsPin: boolean, refs: PinnedTrackRefs) => {
-  const { wrapRef, columnRef, trackRef, headerRef, ignoreHeader } = refs;
+  const { wrapRef, columnRef, trackRef, headerRef, ignoreHeader, fitFrame } = refs;
   const [geom, setGeom] = useState<TrackGeometry | null>(null);
 
   useLayoutEffect(() => {
@@ -193,7 +209,7 @@ export const usePinnedTrack = (wantsPin: boolean, refs: PinnedTrackRefs) => {
       const cs = getComputedStyle(col);
       let chrome = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
       if (header) chrome += header.offsetHeight + parseFloat(getComputedStyle(header).marginBottom);
-      setGeom(measureTrack(track, Math.max(0, chrome), ignoreHeader ? 0 : HEADER_H.xl3));
+      setGeom(measureTrack(track, Math.max(0, chrome), ignoreHeader ? 0 : HEADER_H.xl3, fitFrame));
     };
     read();
 
@@ -208,7 +224,10 @@ export const usePinnedTrack = (wantsPin: boolean, refs: PinnedTrackRefs) => {
     };
   }, [wantsPin]);
 
-  const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] });
+  // A window-high frame releases when the wrapper bottom reaches the window
+  // bottom. A `fitFrame` frame releases when it reaches the frame bottom.
+  const end = fitFrame && geom ? (`end ${geom.frame}px` as const) : ('end end' as const);
+  const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', end] });
   // Smoothed once, and both the track and the cards read this one value, so the
   // cards cannot drift from the track on a fast scroll. Without smoothing the
   // track is welded to the wheel and stops dead.
@@ -273,7 +292,7 @@ export const useTrackDrag = (geom: TrackGeometry | null, wrapRef: RefObject<HTML
   const scale = () => {
     const wrap = wrapRef.current;
     if (!wrap || !geom) return null;
-    const runway = geom.height - window.innerHeight;
+    const runway = geom.height - geom.frame;
     const top = wrap.getBoundingClientRect().top + window.scrollY;
     const from = top + geom.holdEnd * runway;
     const to = top + geom.scrubEnd * runway;

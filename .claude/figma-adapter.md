@@ -1718,3 +1718,23 @@ is CSS (`#1F49BF`, `mix-blend-mode: color`), as the frame draws it.
   scroll up the returning header covers the heading, not the steps. User decision still open.
 - **On-dark secondary button (U-24):** hover `pri-50`, pressed `pri-100`, label #1F49BF; also on the services pages'
   Selected Work.
+
+### 27k — One pin rule for a scroll up (user, 2026-10-15)
+27k. **Both home pins use a top-aligned frame that is the height of its column, with `pinTop`.** The sticky top is
+     `min(header-h × header-shown, 100vh − frame)`. On a scroll up the returning header may cover the section
+     heading, but it never pushes the cards or steps below the window or over the next section.
+     - How we work: no change (`pinTop` of 27h). Measured on a scroll up: the heading is covered 44-81 px at
+       1280x600-2560x1400 where the column fills the window, 0 at 1024x680, 1440x900, 1920x1200; no step text is
+       under the header or below the window at any of 9 sizes.
+     - Success Stories: `usePinnedTrack({ fitFrame: true })` (new opt-in option in `lib/pinnedTrack.ts`: the frame
+       is the column, the wrapper is `frame + runway`, the progress ends at `end <frame>px`, and `useTrackDrag`
+       uses `height − frame`). The `frameSpare` margins are gone. About and Work do not use the option.
+     - Measured (wheel down and up, 1024x680 to 2560x1400, 9 sizes): the row never goes under the header, never
+       below the window (0.1 px rounding at 1280x600), and the smallest row-to-logo gap on the scroll up equals the
+       24×u gap (16.7 / 21.2 / 24 / 31.5 / 42.4) — before it overlapped the logos by up to 17 px at 1024. The flow
+       gap from the heading to the row at the pin start is exactly 64×u (45.5 / 56.9 / 64 / 85.3 / 113.7). The pin
+       reaches the View All card at all 9 sizes. U-2 keyboard focus: 0 failures (Tab and Shift+Tab, 1024x680-1920x1080);
+       Selected Work on `/work/ioga` and `/services/design-digital`: 0 failures.
+     - The cost: during the sideways scrub the row sits at the top of the window, not in the centre.
+     - Re-run 2026-10-16 (one browser per width): page width = viewport at every scroll step and no visible
+       element below opacity 0.5, at 320-2560, both reduced-motion states. tsc 0 errors, build OK.
