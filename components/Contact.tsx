@@ -28,8 +28,9 @@ const mapsUrl = (address: string) =>
  * same two branches, same handler.
  *
  * The 16/26 texts (the panel subtitle, the option texts and the addresses)
- * have a floor of 14/23 on the step scale (ruling 27h). The eyebrow is the
- * frame's Eyebrow Tag 4247:5020, 16/26 Medium on the same step (ruling 27i).
+ * have a floor of 14/23 on the step scale (ruling 27h). The home card has no
+ * eyebrow (2026-10-16). On the other pages the eyebrow is the frame's Eyebrow
+ * Tag 4247:5020, 16/26 Medium on the same step (ruling 27i).
  */
 interface ContactProps {
   onOpenSurvey: (branch: SurveyBranch) => void;
@@ -38,6 +39,12 @@ interface ContactProps {
    * them. Default: shown, as on the home page.
    */
   showOffices?: boolean;
+  /**
+   * The "Our Contact" eyebrow above the heading. The home frame removes it
+   * (4229:5008, 2026-10-16). The Services hub and the case pages keep it
+   * (ruling 27i). Default: shown. The home page sets it to false.
+   */
+  showEyebrow?: boolean;
   /** The line under the heading. The hub draws its own (3257:2599). */
   blurb?: React.ReactNode;
 }
@@ -115,7 +122,12 @@ const Chevron: React.FC = () => (
   </svg>
 );
 
-const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blurb = HOME_BLURB }) => (
+const Contact: React.FC<ContactProps> = ({
+  onOpenSurvey,
+  showOffices = true,
+  showEyebrow = true,
+  blurb = HOME_BLURB,
+}) => (
   // The lower part of the blue band 4229:4962. On the home page Why Us is
   // directly above it, and pt-100 is the frame's 100 gap between the two. The
   // Services hub and the case pages show this band alone, and the same 100
@@ -137,7 +149,10 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
             From lg every value scales with --u, so the row fits at 1024 too. */}
         <div className="flex flex-col gap-[32px] md:gap-[40px] lg:flex-row lg:items-start lg:gap-[calc(80*var(--u))]">
           <div className="flex flex-col items-start gap-[12px] md:gap-[16px] lg:w-[calc(675*var(--u))] lg:shrink-0 lg:gap-[calc(16*var(--u))]">
-            <SectionBadge size="step">Our Contact</SectionBadge>
+            {/* The home frame (4229:5008, 2026-10-16) has no eyebrow. The
+                headline starts at the card's top padding, level with the top of
+                the white panel. The other pages keep the eyebrow (ruling 27i). */}
+            {showEyebrow && <SectionBadge size="step">Our Contact</SectionBadge>}
             <div className="flex flex-col gap-[16px] md:gap-[24px] lg:gap-[calc(32*var(--u))]">
               <h2 id="contact-heading" className={`${HOME_H2} text-text-default lg:whitespace-nowrap`}>
                 Connect With Us

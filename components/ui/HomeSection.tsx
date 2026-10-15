@@ -55,6 +55,12 @@ interface SectionHeaderProps {
   theme?: 'light' | 'dark';
   /** The copy column: Regular 572, Wide 624 (the Figma component property). */
   copyWidth?: 'regular' | 'wide';
+  /**
+   * The subtitle alignment from lg. "Our Work" (4317:13575) sets its subtitle
+   * to the right. Below lg the subtitle is always on the left, because it
+   * stacks under the headline. Default: left.
+   */
+  copyAlign?: 'left' | 'right';
   /** Lets a section without reveals keep the header static. */
   reveal?: boolean;
   className?: string;
@@ -73,6 +79,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   eyebrow,
   theme = 'light',
   copyWidth = 'regular',
+  copyAlign = 'left',
   reveal = true,
   className = '',
   headingId,
@@ -109,7 +116,13 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
             className={`flex flex-col items-start gap-fig-24 lg:shrink-0 lg:items-end lg:gap-[calc(32*var(--u))] ${copyW}`}
           >
             {subtitle && (
-              <p className={`${HOME_SUBTITLE} w-full ${dark ? 'text-white' : 'text-subtitle'}`}>{subtitle}</p>
+              <p
+                className={`${HOME_SUBTITLE} w-full ${copyAlign === 'right' ? 'lg:text-right' : ''} ${
+                  dark ? 'text-white' : 'text-subtitle'
+                }`}
+              >
+                {subtitle}
+              </p>
             )}
             {cta}
           </RevealChild>

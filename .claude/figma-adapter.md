@@ -1754,3 +1754,29 @@ and "How we work" leaned left and was scaled down.
        sit 48×u from both column edges at 1024-2560 (rules 48/517/986 at 1440; the frame has 48/519/990); the
        Success Stories row stays the 24×u gap from the logos on a scroll up; no step or card goes under the header
        or below the window. The overflow and opacity probe, keyboard focus, tsc and the build pass.
+
+### 27m — Figma text and card update (user, 2026-10-16)
+The design team updated frame 4229:4651. New nodes: About Intro `4229:4673`, Our Work grid `4459:5903` (replaces
+`4317:13576`), Client Spotlights header `4428:5587` and track `4428:5588` (Success Stories `4382:7136` is gone),
+Our Approach header `4249:5079`, People Trust Us subtitle `4366:9646`, Why Choose Us header `4426:5701`, Contact
+card `4229:5008`.
+27m. **Section names and texts follow the frame.** The section ids and heading ids do not change (analytics keys).
+     - "Who we are" is "About Us". The button is "Discover our company" and opens `/about-us`. The statement has the
+       scroll sweep again (`MOTION.manifesto`, the `.manifesto-char` ramp of c99efbc): each character goes from 0.2
+       to full opacity, and back on a scroll up. With motion off, the statement shows the two tones of the frame.
+     - "What we do" is "Our Work": subtitle "We build AI-first solutions tailored to you." (right-aligned from lg,
+       `SectionHeader copyAlign="right"`), CTA "Discover our services". The new grid: 688x462 cards, 48 padding on all
+       sides, a 440 text column, gaps 12/20/32, lists Montserrat Medium 16/26 with disc bullets, "Data / Processing"
+       on two lines from lg. The button sits at the card bottom (`mt-auto`), so all four buttons are level (Figma
+       pins the Data Processing button with space-between). Lists: BI ends with "Machine Learning"; Data Processing
+       starts with "Data entry / collection / cleaning". The Software shape is now green `#22B573`.
+     - "Success Stories" is "Client Spotlights": 5 cards (IOGA, C.M.P, LAB, FunPass, Finpivot), then the View All
+       card (27f holds, user 2026-10-16). FunPass and Finpivot use the Work listing files on R2 in the frame's
+       684x398 box (inset -5.28% / -3.44%), so no upload. The tag gap is 8 on all cards. The per-card date line has
+       the Figma text but stays hidden (user 2026-10-16).
+     - "How we work" is "Our Approach". "Check Our FAQ" stays hidden (27d, confirmed by the user 2026-10-16).
+     - People Trust Us: the new subtitle (curly ’; FIGMA-SLIP: the frame writes a straight apostrophe).
+     - Why Choose Us: the new CTA "Meet our teams" (on-blue primary, white) opens `/about-us#our-team`.
+     - Contact: the "Our Contact" eyebrow is gone on the home page only (`showEyebrow={false}`); 27i holds elsewhere.
+     - Build note: from 1400 to 1879 (`--u` = 1) the Our Work card grows with the width, and the extra height goes
+       above the button.

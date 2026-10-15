@@ -236,9 +236,12 @@ const ClientStories: React.FC = () => {
                 People Trust Us
               </h2>
             </RevealChild>
+            {/* The text of node 4366:9646 (2026-10-16). Figma sets a straight
+                apostrophe in "Here's". The build keeps the typographic one
+                (FIGMA-SLIP). */}
             <RevealChild as="p" y={20} duration={SEC.revealFast} className={`${HOME_SUBTITLE} text-subtitle`}>
-              Here’s what changed for our customers. C-Level, directors, and managers - they talk with us. They
-              talk about us.
+              C-Level, directors, and managers - they work with us, they talk with us. They talk about us.
+              Here’s what changed for our customers.
             </RevealChild>
           </Reveal>
 

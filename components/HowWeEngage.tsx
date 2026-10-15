@@ -5,7 +5,8 @@ import ApproachMark, { type MarkName } from './ui/ApproachMark';
 import { EASE, MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
 
 /**
- * "How we work" — node 4229:4871 of frame 4229:4651 (adapter 27).
+ * "Our Approach" (before: "How we work") — node 4229:4871 of frame 4229:4651,
+ * header 4249:5079 (adapter 27).
  *
  * The section header, then a row of three steps. Each step is a 484px vertical
  * rule, then a 368px stack: the number, a pinwheel mark, the step name and its
@@ -263,12 +264,13 @@ const HowWeEngage: React.FC = () => {
       {/* The header is out of the pinned frame, so it scrolls away (ruling 27l).
           The section's 24 top padding is on it, and the 24 bottom padding is on
           the section, so the frame holds only the 80 gap and the step row. The
-          frame draws a "Check Our FAQ" button here. It stays hidden until a FAQ
-          page exists (ruling 27d). */}
+          frame (4249:5079) draws a "Check Our FAQ" button here. The build does
+          not show it until a FAQ page exists. The user confirmed this again on
+          2026-10-16 (ruling 27d). */}
       <HomeColumn className="lg:pt-[calc(24*var(--u))]">
         <SectionHeader
           headingId="approach-heading"
-          headline="How we work"
+          headline="Our Approach"
           subtitle="We work simple. We let machines work, we take care of people."
         />
       </HomeColumn>

@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, type MotionValue } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
-import { ASSETS, srcSetOf, type ImageSource } from '../assets';
+import { ASSETS, srcSetOf, workSources, type ImageSource } from '../assets';
 import Button, { HOME_BTN_ICON } from './ui/Button';
 import StarMark from './ui/StarMark';
 import CarouselDots from './ui/CarouselDots';
@@ -13,12 +13,13 @@ import { useCardEntrance, usePinnedTrack, useTrackDrag } from '../lib/pinnedTrac
 import { VIEW_ALL_WORK, ROUTES, workHref } from './navigation';
 
 /**
- * "Success Stories", frame 4229:4651 node 4382:7136 (adapter 27f). The section
- * id stays `proven-results`, because it is the analytics key.
+ * "Client Spotlights" (was "Success Stories"), file cplHg0LeeRaYKPdvSJK37E:
+ * header 4428:5587, card track 4428:5588 (adapter 27f). The section id stays
+ * `proven-results`, because it is the analytics key.
  *
  * The frame draws a Section Header (wide copy column, no eyebrow, no CTA), then
- * a row of three 640px cards with a 40px gap, 64px under the header. The build
- * adds the View All card at the end of the row (27f).
+ * a row of five 640px cards with a 40px gap, 64px under the header. The build
+ * adds the View All card at the end of the row (27f, user 2026-10-16).
  *
  * **Motion (27f, 25b, 25c).** From lg, with motion on, the card row pins and the
  * vertical scroll moves it sideways. The track starts on the column's left edge
@@ -45,49 +46,80 @@ interface Story {
    */
   linked: boolean;
   title: string;
+  /**
+   * The date and author line of the frame. The line stays hidden (user,
+   * 2026-10-16). The text is here, so a later change is one class.
+   */
+  meta: string;
   tags: [string, string];
-  /** The gap between the chips: 4 on card 1 and 8 on cards 2 and 3, as drawn. */
-  tagGap: string;
   image: ImageSource[];
+  /**
+   * `box`: the file is baked at the 640:360 image box (`home/stories/`).
+   * `listing`: the file is the Work listing picture (684x398). Figma draws it in
+   * a box that is larger than the image area (see `LISTING_BOX`).
+   */
+  framing: 'box' | 'listing';
   alt: string;
 }
 
-const TAG_GAP_4 = 'gap-[4px] lg:gap-[calc(4*var(--u))]';
-const TAG_GAP_8 = 'gap-[8px] lg:gap-[calc(8*var(--u))]';
+/** The gap between the chips. Figma now draws 8 on every card. */
+const TAG_GAP = 'gap-[8px] lg:gap-[calc(8*var(--u))]';
 
 // FIGMA-SLIP: "Artisants Bâtisseur" is reproduced as drawn (adapter 27).
+// FunPass and Finpivot use the Work listing files that are on R2 already. The
+// alt text is the same as on the Work listing.
 const STORIES: Story[] = [
   {
     slug: 'ioga',
     linked: true,
     title: 'IOGA video learning platform from construction',
+    meta: '23 Nov 2019 | Kiet Binh',
     tags: ['Software Development', 'E-Learning Platform'],
-    tagGap: TAG_GAP_4,
     image: ASSETS.home.stories.ioga,
+    framing: 'box',
     alt: 'Presenter filming a piece to camera on a phone rig',
   },
   {
     slug: 'cmp',
     linked: false,
     title: 'C.M.P e-trading precious metal within minutes',
+    meta: '03 Mar 2023 | Day Pham',
     tags: ['E - commerce', 'Pricing Automation'],
-    tagGap: TAG_GAP_8,
     image: ASSETS.home.stories.cmp,
+    framing: 'box',
     alt: 'Laptop showing the Gestion Métal & Négoce interface',
   },
   {
     slug: 'lab',
     linked: false,
     title: 'LAB Les Artisants Bâtisseur - a start-up building fast',
+    meta: '5 Sep 2025 | Steven',
     tags: ['Software', 'E-Learning Platform'],
-    tagGap: TAG_GAP_8,
     image: ASSETS.home.stories.lab,
+    framing: 'box',
     alt: 'Analytics dashboard with workload charts',
   },
+  {
+    slug: 'funpass',
+    linked: false,
+    title: 'FunPass, festival travel for music fans',
+    meta: '10 Feb 2024 | Steven',
+    tags: ['Data Collection', 'Operation Support'],
+    image: workSources('listing', 'funpass', [700, 1400]),
+    framing: 'listing',
+    alt: 'Young people dance and cheer with red cups at an outdoor festival.',
+  },
+  {
+    slug: 'finpivot',
+    linked: false,
+    title: 'Finpivot, money admin for freelancers',
+    meta: '5 Oct 2025 | Phuong',
+    tags: ['Logo & Branding', 'Dashboard'],
+    image: workSources('listing', 'finpivot', [700, 1400]),
+    framing: 'listing',
+    alt: 'Two FINPIVOT business cards, one blue and one white, on a grey folded surface.',
+  },
 ];
-
-/** The date and author line of the frame. The same text is on all three cards. */
-const STORY_META = '23 Nov 2026 | Tram Anh';
 
 const VIEW_ALL_BLURB =
   'Providing bespoke web development services that optimize user experience, elevate brand visibility, and drive measurable business results.';
@@ -109,6 +141,19 @@ const TAG =
 const IMG_SIZES =
   '(min-width: 2560px) 1138px, (min-width: 1880px) 853px, (min-width: 1400px) 640px, (min-width: 1280px) 569px, (min-width: 1024px) 455px, (min-width: 768px) 440px, 300px';
 
+/**
+ * The listing image box. Figma (4428:5588) insets it -5.28% at the top and the
+ * bottom and -3.44% at the sides of the 640x360 image area. That is a 684x398
+ * box, centred, which the card clips. The listing files have the 684:398 aspect,
+ * so `object-cover` does not crop. Figma also draws a 4px radius on this box. The
+ * card clips the box, so the radius does not show, and the build leaves it out.
+ */
+const LISTING_BOX = 'absolute inset-x-[-3.44%] inset-y-[-5.28%]';
+
+/** The `IMG_SIZES` steps x 684/640, so the 700 file fills the 640 card at 1x. */
+const LISTING_SIZES =
+  '(min-width: 2560px) 1217px, (min-width: 1880px) 912px, (min-width: 1400px) 684px, (min-width: 1280px) 609px, (min-width: 1024px) 487px, (min-width: 768px) 471px, 321px';
+
 /** The image fade of a card that is not pinned. The card's `Reveal` sets the state. */
 const IMG_FADE = {
   hidden: { opacity: 0.1 },
@@ -127,31 +172,36 @@ const IMG_FADE = {
 const StoryCard: React.FC<{
   className: string;
   media: { src: string; srcSet: string; alt: string };
+  framing: Story['framing'];
   progress: MotionValue<number>;
   window?: [number, number] | null;
   pinned: boolean;
   children: React.ReactNode;
-}> = ({ className, media, progress, window: win, pinned, children }) => {
+}> = ({ className, media, framing, progress, window: win, pinned, children }) => {
   const { imgOpacity, cardY } = useCardEntrance(progress, win);
   const motionOn = useMotionEnabled();
 
   // The frame draws a 640px image box in a 640px card that has 24px padding, so
   // the box goes to the card edges (the card centres it and clips it). The card
   // has no side padding here, and the caption has the 24px, so the result is
-  // the same. The box keeps the 640:360 aspect at every width. The files have
-  // this aspect, so `object-cover` does not crop.
+  // the same. The box keeps the 640:360 aspect at every width. The `box` files
+  // have this aspect, so `object-cover` does not crop.
   const boxCls = 'relative isolate aspect-[640/360] w-full shrink-0 overflow-hidden';
   // Hover zoom (ruling 23f): 1.06 over 700ms, clipped by the image box. Reduced
   // motion keeps the image still.
   const imgCls =
     'absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100';
+  const listing = framing === 'listing';
   const imgProps = {
     ...media,
-    sizes: IMG_SIZES,
+    sizes: listing ? LISTING_SIZES : IMG_SIZES,
     loading: 'lazy' as const,
     decoding: 'async' as const,
     referrerPolicy: 'no-referrer' as const,
   };
+  // A listing file sits in the larger box of the frame. The image fills that
+  // box, and the image area clips it. A `box` file fills the image area.
+  const frame = (img: React.ReactNode) => (listing ? <div className={LISTING_BOX}>{img}</div> : img);
   // The blue tint of the frame: a #1F49BF layer in the "color" blend mode over
   // the photo. It does not zoom, so it always covers the box.
   const tint = <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#1F49BF] mix-blend-color" />;
@@ -162,7 +212,7 @@ const StoryCard: React.FC<{
       return (
         <motion.article className={className}>
           <div className={boxCls}>
-            <img {...imgProps} className={imgCls} />
+            {frame(<img {...imgProps} className={imgCls} />)}
             {tint}
           </div>
           {children}
@@ -172,7 +222,7 @@ const StoryCard: React.FC<{
     return (
       <motion.article className={className} style={{ y: cardY }}>
         <div className={boxCls}>
-          <motion.img {...imgProps} className={imgCls} style={{ opacity: imgOpacity }} />
+          {frame(<motion.img {...imgProps} className={imgCls} style={{ opacity: imgOpacity }} />)}
           {tint}
         </div>
         {children}
@@ -187,10 +237,12 @@ const StoryCard: React.FC<{
   return (
     <Reveal as="article" className={className} enabled={MOTION.work} y={60}>
       <div className={boxCls}>
-        {MOTION.work && motionOn ? (
-          <motion.img {...imgProps} className={imgCls} variants={IMG_FADE} />
-        ) : (
-          <img {...imgProps} className={imgCls} />
+        {frame(
+          MOTION.work && motionOn ? (
+            <motion.img {...imgProps} className={imgCls} variants={IMG_FADE} />
+          ) : (
+            <img {...imgProps} className={imgCls} />
+          ),
         )}
         {tint}
       </div>
@@ -248,7 +300,7 @@ const ProvenResults: React.FC = () => {
       <HomeColumn className="mb-[32px] md:mb-[48px] lg:mb-0">
         <SectionHeader
           headingId="proven-results-heading"
-          headline="Success Stories"
+          headline="Client Spotlights"
           copyWidth="wide"
           subtitle="Across 10 industries - telecom, cybersecurity, finance & insurance, logistics, real estate, ecommerce, beauty & fashion - we serve more than 50+ missions daily."
         />
@@ -273,7 +325,7 @@ const ProvenResults: React.FC = () => {
                 onFocus={pinned ? pinnedDrag.onFocus : undefined}
                 tabIndex={pinned ? undefined : 0}
                 role="group"
-                aria-label="Success stories"
+                aria-label="Client spotlights"
                 /* The side padding is the column gutter, so the first card starts on
                    the column edge. `scroll-padding` must be the same as the padding,
                    or the snap puts the first card on the scroller edge. The global
@@ -305,6 +357,7 @@ const ProvenResults: React.FC = () => {
                         srcSet: srcSetOf(story.image),
                         alt: story.alt,
                       }}
+                      framing={story.framing}
                     >
                       {/* 20 from the image to the title, 20 from the title to the
                           tags, 24 at the sides and the bottom. */}
@@ -328,12 +381,13 @@ const ProvenResults: React.FC = () => {
                             row have the same height, so the tags go to the
                             bottom of the card. */}
                         <div className="mt-auto flex items-center justify-end gap-[12px]">
-                          {/* The date and author line is hidden (ruling 27f): it is
-                              placeholder text. To show it, remove `hidden`. */}
+                          {/* The date and author line stays hidden (ruling 27f, user
+                              2026-10-16). Each card has the Figma text in `meta`.
+                              To show it, remove `hidden`. */}
                           <p className="mr-auto hidden whitespace-nowrap font-sans text-[16px] font-medium leading-[24px] text-subtitle lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(21px,calc(24*var(--u)))]">
-                            {STORY_META}
+                            {story.meta}
                           </p>
-                          <ul className={`flex flex-wrap items-center justify-end ${story.tagGap}`} aria-label="Services">
+                          <ul className={`flex flex-wrap items-center justify-end ${TAG_GAP}`} aria-label="Services">
                             {story.tags.map((tag) => (
                               <li key={tag} className={TAG}>
                                 {tag}

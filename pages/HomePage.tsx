@@ -67,7 +67,7 @@ const HomePage: React.FC = () => {
       </div>
 
       <WhyOfficience />
-      <Contact onOpenSurvey={openSurvey} />
+      <Contact onOpenSurvey={openSurvey} showEyebrow={false} />
     </>
   );
 };

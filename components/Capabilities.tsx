@@ -8,42 +8,52 @@ import { MOTION, STAGGER } from '../lib/motion';
 import { ROUTES, serviceHref } from './navigation';
 
 /**
- * "What we do" — node 4317:13574 of frame 4229:4651 (adapter 27c).
+ * "Our Work" (before: "What we do") — node 4317:13574 of frame 4229:4651
+ * (adapter 27c). The header text and the card lists follow the frame of
+ * 2026-10-16 (header 4317:13575, grid 4459:5903).
  *
  * The section header, then a 2 x 2 grid of white cards. Each card has a title,
  * a blurb, a short offering list and an outline "View Brochure" button. A pale
  * shape sits at the bottom-right of each card, and the card clips it.
  *
  * From lg every value is the 1440 value x `--u` (adapter 27b). Each card has
- * the 688:428 aspect of the frame (688 x 428 at 1440), so its shape does not
+ * the 688:462 aspect of the frame (688 x 462 at 1440), so its shape does not
  * change with the width inside a step (U-7). The aspect sets the minimum
- * height: long text makes the card taller, and the two rows stay equal.
+ * height: long text makes the card taller, and the two cards of a row stay
+ * equal. The card has 48 of padding on all sides. The content column is 440
+ * wide at most, with gaps of 12 (title to blurb), 20 (blurb to list) and 32
+ * (list to button) on all four cards.
  *
- * Small text has a floor (ruling 27h): the blurb is 14/23 minimum and the list
- * is 12/20 minimum, so the lg step does not make them 11.4 and 8.5px.
+ * The button is at the bottom of the content on every card. The frame does
+ * this on Data Processing (a 366 content box with space-between). On the other
+ * three cards the content is exactly 366 at 1440, so the button is at y 310 on
+ * all four cards.
+ *
+ * The blurb and the list are 16/26. They have a floor of 14/23 (ruling 27h),
+ * so the lg step does not make them 11.4px. At 1024 the floor makes the
+ * content taller than the aspect box, and the card grows to fit it.
  *
  * Below lg there is no Figma frame. These are build choices: 2 columns from md
  * and 1 column below md, the card height follows its content, the title is
  * 28/36 (32/40 from md), and the shapes are 0.55x (0.6x from md) of the frame.
+ * The list has the frame's style (Medium 16/26, disc bullets) at all widths.
  */
 
 interface Service {
   title: string;
+  /** The shown title, when it differs from `title` (a forced line break). */
+  display?: React.ReactNode;
   blurb: string;
   offerings: string[];
   /** The service page. The site calls a service page a "brochure". */
   to: string;
   shape: ShapeName;
-  /** The width of the text column at 1440, in frame px. */
-  textW: number;
-  /** The blurb width at 1440, when it is narrower than the text column. */
-  blurbW?: number;
-  /** The frame gaps (frame px): blurb to list, and list to button. They differ per card. */
-  gapList: number;
-  gapBtn: number;
 }
 
-/** The text that the frame draws (adapter 27c). The Services hub keeps its own lists. */
+/**
+ * The text that the frame draws (adapter 27c, grid 4459:5903). The Services hub
+ * keeps its own lists.
+ */
 const SERVICES: Service[] = [
   {
     title: 'Design & Digital Experience',
@@ -51,31 +61,30 @@ const SERVICES: Service[] = [
     offerings: ['Branding', 'UX/UI', 'Web product'],
     to: serviceHref('design-digital'),
     shape: 'design',
-    textW: 410.592,
-    blurbW: 374.012,
-    gapList: 16,
-    gapBtn: 37,
   },
   {
     title: 'Business Intelligence',
     blurb: 'Turn your data into actionable insights.',
-    offerings: ['Data analytics', 'KPI dashboards', 'Automation', 'AI & machine learning'],
+    offerings: ['Data analytics', 'KPI dashboards', 'Automation', 'Machine Learning'],
     to: serviceHref('business-intelligence-analytics'),
     shape: 'bi',
-    textW: 349.377,
-    gapList: 17,
-    gapBtn: 17,
   },
   {
     title: 'Data Processing',
+    // The frame breaks the title after "Data" from lg. At 1440 the title fits
+    // the 440 column on one line, so the break must be forced. Below lg the
+    // title wraps freely.
+    display: (
+      <>
+        Data <br className="hidden lg:inline" />
+        Processing
+      </>
+    ),
     // FIGMA-SLIP: the frame writes "worflows". The build writes "workflows".
     blurb: 'Engineer & drive workflows to support your operations.',
-    offerings: ['Data entry & collection', 'Pipeline streams', 'Support'],
+    offerings: ['Data entry / collection / cleaning', 'Pipeline streams', 'Support'],
     to: serviceHref('data-engineering-processing'),
     shape: 'data',
-    textW: 355.349,
-    gapList: 16,
-    gapBtn: 37,
   },
   {
     title: 'Software Development',
@@ -83,9 +92,6 @@ const SERVICES: Service[] = [
     offerings: ['Web applications', 'E-commerce', 'SaaS platforms', 'Mobile apps'],
     to: serviceHref('software-web-development'),
     shape: 'software',
-    textW: 350.123,
-    gapList: 16,
-    gapBtn: 16,
   },
 ];
 
@@ -100,7 +106,7 @@ const SERVICES: Service[] = [
 const SHAPE_BOX: Record<ShapeName, { w: number; h: number; right: number; bottom: number }> = {
   design: { w: 282, h: 282, right: -49, bottom: -57 },
   bi: { w: 337, h: 308, right: -88.5, bottom: -83 },
-  data: { w: 349, h: 333, right: -100, bottom: -95 },
+  data: { w: 349, h: 333, right: -100, bottom: -96 },
   software: { w: 298, h: 298, right: -35.5, bottom: -72 },
 };
 
@@ -115,18 +121,14 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
     <RevealChild
       as="li"
       y={40}
-      // Below lg the card is a flex column, so the button can go to the card
-      // bottom and the buttons of one row align (U-22). From lg the frame's own
-      // gap above each button stays, because the frame gaps differ per card.
-      // From lg the 688:428 aspect is the minimum height. `self-stretch` makes
-      // the cards of one row the same height when the text makes one taller.
-      // `w-full` keeps the width on the column: without it, the grid gets the
-      // width from the stretched height through the aspect.
-      // The bottom padding (16, 16px minimum) is less than the smallest frame
-      // gap under a button (29), so the aspect still sets the height at 1440.
-      // It keeps the button off the card edge when the text is longer than the
-      // aspect allows (the lg step, with the text floor).
-      className="relative flex flex-col overflow-clip rounded-[4px] bg-bg-default px-fig-24 py-fig-32 [--k:0.55px] md:[--k:0.6px] lg:block lg:aspect-[688/428] lg:w-full lg:self-stretch lg:py-0 lg:pb-[max(16px,calc(16*var(--u)))] lg:pl-[calc(45*var(--u))] lg:pr-0 lg:pt-[calc(48*var(--u))] lg:[--k:var(--u)]"
+      // The card is a flex column at all widths, so the content fills the card
+      // height and the button goes to the bottom. The buttons of one row align
+      // (U-22). From lg the 688:462 aspect is the minimum height, and the
+      // padding is 48 on all sides. `self-stretch` makes the cards of one row
+      // the same height when the text makes one taller. `w-full` keeps the
+      // width on the column: without it, the grid gets the width from the
+      // stretched height through the aspect.
+      className="relative flex flex-col overflow-clip rounded-[4px] bg-bg-default px-fig-24 py-fig-32 [--k:0.55px] md:[--k:0.6px] lg:aspect-[688/462] lg:w-full lg:self-stretch lg:p-[calc(48*var(--u))] lg:[--k:var(--u)]"
     >
       {/* The shape comes first, so the text paints on top of it. At 1440 the
           two do not touch. At other widths they can touch, and then the text
@@ -138,28 +140,25 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
         style={{ width: k(box.w), height: k(box.h), right: k(box.right), bottom: k(box.bottom) }}
       />
 
+      {/* Content 4459:5905: 440 wide at most, 32 above the button. */}
       <div
-        className="relative flex w-full flex-1 flex-col items-start lg:w-[var(--text-w)]"
-        style={{ gap: s(service.gapBtn), ['--text-w' as string]: `calc(${service.textW} * var(--u))` }}
+        className="relative flex w-full flex-1 flex-col items-start lg:max-w-[calc(440*var(--u))]"
+        style={{ gap: s(32) }}
       >
-        <div className="flex w-full flex-col items-start" style={{ gap: s(service.gapList) }}>
+        <div className="flex w-full flex-col items-start" style={{ gap: s(20) }}>
           <div className="flex w-full flex-col items-start" style={{ gap: s(12) }}>
             <h3 className="font-sans text-[28px] font-medium leading-[36px] text-text-default md:text-[32px] md:leading-[40px] lg:text-[length:calc(50*var(--u))] lg:leading-[calc(58*var(--u))]">
               {/* The frame draws no title link. The button is the only link to
                   the service page, so the keyboard has one stop per card (U-30). */}
-              {service.title}
+              {service.display ?? service.title}
             </h3>
-            <p
-              className="w-full font-body text-[16px] font-normal leading-[26px] text-black lg:w-[var(--blurb-w)] lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]"
-              style={{ ['--blurb-w' as string]: service.blurbW ? `calc(${service.blurbW} * var(--u))` : '100%' }}
-            >
+            <p className="w-full font-body text-[16px] font-normal leading-[26px] text-text-default lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]">
               {service.blurb}
             </p>
           </div>
-          <ul
-            className="flex flex-col font-body text-[12px] font-normal leading-[20px] text-subtitle lg:text-[length:max(12px,calc(12*var(--u)))] lg:leading-[max(20px,calc(20*var(--u)))]"
-            style={{ gap: `max(1px, ${s(1)})` }}
-          >
+          {/* Service List: Montserrat Medium 16/26, #5A5A5A, disc bullets in a
+              24 indent, no gap between the items. */}
+          <ul className="w-full list-disc pl-[24px] font-body text-[16px] font-medium leading-[26px] text-subtitle lg:pl-[calc(24*var(--u))] lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]">
             {service.offerings.map((offering) => (
               <li key={offering}>{offering}</li>
             ))}
@@ -173,9 +172,9 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
           /* The frame draws a white fill at rest, the same white as the card.
              The variant's white fill gives that, and it keeps the button clear
              of the shape on a narrow card. The hover is pri-50 (ruling 24aa).
-             The pressed fill does not change. Below lg, `mt-auto` puts the
-             button at the card bottom. */
-          className="mt-auto lg:mt-0 [&:hover:not(:active)]:bg-pri-50"
+             The pressed fill does not change. `mt-auto` puts the button at
+             the bottom of the content at all widths. */
+          className="mt-auto [&:hover:not(:active)]:bg-pri-50"
           icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
         >
           View Brochure
@@ -191,17 +190,19 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
 const Capabilities: React.FC = () => (
   <section id="capabilities" aria-labelledby="capabilities-heading">
     <HomeColumn className="flex flex-col gap-fig-40 md:gap-fig-48 lg:gap-[calc(80*var(--u))]">
+      {/* Header 4317:13575. The subtitle is right-aligned from lg, as drawn. */}
       <SectionHeader
         headingId="capabilities-heading"
-        headline="What we do"
-        subtitle="Comprehensive solutions tailored to your needs"
+        headline="Our Work"
+        subtitle="We build AI-first solutions tailored to you."
+        copyAlign="right"
         cta={
           <Button
             to={ROUTES.services}
             size="home"
             icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
           >
-            View All Brochure
+            Discover our services
           </Button>
         }
       />
