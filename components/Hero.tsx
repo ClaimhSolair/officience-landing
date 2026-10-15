@@ -30,11 +30,20 @@ import { EASE, MOTION, SEC, STAGGER, useMotionEnabled, useScrub } from '../lib/m
  *
  *   step       headline lead / rest       body    gaps   shapes box
  *   base       41/48 bold, 36/44 semi     16/26   20     300 wide (85% max)
- *   md 768     57/64 bold, 50/58 semi     20/30   24     420 wide
+ *   md 768     57/64 bold, 50/58 semi     20/30   24     39% of the band
  *
- * Below lg the shapes box comes under the copy, against the right edge of the
- * screen. Thus the shapes never touch the copy. The ellipse goes past the right
- * edge of the box, as in the frame, and the band clips it.
+ * Below md the shapes box comes under the copy, against the right edge of the
+ * screen. From md the shapes box is at the right of the copy, and the band
+ * centres the two vertically, as the frame does at lg. The box is 39% of the
+ * band width, so it is 399px at 1023 and 412px (580 x u) at 1024. The copy
+ * column has the remaining width, so the shapes never touch the copy (E2E
+ * 2026-10-15, U-21). The ellipse goes past the right edge of the box, as in
+ * the frame, and the band clips it.
+ *
+ * The headline uses `text-wrap: balance`, so a narrow screen does not show one
+ * word alone on the last line (U-19). At 1024, 1440 and 1920 the lines stay
+ * as the frame draws them: "Full-stack data / solutions to empower / your
+ * business."
  *
  * **The headline never animates.** It is the LCP element. The body, the button
  * and the shapes have an entrance, and the shapes drift up a little as the band
@@ -120,14 +129,16 @@ const Hero: React.FC<{ onOpenSurvey: () => void }> = ({ onOpenSurvey }) => {
   return (
     <section
       ref={bandRef}
-      className="relative -mt-[var(--header-h)] overflow-hidden bg-bg-primary pt-[var(--header-h)] lg:h-[calc(var(--header-h)_+_647*var(--u))]"
+      className="relative -mt-[var(--header-h)] overflow-hidden bg-bg-primary pt-[var(--header-h)] md:flex md:items-center lg:block lg:h-[calc(var(--header-h)_+_647*var(--u))]"
     >
-      <HomeColumn className="relative z-10 flex flex-col justify-center pt-[40px] md:pt-[64px] lg:h-full lg:pt-0">
+      <HomeColumn className="relative z-10 flex flex-col justify-center pt-[40px] md:min-w-0 md:flex-1 md:py-[64px] lg:h-full lg:py-0">
         <div className="flex flex-col items-start gap-[20px] md:gap-[24px] lg:gap-[calc(32*var(--u))]">
-          <h1 className="w-full font-sans font-semibold tracking-[-0.03em] text-white text-[36px] leading-[44px] md:text-[50px] md:leading-[58px] lg:w-[calc(924*var(--u))] lg:max-w-full lg:text-[length:calc(75*var(--u))] lg:leading-[calc(86*var(--u))]">
+          <h1 className="w-full [text-wrap:balance] font-sans font-semibold tracking-[-0.03em] text-white text-[36px] leading-[44px] md:text-[50px] md:leading-[58px] lg:w-[calc(924*var(--u))] lg:max-w-full lg:text-[length:calc(75*var(--u))] lg:leading-[calc(86*var(--u))]">
             {/* The space is in the large span, as in Figma, so the gap after
-                "Full-stack" has the size of that span. */}
-            <span className="font-bold text-off-pink text-[41px] leading-[48px] md:text-[57px] md:leading-[64px] lg:text-[length:calc(86*var(--u))] lg:leading-[calc(95*var(--u))]">
+                "Full-stack" has the size of that span. The span sets its own
+                -3% tracking, so the em value applies to its own font size
+                (-2.58px at 1440, as the frame draws it). */}
+            <span className="font-bold tracking-[-0.03em] text-off-pink text-[41px] leading-[48px] md:text-[57px] md:leading-[64px] lg:text-[length:calc(86*var(--u))] lg:leading-[calc(95*var(--u))]">
               {'Full-stack '}
             </span>
             data solutions to empower your business.
@@ -169,7 +180,7 @@ const Hero: React.FC<{ onOpenSurvey: () => void }> = ({ onOpenSurvey }) => {
           580:564 aspect at every width. */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none relative mb-[32px] ml-auto mt-[24px] aspect-[580/564] w-[300px] max-w-[85%] md:mb-[48px] md:mt-[16px] md:w-[420px] lg:absolute lg:right-0 lg:top-[calc(var(--header-h)_+_32*var(--u))] lg:m-0 lg:w-[calc(580*var(--u))] lg:max-w-none"
+        className="pointer-events-none relative mb-[32px] ml-auto mt-[24px] aspect-[580/564] w-[300px] max-w-[85%] md:m-0 md:w-[39%] md:shrink-0 md:max-w-none lg:absolute lg:right-0 lg:top-[calc(var(--header-h)_+_32*var(--u))] lg:m-0 lg:w-[calc(580*var(--u))] lg:max-w-none"
         variants={{ shown: { transition: { staggerChildren: STAGGER.tight } } }}
         initial={animating ? 'hidden' : false}
         animate={state}

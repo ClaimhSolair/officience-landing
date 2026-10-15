@@ -116,7 +116,9 @@ const WhyOfficience: React.FC = () => {
   const animating = motionOn && MOTION.whyUs;
 
   return (
-    <section id="why-us" className="bg-bg-primary">
+    // overflow-x-clip: before the reveal, a value waits 24px to the side of its
+    // place. On a phone that made the page 398px wide at 390 (E2E 2026-10-15).
+    <section id="why-us" aria-labelledby="why-us-heading" className="overflow-x-clip bg-bg-primary">
       {/* The band's pt-24 plus the container's py-24. Below lg: build choice. */}
       <HomeColumn className="pt-[48px] md:pt-[64px] lg:pt-[calc(48*var(--u))]">
         <div className="flex flex-col items-center gap-[40px] pb-[8px] md:gap-[56px] md:pb-[16px] lg:gap-[calc(80*var(--u))] lg:pb-[calc(24*var(--u))]">
@@ -126,6 +128,7 @@ const WhyOfficience: React.FC = () => {
             subtitle="Connect with our AI-first teams, accessible globally, and start your project within 48 hours!"
             reveal={MOTION.whyUs}
             className="w-full"
+            headingId="why-us-heading"
           />
 
           {/* The observer: it never transforms. Its variants reach every motion
@@ -185,7 +188,9 @@ const WhyOfficience: React.FC = () => {
                   >
                     {value.title}
                   </h3>
-                  <p className="font-body font-normal text-[12px] leading-[18px] text-white md:text-[14px] md:leading-[22px] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
+                  {/* The 16/26 text has a floor of 14/23 on the step scale
+                      (ruling 27h). */}
+                  <p className="font-body font-normal text-[12px] leading-[18px] text-white md:text-[14px] md:leading-[22px] lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]">
                     {value.body}
                   </p>
                 </motion.li>

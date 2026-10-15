@@ -40,7 +40,7 @@ const PHOTO_W = 1440;
 const PHOTO_H = 595;
 
 const AboutUs: React.FC = () => (
-  <section id="about" className="flex flex-col gap-[40px] md:gap-[56px] lg:gap-[calc(80*var(--u))]">
+  <section id="about" aria-labelledby="about-heading" className="flex flex-col gap-[40px] md:gap-[56px] lg:gap-[calc(80*var(--u))]">
     <HomeColumn>
       <Reveal
         as="div"
@@ -48,7 +48,9 @@ const AboutUs: React.FC = () => (
         className="flex flex-col gap-[16px] md:gap-[24px] lg:flex-row lg:items-start lg:justify-between lg:gap-[calc(40*var(--u))]"
       >
         <RevealChild as="span" y={28}>
-          <h2 className={`${HOME_H2} text-text-default lg:whitespace-nowrap`}>Who we are</h2>
+          <h2 id="about-heading" className={`${HOME_H2} text-text-default lg:whitespace-nowrap`}>
+            Who we are
+          </h2>
         </RevealChild>
         <RevealChild
           as="div"

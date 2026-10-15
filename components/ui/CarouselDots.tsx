@@ -13,6 +13,10 @@ interface CarouselDotsProps {
    * 10px and blue against 8px grey, 16px apart.
    */
   variant?: 'pill' | 'dot';
+  /** The word for one slide in the dot names: "Show <itemName> 2 of 4". */
+  itemName?: string;
+  /** The name of the dot group. */
+  label?: string;
 }
 
 // Page indicators for the mobile scroll-snap carousels (services, testimonials).
@@ -23,6 +27,8 @@ const CarouselDots: React.FC<CarouselDotsProps> = ({
   count,
   className = '',
   variant = 'pill',
+  itemName = 'slide',
+  label = 'Slide navigation',
 }) => {
   const [active, setActive] = useState(0);
 
@@ -61,19 +67,21 @@ const CarouselDots: React.FC<CarouselDotsProps> = ({
     el.scrollTo({ left, behavior: 'smooth' });
   };
 
+  // The dots are plain buttons in a named group (U-27). The tab pattern needs tab
+  // panels and arrow keys, and this row has neither. The active dot has
+  // `aria-current`. Each dot is a Tab stop, as a button usually is.
   return (
     <div
       className={`flex items-center justify-center ${variant === 'dot' ? 'gap-fig-8' : 'gap-1'} ${className}`}
-      role="tablist"
-      aria-label="Slide navigation"
+      role="group"
+      aria-label={label}
     >
       {Array.from({ length: count }).map((_, i) => (
         <button
           key={i}
           type="button"
-          role="tab"
-          aria-selected={active === i}
-          aria-label={`Go to slide ${i + 1}`}
+          aria-current={active === i ? 'true' : undefined}
+          aria-label={`Show ${itemName} ${i + 1} of ${count}`}
           onClick={() => goTo(i)}
           /* 44px tall so the tap target clears the guideline even though the
              dot itself is 8–10px. */

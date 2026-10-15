@@ -1677,3 +1677,44 @@ is CSS (`#1F49BF`, `mix-blend-mode: color`), as the frame draws it.
   header. The footer and header keep the 1792 cap, so at 2560 the home column (2475) is wider than they are.
 - **Upload:** 15 new keys under `home/` (`team-*`, `stories/*`, `shapes/*`). A scoped script uploaded them to
   `redesignsept2026` on 2026-10-15. All 15 are byte-identical through a fresh `?cb=`. No `ASSET_VERSION` bump.
+
+### Rulings after the E2E test (user, 2026-10-15; log `.claude/uiux-e2e-2026-10-15/`)
+27h. **12px text floor.** On the step scale, frame text of 16px or less never goes below 12px, and the 16px body
+     never goes below 14px: `max(<floor>, calc(N*var(--u)))`. Line heights keep the frame ratio at the floor
+     (12/20, 14/20 -> 12/17, 16/26 -> 14/23). Headlines, layout and larger text keep the plain step. The pinned
+     "How we work" fit does not keep space for the header, because the header hides on the forward scroll
+     (as 25c does for Success Stories). This changes 27b for small text only.
+27i. **The "Our Contact" eyebrow is 16/26 Medium** (the frame's Eyebrow Tag 4247:5020), on every page that shows the
+     Contact card (`/`, `/services`, `/work/:slug`). This replaces 19k for the Contact card.
+27j. U-1 hotfix pushed as `12c2376`: "Let's start!" calls `onOpenSurvey()` with no argument.
+
+### Open for the design team and the content owners (E2E 2026-10-15)
+- **U-10 contrast:** the grey part of the "Who we are" statement is `#A0A0A0` on `#F7F7F7`, 2.44:1 (large text needs
+  3:1). The same pair as U-26 on About. A darker grey of `#8A8A8A` or less passes.
+- **U-28 contrast:** the inactive carousel dots (below lg) are 1.3:1 against the background.
+- **U-23:** at 1024-1279 the header CTA (224x56) is about twice the hero CTA (111x40), because the header has its own
+  steps and does not follow `--u`. Ask whether the header must scale with the home page.
+- **U-20:** on phones the team photo is a 155px strip (the 1440:595 aspect at 390). Ask for a phone crop (for
+  example 4:3) if the team wants a taller picture.
+- **U-14 asset:** the Mailjet logo file is light grey (luminance 158/255); the frame logo is near black (37).
+- **U-16 / U-17 assets:** the testimonial portraits (112px files) and the footer logo are soft from fhd. Ask for
+  larger originals.
+- The slips of section 27 (stretched story images and leaf, "worflows", "Les Artisants Bâtisseur", "E - commerce",
+  "strive", the crosshair 29px off centre) and the FAQ page for "Check Our FAQ".
+
+### Build choices from the E2E fixes (2026-10-15)
+- **Tablet hero (md, U-21):** the band is a row: the copy at the left, the shapes box 39% wide at the right,
+  vertically centred, 24px apart. Band 621 at 768-834, 563 at 1000-1023, 573 at 1024. The 1023 -> 1024 step is +10px.
+- **Contact eyebrow:** `SectionBadge size="step"` gives 16/26 Medium on the `--u` step with the 27h floor (27i).
+- **Phone testimonial loop (U-18):** window 360, fade 10% below md, so one full card shows between the fades.
+- **Footer below 360 (U-6):** Company stacks above Our friends; 375+ does not change.
+- **Open, needs files:** U-26 — the footer banner (`footer/banner.png`, 2880x346, no srcset) is 2.68x its size at
+  390; it needs 1080 and 1440 wide files. `team-2880.webp` saves about 213 KB only with a lower-quality re-encode,
+  which overwrites a served key (bump `ASSET_VERSION`).
+- **Service cards (U-7):** no grid height. Each card is `aspect-[688/428]` from lg as a minimum height, and the two
+  cards in a row are equal. At 1024-1140 the 27h floor makes the content taller than the aspect (1.399 at 1024).
+- **Service buttons (U-22):** aligned to the card bottom below lg only; from lg the frame's own gaps hold (29/53/29/29).
+- **"How we work" `pinTop` (27h):** the pinned column top is `min(header-h × header-shown, 100vh − frame)`, so on a
+  scroll up the returning header covers the heading, not the steps. User decision still open.
+- **On-dark secondary button (U-24):** hover `pri-50`, pressed `pri-100`, label #1F49BF; also on the services pages'
+  Selected Work.

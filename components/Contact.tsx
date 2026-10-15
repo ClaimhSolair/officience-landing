@@ -26,6 +26,10 @@ const mapsUrl = (address: string) =>
  *
  * The two rows are the survey's entry points and their contract is unchanged:
  * same two branches, same handler.
+ *
+ * The 16/26 texts (the panel subtitle, the option texts and the addresses)
+ * have a floor of 14/23 on the step scale (ruling 27h). The eyebrow is the
+ * frame's Eyebrow Tag 4247:5020, 16/26 Medium on the same step (ruling 27i).
  */
 interface ContactProps {
   onOpenSurvey: (branch: SurveyBranch) => void;
@@ -120,7 +124,7 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
   // The footer follows (blue). The frame puts the footer 100 under the card.
   // Footer.tsx has a fixed 64 of top padding, so the band adds 100 x u - 64:
   // 7px at lg, 36px at 1440, 114px at 2560.
-  <section id="contact" className="bg-bg-primary">
+  <section id="contact" aria-labelledby="contact-heading" className="bg-bg-primary">
     <HomeColumn className="pb-[16px] pt-[48px] md:pt-[64px] lg:pb-[calc(100*var(--u)-64px)] lg:pt-[calc(100*var(--u))]">
       <Reveal
         as="div"
@@ -133,9 +137,11 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
             From lg every value scales with --u, so the row fits at 1024 too. */}
         <div className="flex flex-col gap-[32px] md:gap-[40px] lg:flex-row lg:items-start lg:gap-[calc(80*var(--u))]">
           <div className="flex flex-col items-start gap-[12px] md:gap-[16px] lg:w-[calc(675*var(--u))] lg:shrink-0 lg:gap-[calc(16*var(--u))]">
-            <SectionBadge>Our Contact</SectionBadge>
+            <SectionBadge size="step">Our Contact</SectionBadge>
             <div className="flex flex-col gap-[16px] md:gap-[24px] lg:gap-[calc(32*var(--u))]">
-              <h2 className={`${HOME_H2} text-text-default lg:whitespace-nowrap`}>Connect With Us</h2>
+              <h2 id="contact-heading" className={`${HOME_H2} text-text-default lg:whitespace-nowrap`}>
+                Connect With Us
+              </h2>
               {/* The old 390 frame has no blurb, so a phone still hides it. From
                   md it shows (build choice). It is 524 wide at 1440. */}
               <p className={`${HOME_SUBTITLE} hidden text-subtitle md:block md:max-w-[524px] lg:max-w-[calc(524*var(--u))]`}>
@@ -150,7 +156,7 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
               <h3 className="font-sans font-semibold text-[22px] leading-[30px] text-text-default md:text-[26px] md:leading-[36px] lg:text-[length:calc(28*var(--u))] lg:leading-[calc(40*var(--u))]">
                 What brings you here?
               </h3>
-              <p className="font-body font-normal text-[14px] leading-[22px] text-subtitle md:text-[16px] md:leading-[26px] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
+              <p className="font-body font-normal text-[14px] leading-[22px] text-subtitle md:text-[16px] md:leading-[26px] lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]">
                 We&apos;ll tailor the next questions just for you.
               </p>
             </div>
@@ -175,7 +181,7 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
                       <span className="font-sans font-medium text-[18px] leading-[26px] text-text-primary md:text-[20px] md:leading-[28px] lg:text-[length:calc(20*var(--u))] lg:leading-[calc(28*var(--u))]">
                         {opt.title}
                       </span>
-                      <span className="font-body font-normal text-[14px] leading-[22px] text-subtitle md:text-[16px] md:leading-[26px] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
+                      <span className="font-body font-normal text-[14px] leading-[22px] text-subtitle md:text-[16px] md:leading-[26px] lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]">
                         {opt.desc}
                       </span>
                     </span>
@@ -205,7 +211,6 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
                   href={mapsUrl(office.address)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`Open ${office.city} office in Google Maps`}
                   className="group flex items-start gap-[8px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:gap-[calc(8*var(--u))]"
                 >
                   {/* The country flag takes the place of the drawn location pin
@@ -227,10 +232,13 @@ const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blu
                     <p className="break-words font-body font-bold text-[18px] leading-[26px] text-text-default transition-colors group-hover:text-text-primary motion-reduce:transition-none md:text-[20px] md:leading-[28px] lg:text-[length:calc(20*var(--u))] lg:leading-[calc(28*var(--u))]">
                       {office.city}
                     </p>
-                    <p className="font-body font-normal text-[14px] leading-[22px] text-subtitle md:text-[16px] md:leading-[26px] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
+                    <p className="font-body font-normal text-[14px] leading-[22px] text-subtitle md:text-[16px] md:leading-[26px] lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]">
                       <span className="bg-gradient-to-r from-current to-current bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-200 group-hover:bg-[length:100%_1px] motion-reduce:transition-none">
                         {office.display ?? office.address}
                       </span>
+                      {/* The link name is the visible office name and address
+                          plus this text (audit U-29). */}
+                      <span className="sr-only"> (Google Maps, opens in a new tab)</span>
                     </p>
                   </div>
                 </a>

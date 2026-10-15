@@ -18,6 +18,10 @@ import { useMotionEnabled } from '../lib/motion';
  *
  * Below lg there is no frame. The logo sizes, the gap and the padding there are
  * build choices in the frame's proportions: x0.5 below md and x0.7 at md.
+ *
+ * With motion off, the row does not move and does not scroll (U-8, build
+ * choice). All eleven logos show in centred rows, with the 96 gap between the
+ * logos and a 32 gap between the rows (x0.5 below md, x0.7 at md).
  */
 
 /**
@@ -44,17 +48,22 @@ const FRAME_W: Record<string, number> = {
 /** One frame pixel: 0.5px below md, 0.7px at md, and the home scale `--u` from lg. */
 const UNIT = '[--logo-u:0.5px] md:[--logo-u:0.7px] lg:[--logo-u:var(--u)]';
 const GAP = 'calc(96 * var(--logo-u))';
+const ROW_GAP = 'calc(32 * var(--logo-u))';
 
-/** The two copies are the same. Only the first copy is in the accessibility tree. */
-const Copy: React.FC<{ hidden?: boolean }> = ({ hidden }) => (
+/**
+ * The two copies are the same. Only the first copy is in the accessibility tree.
+ * `wrap` is the still state: one copy in centred rows.
+ */
+const Copy: React.FC<{ hidden?: boolean; wrap?: boolean }> = ({ hidden, wrap }) => (
   <ul
     aria-hidden={hidden || undefined}
     /* The copy has the gap after its last logo too. Then each copy is half the
        track, and a move of -50% puts the second copy where the first copy
        started. A gap on the outer row gives 21 gaps for the pair, and the loop
-       moves out of position. */
-    className="flex shrink-0 items-center"
-    style={{ gap: GAP, paddingRight: GAP }}
+       moves out of position. The still rows have no end gap, so they stay
+       centred. */
+    className={wrap ? 'flex flex-wrap items-center justify-center' : 'flex shrink-0 items-center'}
+    style={wrap ? { columnGap: GAP, rowGap: ROW_GAP } : { gap: GAP, paddingRight: GAP }}
   >
     {ASSETS.clients.map((logo) => {
       const w = FRAME_W[logo.name] ?? logo.w;
@@ -69,7 +78,9 @@ const Copy: React.FC<{ hidden?: boolean }> = ({ hidden }) => (
               width: `calc(${w} * var(--logo-u))`,
               height: `calc(${h.toFixed(3)} * var(--logo-u))`,
             }}
-            loading="lazy"
+            /* The logos are small files (2-5 KB). An eager load has them ready
+               before the band comes into view, so no logo shows blank (U-25). */
+            loading="eager"
             decoding="async"
             referrerPolicy="no-referrer"
           />
@@ -94,17 +105,17 @@ const LogoMarquee: React.FC = () => {
     >
       {/* The window is the column, as the frame clips the row (4382:7177). A
           moving track fades into the band at the two edges, as the live build
-          does. A still row has a hard clip and starts on the column edge (24x).
-          It scrolls sideways, so that all eleven logos are available. */}
-      <div
-        className={still ? 'overflow-x-auto' : 'overflow-hidden'}
-        style={still ? undefined : { WebkitMaskImage: FADE, maskImage: FADE }}
-      >
-        <div className={`flex w-max ${still ? '' : 'marquee-track animate-marquee motion-reduce:animate-none'}`}>
-          <Copy />
-          {!still && <Copy hidden />}
+          does. The still rows need no window: they wrap inside the column. */}
+      {still ? (
+        <Copy wrap />
+      ) : (
+        <div className="overflow-hidden" style={{ WebkitMaskImage: FADE, maskImage: FADE }}>
+          <div className="marquee-track flex w-max animate-marquee motion-reduce:animate-none">
+            <Copy />
+            <Copy hidden />
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Lenis from 'lenis';
 import { cancelFrame, frame } from 'framer-motion';
-import { MOTION, useMotionEnabled } from '../lib/motion';
+import { MOTION, MOTION_FORCED, useMotionEnabled } from '../lib/motion';
 import { SmoothScrollContext, registerScroller } from '../lib/scroll';
 
 /**
@@ -19,6 +19,10 @@ import { SmoothScrollContext, registerScroller } from '../lib/scroll';
  *  - It runs only when motion is on (`useMotionEnabled`), so a visitor who asks
  *    for reduced motion keeps native scroll. `MOTION.smoothScroll` switches it
  *    off in one line.
+ *  - Lenis has its own reduced-motion check (`respectReducedMotion`), which
+ *    stops the smoothing when the OS asks for less motion. `useMotionEnabled`
+ *    already makes that decision. Thus a forced motion state (`?motion=on`, the
+ *    preview host) keeps the smoothing on a reduced-motion machine (U-9).
  *  - Lenis steps inside framer-motion's own frame loop, not a second
  *    requestAnimationFrame loop, so the scroll and the MotionValues read from it
  *    update in the same frame.
@@ -33,7 +37,12 @@ const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   useEffect(() => {
     if (!motionOn || !MOTION.smoothScroll) return;
 
-    const lenis = new Lenis({ smoothWheel: true, syncTouch: false, autoRaf: false });
+    const lenis = new Lenis({
+      smoothWheel: true,
+      syncTouch: false,
+      autoRaf: false,
+      respectReducedMotion: !MOTION_FORCED,
+    });
     const step = ({ timestamp }: { timestamp: number }) => lenis.raf(timestamp);
     frame.update(step, true);
     registerScroller(lenis);

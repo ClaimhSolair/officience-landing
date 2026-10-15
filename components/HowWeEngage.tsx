@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, type MotionValue, type Variants } from 'framer-motion';
 import { HomeColumn, SectionHeader } from './ui/HomeSection';
 import ApproachMark, { type MarkName } from './ui/ApproachMark';
-import { EASE, HEADER_H, MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
+import { EASE, MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
 
 /**
  * "How we work" — node 4229:4871 of frame 4229:4651 (adapter 27).
@@ -18,6 +18,9 @@ import { EASE, HEADER_H, MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWid
  * 1344px inside its padding. The frame lets step 3 run 6px into the padding. Here
  * the stacks can shrink, so each stack is 2px narrower at 1440 and nothing runs
  * past the row. Between 1400 and 1439 (`--u` = 1) they shrink more.
+ *
+ * The step text has a floor (ruling 27h): 14/23 minimum, so the lg step does
+ * not make it 11.4px.
  *
  * Below lg there is no Figma frame. These are build choices, kept from the
  * earlier build: a row of three from md, a stack below md, and no pin. The type
@@ -163,7 +166,7 @@ const StepItem: React.FC<{
           <h3 className="font-sans text-[32px] font-medium leading-[40px] text-text-primary md:text-[28px] md:leading-[36px] lg:text-[length:calc(50*var(--u))] lg:leading-[calc(58*var(--u))]">
             {step.name}
           </h3>
-          <p className="font-body text-[16px] font-normal leading-[26px] text-text-default lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
+          <p className="font-body text-[16px] font-normal leading-[26px] text-text-default lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]">
             {step.body}
           </p>
         </div>
@@ -224,8 +227,10 @@ const HowWeEngage: React.FC = () => {
     const measure = () => {
       const h = el.offsetHeight; // natural; offsetHeight ignores the applied scale
       if (!h) return;
-      // 119 is the tallest header (3xl), so the fit is honest at every breakpoint.
-      const avail = window.innerHeight - HEADER_H.xl3;
+      // The fit uses the full window height. It keeps no space for the header,
+      // because the header hides on the forward scroll (ruling 27h, as 25c does
+      // for Success Stories). See `pinTop` for the scroll up.
+      const avail = window.innerHeight;
       setDims({ h, scale: Math.min(1, avail / h) });
     };
     measure();
@@ -242,12 +247,19 @@ const HowWeEngage: React.FC = () => {
   // of scroll. The progress starts when the section top reaches the top of the
   // screen. It ends when the section bottom reaches the bottom of the pinned
   // column (frameH below the top), which is where the pin releases.
+  // The sticky top. It follows the header (`STICKY_TOP` in lib/motion), but it
+  // never puts the column bottom below the window. On a scroll up the header
+  // comes back. If the column fills the window, the header then covers the top
+  // of the column (the section heading), and the steps stay in view. Without
+  // the limit, the step text went 46-58px below a 600-730px window.
+  const pinTop = `min(calc(var(--header-h) * var(--header-shown)), calc(100vh - ${frameH}px))`;
+
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', `end ${frameH}px`] });
   // Smoothed once for all three steps.
   const progress = useScrub(scrollYProgress);
 
   return (
-    <section id="approach" className="bg-bg-secondary">
+    <section id="approach" aria-labelledby="approach-heading" className="bg-bg-secondary">
       {/* The extra height only exists when something is pinned to it. With motion
           off, below lg, or on a viewport far too short to hold the column even
           scaled, the wrapper collapses to its contents so nobody scrolls through
@@ -264,9 +276,10 @@ const HowWeEngage: React.FC = () => {
                    window. Thus the page's 120 gap stays the same above and below
                    the section, and no empty band shows under the steps when the
                    pin releases. */
-                `lg:sticky ${STICKY_TOP} ${PIN_FOLLOW}`
+                `lg:sticky ${PIN_FOLLOW}`
               : ''
           } overflow-x-clip`}
+          style={pinned ? { top: pinTop } : undefined}
         >
           {/* Reserves the scaled composition's height, so the pinned column's
               layout shrinks with the scale and not merely its paint. */}
@@ -279,6 +292,7 @@ const HowWeEngage: React.FC = () => {
               {/* The frame draws a "Check Our FAQ" button here. It stays hidden
                   until a FAQ page exists (ruling 27d). */}
               <SectionHeader
+                headingId="approach-heading"
                 headline="How we work"
                 subtitle="We work simple. We let machines work, we take care of people."
               />

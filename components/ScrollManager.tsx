@@ -26,6 +26,12 @@ declare global {
   }
 }
 
+/** The path and the query string of a route. */
+interface RouteSpot {
+  pathname: string;
+  search: string;
+}
+
 /** The page offset where a scroll puts `el`: the header clearance plus its own margin. */
 const landingTop = (el: HTMLElement) =>
   (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0) +
@@ -41,14 +47,22 @@ const landingTop = (el: HTMLElement) =>
 const ScrollManager = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
-  const last = useRef({ pathname: location.pathname, search: location.search });
-  const firstRun = useRef(true);
+  const last = useRef<RouteSpot>({ pathname: location.pathname, search: location.search });
+  // The state of the effect for one history entry. React StrictMode (dev only)
+  // runs the effect two times for one entry: mount, cleanup, mount. The cleanup
+  // stops the hold. Thus the second run must see the same first-load state and
+  // the same previous route as the first run, and start the hold again. A
+  // record for each `location.key` gives this (E2E 2026-10-15, U-33).
+  const entry = useRef<{ key: string; isFirst: boolean; prev: RouteSpot } | null>(null);
 
   useEffect(() => {
-    const isFirst = firstRun.current;
-    firstRun.current = false;
-    const prev = last.current;
-    last.current = { pathname: location.pathname, search: location.search };
+    let current = entry.current;
+    if (current === null || current.key !== location.key) {
+      current = { key: location.key, isFirst: current === null, prev: last.current };
+      entry.current = current;
+      last.current = { pathname: location.pathname, search: location.search };
+    }
+    const { isFirst, prev } = current;
 
     // When only the query string changes (the Work filters and pages), the
     // reader stays on the same page. The page sets its own scroll, so this

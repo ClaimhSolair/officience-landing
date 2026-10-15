@@ -12,6 +12,10 @@ import { Link } from 'react-router-dom';
  *   primary    bg  #1F49BF → hover #000086 → active #000050, text/icon white
  *   secondary  bg  white, 1px #1F49BF border → hover bg #F7F7F7
  *                  → active bg #1F49BF with inverse text (Figma "BG Pressed")
+ *   secondary  on the blue band (`onDark`): bg white → hover #ECF4FF (pri-50)
+ *                  → active #B1D1FD (pri-100), the label stays #1F49BF. The
+ *                  light-surface chain shows almost no hover on blue, and its
+ *                  blue pressed fill makes the button go (E2E 2026-10-15, U-24).
  *   tertiary   no bg → hover bg #ECF4FF (pri-50), text/icon #1F49BF
  *   focus      2px outline, 2px offset — primary blue on light surfaces,
  *              white via `onDark` where the button sits on #1F49BF
@@ -34,6 +38,9 @@ const VARIANT: Record<Variant, string> = {
     'bg-surface text-text-primary border border-primary hover:bg-bg-secondary active:bg-primary active:text-white',
   tertiary: 'bg-transparent text-text-primary border border-transparent hover:bg-pri-50',
 };
+
+/** The secondary states on the blue band (`onDark`). The label does not change colour. */
+const SECONDARY_ON_DARK = 'bg-surface text-text-primary border border-primary hover:bg-pri-50 active:bg-pri-100';
 
 /** Height comes from Figma: 16px of padding above and below a 24px line box. */
 const SIZE: Record<Size, string> = {
@@ -69,7 +76,7 @@ interface CommonProps {
   children: React.ReactNode;
   variant?: Variant;
   size?: Size;
-  /** Sitting on the blue background: switch the focus ring to white. */
+  /** On the blue background: the focus ring is white, and a secondary button has its own hover and pressed fills. */
   onDark?: boolean;
   radius?: keyof typeof RADIUS;
   className?: string;
@@ -101,7 +108,7 @@ const Button: React.FC<ButtonProps & { disabled?: boolean; type?: 'button' | 'su
   const classes = [
     'inline-flex items-center justify-center whitespace-nowrap font-sans transition-colors motion-reduce:transition-none',
     RADIUS[radius],
-    VARIANT[variant],
+    variant === 'secondary' && onDark ? SECONDARY_ON_DARK : VARIANT[variant],
     SIZE[size],
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
     onDark ? 'focus-visible:outline-white' : 'focus-visible:outline-primary',

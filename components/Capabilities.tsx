@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Reveal, { RevealChild } from './ui/Reveal';
 import Button, { HOME_BTN_ICON } from './ui/Button';
@@ -15,8 +14,13 @@ import { ROUTES, serviceHref } from './navigation';
  * a blurb, a short offering list and an outline "View Brochure" button. A pale
  * shape sits at the bottom-right of each card, and the card clips it.
  *
- * From lg every value is the 1440 value x `--u` (adapter 27b). The grid is 872
- * tall at 1440, so each card is 688 x 428 and the two rows have equal height.
+ * From lg every value is the 1440 value x `--u` (adapter 27b). Each card has
+ * the 688:428 aspect of the frame (688 x 428 at 1440), so its shape does not
+ * change with the width inside a step (U-7). The aspect sets the minimum
+ * height: long text makes the card taller, and the two rows stay equal.
+ *
+ * Small text has a floor (ruling 27h): the blurb is 14/23 minimum and the list
+ * is 12/20 minimum, so the lg step does not make them 11.4 and 8.5px.
  *
  * Below lg there is no Figma frame. These are build choices: 2 columns from md
  * and 1 column below md, the card height follows its content, the title is
@@ -111,7 +115,18 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
     <RevealChild
       as="li"
       y={40}
-      className="relative overflow-clip rounded-[4px] bg-bg-default px-fig-24 py-fig-32 [--k:0.55px] md:[--k:0.6px] lg:py-0 lg:pl-[calc(45*var(--u))] lg:pr-0 lg:pt-[calc(48*var(--u))] lg:[--k:var(--u)]"
+      // Below lg the card is a flex column, so the button can go to the card
+      // bottom and the buttons of one row align (U-22). From lg the frame's own
+      // gap above each button stays, because the frame gaps differ per card.
+      // From lg the 688:428 aspect is the minimum height. `self-stretch` makes
+      // the cards of one row the same height when the text makes one taller.
+      // `w-full` keeps the width on the column: without it, the grid gets the
+      // width from the stretched height through the aspect.
+      // The bottom padding (16, 16px minimum) is less than the smallest frame
+      // gap under a button (29), so the aspect still sets the height at 1440.
+      // It keeps the button off the card edge when the text is longer than the
+      // aspect allows (the lg step, with the text floor).
+      className="relative flex flex-col overflow-clip rounded-[4px] bg-bg-default px-fig-24 py-fig-32 [--k:0.55px] md:[--k:0.6px] lg:block lg:aspect-[688/428] lg:w-full lg:self-stretch lg:py-0 lg:pb-[max(16px,calc(16*var(--u)))] lg:pl-[calc(45*var(--u))] lg:pr-0 lg:pt-[calc(48*var(--u))] lg:[--k:var(--u)]"
     >
       {/* The shape comes first, so the text paints on top of it. At 1440 the
           two do not touch. At other widths they can touch, and then the text
@@ -124,31 +139,26 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
       />
 
       <div
-        className="relative flex w-full flex-col items-start lg:w-[var(--text-w)]"
+        className="relative flex w-full flex-1 flex-col items-start lg:w-[var(--text-w)]"
         style={{ gap: s(service.gapBtn), ['--text-w' as string]: `calc(${service.textW} * var(--u))` }}
       >
         <div className="flex w-full flex-col items-start" style={{ gap: s(service.gapList) }}>
           <div className="flex w-full flex-col items-start" style={{ gap: s(12) }}>
             <h3 className="font-sans text-[28px] font-medium leading-[36px] text-text-default md:text-[32px] md:leading-[40px] lg:text-[length:calc(50*var(--u))] lg:leading-[calc(58*var(--u))]">
-              {/* The title also opens the service page. The link is a sibling of
-                  the button, so no interactive element is in another one. */}
-              <Link
-                to={service.to}
-                className="hover:underline hover:decoration-1 hover:underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-              >
-                {service.title}
-              </Link>
+              {/* The frame draws no title link. The button is the only link to
+                  the service page, so the keyboard has one stop per card (U-30). */}
+              {service.title}
             </h3>
             <p
-              className="w-full font-body text-[16px] font-normal leading-[26px] text-black lg:w-[var(--blurb-w)] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]"
+              className="w-full font-body text-[16px] font-normal leading-[26px] text-black lg:w-[var(--blurb-w)] lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]"
               style={{ ['--blurb-w' as string]: service.blurbW ? `calc(${service.blurbW} * var(--u))` : '100%' }}
             >
               {service.blurb}
             </p>
           </div>
           <ul
-            className="flex flex-col font-body text-[12px] font-normal leading-[20px] text-subtitle lg:text-[length:calc(12*var(--u))] lg:leading-[calc(20*var(--u))]"
-            style={{ gap: s(1) }}
+            className="flex flex-col font-body text-[12px] font-normal leading-[20px] text-subtitle lg:text-[length:max(12px,calc(12*var(--u)))] lg:leading-[max(20px,calc(20*var(--u)))]"
+            style={{ gap: `max(1px, ${s(1)})` }}
           >
             {service.offerings.map((offering) => (
               <li key={offering}>{offering}</li>
@@ -163,8 +173,9 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
           /* The frame draws a white fill at rest, the same white as the card.
              The variant's white fill gives that, and it keeps the button clear
              of the shape on a narrow card. The hover is pri-50 (ruling 24aa).
-             The pressed fill does not change. */
-          className="[&:hover:not(:active)]:bg-pri-50"
+             The pressed fill does not change. Below lg, `mt-auto` puts the
+             button at the card bottom. */
+          className="mt-auto lg:mt-0 [&:hover:not(:active)]:bg-pri-50"
           icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
         >
           View Brochure
@@ -178,9 +189,10 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
 };
 
 const Capabilities: React.FC = () => (
-  <section id="capabilities">
+  <section id="capabilities" aria-labelledby="capabilities-heading">
     <HomeColumn className="flex flex-col gap-fig-40 md:gap-fig-48 lg:gap-[calc(80*var(--u))]">
       <SectionHeader
+        headingId="capabilities-heading"
         headline="What we do"
         subtitle="Comprehensive solutions tailored to your needs"
         cta={
@@ -200,7 +212,7 @@ const Capabilities: React.FC = () => (
         as="ul"
         stagger={STAGGER.base}
         enabled={MOTION.services}
-        className="grid grid-cols-1 gap-fig-16 [--s:1px] md:grid-cols-2 lg:h-[calc(872*var(--u))] lg:grid-rows-2 lg:gap-[calc(16*var(--u))] lg:[--s:var(--u)]"
+        className="grid grid-cols-1 gap-fig-16 [--s:1px] md:grid-cols-2 lg:grid-rows-2 lg:gap-[calc(16*var(--u))] lg:[--s:var(--u)]"
       >
         {SERVICES.map((service) => (
           <ServiceCard key={service.title} service={service} />

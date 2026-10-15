@@ -9,7 +9,7 @@ import CarouselDots from './ui/CarouselDots';
 import Reveal from './ui/Reveal';
 import { HomeColumn, SectionHeader } from './ui/HomeSection';
 import { EASE, MOTION, PINNED_H, PIN_FOLLOW, SEC, STICKY_TOP, useMinWidth, useMotionEnabled } from '../lib/motion';
-import { useCardEntrance, usePinnedTrack } from '../lib/pinnedTrack';
+import { useCardEntrance, usePinnedTrack, useTrackDrag } from '../lib/pinnedTrack';
 import { VIEW_ALL_WORK, ROUTES, workHref } from './navigation';
 
 /**
@@ -97,14 +97,22 @@ const CARD_RADIUS = 'rounded-[12px] lg:rounded-[calc(12*var(--u))]';
 
 /**
  * The chip (Montserrat Medium 14/20, #1F49BF on #ECF4FF, 8px padding, radius
- * 5.378). Below md it is 12/16 with 6px padding (build choice).
+ * 5.378). Below md it is 12/16 with 6px padding (build choice). From lg the text
+ * has the 12px floor of ruling 27h: 12/17 keeps the 14/20 ratio. The padding and
+ * the radius keep the plain step.
  */
 const TAG =
-  'shrink-0 whitespace-nowrap rounded-[4px] bg-pri-50 p-[6px] font-body text-[12px] font-medium leading-[16px] text-text-primary md:rounded-[5.378px] md:p-[8px] md:text-[14px] md:leading-[20px] lg:rounded-[calc(5.378*var(--u))] lg:p-[calc(8*var(--u))] lg:text-[length:calc(14*var(--u))] lg:leading-[calc(20*var(--u))]';
+  'shrink-0 whitespace-nowrap rounded-[4px] bg-pri-50 p-[6px] font-body text-[12px] font-medium leading-[16px] text-text-primary md:rounded-[5.378px] md:p-[8px] md:text-[14px] md:leading-[20px] lg:rounded-[calc(5.378*var(--u))] lg:p-[calc(8*var(--u))] lg:text-[length:max(12px,calc(14*var(--u)))] lg:leading-[max(17px,calc(20*var(--u)))]';
 
 /** The image file widths for each step of the card width. */
 const IMG_SIZES =
   '(min-width: 2560px) 1138px, (min-width: 1880px) 853px, (min-width: 1400px) 640px, (min-width: 1280px) 569px, (min-width: 1024px) 455px, (min-width: 768px) 440px, 300px';
+
+/** The image fade of a card that is not pinned. The card's `Reveal` sets the state. */
+const IMG_FADE = {
+  hidden: { opacity: 0.1 },
+  shown: { opacity: 1, transition: { duration: SEC.revealBase, ease: [...EASE.reveal] } },
+};
 
 /**
  * A story card. When pinned, the card comes in as a function of the track
@@ -124,6 +132,7 @@ const StoryCard: React.FC<{
   children: React.ReactNode;
 }> = ({ className, media, progress, window: win, pinned, children }) => {
   const { imgOpacity, cardY } = useCardEntrance(progress, win);
+  const motionOn = useMotionEnabled();
 
   // The frame draws a 640px image box in a 640px card that has 24px padding, so
   // the box goes to the card edges (the card centres it and clips it). The card
@@ -170,18 +179,15 @@ const StoryCard: React.FC<{
     );
   }
 
+  // The image fade has no observer of its own. It takes the "hidden" and "shown"
+  // states of the card's `Reveal`, so the image shows when the card shows. A card
+  // that is partly in the rail cannot keep a faded image. With motion off, the
+  // image is a plain `img` at full opacity.
   return (
     <Reveal as="article" className={className} enabled={MOTION.work} y={60}>
       <div className={boxCls}>
-        {MOTION.work ? (
-          <motion.img
-            {...imgProps}
-            className={imgCls}
-            initial={{ opacity: 0.1 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: SEC.revealBase, ease: [...EASE.reveal] }}
-          />
+        {MOTION.work && motionOn ? (
+          <motion.img {...imgProps} className={imgCls} variants={IMG_FADE} />
         ) : (
           <img {...imgProps} className={imgCls} />
         )}
@@ -210,6 +216,10 @@ const ProvenResults: React.FC = () => {
   });
   // A local value, so that TypeScript narrows `geom` where `pinned` is true.
   const pinned = wantsPin && geom !== null;
+  // The track moves only with the page scroll, so a Tab onto a card past the
+  // frame edge needs this focus handler (U-2). It scrolls the page until the
+  // track shows the full card. The deck takes only the focus handler, not the drag.
+  const { handlers: pinnedDrag } = useTrackDrag(pinned ? geom : null, wrapRef);
 
   // When pinned, the row is in the centre of a frame that is one window high. So
   // the frame has (100vh - row) / 2 of empty space above and below the row. The
@@ -221,8 +231,14 @@ const ProvenResults: React.FC = () => {
 
   const cardBase = `group relative flex shrink-0 flex-col overflow-hidden ${CARD_W} ${CARD_RADIUS} ${pinned ? '' : 'snap-start'}`;
 
+  // The page column gives the 120 section gap. In the frame, the block 4382:7135
+  // adds 24 at its top and 4382:7136 adds 2 more (U-4). The section adds the 26.
   return (
-    <section id="proven-results" className="bg-bg-secondary">
+    <section
+      id="proven-results"
+      aria-labelledby="proven-results-heading"
+      className="bg-bg-secondary lg:pt-[calc(26*var(--u))]"
+    >
       {/* The heading is out of the pinned column, so it scrolls away and the row
           gets the full window height. 64 to the row from lg; 32 and 48 below lg
           are build choices. */}
@@ -231,6 +247,7 @@ const ProvenResults: React.FC = () => {
         style={frameSpare ? { marginBottom: `calc(64 * var(--u) - ${frameSpare})` } : undefined}
       >
         <SectionHeader
+          headingId="proven-results-heading"
           headline="Success Stories"
           copyWidth="wide"
           subtitle="Across 10 industries - telecom, cybersecurity, finance & insurance, logistics, real estate, ecommerce, beauty & fashion - we serve more than 50+ missions daily."
@@ -253,6 +270,7 @@ const ProvenResults: React.FC = () => {
             <div className="w-full" style={pinned ? { height: geom.trackH } : undefined}>
               <motion.div
                 ref={trackRef}
+                onFocus={pinned ? pinnedDrag.onFocus : undefined}
                 tabIndex={pinned ? undefined : 0}
                 role="group"
                 aria-label="Success stories"
@@ -312,7 +330,7 @@ const ProvenResults: React.FC = () => {
                         <div className="mt-auto flex items-center justify-end gap-[12px]">
                           {/* The date and author line is hidden (ruling 27f): it is
                               placeholder text. To show it, remove `hidden`. */}
-                          <p className="mr-auto hidden whitespace-nowrap font-sans text-[16px] font-medium leading-[24px] text-subtitle lg:text-[length:calc(16*var(--u))] lg:leading-[calc(24*var(--u))]">
+                          <p className="mr-auto hidden whitespace-nowrap font-sans text-[16px] font-medium leading-[24px] text-subtitle lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(21px,calc(24*var(--u)))]">
                             {STORY_META}
                           </p>
                           <ul className={`flex flex-wrap items-center justify-end ${story.tagGap}`} aria-label="Services">
@@ -359,7 +377,13 @@ const ProvenResults: React.FC = () => {
 
             {/* Dots below lg. The row also scrolls by swipe, wheel and keyboard. */}
             <HomeColumn className="mt-fig-24 lg:hidden">
-              <CarouselDots containerRef={trackRef} count={STORIES.length + 1} variant="dot" />
+              <CarouselDots
+                containerRef={trackRef}
+                count={STORIES.length + 1}
+                variant="dot"
+                itemName="story"
+                label="Story navigation"
+              />
             </HomeColumn>
           </div>
         </div>

@@ -41,10 +41,13 @@
     <link rel="preconnect" href="https://pub-767c5aebf4a841a595fec5daeb08d3b4.r2.dev" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preload only the files that the first screen uses: the latin subset of
+         Lexend and of Montserrat. Each is a variable font, so one file gives all
+         the weights (the hero uses Lexend 500/600/700 and Montserrat 400). The
+         Vietnamese subset files load only when a page shows those letters
+         (measured 2026-10-15 at 390 and 1440, U-11). -->
     <link rel="preload" href="https://fonts.gstatic.com/s/lexend/v26/wlpwgwvFAVdoq2_v-6QU.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="https://fonts.gstatic.com/s/lexend/v26/wlpwgwvFAVdoq2_v9KQU4Wc.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WZhyzbi.woff2" as="font" type="font/woff2" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
@@ -233,9 +236,18 @@
       })();
       gtag('js', new Date());
       gtag('config', 'G-R8R4KL5WGL');
+      // Google tag (gtag.js), GA4 stream "Officience". The script loads after
+      // the window "load" event, so that it does not take bandwidth from the
+      // app on a slow link (U-11). The consent defaults and the config above
+      // wait in dataLayer, and gtag.js reads them in order when it starts.
+      // The consent updates of CookieConsent.tsx also go into dataLayer.
+      window.addEventListener('load', function () {
+        var g = document.createElement('script');
+        g.async = true;
+        g.src = 'https://www.googletagmanager.com/gtag/js?id=G-R8R4KL5WGL';
+        document.head.appendChild(g);
+      });
     </script>
-    <!-- Google tag (gtag.js) — GA4 stream "Officience" -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R8R4KL5WGL"></script>
     <style>
       /* Anchor targets clear the sticky header, whose height is a fixed value
          per artboard: 69 / 113 / 119px at 390 / 1440 / 1920. The 1920 value starts

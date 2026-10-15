@@ -123,8 +123,10 @@ const Footer: React.FC = () => (
           </div>
 
           {/* 636 wide at 1440, with Company (76) and Our friends (408) 100 apart,
-              centred. */}
-          <div className="flex gap-[53px] lg:w-[636px] fhd:w-[848px] lg:shrink-0 lg:justify-center lg:gap-[100px] fhd:gap-[133.33px]">
+              centred. Below 360 the two columns do not fit side by side, and the
+              tiles overlap and widen the page (audit U-6). There, Company goes
+              above Our friends, 32 apart. From 360 the layout does not change. */}
+          <div className="flex gap-[53px] max-[359px]:flex-col max-[359px]:gap-fig-32 lg:w-[636px] fhd:w-[848px] lg:shrink-0 lg:justify-center lg:gap-[100px] fhd:gap-[133.33px]">
             <nav aria-label="Company" className="flex flex-col gap-fig-12 lg:gap-[24px] fhd:gap-[32px]">
               {/* Button-md at 1440: Lexend 500, 16/24. */}
               <h2 className="font-body font-bold text-[14px] leading-[22px] lg:font-sans lg:font-medium lg:text-[length:16px] fhd:text-[length:21.33px] lg:leading-[24px] fhd:leading-[32px]">
@@ -154,13 +156,14 @@ const Footer: React.FC = () => (
                   links — see the adapter backlog. The logo sizes in assets.ts are
                   the 1920 frame's. The 1440 frame draws them at 0.9273 of that
                   (128 / 138.04), and 390 at 0.8136. `--partner-u` is the length
-                  of one assets.ts px. */}
+                  of one assets.ts px. Below 360 the list is full width, so the
+                  two columns are the tile width and the tiles stay together. */}
               <Reveal
                 as="ul"
                 stagger={STAGGER.tight}
                 enabled={MOTION.footer}
                 amount={0.2}
-                className="grid grid-cols-2 gap-[10.53px] [--partner-u:0.8136px] lg:w-fit lg:grid-cols-3 lg:gap-[12px] fhd:gap-[16px] lg:[--partner-u:0.92727px] fhd:[--partner-u:1.23636px]"
+                className="grid grid-cols-2 gap-[10.53px] [--partner-u:0.8136px] max-[359px]:grid-cols-[112px_112px] lg:w-fit lg:grid-cols-3 lg:gap-[12px] fhd:gap-[16px] lg:[--partner-u:0.92727px] fhd:[--partner-u:1.23636px]"
               >
                 {ASSETS.footer.partners.map((partner) => (
                   <RevealChild
@@ -227,7 +230,8 @@ const Footer: React.FC = () => (
                         href={social.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label={social.label}
+                        // The name says that the link opens a new tab (audit U-29).
+                        aria-label={`${social.label} (opens in a new tab)`}
                         className={`flex items-center justify-center ${LINK_HOVER}`}
                       >
                         <Glyph className="h-[28.86px] w-[28.86px] lg:h-[38px] fhd:h-[50.67px] lg:w-[38px] fhd:w-[50.67px]" />

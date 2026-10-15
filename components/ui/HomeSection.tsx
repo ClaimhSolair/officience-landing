@@ -32,9 +32,13 @@ export const HomeColumn: React.FC<{
   </div>
 );
 
-/** The 75/86 section headline (Size/7xl, Lexend SemiBold, -3%). */
+/**
+ * The 75/86 section headline (Size/7xl, Lexend SemiBold, -3%). `text-wrap:
+ * balance` makes the lines equal in length, so a narrow phone does not show one
+ * word on the last line (E2E 2026-10-15, U-19).
+ */
 export const HOME_H2 =
-  'font-sans font-semibold tracking-[-0.03em] text-[36px] leading-[44px] md:text-[50px] md:leading-[58px] lg:text-[length:calc(75*var(--u))] lg:leading-[calc(86*var(--u))]';
+  'font-sans font-semibold tracking-[-0.03em] [text-wrap:balance] text-[36px] leading-[44px] md:text-[50px] md:leading-[58px] lg:text-[length:calc(75*var(--u))] lg:leading-[calc(86*var(--u))]';
 
 /** The 24/36 subtitle (Montserrat Regular, Semantic/Text/Subtitle). */
 export const HOME_SUBTITLE =

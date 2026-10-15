@@ -335,6 +335,12 @@ export const useTrackDrag = (geom: TrackGeometry | null, wrapRef: RefObject<HTML
    * for the focus. So a focus in the track scrolls the page to the point where
    * the track shows the whole card, with the least movement. The timer lets the
    * browser's own focus scroll finish first.
+   *
+   * A Shift+Tab from below the section has a second problem. The browser scrolls
+   * the page up only until the card shows, so the pin stays released and the
+   * card stops under the header bar. Thus, when the card is not fully in the
+   * band between the header bar and the window bottom, the page also scrolls
+   * into the pin. There, the frame keeps the card clear of the header bar.
    */
   const onFocus = (e: ReactFocusEvent<HTMLElement>) => {
     const track = e.currentTarget;
@@ -354,7 +360,11 @@ export const useTrackDrag = (geom: TrackGeometry | null, wrapRef: RefObject<HTML
       if (left < now) shift = left;
       else if (right > now + inner) shift = right - inner;
       shift = Math.min(geom.travel, Math.max(0, shift));
-      if (shift !== now) scrollToY(s.from + shift * s.perPx, false);
+      const box = card.getBoundingClientRect();
+      const bar = document.querySelector('header');
+      const barBottom = bar ? Math.max(0, bar.getBoundingClientRect().bottom) : 0;
+      const clear = box.top >= barBottom - 0.5 && box.bottom <= window.innerHeight + 0.5;
+      if (shift !== now || !clear) scrollToY(s.from + shift * s.perPx, false);
     }, 0);
   };
 
