@@ -151,7 +151,10 @@ const Hero: React.FC<{ onOpenSurvey: () => void }> = ({ onOpenSurvey }) => {
                 variant="secondary"
                 size="home"
                 onDark
-                onClick={onOpenSurvey}
+                // Call the handler without arguments. If the click event goes in
+                // as the survey branch, the survey reads an unknown branch and
+                // the app stops (E2E 2026-10-15, A-1).
+                onClick={() => onOpenSurvey()}
                 className="border-transparent"
               >
                 Let’s start!
