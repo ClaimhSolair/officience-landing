@@ -25,7 +25,7 @@ import { Link } from 'react-router-dom';
 const RADIUS = { none: 'rounded-none', m: 'rounded-fig-m' } as const;
 
 type Variant = 'primary' | 'secondary' | 'tertiary';
-type Size = 'md' | 'lg' | 'xl' | 'icon';
+type Size = 'md' | 'lg' | 'xl' | 'icon' | 'home';
 
 const VARIANT: Record<Variant, string> = {
   primary:
@@ -52,7 +52,18 @@ const SIZE: Record<Size, string> = {
    * positioned it adds no layout of its own.
    */
   icon: 'h-[56px] w-[56px] p-0 gap-0',
+  /**
+   * The home page button of frame 4229:4651 (component 4346:13744, size xl):
+   * 56 tall, 24 padding, a 10px gap, Lexend SemiBold 20/24. From lg it follows
+   * the home scale `--u` (adapter 27b). Below lg it is the 48px `md` button.
+   * Give the icon `HOME_BTN_ICON`, so that it steps with the label.
+   */
+  home:
+    'h-[48px] px-fig-20 gap-fig-8 text-btn-md lg:h-[calc(56*var(--u))] lg:px-[calc(24*var(--u))] lg:gap-[calc(10*var(--u))] lg:text-[length:calc(20*var(--u))] lg:leading-[calc(24*var(--u))] lg:font-semibold',
 };
+
+/** The 24px icon box of the `home` button, on the home scale from lg. */
+export const HOME_BTN_ICON = 'h-[20px] w-[20px] shrink-0 lg:h-[calc(24*var(--u))] lg:w-[calc(24*var(--u))]';
 
 interface CommonProps {
   children: React.ReactNode;

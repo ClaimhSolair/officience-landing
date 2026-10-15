@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { track } from '@vercel/analytics';
 import Hero from '../components/Hero';
-import FlowerDivider from '../components/FlowerDivider';
 import AboutUs from '../components/AboutUs';
 import Capabilities from '../components/Capabilities';
 import HowWeEngage from '../components/HowWeEngage';
@@ -48,24 +47,26 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      {/* Hero sits flush under the header, and the flower band supplies the
-          separation before the next section — so neither takes the rhythm
-          padding that the not-yet-rebuilt sections below still rely on. */}
-      <Hero />
-      <FlowerDivider />
-      <AboutUs />
-      <Capabilities />
-      <HowWeEngage />
-      <ProvenResults />
-      <ClientStories />
-      <LogoMarquee />
+      <Hero onOpenSurvey={openSurvey} />
 
-      {/* Figma order: Services → Approach → Proven Results → Testimonials → logo
-          wall → Why Us → Contact → Footer. Every section above carries its own
-          vertical padding now, so the clamp-gap wrapper the July build used for
-          rhythm here is gone — stacking it on top would double each seam. */}
+      {/* Frame 4229:4651 stacks the sections with a 120px gap (adapter 27). The gap
+          is on this column, so a section carries only the padding that the frame
+          draws inside it. Why Us and Contact share one blue band, so they sit
+          outside the column and nothing separates them. */}
+      <div className="flex flex-col gap-[64px] py-[64px] md:gap-[96px] md:py-[96px] lg:gap-[calc(120*var(--u))] lg:py-[calc(120*var(--u))]">
+        <AboutUs />
+        <Capabilities />
+        {/* Success Stories and the client wall are one block in the frame
+            (4382:7135), 24px apart, so the wall does not take the section gap. */}
+        <div className="flex flex-col gap-fig-24 lg:gap-[calc(24*var(--u))]">
+          <ProvenResults />
+          <LogoMarquee />
+        </div>
+        <HowWeEngage />
+        <ClientStories />
+      </div>
+
       <WhyOfficience />
-
       <Contact onOpenSurvey={openSurvey} />
     </>
   );

@@ -257,6 +257,15 @@
       @media (min-width: 1880px) {
         html { scroll-padding-top: 119px; --header-h: 119px; }
       }
+      /* The home page scale of frame 4229:4651 (adapter 27b). The frame is 1440 wide.
+         Each step sets one fixed factor, so a size is fixed px within a step (24a).
+         A home section writes a 1440 value as calc(<px> * var(--u)) from lg.
+         Below lg the sections use their own stacked values, not this scale. */
+      html { --hs: 0.711; --u: calc(1px * var(--hs)); }
+      @media (min-width: 1280px) { html { --hs: 0.889; } }
+      @media (min-width: 1400px) { html { --hs: 1; } }
+      @media (min-width: 1880px) { html { --hs: 1.333; } }
+      @media (min-width: 2560px) { html { --hs: 1.778; } }
       /* Anchor scrolling animates only for visitors who haven't asked for less motion. */
       @media (prefers-reduced-motion: no-preference) {
         html {

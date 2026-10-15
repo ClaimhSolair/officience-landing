@@ -71,11 +71,10 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
   // than a flick of the wheel, so a single threshold reads the same at all of them.
   const scrolled = useScrolledPast(69);
   const glass = scrolled && MOTION.headerGlass;
-  // The hero frame 3928:4916 draws the bar transparent on the banner. So on the
-  // home page, before the glass state, the bar has no fill from 1400. At 1400
-  // the hero moves up by the full bar height (Hero.tsx), so the banner is
-  // behind all of the bar. Below 1400 the hero moves up less, and the page
-  // background shows above it, so the bar stays solid there.
+  // On the home page, before the glass state, the bar has no fill from 1400.
+  // The hero (frame 4229:4651) moves up by the full bar height at all widths, so
+  // the blue band is behind all of the bar. Below 1400 the bar stays solid. The
+  // bar and the band are the same blue, so the two states look the same there.
   const overBanner = pathname === ROUTES.home && !scrolled;
 
   const motionOn = useMotionEnabled();

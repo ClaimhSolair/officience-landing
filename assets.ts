@@ -107,28 +107,18 @@ export const ASSETS = {
   // petals are knock-outs that show whatever sits behind them.
   brand: { flower: a('/brand/officience-flower.svg') },
   icons: { eyebrow: a('/icons/eyebrow-mark.svg') },
-  // The hero banner, Figma 3938:5217 (drift D2). The source is 1747x900, and
-  // Figma shows its centre 1728x900 (the 1440:750 box in FILL mode). That is
-  // the largest file: the source has no more pixels. `mobile` is a 4:3 crop
-  // that keeps the otter group (art direction for <picture>, below md).
-  // WebP q90, because the soft blue gradients show banding at lower quality.
+  // The five 3D shapes of the hero, Figma 4285:7878 (adapter 27a). Figma crops,
+  // flips and turns each 1080px source in its frame. Each file has that result
+  // baked in at the outer box of its node, at 3x the 1440 size, so the CSS only
+  // places a plain image. The old files in /hero/ are not turned, so they do not
+  // agree with this frame. WebP q88 with alpha.
   hero: {
-    banner: {
-      w: 1440,
-      h: 750,
-      sources: [
-        { url: a('/hero/banner-960.webp'), w: 960 },
-        { url: a('/hero/banner-1440.webp'), w: 1440 },
-        { url: a('/hero/banner-1728.webp'), w: 1728 },
-      ],
-    },
-    bannerMobile: {
-      w: 960,
-      h: 720,
-      sources: [
-        { url: a('/hero/banner-mobile-780.webp'), w: 780 },
-        { url: a('/hero/banner-mobile-960.webp'), w: 960 },
-      ],
+    shapes: {
+      leaf: { url: a('/home/shapes/leaf.webp'), w: 561, h: 594 },
+      asterisk: { url: a('/home/shapes/asterisk.webp'), w: 520, h: 525 },
+      ring: { url: a('/home/shapes/ring.webp'), w: 609, h: 618 },
+      star: { url: a('/home/shapes/star.webp'), w: 573, h: 562 },
+      ellipse: { url: a('/home/shapes/ellipse.webp'), w: 545, h: 540 },
     },
   },
   // Story-card photography. Two independent sets, because the artboards frame
@@ -356,6 +346,19 @@ export const ASSETS = {
       { url: a('/works/funpass-736.webp'), w: 736 },
     ],
   } satisfies Record<string, ImageSource[]>,
+  // The home page of frame 4229:4651 (adapter 27). Each file is baked at the box
+  // aspect that Figma draws, so `object-fit` has no effect in CSS.
+  home: {
+    // The 1440x595 band of 4291:12606, cut from the 4096x2731 original.
+    team: [768, 1440, 2160, 2880].map((w) => ({ url: a(`/home/team-${w}.webp`), w })),
+    // The 640x360 image boxes of the Success Stories cards. Figma stretches the
+    // IOGA and C.M.P sources (FILL mode), and the files keep that crop.
+    stories: {
+      ioga: [640, 1280].map((w) => ({ url: a(`/home/stories/ioga-${w}.webp`), w })),
+      cmp: [640, 1280].map((w) => ({ url: a(`/home/stories/cmp-${w}.webp`), w })),
+      lab: [640, 1280].map((w) => ({ url: a(`/home/stories/lab-${w}.webp`), w })),
+    },
+  },
   testimonials: {
     quote: a('/testimonials/quote.svg'),
     // 112px WebP: the circle shows at 52px (desktop, 2x) and 36px (phone, 3x).

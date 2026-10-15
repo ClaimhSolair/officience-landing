@@ -1,60 +1,81 @@
 import React from 'react';
-import { useReducedMotion } from 'framer-motion';
 import { ASSETS } from '../assets';
 import { useMotionEnabled } from '../lib/motion';
 
 /**
- * Figma 3137:2138 (1920) and 3153:8647 (390) — the client wall under People
- * Trust Us. A white band, full-bleed, with the logos centred in it: 240px tall
- * at 1920 around a 120px row, 160px tall at 390 around a 58.2px row. The team
- * changed the 1920 frame from 312px / 140.5px (tracker row 26, 2026-10-12).
- * The 390 frame did not change.
+ * The client logo row under Success Stories: frame 4229:4651 node 4382:7176
+ * ("LOGO SLIDE", adapter 27e). The band is #F7F7F7, as the page, with 32px
+ * padding at the top and bottom and the 24px column gutters. The logos are one
+ * row with a 96px gap, clipped at the column edges.
  *
- * Figma draws it as a track far wider than the artboard and clips — the layout
- * way of saying "this scrolls" — so the movement itself comes from the live
- * site, which is the reference the redesign was signed off against: the track
- * travels leftward, new logos entering from the right, looping continuously and
- * pausing under the pointer so a logo can actually be read.
+ * Figma draws a static row that the column clips. Ruling 27e keeps the moving
+ * loop of the live build: the track moves to the left, new logos come in from
+ * the right, and the track stops under the pointer so that a logo can be read.
  *
- * Both artboards leave the logos desaturated (Figma does it with a luminosity
- * blend, `.client-logo` does it with a greyscale filter) and full colour is the
- * hover state. That state is pointer-only by nature, so touch visitors see the
- * greyscale band throughout — which is exactly the resting state Figma draws.
+ * The logos are greyscale, and full colour is the hover state (`.client-logo`
+ * in index.html). The frame sets a luminosity blend on some logos only. The
+ * other logos are black artwork, so greyscale on all of them looks the same.
  *
- * Every size derives from `--logo-scale`. The sizes in `assets.ts` are the old
- * 140.5px row. The 1920 frame now draws a 120px row (120 / 140.499 = 0.8541) and
- * 390 draws a 58.2px row (58.204 / 140.499 = 0.4143). The 118.8px gap scales with
- * it, so the eleven logo sizes are stated once and never per breakpoint.
+ * Below lg there is no frame. The logo sizes, the gap and the padding there are
+ * build choices in the frame's proportions: x0.5 below md and x0.7 at md.
  */
-const GAP = 'calc(118.8px * var(--logo-scale))';
 
-/** Both copies are identical; only the first is exposed to assistive tech. */
+/**
+ * The logo widths of the 1440 frame, in the frame order. The height of each logo
+ * comes from the aspect of its file in `assets.ts`. Each frame box has the same
+ * aspect as the file, so the files show as drawn. The frame shows the twelfth
+ * tile as a second copy of a logo. The track makes its own copy, so it has
+ * eleven logos only.
+ */
+const FRAME_W: Record<string, number> = {
+  Orange: 80,
+  '50inTech': 140,
+  Mailjet: 140,
+  ENGIE: 120,
+  'Passerelles Numeriques': 80,
+  Alibaba: 100,
+  Auchan: 150,
+  Diana: 134.076,
+  'b-process': 229.214,
+  'saur Guadeloupe': 179,
+  abaca: 164.8,
+};
+
+/** One frame pixel: 0.5px below md, 0.7px at md, and the home scale `--u` from lg. */
+const UNIT = '[--logo-u:0.5px] md:[--logo-u:0.7px] lg:[--logo-u:var(--u)]';
+const GAP = 'calc(96 * var(--logo-u))';
+
+/** The two copies are the same. Only the first copy is in the accessibility tree. */
 const Copy: React.FC<{ hidden?: boolean }> = ({ hidden }) => (
   <ul
     aria-hidden={hidden || undefined}
-    /* The trailing gap belongs to the copy, not to the flex row between them.
-       With 11 items and 11 gaps each copy measures exactly half the track, so
-       translating -50% lands the second copy where the first began. A `gap` on
-       the outer row would leave 21 gaps across the pair and drift every loop. */
+    /* The copy has the gap after its last logo too. Then each copy is half the
+       track, and a move of -50% puts the second copy where the first copy
+       started. A gap on the outer row gives 21 gaps for the pair, and the loop
+       moves out of position. */
     className="flex shrink-0 items-center"
     style={{ gap: GAP, paddingRight: GAP }}
   >
-    {ASSETS.clients.map((logo) => (
-      <li key={logo.name} className="shrink-0">
-        <img
-          src={logo.url}
-          alt={hidden ? '' : logo.name}
-          className="client-logo max-w-none"
-          style={{
-            width: `calc(${logo.w}px * var(--logo-scale))`,
-            height: `calc(${logo.h}px * var(--logo-scale))`,
-          }}
-          loading="lazy"
-          decoding="async"
-          referrerPolicy="no-referrer"
-        />
-      </li>
-    ))}
+    {ASSETS.clients.map((logo) => {
+      const w = FRAME_W[logo.name] ?? logo.w;
+      const h = (w * logo.h) / logo.w;
+      return (
+        <li key={logo.name} className="shrink-0">
+          <img
+            src={logo.url}
+            alt={hidden ? '' : logo.name}
+            className="client-logo max-w-none"
+            style={{
+              width: `calc(${w} * var(--logo-u))`,
+              height: `calc(${h.toFixed(3)} * var(--logo-u))`,
+            }}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+          />
+        </li>
+      );
+    })}
   </ul>
 );
 
@@ -62,33 +83,27 @@ const FADE =
   'linear-gradient(to right, transparent 0, #000 clamp(32px,8vw,96px), #000 calc(100% - clamp(32px,8vw,96px)), transparent 100%)';
 
 const LogoMarquee: React.FC = () => {
-  // The CSS stops the track when the visitor asks for reduced motion, unless
-  // `?motion=on` turns it on again (index.html). This is the same test in script.
-  const reduced = useReducedMotion();
-  const motionOn = useMotionEnabled();
-  const still = !!reduced && !motionOn;
+  // Motion off (reduced motion, or `?motion=off`) stops the track. The CSS also
+  // stops it for reduced motion, unless `?motion=on` starts it again (index.html).
+  const still = !useMotionEnabled();
 
   return (
     <section
       aria-label="Clients we work with"
-      /* Reduced motion stops the track, which would otherwise strand ten of the
-         eleven logos off-screen — so the band becomes a plain scrollable row. */
-      className="flex h-[160px] items-center overflow-hidden bg-bg-default [--logo-scale:0.4143] motion-reduce:overflow-x-auto lg:h-[240px] lg:[--logo-scale:0.8541]"
-      // A moving track dissolves into the band at both edges, as the live build
-      // does. Figma clips the track at the artboard edge. A still row uses the
-      // Figma clip: with the fade, the first logo was half faded at x 0.
-      style={still ? undefined : { WebkitMaskImage: FADE, maskImage: FADE }}
+      className={`bg-bg-secondary px-fig-16 py-[16px] md:px-fig-24 md:py-[24px] lg:px-[calc(24*var(--u))] lg:py-[calc(32*var(--u))] ${UNIT}`}
     >
-      {/* A still row starts on the content column, as Figma draws it (x 64 at
-          1920). The padding repeats the `Container` rule: 16, then 24 with the
-          1792px cap from lg. */}
+      {/* The window is the column, as the frame clips the row (4382:7177). A
+          moving track fades into the band at the two edges, as the live build
+          does. A still row has a hard clip and starts on the column edge (24x).
+          It scrolls sideways, so that all eleven logos are available. */}
       <div
-        className={`marquee-track flex w-max animate-marquee motion-reduce:animate-none ${
-          still ? 'pl-fig-16 lg:pl-[max(24px,calc((100%_-_1792px)/2))]' : ''
-        }`}
+        className={still ? 'overflow-x-auto' : 'overflow-hidden'}
+        style={still ? undefined : { WebkitMaskImage: FADE, maskImage: FADE }}
       >
-        <Copy />
-        <Copy hidden />
+        <div className={`flex w-max ${still ? '' : 'marquee-track animate-marquee motion-reduce:animate-none'}`}>
+          <Copy />
+          {!still && <Copy hidden />}
+        </div>
       </div>
     </section>
   );

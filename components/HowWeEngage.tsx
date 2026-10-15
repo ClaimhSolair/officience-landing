@@ -1,43 +1,34 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, type MotionValue, type Variants } from 'framer-motion';
-import Container from './ui/Container';
-import { RevealChild } from './ui/Reveal';
-import SectionBadge from './ui/SectionBadge';
+import { HomeColumn, SectionHeader } from './ui/HomeSection';
 import ApproachMark, { type MarkName } from './ui/ApproachMark';
 import { EASE, HEADER_H, MOTION, PIN_FOLLOW, SEC, STAGGER, STICKY_TOP, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
 
 /**
- * Figma 3144:3723 (1920) and 3137:2432 (390).
+ * "How we work" — node 4229:4871 of frame 4229:4651 (adapter 27).
  *
- * Three steps, each opened by a vertical rule: a number, a pinwheel mark, then
- * the step's name and what happens in it. Desktop lays them in a row and aligns
- * the three text blocks to a common line — which is why the mark sits in a
- * fixed-height slot rather than being followed by a plain gap.
+ * The section header, then a row of three steps. Each step is a 484px vertical
+ * rule, then a 368px stack: the number, a pinwheel mark, the step name and its
+ * text. From lg every value is the 1440 value x `--u` (adapter 27b).
  *
- * The row starts at md, not lg: Figma only draws 390 and 1920, and taking the 390
- * stack all the way to 1023 left three full-width steps on a tablet where three
- * columns fit comfortably. The mark keeps a fixed slot at md for the same reason it
- * has one at lg — Engage's mark is 105px where the other two are 100, so without it
- * the three text blocks start on different lines. Below md the steps stack and the
- * marks get a plain gap, as the 390 artboard draws them.
+ * The frame aligns steps 1 and 2 to the centre of their rule and step 3 to the
+ * top. The difference is a few px, and the build keeps it.
  *
- * Nothing here is interactive: the artboards draw no CTA in this section, so the
- * survey entry points live only in Connect With Us.
+ * FIGMA-SLIP: the three steps and two 63px gaps need 1350px, but the row has
+ * 1344px inside its padding. The frame lets step 3 run 6px into the padding. Here
+ * the stacks can shrink, so each stack is 2px narrower at 1440 and nothing runs
+ * past the row. Between 1400 and 1439 (`--u` = 1) they shrink more.
  *
- * **Motion (item 9, interyo).** From lg the section is pinned: the heading holds
- * still at the top of the screen while the three steps chain in from the right,
- * one after another, driven by scroll position rather than by a clock. That
- * procession *is* the effect — the heading staying put is what the steps are
- * measured against — so this is the one place in the pass that spends page height
- * on a pin. Below lg it is unpinned and the steps arrive as they are scrolled to,
- * which is what interyo itself ships at 390. The pin is also dropped on any
- * viewport too short to hold the composition between the header and the fold —
- * measured at runtime — so a fixed-height frame never spills its copy into the
- * sections above and below it; it degrades to those same unpinned arrivals.
+ * Below lg there is no Figma frame. These are build choices, kept from the
+ * earlier build: a row of three from md, a stack below md, and no pin. The type
+ * and the gaps are about half of the frame, and the marks are 0.62x.
  *
- * Each step's travel and fade are scrubbed from one smoothed progress value
- * (`useScrub`), so one flick carries a step the rest of the way in smoothly
- * instead of stopping dead where the wheel stopped.
+ * **Motion (ruling 27e: keep the pin).** From lg the section pins. The header
+ * stays still at the top of the screen, and the three steps come in from the
+ * right, one after the other. Scroll position moves them, not a clock. If the
+ * window is too short, the column scales to fit. If it is far too short, or
+ * below lg, the steps come in as they scroll into view. Under reduced motion
+ * they only fade in.
  */
 
 interface Step {
@@ -45,31 +36,41 @@ interface Step {
   name: string;
   body: string;
   mark: MarkName;
-  /** The marks are drawn at different sizes; Engage's is the largest. */
-  markClass: string;
+  /** The mark size in frame px. Engage's mark is the largest. */
+  markPx: number;
+  /** The stack gap in frame px: 64 for step 1, 80 for steps 2 and 3. */
+  gapPx: number;
+  /** The frame centres steps 1 and 2 on the rule, and puts step 3 at its top. */
+  alignTop: boolean;
 }
 
 const STEPS: Step[] = [
   {
     number: '01',
     name: 'Engage',
-    body: "Meet our engagers to understand your pain points, find solutions, and build a roadmap together. We're COSMIC.",
+    body: "We clarify your concerns, find options, and draft a plan together. We're COSMIC.",
     mark: 'engage',
-    markClass: 'h-[105px] w-[105px] lg:h-[169px] lg:w-[169px]',
+    markPx: 169,
+    gapPx: 64,
+    alignTop: false,
   },
   {
     number: '02',
     name: 'Collaborate',
-    body: 'Execute your project in agile mode — with proximity, transparency, and productivity. Small teams, people magic.',
+    body: 'We execute in agile mode — proximity, transparency, productivity.',
     mark: 'collaborate',
-    markClass: 'h-[100px] w-[100px] lg:h-[140px] lg:w-[140px]',
+    markPx: 140.191,
+    gapPx: 80,
+    alignTop: false,
   },
   {
     number: '03',
     name: 'Run',
-    body: 'Roll-out in production, adopt the products, and support your users. People first, tech second.',
+    body: 'We deploy, guide adoption, and support users. People first, tech second.',
     mark: 'run',
-    markClass: 'h-[100px] w-[100px] lg:h-[140px] lg:w-[140px]',
+    markPx: 140.419,
+    gapPx: 80,
+    alignTop: true,
   },
 ];
 
@@ -117,9 +118,8 @@ const StepItem: React.FC<{
   index: number;
   progress: MotionValue<number>;
   pinned: boolean;
-  compact: boolean;
   motionOn: boolean;
-}> = ({ step, index, progress, pinned, compact, motionOn }) => {
+}> = ({ step, index, progress, pinned, motionOn }) => {
   const from = START + index * PITCH;
   const to = from + SPAN;
 
@@ -133,27 +133,40 @@ const StepItem: React.FC<{
   // most of its slide rather than arriving and only then becoming visible.
   const opacity = useTransform(progress, [from, from + SPAN * 0.6], [0, 1], { clamp: true });
 
-  /* At 390 the rules run past the copy: the artboard gives its three steps
-     340/350/350px regardless of how much text each holds, so the rule length is a
-     constant, not a consequence. One min-height says that; Engage ends up 10px
-     longer than drawn. From md the steps sit in a row and the rule is the
-     content's own height again. */
-  const cls =
-    'flex min-h-[350px] flex-col border-l border-border-field pl-fig-40 md:min-h-0 md:flex-1 md:pl-fig-24 lg:pl-fig-32';
+  // Below lg the rule stretches to the height of the stack. From lg it is the
+  // frame's 484px rule, and the stack aligns to it as the frame draws.
+  const cls = `flex gap-fig-24 md:min-w-0 md:flex-1 lg:flex-initial lg:gap-[calc(40*var(--u))] ${
+    step.alignTop ? 'lg:items-start' : 'lg:items-center'
+  }`;
+  const vars = {
+    ['--g' as string]: String(step.gapPx),
+    ['--m' as string]: String(step.markPx),
+  } as React.CSSProperties;
   const body = (
     <>
-      <p aria-hidden="true" className="font-sans font-semibold text-[24px] leading-[32px] text-subtitle lg:text-h2">
-        {step.number}
-      </p>
+      <span aria-hidden="true" className="w-px shrink-0 self-stretch bg-border-field lg:h-[calc(484*var(--u))] lg:self-auto" />
 
-      {/* Fixed slot from lg so all three text blocks start on one line. */}
-      <div className="mt-fig-24 md:h-[105px] lg:mt-fig-32 lg:h-[169px]">
-        <ApproachMark name={step.mark} className={step.markClass} />
-      </div>
+      <div className="flex min-w-0 flex-col items-start gap-[calc(var(--g)*0.5px)] lg:w-[calc(368*var(--u))] lg:shrink lg:gap-[calc(var(--g)*var(--u))]">
+        <p
+          aria-hidden="true"
+          className="font-sans text-[20px] font-semibold leading-[28px] text-subtitle md:text-[24px] md:leading-[32px] lg:text-[length:calc(28*var(--u))] lg:leading-[calc(40*var(--u))]"
+        >
+          {step.number}
+        </p>
 
-      <div className={`mt-fig-24 flex flex-col gap-fig-8 lg:gap-fig-24 ${compact ? 'lg:mt-fig-48' : 'lg:mt-fig-116'}`}>
-        <h3 className="font-sans text-h3 text-text-primary lg:text-display-sm">{step.name}</h3>
-        <p className="font-body text-body-lg text-text-default lg:text-subtitle-2">{step.body}</p>
+        <ApproachMark
+          name={step.mark}
+          className="block h-[calc(var(--m)*0.62px)] w-[calc(var(--m)*0.62px)] shrink-0 lg:h-[calc(var(--m)*var(--u))] lg:w-[calc(var(--m)*var(--u))]"
+        />
+
+        <div className="flex w-full flex-col gap-fig-12 lg:gap-[calc(20*var(--u))]">
+          <h3 className="font-sans text-[32px] font-medium leading-[40px] text-text-primary md:text-[28px] md:leading-[36px] lg:text-[length:calc(50*var(--u))] lg:leading-[calc(58*var(--u))]">
+            {step.name}
+          </h3>
+          <p className="font-body text-[16px] font-normal leading-[26px] text-text-default lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
+            {step.body}
+          </p>
+        </div>
       </div>
     </>
   );
@@ -166,13 +179,13 @@ const StepItem: React.FC<{
   // is why the unpinned fallback never inherits a stuck pinned transform.)
   if (pinned) {
     return (
-      <motion.li key="pinned" style={{ x, opacity }} className={cls}>
+      <motion.li key="pinned" style={{ ...vars, x, opacity }} className={cls}>
         {body}
       </motion.li>
     );
   }
   return (
-    <motion.li key="flow" variants={motionOn ? STEP_VARIANTS : STEP_VARIANTS_FLAT} className={cls}>
+    <motion.li key="flow" style={vars} variants={motionOn ? STEP_VARIANTS : STEP_VARIANTS_FLAT} className={cls}>
       {body}
     </motion.li>
   );
@@ -187,16 +200,19 @@ const HowWeEngage: React.FC = () => {
   // The pinned composition **scales to fit** the viewport rather than being gated
   // on whether it fits at 1:1 — so the procession runs on any desktop height, not
   // only tall ones (the recurring "works on my external monitor, not my laptop"
-  // report). It is 1:1 at ~844px of viewport and up and shrinks proportionally
-  // below that; only an absurdly short window (scale < FLOOR) falls back to the
-  // unpinned arrivals. A CSS scale shrinks paint, not layout, so the scaled
-  // content reserves its reduced height on a wrapper.
-  const compact = motionOn && MOTION.approach;
-  const wantsPin = compact && wide;
+  // report). It shrinks proportionally on a short window; only an absurdly short
+  // window (scale < FLOOR) falls back to the unpinned arrivals. A CSS scale
+  // shrinks paint, not layout, so the scaled content reserves its reduced height
+  // on a wrapper.
+  const wantsPin = motionOn && MOTION.approach && wide;
   const FLOOR = 0.5;
   const [dims, setDims] = useState({ h: 0, scale: 1 });
-  const pinned = wantsPin && dims.scale >= FLOOR;
+  // The pin starts only after the measurement (`dims.h` > 0). Before it, the
+  // section shows the unpinned fallback.
+  const pinned = wantsPin && dims.h > 0 && dims.scale >= FLOOR;
   const scaling = pinned && dims.scale < 1;
+  // The height of the pinned column on screen, after the scale.
+  const frameH = pinned ? dims.h * dims.scale : 0;
 
   useLayoutEffect(() => {
     if (!wantsPin) {
@@ -222,107 +238,71 @@ const HowWeEngage: React.FC = () => {
     };
   }, [wantsPin]);
 
-  // Runs from the moment the section's top reaches the top of the screen until
-  // its bottom reaches the bottom. The runway is 100vh + TRAVEL_VH, so the pin
-  // holds for TRAVEL_VH of scroll.
-  const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] });
+  // The runway is the column height + TRAVEL_VH, so the pin holds for TRAVEL_VH
+  // of scroll. The progress starts when the section top reaches the top of the
+  // screen. It ends when the section bottom reaches the bottom of the pinned
+  // column (frameH below the top), which is where the pin releases.
+  const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', `end ${frameH}px`] });
   // Smoothed once for all three steps.
   const progress = useScrub(scrollYProgress);
 
   return (
-    /* The seam from the last service row to the "How We Work" badge is Figma's
-       100 + 100 = 200px (user, 2026-10-14). Pinned, Services gives 128 (its 100
-       plus the 28px deck runway) and the column's own top padding gives 24, so
-       48px sits here, outside the pin. Unpinned, Services gives 100 and the
-       column's 100 top padding gives the rest. */
-    <section id="approach" className={`bg-bg-secondary ${pinned ? 'lg:pt-[48px]' : ''}`}>
+    <section id="approach" className="bg-bg-secondary">
       {/* The extra height only exists when something is pinned to it. With motion
-          off, below lg, or on a viewport far too short to hold the deck even
+          off, below lg, or on a viewport far too short to hold the column even
           scaled, the wrapper collapses to its contents so nobody scrolls through
           an empty runway. */}
       <div
         ref={wrapRef}
         className="relative"
-        style={pinned ? { height: `${100 + TRAVEL_VH}vh` } : undefined}
+        style={pinned ? { height: `calc(${frameH}px + ${TRAVEL_VH}vh)` } : undefined}
       >
         <div
           className={`${
             pinned
-              ? /* Top-aligned, not centred: a centred column put (window - column) / 2
-                   above the header, so the seam to Services grew with the window
-                   height (300px at 1920x1080 against Figma's 200). */
-                `lg:sticky ${STICKY_TOP} ${PIN_FOLLOW} lg:flex lg:h-[calc(100vh_-_var(--header-h)*var(--header-shown))] lg:flex-col lg:justify-start`
+              ? /* The pinned frame is the height of the column, not of the
+                   window. Thus the page's 120 gap stays the same above and below
+                   the section, and no empty band shows under the steps when the
+                   pin releases. */
+                `lg:sticky ${STICKY_TOP} ${PIN_FOLLOW}`
               : ''
           } overflow-x-clip`}
         >
           {/* Reserves the scaled composition's height, so the pinned column's
               layout shrinks with the scale and not merely its paint. */}
           <div style={scaling ? { height: dims.h * dims.scale } : undefined}>
-          <Container
-            innerRef={contentRef}
-            style={scaling ? { transform: `scale(${dims.scale})`, transformOrigin: 'top center' } : undefined}
-            /* The pinned column runs at 100px between the header and the steps,
-               which the user set on 2026-09-10; the artboard draws 146, which the
-               unpinned branch keeps. The scale-to-fit wrapper absorbs the taller
-               column on a short viewport by rendering the composition smaller. */
-            className={`flex flex-col gap-fig-32 py-fig-32 ${
-              compact ? 'lg:gap-fig-100 lg:py-fig-24' : 'lg:gap-fig-146 lg:py-fig-100'
-            }`}
-          >
-            {/* Header. The blurb sits bottom-aligned against the title at desktop,
-                in a 600px block flush with the content edge. Pinned, this is the
-                part that holds still while the steps arrive against it. */}
-            <motion.div
-              className="flex flex-col gap-fig-24 lg:flex-row lg:items-end lg:justify-between lg:gap-fig-32"
-              variants={LIST_VARIANTS}
-              initial="hidden"
-              whileInView="shown"
-              viewport={{ once: true, amount: 0.3 }}
+            <HomeColumn
+              innerRef={contentRef}
+              style={scaling ? { transform: `scale(${dims.scale})`, transformOrigin: 'top center' } : undefined}
+              className="flex flex-col gap-fig-40 md:gap-fig-48 lg:gap-[calc(80*var(--u))] lg:py-[calc(24*var(--u))]"
             >
-              <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
-                <RevealChild as="span" y={20} duration={SEC.revealFast}>
-                  <SectionBadge>How We Work</SectionBadge>
-                </RevealChild>
-                <RevealChild as="span" y={28}>
-                  <h2 className="font-sans text-h1 text-text-default lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
-                    Our Approach
-                  </h2>
-                </RevealChild>
-              </div>
+              {/* The frame draws a "Check Our FAQ" button here. It stays hidden
+                  until a FAQ page exists (ruling 27d). */}
+              <SectionHeader
+                headline="How we work"
+                subtitle="We work simple. We let machines work, we take care of people."
+              />
 
-              <RevealChild
-                as="p"
-                y={20}
-                duration={SEC.revealFast}
-                className="font-body text-body-md text-subtitle lg:w-[600px] lg:min-w-0 lg:text-subtitle-1"
+              {/* The list is the observer when unpinned, and the steps move. */}
+              <motion.ol
+                className="flex flex-col gap-fig-40 md:flex-row md:items-start md:gap-fig-24 lg:items-stretch lg:gap-[calc(63*var(--u))] lg:px-[calc(24*var(--u))] lg:py-[calc(40*var(--u))]"
+                variants={pinned ? undefined : LIST_VARIANTS}
+                initial={pinned ? false : 'hidden'}
+                whileInView={pinned ? undefined : 'shown'}
+                viewport={pinned ? undefined : { once: true, amount: 0.15 }}
               >
-                How we transform your vision into seamless digital reality with agile speed.
-              </RevealChild>
-            </motion.div>
-
-            {/* Steps. `items-start` is load-bearing: each rule is its own step's
-                height, and the artboard draws the third one shorter because Run's
-                copy is shorter. Stretching them would flatten that. */}
-            <motion.ol
-              className="flex flex-col gap-fig-40 md:flex-row md:items-start md:gap-fig-24 lg:gap-fig-120"
-              variants={pinned ? undefined : LIST_VARIANTS}
-              initial={pinned ? false : 'hidden'}
-              whileInView={pinned ? undefined : 'shown'}
-              viewport={pinned ? undefined : { once: true, amount: 0.15 }}
-            >
-              {STEPS.map((step, i) => (
-                <StepItem
-                  key={step.number}
-                  step={step}
-                  index={i}
-                  progress={progress}
-                  pinned={pinned}
-                  compact={compact}
-                  motionOn={motionOn}
-                />
-              ))}
-            </motion.ol>
-          </Container>
+                {STEPS.map((step, i) => (
+                  <StepItem
+                    key={step.number}
+                    step={step}
+                    index={i}
+                    progress={progress}
+                    pinned={pinned}
+                    motionOn={motionOn}
+                  />
+                ))}
+              </motion.ol>
+            </HomeColumn>
           </div>
         </div>
       </div>

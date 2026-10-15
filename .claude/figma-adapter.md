@@ -1614,3 +1614,66 @@ ruling sized the cards by height. The user chose option 1 of two (the other was 
      3:2, 2px corners, hairline ring) replaces the red location pin before the country name, centred on the name
      line. Inline SVG, because Windows shows flag emoji as letters. The detail is reduced for 24px (a dot grid for
      the US stars, simplified Singapore stars). The address underline on hover stays the Google Maps cue.
+
+## 27 — Homepage re-layout to frame `4229:4651` (2026-10-15)
+
+Source: the 1440 frame `4229:4651` ("OFFY NEW_1440 — optimized", 1440x8063) and the testimonial row `4366:9639`.
+There is no 390 or 1920 frame. `get_design_context` on the whole frame works (145k chars); the components
+"Section Header" `4247:5073`, "Eyebrow Tag" `4247:5020` and "Buttons" `4346:13744` carry usage notes.
+
+### Node map (1440)
+Hero `4285:7872` (760 tall, pt 113, 3D shapes `4285:7878`) · Who we are `4229:4669` (team photo `4291:12606`) ·
+What we do `4317:13574` (grid `4317:13576`) · Success Stories `4382:7136` (cards `4382:7139/7151/7164`) ·
+Logo slide `4382:7176` · How we work `4229:4871` · People Trust Us `4366:9639` · Why Us + Contact `4229:4962` ·
+Footer under `4229:5076`. The sections stack with a 120px gap.
+
+### Rulings (user, 2026-10-15)
+27a. **Hero = the new frame.** The five 3D shapes return, and "Let's start!" opens the survey. This replaces 24c-24f
+     (the otter banner). The header CTA stays.
+27b. **Scale in steps (24a holds).** The 1440 values from xl/1400, x1.333 at fhd, x1.778 at 2560. Below that, an lg
+     step, and a stacked tablet/mobile layout with the same proportions. All values are fixed px per step.
+27c. **What we do = the new card text.** The four cards use the names, blurbs and lists that the frame draws. This
+     replaces 24t and 23c for the home page. The Services hub keeps its own lists.
+27d. **"Check Our FAQ" is hidden** until a FAQ page exists (content team). "Meet our Team" links to `/about-us#our-team`.
+27e. **Kept motion:** the How we work pin, the logo marquee (Figma draws a static row), and the section reveals.
+     The flower band under the hero goes (the frame has none).
+27f. **Success Stories keeps the pinned sideways scrub** with the new 640px cards. This replaces the "exactly three
+     cards" sizing of 25a. The cards: IOGA, C.M.P, LAB, then the View All end card. The date/author line
+     ("23 Nov 2026 | Tram Anh" on all three) is hidden: it reads as placeholder text.
+27g. **People Trust Us = a continuous downward loop** of the three cards, in a window about 1.6 cards tall with a
+     soft fade at the top and bottom. It pauses on hover and on focus. Reduced motion shows a static stack.
+
+### Slips reproduced as drawn (flag to the design team)
+- The IOGA and C.M.P story images are **stretched** (Figma FILL mode on a box with another aspect): 1.23x and
+  1.42x wider than the source. Measured: the stretched crop differs from the render by 7.6/255, a cover crop by
+  34/255. The files in `assets-src/home/stories/` bake the drawn crop. Ask for originals at the box aspect.
+- The story sources are small (600, 1024, 1024 px wide), so the 2x files are upscaled.
+- "Engineer & drive worflows" (Data Processing blurb) — the build writes "workflows".
+
+### Assets (`assets-src/home/`, new keys, uploaded to staging and byte-checked 2026-10-15)
+`team-{768,1440,2160,2880}.webp`: the 1440x595 window (237,576 3667x1515) of the 4096x2731 original; diff
+3.91/255 against the node render. `stories/{ioga,cmp,lab}-{640,1280}.webp`: the 640x360 box crops. The blue tint
+is CSS (`#1F49BF`, `mix-blend-mode: color`), as the frame draws it.
+
+### Build notes (2026-10-15, measured)
+- **Hero shapes:** the old `assets-src/hero/*.webp` files are not turned. The build bakes the frame's crop, flip and
+  turn from the 1080px sources into `assets-src/home/shapes/*.webp` (diff 0.4-2.4/255 against the render).
+  FIGMA-SLIP: the leaf is stretched 1.13x vertically (FILL in a 140x158 box); the file keeps it. The ellipse
+  goes past the frame edge and is clipped, as drawn. The hero moves up by the full `--header-h` at all widths.
+- **What we do:** the card titles also link to the service pages (a hover underline that the frame does not draw).
+  The outline button keeps the frame's white rest fill; hover `pri-50` (24aa).
+- **How we work:** the pinned frame is the column height, not the window height, so the release leaves no empty
+  band. FIGMA-SLIP: the three steps need 1350px in a 1344px row; the build shrinks each stack to 365px.
+- **Success Stories:** the pinned row is centred in the window, so during the scrub empty space shows above and
+  below it (176px each at 1440x900). Only IOGA has a case page; C.M.P and LAB have no link (20a). FIGMA-SLIPs:
+  "Les Artisants Bâtisseur" (likely "Les Artisans Bâtisseurs"), "E - commerce".
+- **Logo row:** the marquee now stops whenever `useMotionEnabled()` is false (also `?motion=off`).
+- **People Trust Us loop:** window 480×u (340 phone, 380 md), card gap 24×u, `SECONDS_PER_CARD = 5`, CSS
+  `marquee-y` in reverse, 15% mask fade, pauses on hover, focus and off screen. The window is a focusable region.
+- **Why Us:** FIGMA-SLIPs: the crosshair is at x 531 of 1120 (29px left of centre at 1440); "strive" (likely
+  "thrive"). Below lg the diagram is a 2x2 grid.
+- **Contact** is shared: `/services` and `/work/:slug` now show the same card on the blue band.
+- **Not changed, flagged:** `Header.tsx` "Contact Us" is wider than the frame and the frame draws a hairline under the
+  header. The footer and header keep the 1792 cap, so at 2560 the home column (2475) is wider than they are.
+- **Upload:** 15 new keys under `home/` (`team-*`, `stories/*`, `shapes/*`). A scoped script uploaded them to
+  `redesignsept2026` on 2026-10-15. All 15 are byte-identical through a fresh `?cb=`. No `ASSET_VERSION` bump.

@@ -1,36 +1,27 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import Container from './ui/Container';
+import React, { useEffect, useRef } from 'react';
 import Reveal, { RevealChild } from './ui/Reveal';
-import SectionBadge from './ui/SectionBadge';
-import { EASE, MOTION, SEC, STAGGER, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
+import { HomeColumn, HOME_H2, HOME_SUBTITLE } from './ui/HomeSection';
+import { MOTION, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
 import { ASSETS } from '../assets';
 
 /**
- * Figma 3151:2378 (1920) and 3137:2470 (390).
+ * "People Trust Us", Figma 4366:9639 in frame 4229:4651 (1440). Adapter 27g.
  *
- * Three quotes on a fixed stack — neither artboard draws a carousel, so this is
- * the one deck on the page with no controls. 1920 sets the header beside the
- * quotes in a 632px column and gives the stack 847px; 390 puts the header above
- * and the cards run the full content width.
+ * The intro column (572 wide) sits on the left, 80 from a window of cards. The
+ * frame draws one card. The build shows the three cards in a continuous loop
+ * that moves down, in a window about 1.6 cards tall with a soft fade at the top
+ * and the bottom. With reduced motion, the three cards show as a static stack.
  *
- * The card is drawn twice with real differences, all reproduced below:
- *
- *   card      390: 4px radius, no shadow      1920: 12px radius, Shadow-sm
- *   quote     Montserrat Medium 14/20         Montserrat Regular 20/28
- *   name      Montserrat Bold 14/22           Lexend Medium 20/28
- *   role      Montserrat Regular 10/16        Montserrat Medium 14/22
- *   avatar    36px                            52px
- *
- * The family swap on the name is the artboards', not a simplification: 390 keeps
- * the author in the body face where 1920 promotes it to the heading face.
+ * From lg, every size is the 1440 value times `--u` (see HomeSection.tsx).
+ * Below lg, the values are build choices (there is no frame below 1440).
  */
 const TESTIMONIALS = [
   {
-    // 390 writes "had become"; 1920 writes "has". Following 1920 — it is the
-    // frame the copy was set in, and the tense is right. Figma sets a straight
-    // apostrophe in "don't"; the build keeps the typographic one (FIGMA-SLIP).
-    quote: '"Officience has become our main partner and I don’t regret it a single day."',
+    // The 1440 frame writes "had become". The build used "has become" from the
+    // 1920 frame until adapter 27. The new frame wins, so the tense changes here.
+    // Figma sets a straight apostrophe in "don't". The build keeps the
+    // typographic one (FIGMA-SLIP).
+    quote: '"Officience had become our main partner and I don’t regret it a single day."',
     name: 'Dr. Jean Marcel Guillon',
     role: 'FV Hospital',
     image: ASSETS.testimonials.authors[1],
@@ -42,7 +33,6 @@ const TESTIMONIALS = [
     image: ASSETS.testimonials.authors[0],
   },
   {
-    // The 390 frame repeats the second quote here; 1920 carries the real one.
     quote: '“Without you, I just could not work.”',
     name: 'L. Lemaire',
     role: 'Director of Sales',
@@ -50,166 +40,193 @@ const TESTIMONIALS = [
   },
 ];
 
-/**
- * Slide-in, adapted from the outsourceconsultants.com PROCESS deck (measured law
- * in `.claude/motion-catalog.md`, Item 13: x = 150·N, scrubbed to rest). Each card
- * enters from the right, behind an `overflow-x-clip`, and settles at its resting
- * position. There is no rise and no tilt.
- *
- * Each card starts further right than the one above it, as the design team's
- * sketch draws (tracker row 13). Card 1 moves in a short distance, card 2 starts
- * at the edge of the column, and card 3 starts past the edge of the screen. The
- * values come from that sketch. Tune here.
- */
-const SLIDE_X = [230, 540, 840];
+type Testimonial = (typeof TESTIMONIALS)[number];
 
 /**
- * The card box, shared by the static and the scrubbed branch. It fills the
- * column, which is 847px at 1920, as frame 3151:2378 draws it. An earlier
- * 545px cap (from frame 3129:3363) left an empty band on the right of the
- * cards (tracker row 25).
+ * The loop parameters. Tune here.
  *
- * At 1920 the card is 200 tall, as 3151:2378 draws: 40 above the quote and 38
- * under the author row, because the drawn rule takes no height. The rule here
- * takes back its 1px with a negative margin (`RULE`). It is a min-height, not a
- * fixed height, so a quote that wraps at a narrower width grows the card.
+ * - `SECONDS_PER_CARD`: the time to move one card and one gap. The loop is one
+ *   set of three cards, so one cycle is 3 x 5 = 15 s at every width. The speed
+ *   in px follows the card size, so a quote stays on screen for the same time
+ *   on a phone and on a 2560 screen.
+ * - The gap between cards is 24 at 1440 (the frame's section padding).
+ * - The window is 480 at 1440: the 296 card x 1.6 plus a gap, rounded.
  */
-const CARD =
-  'flex min-h-[174px] flex-col gap-fig-12 rounded-fig-xs bg-bg-default px-fig-24 py-[36px] lg:min-h-[200px] lg:gap-fig-20 lg:rounded-fig-l lg:px-fig-40 lg:pb-[38px] lg:pt-fig-40';
+const SECONDS_PER_CARD = 5;
+const LOOP_SECONDS = SECONDS_PER_CARD * TESTIMONIALS.length;
 
-const Testimonial: React.FC<{
-  t: (typeof TESTIMONIALS)[number];
-  index: number;
-  scrub: boolean;
-  motionOn: boolean;
-}> = ({ t, index, scrub, motionOn }) => {
-  // The observed li never transforms, so its measured position stays honest —
-  // the moving box is the inner div. (Capabilities ServiceRow, same reason.)
-  const ref = useRef<HTMLLIElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
-  // Smoothed so the card glides between wheel notches; overdamped, so it never
-  // overshoots its resting position.
-  const p = useScrub(scrollYProgress);
-  // The card slides in from the right and stops at its resting position. After
-  // that, the value stays at rest. No rise, no tilt.
-  const x = useTransform(p, [0, 1], [SLIDE_X[index] ?? SLIDE_X[SLIDE_X.length - 1], 0]);
+/** The gap between cards, in the loop and in the static stack. */
+const GAP = 'gap-[16px] md:gap-[20px] lg:gap-[calc(24*var(--u))]';
+/** The same gap as padding after the last card, so the -50% loop has no seam. */
+const GAP_END = 'pb-[16px] md:pb-[20px] lg:pb-[calc(24*var(--u))]';
 
-  const body = (
-    <>
-      <p className="font-body text-body-md text-text-default lg:text-body-xl">{t.quote}</p>
-      {/* The rule draws itself in from the left once the card has landed, which
-          separates the quote from its attribution rather than the two simply
-          appearing together. */}
-      <motion.hr
-        className="w-full origin-left border-0 border-t border-border-frame lg:-mb-px"
-        initial={motionOn && MOTION.clients ? { scaleX: 0 } : false}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true, amount: 0.6 }}
-        transition={{ duration: SEC.revealFast, ease: [...EASE.reveal], delay: 0.25 }}
+/**
+ * The window height. 1.6 cards from lg (adapter 27g). Below lg the card is
+ * taller for its width, so the window shows about 1.4 cards (build choice).
+ */
+const WINDOW_H = 'h-[340px] md:h-[380px] lg:h-[calc(480*var(--u))]';
+
+/** The soft fade at the top and the bottom of the window, 15% at each end. */
+const FADE = 'linear-gradient(to bottom, transparent 0%, #000 15%, #000 85%, transparent 100%)';
+
+/**
+ * One card, as 4366:9649 draws it: white, no radius, no shadow, p-40, 20 between
+ * the parts. The rule takes no height in the frame, so it takes back its 1px
+ * with a negative margin. The card hugs its content, as the frame's auto
+ * layout does: 296 tall at 1440 with a 2-line quote, 268 with a 1-line quote.
+ */
+const Card: React.FC<{ t: Testimonial }> = ({ t }) => (
+  <div className="flex flex-col gap-[16px] bg-bg-default p-[24px] md:gap-[18px] md:p-[32px] lg:gap-[calc(20*var(--u))] lg:p-[calc(40*var(--u))]">
+    {/* The frame draws the quote icon turned 180 degrees. */}
+    <img
+      src={ASSETS.testimonials.quote}
+      alt=""
+      aria-hidden="true"
+      width={40}
+      height={40}
+      className="h-[32px] w-[32px] shrink-0 rotate-180 lg:h-[calc(40*var(--u))] lg:w-[calc(40*var(--u))]"
+      decoding="async"
+      referrerPolicy="no-referrer"
+    />
+    <p className="font-body font-normal text-[16px] leading-[24px] text-text-default md:text-[18px] md:leading-[26px] lg:text-[length:calc(20*var(--u))] lg:leading-[calc(28*var(--u))]">
+      {t.quote}
+    </p>
+    {/* Line 6 of the frame: #E5E5E5. */}
+    <hr className="-mb-px h-0 w-full border-0 border-t border-border-frame" />
+    <div className="flex items-center gap-[12px] lg:gap-[calc(12*var(--u))]">
+      {/* The name sits next to the portrait, so alt text on the portrait would
+          say the name two times to a screen reader. The frame renders the
+          portrait as a circle. */}
+      <img
+        src={t.image}
+        alt=""
+        aria-hidden="true"
+        width={60}
+        height={60}
+        className="h-[48px] w-[48px] shrink-0 rounded-full object-cover lg:h-[calc(60*var(--u))] lg:w-[calc(60*var(--u))]"
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
       />
-
-      <div className="flex items-center gap-fig-8 lg:gap-fig-12">
-        {/* The name sits next to the portrait, so the portrait repeating it as alt
-            text would double it up for a screen reader. */}
-        <img
-          src={t.image}
-          alt=""
-          aria-hidden="true"
-          width={52}
-          height={52}
-          className="h-[36px] w-[36px] shrink-0 rounded-full object-cover lg:h-[52px] lg:w-[52px]"
-          loading="lazy"
-          decoding="async"
-          referrerPolicy="no-referrer"
-        />
-        <div className="flex flex-col lg:gap-[4px]">
-          <p className="font-body font-bold text-[14px] leading-[22px] text-text-default lg:font-sans lg:text-h4">
-            {t.name}
-          </p>
-          <p className="font-body text-[10px] leading-[16px] text-subtitle lg:text-[14px] lg:font-medium lg:leading-[22px]">
-            {t.role}
-          </p>
-        </div>
+      <div className="flex min-w-0 flex-col gap-[2px] lg:gap-[calc(4*var(--u))]">
+        <p className="font-sans font-semibold text-[18px] leading-[24px] text-text-default md:text-[20px] md:leading-[26px] lg:text-[length:calc(24*var(--u))] lg:leading-[calc(28*var(--u))]">
+          {t.name}
+        </p>
+        <p className="font-body font-normal text-[14px] leading-[20px] text-subtitle md:text-[16px] md:leading-[24px] lg:text-[length:calc(20*var(--u))] lg:leading-[calc(28*var(--u))]">
+          {t.role}
+        </p>
       </div>
-    </>
-  );
+    </div>
+  </div>
+);
 
-  // Reduced motion and mobile keep the approved static card exactly — its own
-  // fade-rise entrance and nothing more. A scrub cannot reach this branch, so it
-  // needs no MotionValue. Branch to keyed elements; never re-prop one node
-  // between a variant entrance and a style-MotionValue transform.
-  if (!scrub) {
-    return (
-      /* min-height keeps the stack rhythm without clipping the role descenders,
-         and squares the shorter third card. */
-      <RevealChild as="li" y={40} className={CARD}>
-        {body}
-      </RevealChild>
+/** The three cards as a list. `hidden` = the second copy of the loop. */
+const CardList: React.FC<{ hidden?: boolean; className?: string }> = ({ hidden = false, className = '' }) => (
+  <ul aria-hidden={hidden || undefined} className={`flex flex-col ${GAP} ${className}`}>
+    {TESTIMONIALS.map((t) => (
+      <li key={t.name}>
+        <Card t={t} />
+      </li>
+    ))}
+  </ul>
+);
+
+/**
+ * The loop. The track holds the list two times, with one gap of padding after
+ * each copy, and moves from -50% to 0 (down). At 0 the first copy shows where
+ * the second copy showed at -50%, so the wrap has no jump.
+ *
+ * It is a CSS animation, not rAF: rAF stops in a hidden pane. It uses the
+ * `marquee-y` keyframes of index.html (0 to -50%) with `reverse`, which moves
+ * down. Both the direction and the duration are inline, because an inline
+ * value overrides the animation shorthand of the `?motion=on` rules.
+ *
+ * The loop stops on hover and when the window has the keyboard focus. The
+ * cards have no links, so the window is in the tab order: Tab stops the loop
+ * and Shift+Tab or Tab again starts it. Off screen, an IntersectionObserver
+ * stops the loop. It writes an inline `paused` and clears it on screen, so the
+ * hover and focus rules work again.
+ *
+ * The second copy is aria-hidden and has nothing to focus, so a screen reader
+ * reads the three cards one time.
+ */
+const Loop: React.FC = () => {
+  const windowRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const win = windowRef.current;
+    const track = trackRef.current;
+    if (!win || !track || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        track.style.animationPlayState = entry.isIntersecting ? '' : 'paused';
+      },
+      { threshold: 0 },
     );
-  }
+    io.observe(win);
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <li ref={ref} className="relative z-10">
-      <motion.div className={CARD} style={{ x }}>
-        {body}
-      </motion.div>
-    </li>
+    <div
+      ref={windowRef}
+      role="region"
+      aria-label="Client testimonials"
+      tabIndex={0}
+      className={`group relative w-full overflow-hidden outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${WINDOW_H}`}
+      style={{ maskImage: FADE, WebkitMaskImage: FADE }}
+    >
+      <div
+        ref={trackRef}
+        data-loop-track=""
+        className="flex animate-marquee-y flex-col group-hover:[animation-play-state:paused] group-focus-within:[animation-play-state:paused]"
+        style={{ animationDuration: `${LOOP_SECONDS}s`, animationDirection: 'reverse' }}
+      >
+        <CardList className={GAP_END} />
+        <CardList hidden className={GAP_END} />
+      </div>
+    </div>
   );
 };
 
 const ClientStories: React.FC = () => {
   const motionOn = useMotionEnabled();
-  const wide = useMinWidth(1024);
-  // The slide-tilt scrub runs on desktop only, and folds in reduced motion
-  // through `motionOn`. Off ⇒ the approved static stack, unchanged.
-  const scrub = motionOn && wide && MOTION.clients;
+  const loop = motionOn && MOTION.clients;
 
   return (
-  // overflow-x-clip catches the cards while they are still slid to the right, so
-  // the entrance never widens the page. It clips the x axis only, so the card
-  // rule draw and the rest of the column are untouched.
-  <section id="clients" className="overflow-x-clip bg-bg-secondary">
-    {/* 1920 lays the two columns out at 632 / 146 / 847 inside the 1792 content
-        width. The 146px gap belongs at lg, not 3xl: a maximised 1920x1080 browser
-        reports about 1910px of viewport, so 3xl (1920px) never fires there and the
-        cards used to sit 82px left of the artboard. Fixed step rather than a
-        percentage, because breakpoints in this project swap values instead of
-        interpolating them. */}
-    <Container className="flex flex-col gap-fig-24 py-fig-32 lg:flex-row lg:items-start lg:gap-fig-146 lg:py-fig-100">
-      {/* The column hugs the 632px heading (3137:2109, Figma changed), so the
-          cards start at x 842 at 1920. 632 / 1792 = 35.27%. The heading is nowrap
-          only from 2xl. Below 1920 the column shrinks with the viewport and the
-          86px type does not. From 2xl the heading runs into the 146px gap, which
-          has room for it. Below 2xl it wraps inside its column. */}
-      <Reveal
-        as="div"
-        stagger={STAGGER.base}
-        enabled={MOTION.clients}
-        className="flex flex-col items-start gap-fig-8 lg:w-[35.27%] lg:max-w-[632px] lg:shrink-0 lg:gap-fig-16"
-      >
-        <RevealChild as="span" y={20} duration={SEC.revealFast}>
-          <SectionBadge>Client Review</SectionBadge>
-        </RevealChild>
-        <RevealChild as="span" y={28}>
-          <h2 className="font-sans text-h1 text-text-default lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em] 2xl:whitespace-nowrap">
-            People Trust Us
-          </h2>
-        </RevealChild>
-      </Reveal>
+    <section id="clients" className="bg-bg-secondary">
+      {/* The section draws p-24 at 1440. HomeColumn gives the 24 at the sides. */}
+      <HomeColumn className="lg:py-[calc(24*var(--u))]">
+        <div className="flex flex-col gap-[32px] md:gap-[40px] lg:flex-row lg:items-start lg:gap-[calc(80*var(--u))]">
+          <Reveal
+            as="div"
+            stagger={STAGGER.base}
+            enabled={MOTION.clients}
+            className="flex flex-col items-start gap-[16px] md:gap-[20px] lg:w-[calc(572*var(--u))] lg:shrink-0 lg:gap-[calc(24*var(--u))]"
+          >
+            <RevealChild as="span" y={28}>
+              <h2 className={`${HOME_H2} text-text-default lg:whitespace-nowrap`}>People Trust Us</h2>
+            </RevealChild>
+            <RevealChild as="p" y={20} duration={SEC.revealFast} className={`${HOME_SUBTITLE} text-subtitle`}>
+              Here’s what changed for our customers. C-Level, directors, and managers - they talk with us. They
+              talk about us.
+            </RevealChild>
+          </Reveal>
 
-      <Reveal
-        as="ul"
-        stagger={STAGGER.loose}
-        enabled={MOTION.clients}
-        className="relative flex w-full flex-col gap-fig-20 lg:max-w-[847px] lg:flex-1 lg:gap-fig-100"
-      >
-        {/* No rule behind the cards. The design team removed it (tracker row 13). */}
-        {TESTIMONIALS.map((t, i) => (
-          <Testimonial key={t.name} t={t} index={i} scrub={scrub} motionOn={motionOn} />
-        ))}
-      </Reveal>
-    </Container>
-  </section>
+          {/* The card column takes the rest of the row: 740 at 1440. */}
+          <div className="w-full min-w-0 lg:flex-1">
+            {loop ? (
+              <Loop />
+            ) : (
+              // Reduced motion: the three cards, static, with no window and no
+              // second copy.
+              <CardList />
+            )}
+          </div>
+        </div>
+      </HomeColumn>
+    </section>
   );
 };
 

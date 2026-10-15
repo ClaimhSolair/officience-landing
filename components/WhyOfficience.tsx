@@ -1,229 +1,214 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import Container from './ui/Container';
-import Reveal, { RevealChild } from './ui/Reveal';
-import SectionBadge from './ui/SectionBadge';
+import { motion, type Variants } from 'framer-motion';
+import { HomeColumn, SectionHeader } from './ui/HomeSection';
 import { EASE, MOTION, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
 
 /**
- * Figma 3151:2667 (1920) and 3153:8671 (390).
+ * "Why Choose Us", Figma 4229:4963 in frame 4229:4651 (1440). Adapter 27.
  *
- * Four values in the quadrants of a crosshair, with the pinwheel sitting on the
- * crossing. The left column is right-aligned and the right column left-aligned,
- * so all four blocks read outward from the centre, and the accent colour runs
- * diagonally — Talents and Value-Driven in Secondary/200, the other two white.
+ * The blue band 4229:4962 holds Why Us and the Contact card. This section is
+ * its top part: pt-24 and the Why Us container (py-24, 80 between the header
+ * and the diagram). Contact.tsx supplies the 100 between the two.
  *
- * The section paints its own `Semantic/BG/Primary`, so it no longer depends on
- * the blue wrapper HomePage puts around the not-yet-rebuilt Contact.
+ * The diagram (4239:4962) is 1120 x 486 at 1440: four values around a
+ * crosshair, with the mark on the crossing. The left pair is right-aligned and
+ * the right pair left-aligned. Talents and Execution are #FFBFC7, the other
+ * two white. From lg every position is the frame value times `--u`, so the
+ * diagram is 796 wide at 1024 and fits the 990 column.
  *
- * Both rules overhang the text — 45/50px at 1920, ~7px at 390 — which is why the
- * quadrant carries that overhang as its own padding: the vertical rule can then
- * be `inset-y-0` against it, and every remaining measurement falls on a spacing
- * token (120 above, 160 below at 1920; 24 and 32 at 390) rather than a pile of
- * arbitrary offsets.
+ * FIGMA-SLIP (reproduced): the crosshair is not at the centre of the diagram.
+ * It is at x 531 of 1120, so it sits 29px left of the page centre at 1440.
+ *
+ * Below lg the diagram is a 2 x 2 grid with the same crosshair (build choice:
+ * there is no frame below 1440, and the drawn positions need 1120 x u).
  */
 const VALUES = [
   {
     title: 'Talents',
-    body: 'We are digital-native doers, living online, and breathing new tools every day.',
+    body: 'We are digital-citizens, hungry with new problems.',
     accent: true,
-    /* Column widths are Figma's per-cell text boxes. They matter: the copy is
-       written to break in a particular place, and letting a cell fill its grid
-       column instead would re-wrap every line. */
-    width: 'max-w-[145px] lg:max-w-[420px]',
+    left: true,
+    top: true,
+    // Card 4229:4979: left, top, width at 1440.
+    pos: 'lg:left-[calc(150.06*var(--u))] lg:top-[calc(31*var(--u))] lg:w-[calc(351*var(--u))]',
   },
   {
     title: 'Flexible',
-    body: 'We deliver the agile way, support ‘follow the sun’, and focus on visible results.',
+    body: 'We deliver ‘follow the sun’, agentic-backed - focusing on visible results.',
     accent: false,
-    width: 'max-w-[144px] lg:max-w-[418px]',
+    left: false,
+    top: true,
+    pos: 'lg:left-[calc(564*var(--u))] lg:top-[calc(31*var(--u))] lg:w-[calc(414*var(--u))]',
   },
   {
     title: 'International',
-    body: 'We’ve got a track record helping businesses transform faster in dynamic markets.',
+    // "strive" is the frame's word. It possibly is "thrive" (flagged).
+    body: 'We’ve got a track record helping businesses strive, in dynamic markets.',
     accent: false,
-    width: 'max-w-[148px] lg:max-w-[451px]',
+    left: true,
+    top: false,
+    pos: 'lg:left-[calc(69.06*var(--u))] lg:top-[calc(290*var(--u))] lg:w-[calc(432*var(--u))]',
   },
   {
-    title: 'Value-Driven',
-    body: 'We pair premium technical execution with transparent pricing, ensuring your budget drives real impact, not overhead.',
+    // The frame renames "Value-Driven" to "Execution" (adapter 27).
+    title: 'Execution',
+    body: 'We provide affordable, transparent, value-driven pricing – for premium impact.',
     accent: true,
-    width: 'max-w-[144px] lg:max-w-[516px]',
+    left: false,
+    top: false,
+    pos: 'lg:left-[calc(563.06*var(--u))] lg:top-[calc(290*var(--u))] lg:w-[calc(437*var(--u))]',
   },
 ];
 
 /**
- * The mark on the crossing. Figma backs it with a rounded rectangle filled
- * `#1F49BF` — the section's own background, so it paints nothing — and that
- * shape is dropped here, the same no-op the Approach marks carried.
+ * The mark on the crossing (Item Icon 4229:5006, 117 at 1440). The frame
+ * backs it with a #1F49BF square, the band colour. The backing span in the
+ * diagram does that, so the two rules pass behind the mark.
  */
 const Pinwheel: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <svg viewBox="0 0 135.556 135.712" fill="none" aria-hidden="true" focusable="false" className={className}>
+  <svg viewBox="0 0 117 117" fill="none" aria-hidden="true" focusable="false" className={className}>
     <path
-      d="M135.496 68.1619C135.496 68.1619 137.474 35.6824 118.767 16.877C100.059 -1.92869 67.7479 0.0606626 67.7479 0.0606626C67.7479 0.0606626 65.7687 32.5401 84.4768 51.3457C103.185 70.1512 135.496 68.1619 135.496 68.1619Z"
+      d="M115.445 58.0755C115.445 58.0755 117.131 30.4023 101.192 14.3796C85.2523 -1.64329 57.7228 0.0516859 57.7228 0.0516859C57.7228 0.0516859 56.0365 27.7249 71.9762 43.7478C87.9157 59.7705 115.445 58.0755 115.445 58.0755Z"
       fill="#FFFFFF"
     />
     <path
-      d="M0.0603462 68.1624C0.0603462 68.1624 32.3712 70.1516 51.0791 51.3461C69.7871 32.5405 67.8081 0.061176 67.8081 0.061176C67.8081 0.061176 35.4972 -1.92832 16.7892 16.8773C-1.91865 35.6828 0.0603462 68.1624 0.0603462 68.1624Z"
-      fill="#FF9FAE"
+      d="M0.0514164 58.076C0.0514164 58.076 27.581 59.7708 43.5206 43.7481C59.4602 27.7252 57.7741 0.0521233 57.7741 0.0521233C57.7741 0.0521233 30.2445 -1.64297 14.3048 14.3799C-1.63473 30.4026 0.0514164 58.076 0.0514164 58.076Z"
+      fill="#FFBFC7"
     />
     <path
-      d="M135.496 67.3941C135.496 67.3941 137.474 99.8735 118.767 118.679C100.059 137.485 67.7479 135.495 67.7479 135.495C67.7479 135.495 65.7687 103.016 84.4768 84.2102C103.185 65.4048 135.496 67.3941 135.496 67.3941Z"
-      fill="#FF9FAE"
+      d="M115.445 57.4213C115.445 57.4213 117.131 85.0946 101.192 101.117C85.2523 117.14 57.7228 115.445 57.7228 115.445C57.7228 115.445 56.0365 87.7719 71.9762 71.7491C87.9157 55.7264 115.445 57.4213 115.445 57.4213Z"
+      fill="#FFBFC7"
     />
     <path
-      d="M0.0603534 67.3936C0.0603534 67.3936 32.3712 65.4044 51.0791 84.2098C69.7871 103.015 67.8081 135.495 67.8081 135.495C67.8081 135.495 35.4972 137.484 16.7892 118.679C-1.91864 99.8732 0.0603534 67.3936 0.0603534 67.3936Z"
+      d="M0.0514225 57.4209C0.0514225 57.4209 27.581 55.726 43.5206 71.7487C59.4602 87.7716 57.7741 115.445 57.7741 115.445C57.7741 115.445 30.2445 117.14 14.3048 101.117C-1.63473 85.0942 0.0514225 57.4209 0.0514225 57.4209Z"
       fill="#FFFFFF"
     />
   </svg>
 );
 
-/** Both rules are drawn in Semantic/BG/Secondary, not white. */
+/** Both rules are #F7F7F7 (Semantic/BG/Secondary), not white. */
 const RULE = 'bg-[#F7F7F7]';
+
+/**
+ * The diagram motion. One parent observes and does not move. Its variants go
+ * to the children: each value arrives from its corner, the rules draw from the
+ * centre, and the mark turns into place.
+ */
+const valueVariants = (left: boolean, top: boolean): Variants => ({
+  hidden: { opacity: 0, x: left ? -24 : 24, y: top ? -20 : 20 },
+  shown: { opacity: 1, x: 0, y: 0, transition: { duration: SEC.revealBase, ease: [...EASE.reveal] } },
+});
+const ruleX: Variants = {
+  hidden: { scaleX: 0 },
+  shown: { scaleX: 1, transition: { duration: SEC.revealSlow, ease: [...EASE.reveal] } },
+};
+const ruleY: Variants = {
+  hidden: { scaleY: 0 },
+  shown: { scaleY: 1, transition: { duration: SEC.revealSlow, ease: [...EASE.reveal] } },
+};
+const markVariants: Variants = {
+  hidden: { rotate: -90, scale: 0.6 },
+  shown: { rotate: 0, scale: 1, transition: { duration: SEC.revealSlow, ease: [...EASE.roll], delay: 0.15 } },
+};
 
 const WhyOfficience: React.FC = () => {
   const motionOn = useMotionEnabled();
   const animating = motionOn && MOTION.whyUs;
 
   return (
-  <section id="why-us" className="bg-bg-primary">
-    <Container className="py-fig-32 lg:pb-fig-160 lg:pt-fig-100">
-      {/* 1920 sets the blurb in a 572px column flush with the content column's
-          right edge, dropped 18px against the badge. 390 stacks it underneath. */}
-      <Reveal
-        as="div"
-        stagger={STAGGER.base}
-        enabled={MOTION.whyUs}
-        className="flex flex-col lg:flex-row lg:items-start lg:justify-between lg:gap-fig-32"
-      >
-        <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
-          <RevealChild as="span" y={20} duration={SEC.revealFast}>
-            <SectionBadge>Our Value</SectionBadge>
-          </RevealChild>
-          <RevealChild as="span" y={28}>
-            <h2 className="font-sans text-h1 text-white lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
-              Why Choose Us
-            </h2>
-          </RevealChild>
-        </div>
-        <RevealChild
-          as="p"
-          y={20}
-          duration={SEC.revealFast}
-          className="mt-fig-24 font-body text-body-md text-white lg:mt-[18px] lg:w-[572px] lg:min-w-0 lg:text-subtitle-1"
-        >
-          Connect with our AI-first teams, accessible globally, and launch your project immediately
-          &ndash; we start in 24 hours!
-        </RevealChild>
-      </Reveal>
+    <section id="why-us" className="bg-bg-primary">
+      {/* The band's pt-24 plus the container's py-24. Below lg: build choice. */}
+      <HomeColumn className="pt-[48px] md:pt-[64px] lg:pt-[calc(48*var(--u))]">
+        <div className="flex flex-col items-center gap-[40px] pb-[8px] md:gap-[56px] md:pb-[16px] lg:gap-[calc(80*var(--u))] lg:pb-[calc(24*var(--u))]">
+          <SectionHeader
+            theme="dark"
+            headline="Why Choose Us"
+            subtitle="Connect with our AI-first teams, accessible globally, and start your project within 48 hours!"
+            reveal={MOTION.whyUs}
+            className="w-full"
+          />
 
-      <div className="relative mt-fig-24 pb-[6px] pt-[7px] lg:mt-fig-120 lg:pb-[50px] lg:pt-[45px]">
-        {/* The first row is held open so the horizontal rule lands where Figma
-            draws it rather than riding up against the copy — `minmax` rather
-            than a fixed track, so longer copy pushes the rule down instead of
-            colliding with it. The middle track is the rule itself. */}
-        {/* Each value arrives from its own corner, toward the crossing, so the
-            four of them assemble around the mark instead of stacking into it. */}
-        <Reveal
-          as="ul"
-          stagger={STAGGER.base}
-          enabled={MOTION.whyUs}
-          amount={0.3}
-          className="relative z-10 grid grid-cols-2 grid-rows-[minmax(83px,auto)_0px_auto] gap-x-[32px] gap-y-[21px] lg:grid-rows-[minmax(158px,auto)_0px_auto] lg:gap-x-[128px] lg:gap-y-[83px]"
-        >
-          {VALUES.map((value, i) => {
-            const left = i % 2 === 0;
-            const top = i < 2;
-            return (
-              <RevealChild
-                as="li"
-                key={value.title}
-                x={left ? -24 : 24}
-                y={top ? -20 : 20}
-                className={`flex flex-col gap-[3px] lg:gap-fig-8 ${value.width} ${
-                  left ? 'justify-self-end text-right' : ''
-                } ${i > 1 ? 'row-start-3' : ''}`}
-              >
-                <h3
-                  className={`font-sans text-h4 lg:text-[64px] lg:leading-[58px] lg:tracking-[-0.03em] ${
-                    value.accent ? 'text-sec-200' : 'text-white'
-                  }`}
-                >
-                  {value.title}
-                </h3>
-                <p className="font-body text-[10px] font-normal leading-[16px] text-white lg:text-body-xl">
-                  {value.body}
-                </p>
-              </RevealChild>
-            );
-          })}
-
-          {/* Row 2 of the grid: the rule, with the mark centred on the crossing.
-              Both are decorative, so the item is hidden from the outline. */}
-          {/* The crosshair draws itself out from the centre and the mark turns
-              into place on it — the section's own geometry becoming the thing the
-              four values are arranged around. */}
-          {/* The row itself never transforms. The rule is an inner span, and the
-              mark's opaque backing is a sibling of it, so both crosshair rules
-              pass behind the mark and the pinwheel's knock-outs show plain blue —
-              what the artboard draws (3129:3436).
-
-              Both facts are load-bearing. Drawing the rule by scaling this `li`
-              squashed the backing with it, so for the second the rule took to
-              draw the vertical hairline showed straight through the logo. And
-              only the inner span turns: a rotating backing would sweep its own
-              corners over the rules it exists to hide. */}
-          <li
-            aria-hidden="true"
-            className="relative z-10 col-span-2 row-start-2 mx-auto h-px w-[266px] lg:w-[851px]"
+          {/* The observer: it never transforms. Its variants reach every motion
+              child below. Off: it starts at "shown", so nothing waits for an
+              animation. */}
+          <motion.div
+            className="relative w-full py-[8px] md:py-[12px] lg:h-[calc(486.371*var(--u))] lg:w-[calc(1120.125*var(--u))] lg:py-0"
+            initial={animating ? 'hidden' : 'shown'}
+            whileInView="shown"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={{ hidden: {}, shown: { transition: { staggerChildren: STAGGER.base } } }}
           >
+            {/* lg: the frame's rules. The vertical one is x 531 (288.5 + 242.5)
+                and full height. The horizontal one is 486 wide from x 288.5,
+                at y 242.87. */}
             <motion.span
-              className={`absolute inset-0 block origin-center ${RULE}`}
-              initial={animating ? { scaleX: 0 } : false}
-              whileInView={{ scaleX: 1 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: SEC.revealSlow, ease: [...EASE.reveal] }}
+              aria-hidden="true"
+              variants={ruleY}
+              className={`absolute top-0 hidden h-full w-px origin-center lg:left-[calc(531*var(--u)-0.5px)] lg:block ${RULE}`}
             />
+            <motion.span
+              aria-hidden="true"
+              variants={ruleX}
+              className={`absolute hidden h-px origin-center lg:left-[calc(288.5*var(--u))] lg:top-[calc(242.87*var(--u)-0.5px)] lg:block lg:w-[calc(486.371*var(--u))] ${RULE}`}
+            />
+            {/* Below lg: the vertical rule runs through the grid centre. */}
+            <motion.span
+              aria-hidden="true"
+              variants={ruleY}
+              className={`absolute inset-y-0 left-[calc(50%-0.5px)] w-px origin-center lg:hidden ${RULE}`}
+            />
+
+            {/* lg: the mark and its backing (Item Icon at 473.5, 185.37). The
+                backing does not turn, so its corners never sweep over the rules. */}
             <span
-              className="absolute left-1/2 top-1/2 z-[1] block h-[43.21px] w-[43.21px] -translate-x-1/2 -translate-y-1/2 bg-bg-primary lg:h-[135.71px] lg:w-[135.56px]"
+              aria-hidden="true"
+              className="absolute z-[1] hidden bg-bg-primary lg:left-[calc(473.5*var(--u))] lg:top-[calc(185.37*var(--u))] lg:block lg:h-[calc(117*var(--u))] lg:w-[calc(117*var(--u))]"
             >
-              <motion.span
-                className="block h-full w-full"
-                initial={animating ? { rotate: -90, scale: 0.6 } : false}
-                whileInView={{ rotate: 0, scale: 1 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: SEC.revealSlow, ease: [...EASE.roll], delay: 0.15 }}
-              >
+              <motion.span className="block h-full w-full" variants={markVariants}>
                 <Pinwheel className="h-full w-full" />
               </motion.span>
             </span>
-          </li>
-        </Reveal>
 
-        {/* The observer must not be the mover: a full-height box that scales
-            itself to `scaleY: 0` collapses its own intersection height to zero,
-            so its visibility threshold is never met and the line waits forever
-            (the exact trap `Reveal` documents). So the outer span is the stable
-            full-height box that observes, and the inner span is the one that
-            scales. It stays at `z-0`, so the values grid and the mark's backing
-            paint over the crossing while the open gaps show the line through. */}
-        <motion.span
-          aria-hidden="true"
-          className="absolute inset-y-0 left-1/2 z-0 w-px"
-          style={{ x: '-50%' }}
-          initial={animating ? 'hidden' : 'shown'}
-          whileInView="shown"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          <motion.span
-            className={`block h-full w-full origin-center ${RULE}`}
-            variants={{ hidden: { scaleY: 0 }, shown: { scaleY: 1 } }}
-            transition={{ duration: SEC.revealSlow, ease: [...EASE.reveal] }}
-          />
-        </motion.span>
-      </div>
-    </Container>
-  </section>
+            <ul className="relative z-10 grid grid-cols-2 grid-rows-[auto_0px_auto] gap-x-[20px] gap-y-[36px] md:gap-x-[48px] md:gap-y-[52px] lg:absolute lg:inset-0 lg:block">
+              {VALUES.map((value, i) => (
+                <motion.li
+                  key={value.title}
+                  variants={valueVariants(value.left, value.top)}
+                  className={`flex flex-col gap-[4px] md:gap-[6px] lg:absolute lg:gap-[calc(8*var(--u))] lg:px-[calc(24*var(--u))] lg:py-[calc(20*var(--u))] ${value.pos} ${
+                    value.left ? 'items-end text-right' : 'items-start text-left'
+                  } ${i > 1 ? 'row-start-3' : 'row-start-1'} ${value.left ? 'col-start-1' : 'col-start-2'}`}
+                >
+                  <h3
+                    className={`whitespace-nowrap font-sans font-medium tracking-[-0.03em] text-[20px] leading-[24px] md:text-[40px] md:leading-[40px] lg:text-[length:calc(64*var(--u))] lg:leading-[calc(58*var(--u))] ${
+                      value.accent ? 'text-[#FFBFC7]' : 'text-white'
+                    }`}
+                  >
+                    {value.title}
+                  </h3>
+                  <p className="font-body font-normal text-[12px] leading-[18px] text-white md:text-[14px] md:leading-[22px] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
+                    {value.body}
+                  </p>
+                </motion.li>
+              ))}
+
+              {/* Below lg: row 2 of the grid is the horizontal rule, with the mark
+                  on the crossing. Decorative, so hidden from the outline. */}
+              <li
+                aria-hidden="true"
+                className="relative z-10 col-span-2 row-start-2 h-px w-full lg:hidden"
+              >
+                <motion.span variants={ruleX} className={`absolute inset-0 block origin-center ${RULE}`} />
+                <span className="absolute left-1/2 top-1/2 z-[1] block h-[48px] w-[48px] -translate-x-1/2 -translate-y-1/2 bg-bg-primary md:h-[72px] md:w-[72px]">
+                  <motion.span className="block h-full w-full" variants={markVariants}>
+                    <Pinwheel className="h-full w-full" />
+                  </motion.span>
+                </span>
+              </li>
+            </ul>
+          </motion.div>
+        </div>
+      </HomeColumn>
+    </section>
   );
 };
 

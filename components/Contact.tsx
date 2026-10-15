@@ -2,6 +2,7 @@ import React from 'react';
 import Reveal, { RevealChild } from './ui/Reveal';
 import SectionBadge from './ui/SectionBadge';
 import Flag, { type FlagCode } from './ui/Flags';
+import { HomeColumn, HOME_H2, HOME_SUBTITLE } from './ui/HomeSection';
 import { MOTION, SEC, STAGGER } from '../lib/motion';
 import type { SurveyBranch } from '../types';
 
@@ -14,21 +15,16 @@ const mapsUrl = (address: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 
 /**
- * Figma 3151:2444 (1920) and 3153:8776 (390).
+ * "Connect With Us", the card 4229:5008 in the blue band 4229:4962 of frame
+ * 4229:4651 (1440). Adapter 27.
  *
- * A light card on the blue. 1920 sets the heading beside the form and runs the
- * offices underneath in three columns; 390 stacks all three and the offices
- * become a single column.
+ * A #F7F7F7 card on the blue, 1392 wide (the home column), px-40 py-64, 48
+ * between the parts. The top row has the text column (675) and the white
+ * panel with the two survey rows. The six offices follow in two rows of three.
+ * From lg every value is the 1440 value times `--u` (see HomeSection.tsx).
+ * Below lg the parts stack, with build-choice values.
  *
- * The section paints its own blue, which retires the wrapper HomePage used to
- * put around it.
- *
- * The card does NOT use `ui/Container`: every other section sits in the 1792px
- * content column on 64px gutters, and this one is drawn on 74px gutters at
- * 1772px wide. The gutters are reproduced rather than snapped to the column,
- * since the 10px shows against the section above it.
- *
- * The two rows are the survey's entry points and their contract is unchanged —
+ * The two rows are the survey's entry points and their contract is unchanged:
  * same two branches, same handler.
  */
 interface ContactProps {
@@ -99,158 +95,151 @@ const OPTIONS: { branch: SurveyBranch; title: string; desc: string }[] = [
   },
 ];
 
-/**
- * The row's chevron. Figma draws it at two optical weights — a light one inside
- * a 32px button at 390, a heavier bare glyph at 1920 — so both ship and swap at
- * the breakpoint rather than one being scaled into the other's place.
- */
+/** The row's chevron: the frame's 20px Next Icon (4229:5034), x u from lg. */
 const Chevron: React.FC = () => (
-  <>
-    <span className="flex h-[32px] w-[32px] shrink-0 items-center justify-center drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)] lg:hidden">
-      <svg viewBox="0 0 7.5 13.3333" fill="none" aria-hidden="true" focusable="false" className="h-[13.33px] w-[7.5px]">
-        <path
-          d="M0.204916 13.1324C-0.043467 12.8889 -0.0660473 12.5079 0.137175 12.2394L0.204916 12.1625L5.81118 6.66667L0.204916 1.17086C-0.043467 0.927356 -0.0660473 0.546319 0.137175 0.277813L0.204916 0.200887C0.453299 -0.0426124 0.841978 -0.0647487 1.11587 0.134478L1.19434 0.200887L7.29508 6.18168C7.54347 6.42518 7.56605 6.80622 7.36282 7.07472L7.29508 7.15165L1.19434 13.1324C0.921117 13.4003 0.478137 13.4003 0.204916 13.1324Z"
-          fill="#0F1219"
-        />
-      </svg>
-    </span>
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-      className="hidden h-[20px] w-[20px] shrink-0 lg:block"
-    >
-      <path
-        d="M5.69167 3.26667C5.61279 3.18843 5.56842 3.08193 5.56842 2.97083C5.56842 2.85973 5.61279 2.75324 5.69167 2.675L6.575 1.79167C6.65061 1.7111 6.75618 1.6654 6.86667 1.6654C6.97716 1.6654 7.08272 1.7111 7.15833 1.79167L14.8167 9.45C14.9339 9.5671 14.9999 9.72596 15 9.89167V10.1083C14.9999 10.274 14.9339 10.4329 14.8167 10.55L7.15833 18.2083C7.08272 18.2889 6.97716 18.3346 6.86667 18.3346C6.75618 18.3346 6.65061 18.2889 6.575 18.2083L5.69167 17.325C5.61279 17.2468 5.56842 17.1403 5.56842 17.0292C5.56842 16.9181 5.61279 16.8116 5.69167 16.7333L12.425 10L5.69167 3.26667Z"
-        fill="#0F1219"
-      />
-    </svg>
-  </>
+  <svg
+    viewBox="0 0 20 20"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className="h-[20px] w-[20px] shrink-0 lg:h-[calc(20*var(--u))] lg:w-[calc(20*var(--u))]"
+  >
+    <path
+      d="M5.69167 3.26667C5.61279 3.18843 5.56842 3.08193 5.56842 2.97083C5.56842 2.85973 5.61279 2.75324 5.69167 2.675L6.575 1.79167C6.65061 1.7111 6.75618 1.6654 6.86667 1.6654C6.97716 1.6654 7.08272 1.7111 7.15833 1.79167L14.8167 9.45C14.9339 9.5671 14.9999 9.72596 15 9.89167V10.1083C14.9999 10.274 14.9339 10.4329 14.8167 10.55L7.15833 18.2083C7.08272 18.2889 6.97716 18.3346 6.86667 18.3346C6.75618 18.3346 6.65061 18.2889 6.575 18.2083L5.69167 17.325C5.61279 17.2468 5.56842 17.1403 5.56842 17.0292C5.56842 16.9181 5.61279 16.8116 5.69167 16.7333L12.425 10L5.69167 3.26667Z"
+      fill="#0F1219"
+    />
+  </svg>
 );
 
 const Contact: React.FC<ContactProps> = ({ onOpenSurvey, showOffices = true, blurb = HOME_BLURB }) => (
+  // The lower part of the blue band 4229:4962. On the home page Why Us is
+  // directly above it, and pt-100 is the frame's 100 gap between the two. The
+  // Services hub and the case pages show this band alone, and the same 100
+  // gives the card space from the section above it.
+  //
+  // The footer follows (blue). The frame puts the footer 100 under the card.
+  // Footer.tsx has a fixed 64 of top padding, so the band adds 100 x u - 64:
+  // 7px at lg, 36px at 1440, 114px at 2560.
   <section id="contact" className="bg-bg-primary">
-    <div className="w-full px-fig-16 py-fig-16 lg:px-fig-24 lg:py-fig-120 fhd:px-[74px]">
+    <HomeColumn className="pb-[16px] pt-[48px] md:pt-[64px] lg:pb-[calc(100*var(--u)-64px)] lg:pt-[calc(100*var(--u))]">
       <Reveal
         as="div"
         y={40}
         enabled={MOTION.contact}
         amount={0.15}
-        className="mx-auto flex w-full max-w-[1772px] flex-col gap-[14px] rounded-fig-xs bg-bg-secondary px-fig-16 py-fig-24 lg:gap-fig-64 lg:rounded-fig-l lg:p-fig-64"
+        className="flex w-full flex-col gap-[32px] rounded-[4px] bg-bg-secondary px-[16px] py-[32px] md:gap-[40px] md:px-[32px] md:py-[48px] lg:gap-[calc(48*var(--u))] lg:rounded-[calc(4*var(--u))] lg:px-[calc(40*var(--u))] lg:py-[calc(64*var(--u))]"
       >
-        {/* Frame 3151:2444 sets a 686px text column, a 100px gap, and an 858px
-            panel inside the 1644px card. That needs 1536px of viewport: at 1280 it
-            leaves the panel 318px, at 1024 only 62px. Below 2xl the text block
-            therefore stacks above a full-width panel, 64px apart (user, 2026-09-24),
-            and the subtitle keeps its 2 lines at every width. */}
-        <div className="flex flex-col gap-fig-24 lg:gap-fig-64 2xl:flex-row 2xl:items-start 2xl:gap-[100px]">
-          {/* Badge to heading 16, heading to subtitle 32 (16 gap + 16 margin). */}
-          <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16 2xl:w-[686px] 2xl:shrink-0">
+        {/* Row 4229:5010: the 675 text column, 80, and the panel (557 at 1440).
+            From lg every value scales with --u, so the row fits at 1024 too. */}
+        <div className="flex flex-col gap-[32px] md:gap-[40px] lg:flex-row lg:items-start lg:gap-[calc(80*var(--u))]">
+          <div className="flex flex-col items-start gap-[12px] md:gap-[16px] lg:w-[calc(675*var(--u))] lg:shrink-0 lg:gap-[calc(16*var(--u))]">
             <SectionBadge>Our Contact</SectionBadge>
-            {/* One line at every width. The current 1920 frame draws it on one
-                line; an older frame broke it after "Connect". About 673px of text
-                in the 686px column. */}
-            <h2 className="font-sans text-h1 text-text-default lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
-              Connect With Us
-            </h2>
-            {/* The 390 frame drops the blurb entirely. Capped at the frame's 686px,
-                so it wraps to 2 lines in both layouts. */}
-            <p className="hidden font-body text-subtitle lg:mt-fig-16 lg:block lg:max-w-[686px] lg:text-subtitle-1">
-              {blurb}
-            </p>
+            <div className="flex flex-col gap-[16px] md:gap-[24px] lg:gap-[calc(32*var(--u))]">
+              <h2 className={`${HOME_H2} text-text-default lg:whitespace-nowrap`}>Connect With Us</h2>
+              {/* The old 390 frame has no blurb, so a phone still hides it. From
+                  md it shows (build choice). It is 524 wide at 1440. */}
+              <p className={`${HOME_SUBTITLE} hidden text-subtitle md:block md:max-w-[524px] lg:max-w-[calc(524*var(--u))]`}>
+                {blurb}
+              </p>
+            </div>
           </div>
 
-          <div className="flex w-full flex-col gap-fig-20 rounded-fig-xs bg-bg-default p-fig-20 lg:gap-fig-64 lg:rounded-[6px] lg:p-fig-40 2xl:min-w-0 2xl:flex-1">
-            <div className="flex flex-col gap-[4px] lg:gap-[6px]">
-              <h3 className="font-sans text-h4 text-text-default lg:text-[28px] lg:font-semibold lg:leading-[40px]">
+          {/* Contact Form 4229:5025: white, radius 6, p-32, 40 between parts. */}
+          <div className="flex w-full flex-col gap-[24px] rounded-[6px] bg-bg-default p-[20px] md:gap-[32px] md:p-[28px] lg:min-w-0 lg:flex-1 lg:gap-[calc(40*var(--u))] lg:rounded-[calc(6*var(--u))] lg:p-[calc(32*var(--u))]">
+            <div className="flex flex-col gap-[4px] lg:gap-[calc(6*var(--u))]">
+              <h3 className="font-sans font-semibold text-[22px] leading-[30px] text-text-default md:text-[26px] md:leading-[36px] lg:text-[length:calc(28*var(--u))] lg:leading-[calc(40*var(--u))]">
                 What brings you here?
               </h3>
-              <p className="font-body text-[12px] leading-[16px] text-subtitle lg:text-body-xl">
+              <p className="font-body font-normal text-[14px] leading-[22px] text-subtitle md:text-[16px] md:leading-[26px] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
                 We&apos;ll tailor the next questions just for you.
               </p>
             </div>
 
-            <Reveal as="div" stagger={STAGGER.base} enabled={MOTION.contact} className="flex flex-col gap-fig-12 lg:gap-fig-32">
+            <Reveal
+              as="div"
+              stagger={STAGGER.base}
+              enabled={MOTION.contact}
+              className="flex flex-col gap-[16px] md:gap-[20px] lg:gap-[calc(24*var(--u))]"
+            >
               {OPTIONS.map((opt) => (
-                <RevealChild
-                  as="span"
-                  key={opt.branch}
-                  y={20}
-                  duration={SEC.revealFast}
-                  className="block w-full"
-                >
-                {/* From lg the row is 104 tall, as drawn: Figma puts the stroke
-                    inside the box, so the padding is 19 plus the 1px border. */}
-                <button
-                  type="button"
-                  onClick={() => onOpenSurvey(opt.branch)}
-                  className="flex w-full items-center justify-between gap-fig-12 rounded-fig-xs border border-gray-fig-100 bg-bg-secondary p-fig-12 text-left transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none lg:p-[19px]"
-                >
-                  <span className="flex min-w-0 flex-col lg:gap-[4px]">
-                    <span className="font-body font-bold text-[14px] leading-[22px] text-text-primary lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
-                      {opt.title}
+                <RevealChild as="span" key={opt.branch} y={20} duration={SEC.revealFast} className="block w-full">
+                  {/* Form Option Row: #F7F7F7, p-20, no border and no radius, as
+                      drawn. The hover ring is inset and takes no space, so the
+                      row keeps the drawn size. */}
+                  <button
+                    type="button"
+                    onClick={() => onOpenSurvey(opt.branch)}
+                    className="flex w-full items-center justify-between gap-[12px] bg-bg-secondary p-[16px] text-left ring-1 ring-inset ring-transparent transition-shadow hover:ring-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none md:p-[20px] lg:gap-[calc(12*var(--u))] lg:p-[calc(20*var(--u))]"
+                  >
+                    <span className="flex min-w-0 flex-1 flex-col gap-[4px] lg:gap-[calc(4*var(--u))]">
+                      <span className="font-sans font-medium text-[18px] leading-[26px] text-text-primary md:text-[20px] md:leading-[28px] lg:text-[length:calc(20*var(--u))] lg:leading-[calc(28*var(--u))]">
+                        {opt.title}
+                      </span>
+                      <span className="font-body font-normal text-[14px] leading-[22px] text-subtitle md:text-[16px] md:leading-[26px] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
+                        {opt.desc}
+                      </span>
                     </span>
-                    <span className="font-body text-[10px] leading-[16px] text-subtitle lg:text-body-xl">
-                      {opt.desc}
-                    </span>
-                  </span>
-                  <Chevron />
-                </button>
+                    <Chevron />
+                  </button>
                 </RevealChild>
               ))}
             </Reveal>
           </div>
         </div>
 
-        {/* 390 pads this block by 16 and runs one column; 1920 drops the padding
-            and lays the six out three-up on a 160px gutter. The longest label,
-            "Vietnam_CrunchBase" at 24px, needs a 293px column. Three columns
-            on the 160px gutter give that only from about 1375px, and at 1024
-            three columns are too narrow with no gutter. So the list runs two-up
-            at lg, three-up on an 80px gutter at xl, and takes the drawn 160px
-            gutter at 2xl. */}
+        {/* Offices 4229:5040: two rows of three, 40 between the rows. Each row is
+            justify-between with a 120 minimum gap. The items are 339, 339 and
+            394 wide (the frame draws the third item wider), so each gap is 120
+            at 1440. One column on a phone and two at md (build choice). */}
         {showOffices && (
-        <Reveal
-          as="ul"
-          stagger={STAGGER.tight}
-          enabled={MOTION.contact}
-          amount={0.2}
-          className="grid gap-fig-12 p-fig-16 lg:grid-cols-2 lg:gap-x-fig-80 lg:gap-y-fig-48 lg:p-0 xl:grid-cols-3 2xl:gap-x-fig-160"
-        >
-          {OFFICES.map((office) => (
-            <RevealChild as="li" key={office.city} y={20} duration={SEC.revealFast}>
-              <a
-                href={mapsUrl(office.address)}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Open ${office.city} office in Google Maps`}
-                className="group flex items-start gap-fig-8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-              >
-                {/* The country flag takes the place of the location pin (user,
-                    2026-10-14). The box is the city line's height, so the flag
-                    centres on the first line. The address underline on hover
-                    stays the cue that the row opens Google Maps. */}
-                <span className="flex h-[22px] w-[24px] shrink-0 items-center lg:h-[32px]">
-                  <Flag code={office.flag} />
-                </span>
-                <div className="flex min-w-0 flex-1 flex-col gap-[2px] lg:gap-fig-8 lg:max-w-[383px]">
-                  <p className="break-words font-body font-bold text-[14px] leading-[22px] text-text-default group-hover:text-text-primary transition-colors motion-reduce:transition-none lg:font-sans lg:text-[24px] lg:font-semibold lg:leading-[32px]">
-                    {office.city}
-                  </p>
-                  <p className="font-body text-[12px] leading-[20px] text-subtitle lg:text-body-xl">
-                    <span className="bg-gradient-to-r from-current to-current bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-200 group-hover:bg-[length:100%_1px] motion-reduce:transition-none">
-                      {office.display ?? office.address}
-                    </span>
-                  </p>
-                </div>
-              </a>
-            </RevealChild>
-          ))}
-        </Reveal>
+          <Reveal
+            as="ul"
+            stagger={STAGGER.tight}
+            enabled={MOTION.contact}
+            amount={0.2}
+            className="grid gap-[20px] md:grid-cols-2 md:gap-x-[40px] md:gap-y-[32px] lg:grid-cols-[calc(339*var(--u))_calc(339*var(--u))_calc(394*var(--u))] lg:justify-between lg:gap-x-0 lg:gap-y-[calc(40*var(--u))]"
+          >
+            {OFFICES.map((office) => (
+              <RevealChild as="li" key={office.city} y={20} duration={SEC.revealFast}>
+                <a
+                  href={mapsUrl(office.address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Open ${office.city} office in Google Maps`}
+                  className="group flex items-start gap-[8px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:gap-[calc(8*var(--u))]"
+                >
+                  {/* The country flag takes the place of the drawn location pin
+                      (adapter 26b; kept, although the new frame draws pins). The
+                      box is the name line's height, so the flag centres on the
+                      first line. The address underline on hover stays the cue
+                      that the row opens Google Maps. */}
+                  <span className="flex h-[26px] w-[24px] shrink-0 items-center md:h-[28px] lg:h-[calc(28*var(--u))] lg:w-[calc(24*var(--u))]">
+                    <Flag code={office.flag} className="lg:h-[calc(16*var(--u))] lg:w-[calc(24*var(--u))]" />
+                  </span>
+                  {/* The text column is 307 wide at 1440 (315 for CrunchBase). */}
+                  <div
+                    className={`flex min-w-0 flex-1 flex-col gap-[4px] lg:gap-[calc(8*var(--u))] ${
+                      office.city === 'Vietnam_CrunchBase'
+                        ? 'lg:max-w-[calc(315*var(--u))]'
+                        : 'lg:max-w-[calc(307*var(--u))]'
+                    }`}
+                  >
+                    <p className="break-words font-body font-bold text-[18px] leading-[26px] text-text-default transition-colors group-hover:text-text-primary motion-reduce:transition-none md:text-[20px] md:leading-[28px] lg:text-[length:calc(20*var(--u))] lg:leading-[calc(28*var(--u))]">
+                      {office.city}
+                    </p>
+                    <p className="font-body font-normal text-[14px] leading-[22px] text-subtitle md:text-[16px] md:leading-[26px] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]">
+                      <span className="bg-gradient-to-r from-current to-current bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-200 group-hover:bg-[length:100%_1px] motion-reduce:transition-none">
+                        {office.display ?? office.address}
+                      </span>
+                    </p>
+                  </div>
+                </a>
+              </RevealChild>
+            ))}
+          </Reveal>
         )}
       </Reveal>
-    </div>
+    </HomeColumn>
   </section>
 );
 

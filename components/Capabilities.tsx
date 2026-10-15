@@ -1,348 +1,213 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import Container from './ui/Container';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import Reveal, { RevealChild } from './ui/Reveal';
-import Button from './ui/Button';
-import SectionBadge from './ui/SectionBadge';
-import { MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled, useScrub } from '../lib/motion';
+import Button, { HOME_BTN_ICON } from './ui/Button';
+import { HomeColumn, SectionHeader } from './ui/HomeSection';
+import ServiceShape, { type ShapeName } from './home/ServiceShapes';
+import { MOTION, STAGGER } from '../lib/motion';
 import { ROUTES, serviceHref } from './navigation';
 
 /**
- * Figma 3137:1931 (1920) and 3187:4345 (390).
+ * "What we do" — node 4317:13574 of frame 4229:4651 (adapter 27c).
  *
- * Four services on a shared rule. Desktop splits each row in two: the name and
- * its one-line promise on the left, the offering list and the brochure link
- * right-aligned in a 350px rail. At 390 those four pieces stack in one column
- * and the type drops a whole step — 64px titles become 24px, the promise turns
- * grey, the offerings shrink to 12px.
+ * The section header, then a 2 x 2 grid of white cards. Each card has a title,
+ * a blurb, a short offering list and an outline "View Brochure" button. A pale
+ * shape sits at the bottom-right of each card, and the card clips it.
  *
- * The rules differ between the two frames: 1920 draws one above every row, so a
- * rule also separates the header from the first service; 390 draws them only
- * between rows. Both are reproduced.
+ * From lg every value is the 1440 value x `--u` (adapter 27b). The grid is 872
+ * tall at 1440, so each card is 688 x 428 and the two rows have equal height.
+ *
+ * Below lg there is no Figma frame. These are build choices: 2 columns from md
+ * and 1 column below md, the card height follows its content, the title is
+ * 28/36 (32/40 from md), and the shapes are 0.55x (0.6x from md) of the frame.
  */
 
 interface Service {
   title: string;
-  /** The single line under the name. */
-  promise: string;
+  blurb: string;
   offerings: string[];
-  /** The service's own page on this site (the Services pages, 2026-09-29). */
+  /** The service page. The site calls a service page a "brochure". */
   to: string;
+  shape: ShapeName;
+  /** The width of the text column at 1440, in frame px. */
+  textW: number;
+  /** The blurb width at 1440, when it is narrower than the text column. */
+  blurbW?: number;
+  /** The frame gaps (frame px): blurb to list, and list to button. They differ per card. */
+  gapList: number;
+  gapBtn: number;
 }
 
-/**
- * Copy follows the 1920 artboard, which wins wherever the two frames disagree —
- * and they disagree in several places, all listed in the Step 4 checkpoint.
- * Order is the artboards': analytics comes before data engineering, the reverse
- * of the 20th-anniversary build.
- */
+/** The text that the frame draws (adapter 27c). The Services hub keeps its own lists. */
 const SERVICES: Service[] = [
   {
     title: 'Design & Digital Experience',
-    promise: 'Design the look and experience of your brand and digital products.',
-    offerings: ['Product design', 'Branding & visual identity', 'UX/UI design', 'Web design'],
+    blurb: 'Craft visual identities and digital products across every online touchpoint.',
+    offerings: ['Branding', 'UX/UI', 'Web product'],
     to: serviceHref('design-digital'),
+    shape: 'design',
+    textW: 410.592,
+    blurbW: 374.012,
+    gapList: 16,
+    gapBtn: 37,
   },
   {
-    title: 'Software & Web Development',
-    promise: 'Build the technology behind your business.',
-    // Six items in 3137:1976 (Figma changed, 2026-10-12). Text node 3137:1982
-    // holds "Enterprise auto" in full; the box does not cut it.
-    offerings: [
-      'Web applications',
-      'E-commerce',
-      'SaaS platforms',
-      'Mobile apps',
-      'Enterprise auto',
-      'Testing & QA',
-    ],
-    to: serviceHref('software-web-development'),
-  },
-  {
-    title: 'Business Intelligence & Analytics',
-    promise: 'Turn your data into business insights.',
-    offerings: [
-      'Data analytics',
-      'Business intelligence dashboards',
-      'Automation solutions',
-      'AI & Machine Learning',
-    ],
+    title: 'Business Intelligence',
+    blurb: 'Turn your data into actionable insights.',
+    offerings: ['Data analytics', 'KPI dashboards', 'Automation', 'AI & machine learning'],
     to: serviceHref('business-intelligence-analytics'),
+    shape: 'bi',
+    textW: 349.377,
+    gapList: 17,
+    gapBtn: 17,
   },
   {
-    title: 'Data Engineering & Processing',
-    promise: 'Manage and process data to support your business operations.',
-    // 3137:2024 (Figma changed, 2026-10-12).
-    offerings: ['Data entry', 'Data collect', 'Data process', 'Business support'],
+    title: 'Data Processing',
+    // FIGMA-SLIP: the frame writes "worflows". The build writes "workflows".
+    blurb: 'Engineer & drive workflows to support your operations.',
+    offerings: ['Data entry & collection', 'Pipeline streams', 'Support'],
     to: serviceHref('data-engineering-processing'),
+    shape: 'data',
+    textW: 355.349,
+    gapList: 16,
+    gapBtn: 37,
+  },
+  {
+    title: 'Software Development',
+    blurb: 'Build the technology that runs your enterprise.',
+    offerings: ['Web applications', 'E-commerce', 'SaaS platforms', 'Mobile apps'],
+    to: serviceHref('software-web-development'),
+    shape: 'software',
+    textW: 350.123,
+    gapList: 16,
+    gapBtn: 16,
   },
 ];
 
-
 /**
- * How much of a covered row still shows: the row's 64px top padding, the title,
- * and 30px of space under it (64 + 44 + 30 = 138). The design team asked to see
- * all four titles on one screen (tracker row 27, 2026-10-12). For this, the
- * desktop titles are one line at 36px, not two lines at 64px, and the offering
- * list is 16px. Both are deliberate divergences from frame 3137:1931.
+ * The shape box of each card in frame px: its size and its offset from the
+ * bottom-right corner of the card. A negative offset puts the shape past the
+ * card edge, and the card clips it.
  *
- * The offering list sits beside the title, so the band also shows its top. The
- * list lines are 22px on a 26px pitch, so the 74px under the padding ends on
- * the bottom of the third line, not through a line of text.
- *
- * The earlier value was 248: the 64px two-line title and the full list. With
- * it, the fourth row landed too low to see all four titles together.
+ * Business Intelligence and Data Processing are a 120 box with an inset in
+ * Figma. The values here are the image box that the inset gives.
  */
-const PEEK = 138;
+const SHAPE_BOX: Record<ShapeName, { w: number; h: number; right: number; bottom: number }> = {
+  design: { w: 282, h: 282, right: -49, bottom: -57 },
+  bi: { w: 337, h: 308, right: -88.5, bottom: -83 },
+  data: { w: 349, h: 333, right: -100, bottom: -95 },
+  software: { w: 298, h: 298, right: -35.5, bottom: -72 },
+};
 
-/**
- * One service row. From lg it pins under the header and the next row slides over
- * it, easing back slightly as it goes so the covered rows read as behind rather
- * than merely underneath.
- *
- * The row needs an opaque fill to cover the row below it. The fill is the
- * section's own BG/Secondary, and no row dims (user ruling 2026-09-24). An
- * earlier brightness dim turned the covered rows #EFEFEF against the #F7F7F7
- * section, so the stack showed rows of different colours when the last row
- * arrived. With one fill, the rows show no panel edges, as the artboard draws.
- * Only the small scale step remains as the depth cue.
- *
- * The last row is never covered, so it takes no scale: a row that recedes as it
- * lands reads as a fault.
- *
- * Two elements, not one: the `li` owns the sticky position and the entrance, the
- * inner box owns the scrub. Both write to `transform`, and one element cannot
- * take a variant and a MotionValue for the same property.
- */
-const ServiceRow: React.FC<{
-  service: Service;
-  index: number;
-  total: number;
-  progress: MotionValue<number>;
-  decking: boolean;
-  children: React.ReactNode;
-}> = ({ index, total, progress, decking, children }) => {
-  const from = index / total;
-  const first = index === 0;
-  const last = index === total - 1;
-  // The deck progress arrives already smoothed (`useScrub` in the parent), so the
-  // scale eases between wheel notches instead of stepping at each one.
-  const scale = useTransform(progress, (p) => {
-    if (last) return 1;
-    const cover = Math.min(1, Math.max(0, (p - from) / (1 - from)));
-    return 1 - 0.02 * cover;
-  });
+/** Frame px x the step factor: `--s` is 1px below lg and `--u` from lg. */
+const s = (px: number) => `calc(${px} * var(--s))`;
+/** The shape scale: `--k` is a build value below lg and `--u` from lg. */
+const k = (px: number) => `calc(${px} * var(--k))`;
 
+const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
+  const box = SHAPE_BOX[service.shape];
   return (
     <RevealChild
       as="li"
-      y={44}
-      className={decking ? `sticky ${PIN_FOLLOW}` : ''}
-      /* The offset is the live header height plus one peek per row above, so every
-         row lands clear of the bar and clear of its predecessors — and follows the
-         bar up when it retracts (`--header-shown`, index.html), leaving no band. */
-      style={
-        decking
-          ? { top: `calc(var(--header-h) * var(--header-shown) + ${index * PEEK}px)`, zIndex: index }
-          : undefined
-      }
+      y={40}
+      className="relative overflow-clip rounded-[4px] bg-bg-default px-fig-24 py-fig-32 [--k:0.55px] md:[--k:0.6px] lg:py-0 lg:pl-[calc(45*var(--u))] lg:pr-0 lg:pt-[calc(48*var(--u))] lg:[--k:var(--u)]"
     >
-      <motion.div
-        className={`border-border-field ${first ? 'border-t-0 lg:border-t' : 'border-t'} ${
-          decking ? 'bg-bg-secondary' : ''
-        }`}
-        style={decking ? { scale, transformOrigin: '50% 0%' } : undefined}
+      {/* The shape comes first, so the text paints on top of it. At 1440 the
+          two do not touch. At other widths they can touch, and then the text
+          must stay legible. The frame paints the shape last. */}
+      <ServiceShape
+        name={service.shape}
+        className="pointer-events-none absolute block max-w-none"
+        // Inline style: the four boxes differ, and each value scales with --k.
+        style={{ width: k(box.w), height: k(box.h), right: k(box.right), bottom: k(box.bottom) }}
+      />
+
+      <div
+        className="relative flex w-full flex-col items-start lg:w-[var(--text-w)]"
+        style={{ gap: s(service.gapBtn), ['--text-w' as string]: `calc(${service.textW} * var(--u))` }}
       >
-        {children}
-      </motion.div>
+        <div className="flex w-full flex-col items-start" style={{ gap: s(service.gapList) }}>
+          <div className="flex w-full flex-col items-start" style={{ gap: s(12) }}>
+            <h3 className="font-sans text-[28px] font-medium leading-[36px] text-text-default md:text-[32px] md:leading-[40px] lg:text-[length:calc(50*var(--u))] lg:leading-[calc(58*var(--u))]">
+              {/* The title also opens the service page. The link is a sibling of
+                  the button, so no interactive element is in another one. */}
+              <Link
+                to={service.to}
+                className="hover:underline hover:decoration-1 hover:underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                {service.title}
+              </Link>
+            </h3>
+            <p
+              className="w-full font-body text-[16px] font-normal leading-[26px] text-black lg:w-[var(--blurb-w)] lg:text-[length:calc(16*var(--u))] lg:leading-[calc(26*var(--u))]"
+              style={{ ['--blurb-w' as string]: service.blurbW ? `calc(${service.blurbW} * var(--u))` : '100%' }}
+            >
+              {service.blurb}
+            </p>
+          </div>
+          <ul
+            className="flex flex-col font-body text-[12px] font-normal leading-[20px] text-subtitle lg:text-[length:calc(12*var(--u))] lg:leading-[calc(20*var(--u))]"
+            style={{ gap: s(1) }}
+          >
+            {service.offerings.map((offering) => (
+              <li key={offering}>{offering}</li>
+            ))}
+          </ul>
+        </div>
+
+        <Button
+          to={service.to}
+          variant="secondary"
+          size="home"
+          /* The frame draws a white fill at rest, the same white as the card.
+             The variant's white fill gives that, and it keeps the button clear
+             of the shape on a narrow card. The hover is pri-50 (ruling 24aa).
+             The pressed fill does not change. */
+          className="[&:hover:not(:active)]:bg-pri-50"
+          icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
+        >
+          View Brochure
+          {/* All four buttons read "View Brochure". The hidden name tells which
+              service a button opens, for a reader who lists the links. */}
+          <span className="sr-only"> — {service.title}</span>
+        </Button>
+      </div>
     </RevealChild>
   );
 };
 
-const Capabilities: React.FC = () => {
-  const listRef = useRef<HTMLUListElement>(null);
-  const motionOn = useMotionEnabled();
-  const wide = useMinWidth(1024);
-  const decking = motionOn && wide && MOTION.services;
-
-  // One progress value for the whole deck, smoothed once here; each row reads its
-  // own slice of it.
-  const { scrollYProgress } = useScroll({ target: listRef, offset: ['start start', 'end end'] });
-  const deck = useScrub(scrollYProgress);
-
-  return (
-  <section id="capabilities" className="bg-bg-secondary">
-    <Container className="flex flex-col gap-fig-40 py-fig-32 lg:gap-fig-100 lg:py-fig-100">
-      {/* Header. Two columns from lg — name on the left, the promise and the
-          catch-all brochure right-aligned on the right. */}
-      <Reveal
-        as="div"
-        stagger={STAGGER.base}
-        className="flex flex-col gap-fig-24 lg:flex-row lg:items-start lg:justify-between lg:gap-fig-32"
-      >
-        <div className="flex flex-col items-start gap-fig-8 lg:gap-fig-16">
-          <RevealChild as="span" y={20} duration={SEC.revealFast}>
-            <SectionBadge>What We Do</SectionBadge>
-          </RevealChild>
-          {/* 86px over a 74px line box, which is Display-xl's size on Display-md's
-              leading — an override the artboard draws directly, not a named style. */}
-          <RevealChild as="span" y={28}>
-            <h2 className="font-sans text-h1 text-text-default lg:whitespace-nowrap lg:text-[86px] lg:font-semibold lg:leading-[74px] lg:tracking-[-0.03em]">
-              Our Services
-            </h2>
-          </RevealChild>
-        </div>
-
-        <div className="flex flex-col gap-fig-24 lg:items-end lg:gap-fig-32">
-          <RevealChild as="p" y={20} duration={SEC.revealFast} className="font-body text-body-md text-subtitle lg:text-right lg:text-subtitle-1">
-            Comprehensive solutions tailored to your needs
-          </RevealChild>
-
-          {/* The wrapper carries the alignment the Button used to get from
-              `self-center`: it is the flex item now, so the alignment has to
-              live on it. Never `display: contents` here — a box that generates
-              no box cannot be transformed, and the entrance would silently do
-              nothing. */}
-          <RevealChild
-            as="span"
-            y={20}
-            duration={SEC.revealFast}
-            className="flex w-full flex-col items-center lg:w-auto lg:items-end"
-          >
+const Capabilities: React.FC = () => (
+  <section id="capabilities">
+    <HomeColumn className="flex flex-col gap-fig-40 md:gap-fig-48 lg:gap-[calc(80*var(--u))]">
+      <SectionHeader
+        headline="What we do"
+        subtitle="Comprehensive solutions tailored to your needs"
+        cta={
           <Button
             to={ROUTES.services}
-            size="lg"
-            radius="none"
-            className="w-[336px] max-w-full self-center shadow-fig-xs lg:w-auto lg:self-auto lg:gap-fig-14 lg:text-btn-lg"
-            icon={
-              <>
-                {/* The artboards use different arrows for the same button: a
-                    straight one at 390, a diagonal at 1920. */}
-                <ArrowRight
-                  className="h-[24px] w-[24px] shrink-0 lg:hidden"
-                  strokeWidth={2}
-                  aria-hidden="true"
-                />
-                <ArrowUpRight
-                  className="hidden h-[24px] w-[24px] shrink-0 lg:block"
-                  strokeWidth={2}
-                  aria-hidden="true"
-                />
-              </>
-            }
+            size="home"
+            icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
           >
             View All Brochure
           </Button>
-          </RevealChild>
-        </div>
-      </Reveal>
+        }
+      />
 
-      {/* One observer on the list, not one per row. The list never moves, so its
-          visibility is an honest reading of where the reader is, and the rows can
-          travel as far as they like without changing the answer. */}
-      {/* One observer on the list, not one per row: the list itself never moves,
-          so its visibility is an honest reading of where the reader is. The rules
-          are drawn by the row now, since a covered row has to carry its own edge.
-          1920 rules every row including the first; 390 only rules between. */}
+      {/* The list is the observer and does not move. The cards move. Under
+          reduced motion the cards only fade (Reveal). */}
       <Reveal
         as="ul"
-        innerRef={listRef}
         stagger={STAGGER.base}
-        amount={0.1}
         enabled={MOTION.services}
-        /* The runway under the last row gives it a beat before it releases into
-           Our Approach. The gap from the last row to the "How We Work" badge is
-           Figma's 100 + 100 = 200px (user, 2026-10-14). Pinned, it is this 28px
-           runway + the section's own 100px bottom padding + 72px in Our Approach
-           (48 above its pin + 24 of column padding). All are fixed px, so the
-           200px holds on every screen. */
-        className={`flex flex-col ${decking ? 'pb-[28px]' : ''}`}
+        className="grid grid-cols-1 gap-fig-16 [--s:1px] md:grid-cols-2 lg:h-[calc(872*var(--u))] lg:grid-rows-2 lg:gap-[calc(16*var(--u))] lg:[--s:var(--u)]"
       >
-        {SERVICES.map((service, i) => {
-          const first = i === 0;
-          const last = i === SERVICES.length - 1;
-          return (
-          <ServiceRow
-            key={service.title}
-            service={service}
-            index={i}
-            total={SERVICES.length}
-            progress={deck}
-            decking={decking}
-          >
-            {/* At 390 a rule sits in 32px of air — the row's own 16px of padding
-                plus the 16px the artboard's list puts between row and rule — so
-                only the two outer edges of the list get the bare 16. */}
-            <div
-              className={`flex flex-col gap-fig-20 px-fig-16 lg:flex-row lg:items-start lg:justify-between lg:gap-fig-32 lg:px-0 lg:pb-fig-48 lg:pt-fig-64 ${
-                first ? 'pt-fig-16' : 'pt-fig-32'
-              } ${last ? 'pb-fig-16' : 'pb-fig-32'}`}
-            >
-              {/* Name + promise. The column takes the slack up to 800px, which
-                  leaves the artboard's 642px trough at 1920 and closes it as the
-                  viewport narrows. The title is one 36px line from lg, and the
-                  promise sits 30px under it, so the PEEK band ends at the
-                  promise (tracker row 27). */}
-              <div className="flex flex-col gap-fig-12 lg:flex-1 lg:gap-[30px] lg:max-w-[800px]">
-                <h3 className="font-sans text-h3 text-text-primary lg:text-h1">
-                  {service.title}
-                </h3>
-                <p className="font-body text-body-md text-subtitle lg:text-subtitle-1 lg:text-text-default">
-                  {service.promise}
-                </p>
-              </div>
-
-              {/* Offerings + brochure link, in a fixed rail so the four buttons
-                  line up down the section. It arrives a beat after the name, so a
-                  row reads left-to-right rather than landing all at once. */}
-              <RevealChild
-                as="div"
-                y={24}
-                delay={0.1}
-                duration={SEC.revealFast}
-                className="flex flex-col gap-fig-12 lg:w-[350px] lg:shrink-0 lg:gap-fig-40"
-              >
-                {/* 16px on a 22px line from lg, 4px apart (tracker row 27). See
-                    PEEK for why the line box is 22px. */}
-                <ul className="flex flex-col gap-fig-2 font-body text-caption text-subtitle lg:gap-fig-4 lg:text-right lg:text-[16px] lg:leading-[22px]">
-                  {service.offerings.map((offering) => (
-                    <li key={offering}>{offering}</li>
-                  ))}
-                </ul>
-
-                <Button
-                  to={service.to}
-                  variant="secondary"
-                  size="lg"
-                  /* No fill at rest: the instance draws none, so the section grey
-                     shows through (drift 2026-10-12, #6). The selector outranks the
-                     variant's white fill. The variant's grey hover is the same grey
-                     as the section, so the hover uses pri-50 (user, 2026-10-13).
-                     The pressed fill does not change. */
-                  className="w-full shadow-fig-xs [&:not(:hover):not(:active)]:bg-transparent [&:hover:not(:active)]:bg-pri-50 lg:w-[350px] lg:text-btn-lg"
-                  icon={
-                    <ArrowRight
-                      className="h-[20px] w-[20px] shrink-0"
-                      strokeWidth={2}
-                      aria-hidden="true"
-                    />
-                  }
-                >
-                  View Brochure
-                  {/* All four links read "View Brochure"; name the service for
-                      anyone listing links out of context. */}
-                  <span className="sr-only"> — {service.title}</span>
-                </Button>
-              </RevealChild>
-            </div>
-          </ServiceRow>
-          );
-        })}
+        {SERVICES.map((service) => (
+          <ServiceCard key={service.title} service={service} />
+        ))}
       </Reveal>
-    </Container>
+    </HomeColumn>
   </section>
-  );
-};
+);
 
 export default Capabilities;

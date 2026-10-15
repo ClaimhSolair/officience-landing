@@ -37,13 +37,13 @@ officience/
   tests/               # node --test tests/workFilter.test.ts (Node 24 strips the types)
   components/
     Header.tsx         # Sticky nav bar
-    Hero.tsx           # Hero section with tagline
-    Capabilities.tsx   # "Our Services" - 4 ruled list rows, brochure links
-    ClientStories.tsx  # "People Trust Us" - 3 fixed quote cards, no carousel
+    Hero.tsx           # Hero - blue band, headline, "Let’s start!" (opens the survey), 5 3D shapes
+    Capabilities.tsx   # "What we do" - 2x2 service cards, brochure links
+    ClientStories.tsx  # "People Trust Us" - 3 quote cards in a downward CSS loop (static under reduced motion)
     LogoMarquee.tsx    # Client logo wall - looping greyscale marquee, colour on hover
-    HowWeEngage.tsx    # "Our Approach" - 3 ruled steps with inline pinwheel marks
+    HowWeEngage.tsx    # "How we work" - 3 pinned steps with inline pinwheel marks
     WhyOfficience.tsx  # "Why Choose Us" - 4 values in a crosshair, inlined pinwheel
-    Contact.tsx        # "Connect With Us" - survey entry rows + 6 offices, own blue
+    Contact.tsx        # "Connect With Us" - a card on the blue band under Why Us: survey rows + 6 offices
     Footer.tsx         # Footer - brand, Company links, partner tiles, legal row
     Survey.tsx         # Contact survey modal
     CookieConsent.tsx  # Consent banner (Google Consent Mode v2)
@@ -53,7 +53,7 @@ officience/
     navigation.ts      # Every nav destination, in one table
     work/              # Work listing parts; case/ holds the case-study layout and sections
     career/            # Career hub and job page parts; ApplyModal (lazy, mounted from Layout)
-    ui/                # Container, Button, SectionBadge, ApproachMark, CarouselDots
+    ui/                # Container, Button, SectionBadge, ApproachMark, CarouselDots, HomeSection (home column + header)
 ```
 
 ## Key Patterns
@@ -63,6 +63,7 @@ officience/
 - **Cross-page anchors** use `<Link to="/#capabilities">`; `ScrollManager` retries on a timer until the target mounts.
 - **Back/forward is never hijacked** — `ScrollManager` skips POP so the browser restores scroll itself.
 - **Type scale:** fixed-px Tailwind `fontSize` utilities, one per Figma style (`text-display-xl`, `text-h1`…`text-h4`, `text-subtitle-1/2`, `text-body-xl/md`, `text-btn-md/lg`). Breakpoints **swap style** (`text-h1 lg:text-display-sm`), they don't interpolate. The old `.t-*` CSS classes in index.html are frozen legacy for unmigrated components — don't edit or rename them.
+- **Home scale:** the home page follows the 1440 frame 4229:4651. From lg each size is `calc(<px>*var(--u))`; `--u` steps in index.html (0.711 / 0.889 / 1 at 1400 / 1.333 at fhd / 1.778 at 2560). Home sections use `HomeColumn`, not `Container` (adapter 27).
 - **Content column:** `components/ui/Container.tsx` — `max-w-content-2` (1792px) + `px-fig-16 lg:px-fig-24` reproduces all three artboard gutters.
 - **Responsive:** Tailwind breakpoints (`md:`, `lg:`); mobile is the base layer, desktop at `lg:`.
 - **Color palette:** primary `#1F49BF`, background `#F7F7F7`, custom Tailwind colors in index.html
