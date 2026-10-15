@@ -1738,3 +1738,19 @@ is CSS (`#1F49BF`, `mix-blend-mode: color`), as the frame draws it.
      - The cost: during the sideways scrub the row sits at the top of the window, not in the centre.
      - Re-run 2026-10-16 (one browser per width): page width = viewport at every scroll step and no visible
        element below opacity 0.5, at 320-2560, both reduced-motion states. tsc 0 errors, build OK.
+
+### 27l — The pinned row keeps its gap; How we work fills its row (user, 2026-10-16)
+The user reported two faults on the preview: the pinned Success Stories row stuck to the top edge of the screen,
+and "How we work" leaned left and was scaled down.
+27l. **Only the row pins, with the frame's gap above it.** The heading scrolls away in both sections.
+     - Success Stories: from lg the 64×u gap is the pinned column's top padding (not the heading's margin), so the
+       pinned frame is the gap plus the row. Below lg the 32/48 margins do not change.
+     - How we work: the header is out of the pinned frame. The frame is the 80×u gap plus the step row (644×u).
+       The section's 24×u bottom padding is outside the pin. Scale-to-fit stays as the fallback for very short windows.
+     - The steps share the row equally from lg (the frame's row fills its width). Before, a fixed 368×u stack left
+       up to 454px empty at the right (1879), and the pin scaled the whole block to 0.905 at 1522x704.
+     - Measured (wheel down and up, 12 sizes from 1024x680 to 2560x1400, incl. 1522x704 and 1879x1000): the pinned
+       row stops exactly 64×u / 80×u below the top of the screen; How we work has no scale at any size; the steps
+       sit 48×u from both column edges at 1024-2560 (rules 48/517/986 at 1440; the frame has 48/519/990); the
+       Success Stories row stays the 24×u gap from the logos on a scroll up; no step or card goes under the header
+       or below the window. The overflow and opacity probe, keyboard focus, tsc and the build pass.

@@ -14,10 +14,9 @@ import { EASE, MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled, 
  * The frame aligns steps 1 and 2 to the centre of their rule and step 3 to the
  * top. The difference is a few px, and the build keeps it.
  *
- * FIGMA-SLIP: the three steps and two 63px gaps need 1350px, but the row has
- * 1344px inside its padding. The frame lets step 3 run 6px into the padding. Here
- * the stacks can shrink, so each stack is 2px narrower at 1440 and nothing runs
- * past the row. Between 1400 and 1439 (`--u` = 1) they shrink more.
+ * The frame's row fills its width. So from lg the three steps share the row
+ * equally, and each stack takes the rest of its step. At 1440 a stack is 365px.
+ * FIGMA-SLIP: the frame draws 368px stacks, which need 1350px in a 1344px row.
  *
  * The step text has a floor (ruling 27h): 14/23 minimum, so the lg step does
  * not make it 11.4px.
@@ -26,12 +25,11 @@ import { EASE, MOTION, PIN_FOLLOW, SEC, STAGGER, useMinWidth, useMotionEnabled, 
  * earlier build: a row of three from md, a stack below md, and no pin. The type
  * and the gaps are about half of the frame, and the marks are 0.62x.
  *
- * **Motion (ruling 27e: keep the pin).** From lg the section pins. The header
- * stays still at the top of the screen, and the three steps come in from the
- * right, one after the other. Scroll position moves them, not a clock. If the
- * window is too short, the column scales to fit. If it is far too short, or
- * below lg, the steps come in as they scroll into view. Under reduced motion
- * they only fade in.
+ * **Motion (rulings 27e, 27l).** From lg the step row pins with the 80 gap above
+ * it. The header scrolls away. The three steps come in from the right, one after
+ * the other. Scroll position moves them, not a clock. If the window is too short,
+ * the row scales to fit. If it is far too short, or below lg, the steps come in
+ * as they scroll into view. Under reduced motion they only fade in.
  */
 
 interface Step {
@@ -138,7 +136,9 @@ const StepItem: React.FC<{
 
   // Below lg the rule stretches to the height of the stack. From lg it is the
   // frame's 484px rule, and the stack aligns to it as the frame draws.
-  const cls = `flex gap-fig-24 md:min-w-0 md:flex-1 lg:flex-initial lg:gap-[calc(40*var(--u))] ${
+  // From lg the three steps share the row equally, as the frame's row fills its
+  // width. A fixed 368 stack left up to 454px empty at the right of the row.
+  const cls = `flex gap-fig-24 md:min-w-0 md:flex-1 lg:gap-[calc(40*var(--u))] ${
     step.alignTop ? 'lg:items-start' : 'lg:items-center'
   }`;
   const vars = {
@@ -149,7 +149,7 @@ const StepItem: React.FC<{
     <>
       <span aria-hidden="true" className="w-px shrink-0 self-stretch bg-border-field lg:h-[calc(484*var(--u))] lg:self-auto" />
 
-      <div className="flex min-w-0 flex-col items-start gap-[calc(var(--g)*0.5px)] lg:w-[calc(368*var(--u))] lg:shrink lg:gap-[calc(var(--g)*var(--u))]">
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-[calc(var(--g)*0.5px)] lg:gap-[calc(var(--g)*var(--u))]">
         <p
           aria-hidden="true"
           className="font-sans text-[20px] font-semibold leading-[28px] text-subtitle md:text-[24px] md:leading-[32px] lg:text-[length:calc(28*var(--u))] lg:leading-[calc(40*var(--u))]"
@@ -259,7 +259,20 @@ const HowWeEngage: React.FC = () => {
   const progress = useScrub(scrollYProgress);
 
   return (
-    <section id="approach" aria-labelledby="approach-heading" className="bg-bg-secondary">
+    <section id="approach" aria-labelledby="approach-heading" className="bg-bg-secondary lg:pb-[calc(24*var(--u))]">
+      {/* The header is out of the pinned frame, so it scrolls away (ruling 27l).
+          The section's 24 top padding is on it, and the 24 bottom padding is on
+          the section, so the frame holds only the 80 gap and the step row. The
+          frame draws a "Check Our FAQ" button here. It stays hidden until a FAQ
+          page exists (ruling 27d). */}
+      <HomeColumn className="lg:pt-[calc(24*var(--u))]">
+        <SectionHeader
+          headingId="approach-heading"
+          headline="How we work"
+          subtitle="We work simple. We let machines work, we take care of people."
+        />
+      </HomeColumn>
+
       {/* The extra height only exists when something is pinned to it. With motion
           off, below lg, or on a viewport far too short to hold the column even
           scaled, the wrapper collapses to its contents so nobody scrolls through
@@ -284,19 +297,13 @@ const HowWeEngage: React.FC = () => {
           {/* Reserves the scaled composition's height, so the pinned column's
               layout shrinks with the scale and not merely its paint. */}
           <div style={scaling ? { height: dims.h * dims.scale } : undefined}>
+            {/* The pinned frame: the frame's 80 gap above the row, then the row.
+                Pinned, the row thus stops 80 below the top of the screen. */}
             <HomeColumn
               innerRef={contentRef}
               style={scaling ? { transform: `scale(${dims.scale})`, transformOrigin: 'top center' } : undefined}
-              className="flex flex-col gap-fig-40 md:gap-fig-48 lg:gap-[calc(80*var(--u))] lg:py-[calc(24*var(--u))]"
+              className="pt-fig-40 md:pt-fig-48 lg:pt-[calc(80*var(--u))]"
             >
-              {/* The frame draws a "Check Our FAQ" button here. It stays hidden
-                  until a FAQ page exists (ruling 27d). */}
-              <SectionHeader
-                headingId="approach-heading"
-                headline="How we work"
-                subtitle="We work simple. We let machines work, we take care of people."
-              />
-
               {/* The list is the observer when unpinned, and the steps move. */}
               <motion.ol
                 className="flex flex-col gap-fig-40 md:flex-row md:items-start md:gap-fig-24 lg:items-stretch lg:gap-[calc(63*var(--u))] lg:px-[calc(24*var(--u))] lg:py-[calc(40*var(--u))]"

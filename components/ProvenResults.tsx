@@ -223,12 +223,12 @@ const ProvenResults: React.FC = () => {
   // track shows the full card. The deck takes only the focus handler, not the drag.
   const { handlers: pinnedDrag } = useTrackDrag(pinned ? geom : null, wrapRef);
 
-  // When pinned, the frame is the height of the row and sits at the top (ruling
-  // 27k, the same rule as "How we work"). The sticky top follows the header, but
-  // it never puts the row bottom below the window. On a scroll up the header
-  // comes back and pushes the row down into the empty space under it, so the row
-  // does not go over the logo band. The 64 gap above the row and the 24 gap to
-  // the logo band are the normal flow gaps.
+  // When pinned, the frame is the 64 gap and the row, and it sits at the top
+  // (rulings 27k and 27l, the same rule as "How we work"). The sticky top follows
+  // the header, but it never puts the row bottom below the window. On a scroll up
+  // the header comes back and pushes the row down into the empty space under it,
+  // so the row does not go over the logo band. The 24 gap to the logo band is a
+  // normal flow gap.
   const pinTop = pinned
     ? `min(calc(var(--header-h) * var(--header-shown)), calc(100vh - ${geom.frame}px))`
     : undefined;
@@ -243,10 +243,9 @@ const ProvenResults: React.FC = () => {
       aria-labelledby="proven-results-heading"
       className="bg-bg-secondary lg:pt-[calc(26*var(--u))]"
     >
-      {/* The heading is out of the pinned column, so it scrolls away and the row
-          gets the full window height. 64 to the row from lg; 32 and 48 below lg
-          are build choices. */}
-      <HomeColumn className="mb-[32px] md:mb-[48px] lg:mb-[calc(64*var(--u))]">
+      {/* The heading is out of the pinned column, so it scrolls away. The 64 gap
+          to the row is in the column from lg; 32 and 48 below lg are build choices. */}
+      <HomeColumn className="mb-[32px] md:mb-[48px] lg:mb-0">
         <SectionHeader
           headingId="proven-results-heading"
           headline="Success Stories"
@@ -261,7 +260,11 @@ const ProvenResults: React.FC = () => {
         style={pinned ? { height: geom.height } : undefined}
       >
         <div className={pinned ? `sticky ${PIN_FOLLOW} overflow-x-clip` : ''} style={pinned ? { top: pinTop } : undefined}>
-          <div ref={columnRef} className="flex flex-col">
+          {/* From lg the 64 gap above the row is the column's top padding, not the
+              heading's margin. So the pinned frame holds the gap, and the pinned
+              row stops 64 below the top of the screen (ruling 27l). The fit check
+              counts the padding as chrome. */}
+          <div ref={columnRef} className="flex flex-col lg:pt-[calc(64*var(--u))]">
             {/* When pinned, this box keeps the height of the scaled track, so the
                 scale makes the layout smaller and not only the paint. */}
             <div className="w-full" style={pinned ? { height: geom.trackH } : undefined}>
