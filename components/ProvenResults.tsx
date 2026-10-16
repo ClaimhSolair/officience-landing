@@ -10,7 +10,7 @@ import Reveal from './ui/Reveal';
 import { HomeColumn, SectionHeader } from './ui/HomeSection';
 import { EASE, MOTION, PIN_FOLLOW, SEC, useMinWidth, useMotionEnabled } from '../lib/motion';
 import { useCardEntrance, usePinnedTrack, useTrackDrag } from '../lib/pinnedTrack';
-import { VIEW_ALL_WORK, ROUTES, workHref } from './navigation';
+import { VIEW_ALL_WORK, ROUTES, isReleased, routeLink, workHref } from './navigation';
 
 /**
  * "Client Spotlights" (was "Success Stories"), file cplHg0LeeRaYKPdvSJK37E:
@@ -44,7 +44,12 @@ interface Story {
    * IOGA has one (adapter 20a). The flag is here, so the home page does not
    * load the case content.
    */
-  linked: boolean;
+  hasCase: boolean;
+  /**
+   * The case study on demo.officience.com (user, 2026-10-16). The card links
+   * here when the build does not serve the case page.
+   */
+  href: string;
   title: string;
   /** The title with a forced line break, when Figma draws one. */
   display?: React.ReactNode;
@@ -75,7 +80,8 @@ const TAG_GAP = 'gap-[8px] lg:gap-[calc(8*var(--u))]';
 const STORIES: Story[] = [
   {
     slug: 'ioga',
-    linked: true,
+    hasCase: true,
+    href: 'https://demo.officience.com/ioga',
     title: 'IOGA deploys video learning platform from construction',
     meta: '23 Nov 2019 | Kiet Binh',
     tags: ['AI', 'Software', 'E-Learning'],
@@ -85,7 +91,8 @@ const STORIES: Story[] = [
   },
   {
     slug: 'lab',
-    linked: false,
+    hasCase: false,
+    href: 'https://demo.officience.com/lab',
     title: 'LAB Les Artisans Bâtisseurs: a customizable CRM',
     meta: '5 Sep 2025 | Steven',
     tags: ['CRM', 'Worfklow', 'Vizualisation'],
@@ -95,7 +102,8 @@ const STORIES: Story[] = [
   },
   {
     slug: 'finpivot',
-    linked: false,
+    hasCase: false,
+    href: 'https://demo.officience.com/finpivot',
     title: 'Finpivot makes money admin simple for freelancers',
     meta: '5 Oct 2025 | Phuong',
     tags: ['Fintech', 'Branding', 'Dashboard'],
@@ -105,7 +113,8 @@ const STORIES: Story[] = [
   },
   {
     slug: 'cmp',
-    linked: false,
+    hasCase: false,
+    href: 'https://demo.officience.com/changemetauxprecieux',
     title: 'Trading precious metal within minutes with C.M.P',
     meta: '03 Mar 2023 | Day Pham',
     tags: ['E - commerce', 'Pricing'],
@@ -115,7 +124,8 @@ const STORIES: Story[] = [
   },
   {
     slug: 'funpass',
-    linked: false,
+    hasCase: false,
+    href: 'https://demo.officience.com/funpass',
     title: 'FunPass: festivals for music fans',
     // Figma breaks the line after "for". From lg the build does the same.
     display: (
@@ -131,6 +141,13 @@ const STORIES: Story[] = [
     alt: 'Young people dance and cheer with red cups at an outdoor festival.',
   },
 ];
+
+/** The title link of a story card. Its `::after` covers the full card. */
+const CARD_LINK =
+  'after:absolute after:inset-0 after:rounded-[12px] lg:after:rounded-[calc(12*var(--u))] focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-offset-[-2px] focus-visible:after:outline-primary';
+
+/** The Work listing, or its fallback URL while the listing is not released. */
+const VIEW_ALL_LINK = routeLink(VIEW_ALL_WORK.target.kind === 'route' ? VIEW_ALL_WORK.target.to : ROUTES.work);
 
 const VIEW_ALL_BLURB =
   'Providing bespoke web development services that optimize user experience, elevate brand visibility, and drive measurable business results.';
@@ -355,7 +372,9 @@ const ProvenResults: React.FC = () => {
                 }
               >
                 {STORIES.map((story, i) => {
-                  const { linked } = story;
+                  // The case page when this build serves it, else the case
+                  // study on demo.officience.com.
+                  const inSite = story.hasCase && isReleased(workHref(story.slug));
                   return (
                     <StoryCard
                       key={story.slug}
@@ -374,18 +393,17 @@ const ProvenResults: React.FC = () => {
                           tags, 24 at the sides and the bottom. */}
                       <div className="flex flex-1 flex-col gap-[16px] p-[16px] md:gap-[20px] md:p-[20px] lg:gap-[calc(20*var(--u))] lg:px-[calc(24*var(--u))] lg:pb-[calc(24*var(--u))] lg:pt-[calc(20*var(--u))]">
                         <h3 className="font-sans text-[22px] font-semibold leading-[30px] text-text-default md:text-[28px] md:leading-[36px] lg:text-[length:calc(36*var(--u))] lg:leading-[calc(44*var(--u))]">
-                          {linked ? (
-                            /* The link covers the full card. Only IOGA has a case
-                               page (adapter 20a). The other cards have no link, as
-                               before. Set `linked` when their case page exists. */
-                            <Link
-                              to={workHref(story.slug)}
-                              className="after:absolute after:inset-0 after:rounded-[12px] lg:after:rounded-[calc(12*var(--u))] focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-offset-[-2px] focus-visible:after:outline-primary"
-                            >
+                          {/* The link covers the full card. Every card has a
+                              link (user, 2026-10-16). */}
+                          {inSite ? (
+                            <Link to={workHref(story.slug)} className={CARD_LINK}>
                               {story.display ?? story.title}
                             </Link>
                           ) : (
-                            story.display ?? story.title
+                            <a href={story.href} target="_blank" rel="noopener noreferrer" className={CARD_LINK}>
+                              {story.display ?? story.title}
+                              <span className="sr-only"> (opens in a new tab)</span>
+                            </a>
                           )}
                         </h3>
                         {/* The tags stay on the right, as drawn. The cards in a
@@ -427,7 +445,7 @@ const ProvenResults: React.FC = () => {
                       {VIEW_ALL_BLURB}
                     </p>
                     <Button
-                      to={VIEW_ALL_WORK.target.kind === 'route' ? VIEW_ALL_WORK.target.to : ROUTES.work}
+                      {...(VIEW_ALL_LINK ?? { to: ROUTES.work })}
                       variant="secondary"
                       size="home"
                       onDark

@@ -58,6 +58,7 @@ officience/
 
 ## Key Patterns
 - **Routes:** `/` (home), `/terms-of-use`, `/privacy-policy`; anything else redirects to `/`. `vercel.json` rewrites all non-`/api` paths to index.html.
+- **Release gate (homepage-only launch, 2026-10-16):** production serves only `RELEASED_ROUTES` (`components/navigation.ts`). `__SHOW_UNRELEASED__` (`vite.config.ts`) is true only on a Vercel preview, with `SITE_STAGE=preview`, and on the dev server. Any other build hides the unreleased pages, and Rollup removes their chunks (`UNRELEASED` in `App.tsx`). A link to a hidden route goes to its `LAUNCH_FALLBACK` URL; `vercel.json` sends a direct visit on `officience.com` to the same URL (307). `api/apply.ts` returns 404 outside a preview. **To release a batch, change all of these together:** `RELEASED_ROUTES`, `UNRELEASED`, `LAUNCH_FALLBACK`, the `vercel.json` redirects, `public/sitemap.xml`, and (Career) the `api/apply.ts` check. Then check on `officience.com` that each released route returns 200, not 307.
 - **Legal pages are noindex** (`X-Robots-Tag` in `vercel.json`) and are deliberately *not* in `sitemap.xml` — the canonical and `og:url` in index.html are static and pinned to `/`.
 - **Section anchors** on the home page (`#capabilities`, `#clients`, …) double as the Vercel Analytics `section_view` keys — renaming one breaks dashboard continuity. Source of truth: `SECTION_IDS` in `components/navigation.ts`.
 - **Cross-page anchors** use `<Link to="/#capabilities">`; `ScrollManager` retries on a timer until the target mounts.

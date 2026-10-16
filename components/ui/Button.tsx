@@ -136,6 +136,7 @@ const Button: React.FC<ButtonProps & { disabled?: boolean; type?: 'button' | 'su
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" className={classes}>
         {content}
+        <span className="sr-only"> (opens in a new tab)</span>
       </a>
     );
   }

@@ -5,7 +5,7 @@ import Button, { HOME_BTN_ICON } from './ui/Button';
 import { HomeColumn, SectionHeader } from './ui/HomeSection';
 import ServiceShape, { type ShapeName } from './home/ServiceShapes';
 import { MOTION, STAGGER } from '../lib/motion';
-import { ROUTES, serviceHref } from './navigation';
+import { ROUTES, routeLink, serviceHref } from './navigation';
 
 /**
  * "Our Work" (before: "What we do") — node 4317:13574 of frame 4229:4651
@@ -167,8 +167,10 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
           </ul>
         </div>
 
+        {/* The service page, or its fallback while it is not released. Every
+            Our Work service has a fallback URL, so the button always shows. */}
         <Button
-          to={service.to}
+          {...(routeLink(service.to) ?? { to: service.to })}
           variant="secondary"
           size="home"
           /* The frame draws a white fill at rest, the same white as the card.
@@ -203,7 +205,7 @@ const Capabilities: React.FC = () => (
         copyAlign="right"
         cta={
           <Button
-            to={ROUTES.services}
+            {...(routeLink(ROUTES.services) ?? { to: ROUTES.services })}
             size="home"
             icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
           >

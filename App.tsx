@@ -21,30 +21,30 @@ import { scrollToElement } from './lib/scroll';
 // Legal copy is long and rarely read — it leaves the home bundle.
 const LegalPage = React.lazy(() => import('./pages/LegalPage'));
 
-// About Us carries its own photography and two interactive sections. It is a
-// second landing surface, not part of the home page, so it ships as its own
-// chunk.
-const AboutPage = React.lazy(() => import('./pages/AboutPage'));
-
-// The DIY Jam story carries about thirty photos of its own, so it is a chunk of
-// its own too.
-const DiyJamStoryPage = React.lazy(() => import('./pages/DiyJamStoryPage'));
-
-// The seven service pages share one template and one chunk. Their pictures come
-// from the bucket, so the chunk holds only the copy.
-const ServicePage = React.lazy(() => import('./pages/ServicePage'));
-
-// The Services hub, which points to the seven service pages.
-const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
-
-// The Work listing and the case studies. Each is a chunk of its own.
-const WorkPage = React.lazy(() => import('./pages/WorkPage'));
-const WorkCasePage = React.lazy(() => import('./pages/WorkCasePage'));
-
-// The Career hub and the job pages. Each is a chunk of its own.
-const CareerPage = React.lazy(() => import('./pages/CareerPage'));
-const JobPage = React.lazy(() => import('./pages/JobPage'));
-const ApplyModal = React.lazy(() => import('./components/career/ApplyModal'));
+// The pages that are not released yet. `__SHOW_UNRELEASED__` is a literal
+// (vite.config.ts). On a production build it is false, so Rollup removes these
+// imports and their chunks. Release a page: move its lazy line out of this
+// object and add its route to RELEASED_ROUTES in components/navigation.ts.
+const UNRELEASED = __SHOW_UNRELEASED__
+  ? {
+      // About Us carries its own photography and two interactive sections. It
+      // is a second landing surface, so it ships as its own chunk.
+      AboutPage: React.lazy(() => import('./pages/AboutPage')),
+      // The DIY Jam story carries about thirty photos of its own.
+      DiyJamStoryPage: React.lazy(() => import('./pages/DiyJamStoryPage')),
+      // The seven service pages share one template and one chunk.
+      ServicePage: React.lazy(() => import('./pages/ServicePage')),
+      // The Services hub, which points to the seven service pages.
+      ServicesPage: React.lazy(() => import('./pages/ServicesPage')),
+      // The Work listing and the case studies.
+      WorkPage: React.lazy(() => import('./pages/WorkPage')),
+      WorkCasePage: React.lazy(() => import('./pages/WorkCasePage')),
+      // The Career hub, the job pages and the apply form.
+      CareerPage: React.lazy(() => import('./pages/CareerPage')),
+      JobPage: React.lazy(() => import('./pages/JobPage')),
+      ApplyModal: React.lazy(() => import('./components/career/ApplyModal')),
+    }
+  : null;
 
 export interface LayoutContext {
   openSurvey: (branch?: SurveyBranch) => void;
@@ -160,9 +160,9 @@ const Layout: React.FC = () => {
 
       {/* The Career apply form. Outside the page wrapper for the same reason
           as the survey, and mounted on the first open only. */}
-      {apply.mounted && (
+      {apply.mounted && UNRELEASED && (
         <Suspense fallback={null}>
-          <ApplyModal
+          <UNRELEASED.ApplyModal
             key={apply.form}
             isOpen={apply.open}
             onClose={closeApply}
@@ -192,14 +192,20 @@ const App = () => (
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
-          <Route path={ROUTES.about} element={<AboutPage />} />
-          <Route path={ROUTES.diyJam} element={<DiyJamStoryPage />} />
-          <Route path={ROUTES.services} element={<ServicesPage />} />
-          <Route path={`${ROUTES.services}/:slug`} element={<ServicePage />} />
-          <Route path={ROUTES.work} element={<WorkPage />} />
-          <Route path={`${ROUTES.work}/:slug`} element={<WorkCasePage />} />
-          <Route path={ROUTES.career} element={<CareerPage />} />
-          <Route path={`${ROUTES.career}/:slug`} element={<JobPage />} />
+          {/* Not registered on production: a visit falls into `*` below.
+              On officience.com, vercel.json sends it to its fallback first. */}
+          {UNRELEASED && (
+            <>
+              <Route path={ROUTES.about} element={<UNRELEASED.AboutPage />} />
+              <Route path={ROUTES.diyJam} element={<UNRELEASED.DiyJamStoryPage />} />
+              <Route path={ROUTES.services} element={<UNRELEASED.ServicesPage />} />
+              <Route path={`${ROUTES.services}/:slug`} element={<UNRELEASED.ServicePage />} />
+              <Route path={ROUTES.work} element={<UNRELEASED.WorkPage />} />
+              <Route path={`${ROUTES.work}/:slug`} element={<UNRELEASED.WorkCasePage />} />
+              <Route path={ROUTES.career} element={<UNRELEASED.CareerPage />} />
+              <Route path={`${ROUTES.career}/:slug`} element={<UNRELEASED.JobPage />} />
+            </>
+          )}
           <Route path={ROUTES.terms} element={<LegalPage doc="terms" />} />
           <Route path={ROUTES.privacy} element={<LegalPage doc="privacy" />} />
           <Route path="*" element={<Navigate to={ROUTES.home} replace />} />

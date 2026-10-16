@@ -15,7 +15,21 @@
     { "source": "/post-sitemap.xml", "destination": "/", "permanent": true },
     { "source": "/post-sitemap1.xml", "destination": "/", "permanent": true },
     { "source": "/posts-sitemap.xml", "destination": "/", "permanent": true },
-    { "source": "/posts-sitemap1.xml", "destination": "/", "permanent": true }
+    { "source": "/posts-sitemap1.xml", "destination": "/", "permanent": true },
+    { "source": "/about-us", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/", "permanent": false },
+    { "source": "/about-us/:path*", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/", "permanent": false },
+    { "source": "/services", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/brochure", "permanent": false },
+    { "source": "/services/design-digital", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/brochure/creative-tribe", "permanent": false },
+    { "source": "/services/business-intelligence-analytics", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/brochure/analytics", "permanent": false },
+    { "source": "/services/data-engineering-processing", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/brochure/crunch", "permanent": false },
+    { "source": "/services/software-web-development", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/brochure/it-craft", "permanent": false },
+    { "source": "/services/trusted-ai-insurance", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://rizlum.ai", "permanent": false },
+    { "source": "/services/:path*", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/brochure", "permanent": false },
+    { "source": "/work", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/work", "permanent": false },
+    { "source": "/work/ioga", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/ioga", "permanent": false },
+    { "source": "/work/:path*", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://demo.officience.com/work", "permanent": false },
+    { "source": "/career", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://www.linkedin.com/company/officience/jobs/", "permanent": false },
+    { "source": "/career/:path*", "has": [{ "type": "host", "value": "officience.com" }], "destination": "https://www.linkedin.com/company/officience/jobs/", "permanent": false }
   ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/" }

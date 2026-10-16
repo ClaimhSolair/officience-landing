@@ -63,6 +63,7 @@ const NavLink: React.FC<{ item: NavItem; className?: string }> = ({ item, classN
     return (
       <a href={target.href} target="_blank" rel="noopener noreferrer" className={className}>
         {label}
+        <span className="sr-only"> (opens in a new tab)</span>
       </a>
     );
   }

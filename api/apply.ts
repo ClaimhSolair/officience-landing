@@ -123,6 +123,13 @@ interface Deps {
 
 export const createHandler = ({ makeTransport }: Deps) =>
   async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
+    // The Career pages are not released, so the apply form works only on a
+    // preview deploy and in the local harness (no VERCEL variable). Remove
+    // this check in the Career release.
+    if (process.env.VERCEL && process.env.VERCEL_ENV !== 'preview') {
+      res.status(404).json({ error: 'Not found' });
+      return;
+    }
     if (req.method !== 'POST') {
       res.status(405).json({ error: 'Method not allowed' });
       return;

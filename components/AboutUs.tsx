@@ -6,7 +6,7 @@ import Button, { HOME_BTN_ICON } from './ui/Button';
 import { HomeColumn, HOME_H2 } from './ui/HomeSection';
 import Reveal, { RevealChild } from './ui/Reveal';
 import { MOTION, SEC, STAGGER, useMotionEnabled, useScrub } from '../lib/motion';
-import { ROUTES } from './navigation';
+import { ROUTES, routeLink } from './navigation';
 
 /**
  * Figma 4229:4673, "About Us" in frame 4229:4651 (adapter 27).
@@ -42,6 +42,9 @@ import { ROUTES } from './navigation';
 /** The black part of the statement, then the grey part. */
 const STATEMENT_LEAD = 'Soft Power made in Vietnam. Global IT player born in 2006, we’re 200';
 const STATEMENT_REST = ' specialized talents shadowing your build and operations. Small teams, people magic.';
+
+/** The About Us page, or its fallback URL while the page is not released. */
+const ABOUT_LINK = routeLink(ROUTES.about);
 
 /** The photo shows at the full width of the screen. */
 const PHOTO_W = 1440;
@@ -149,13 +152,16 @@ const AboutUs: React.FC = () => {
                 {lead.nodes} {rest.nodes}
               </span>
             </motion.p>
-            <Button
-              to={ROUTES.about}
-              size="home"
-              icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
-            >
-              Discover our company
-            </Button>
+            {/* The About Us page, or its fallback while it is not released. */}
+            {ABOUT_LINK && (
+              <Button
+                {...ABOUT_LINK}
+                size="home"
+                icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
+              >
+                Discover our company
+              </Button>
+            )}
           </RevealChild>
         </Reveal>
       </HomeColumn>

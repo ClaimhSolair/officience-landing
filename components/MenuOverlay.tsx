@@ -146,6 +146,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
       return (
         <a href={item.target.href} target="_blank" rel="noopener noreferrer" className={className} onClick={onClose}>
           {children}
+          <span className="sr-only"> (opens in a new tab)</span>
         </a>
       );
     }

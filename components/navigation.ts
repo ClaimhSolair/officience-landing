@@ -109,6 +109,58 @@ export type NavTarget =
   | { kind: 'external'; href: string }
   | { kind: 'survey'; branch: SurveyBranch };
 
+/**
+ * The routes that production serves. A preview deploy and the dev server show
+ * every route (`__SHOW_UNRELEASED__`, vite.config.ts). To release a batch, add
+ * its routes here, move its pages out of `UNRELEASED` in App.tsx, remove its
+ * rows from `LAUNCH_FALLBACK` and from the vercel.json redirects, and add its
+ * pages to public/sitemap.xml.
+ */
+const RELEASED_ROUTES: ReadonlySet<string> = new Set([ROUTES.home, ROUTES.terms, ROUTES.privacy]);
+
+/**
+ * Where a link to an unreleased route goes on production (user, 2026-10-16).
+ * `null` hides the link. vercel.json sends a direct visit to the same URL.
+ */
+const LAUNCH_FALLBACK: Record<string, string | null> = {
+  [ROUTES.about]: 'https://demo.officience.com/',
+  [ROUTES.services]: 'https://demo.officience.com/brochure',
+  [serviceHref('design-digital')]: 'https://demo.officience.com/brochure/creative-tribe',
+  [serviceHref('business-intelligence-analytics')]: 'https://demo.officience.com/brochure/analytics',
+  [serviceHref('data-engineering-processing')]: 'https://demo.officience.com/brochure/crunch',
+  [serviceHref('software-web-development')]: 'https://demo.officience.com/brochure/it-craft',
+  [serviceHref('trusted-ai-insurance')]: 'https://rizlum.ai',
+  [serviceHref('people-talent-solutions')]: null,
+  [serviceHref('it-operations-support')]: null,
+  [ROUTES.work]: 'https://demo.officience.com/work',
+  [workHref('ioga')]: 'https://demo.officience.com/ioga',
+  [ROUTES.career]: 'https://www.linkedin.com/company/officience/jobs/',
+};
+
+/** True when this build serves the route. */
+export const isReleased = (to: string) => __SHOW_UNRELEASED__ || RELEASED_ROUTES.has(to);
+
+/**
+ * The link for an in-site route: the route itself when this build serves it,
+ * else its fallback URL, else `null` (do not show the link).
+ */
+export const routeLink = (to: string): { to: string } | { href: string } | null => {
+  if (isReleased(to)) return { to };
+  const href = LAUNCH_FALLBACK[to];
+  return href ? { href } : null;
+};
+
+/** Applies `routeLink` to a menu or footer list. A hidden item drops out. */
+const released = (items: NavItem[]): NavItem[] =>
+  items.flatMap((item) => {
+    const children = item.children && released(item.children);
+    if (item.target.kind !== 'route') return [{ ...item, children }];
+    const link = routeLink(item.target.to);
+    if (!link) return [];
+    const target: NavTarget = 'to' in link ? { kind: 'route', to: link.to } : { kind: 'external', href: link.href };
+    return [{ ...item, target, children }];
+  });
+
 export interface NavItem {
   label: string;
   /** Second line under a service label in the overlay menu. */
@@ -129,7 +181,7 @@ export interface NavItem {
  * The service children fill two columns down-then-across: items 0/2/4/6 in the
  * left column, 1/3/5 in the right.
  */
-export const MENU: NavItem[] = [
+export const MENU: NavItem[] = released([
   {
     label: 'Services',
     target: { kind: 'route', to: ROUTES.services },
@@ -174,7 +226,7 @@ export const MENU: NavItem[] = [
   { label: 'Work', target: { kind: 'route', to: ROUTES.work } },
   { label: 'Career', target: { kind: 'route', to: ROUTES.career } },
   { label: 'About Us', target: { kind: 'route', to: ROUTES.about } },
-];
+]);
 
 /** Social links in the overlay menu footer, in the order Figma draws them. */
 export const SOCIALS = [
@@ -214,12 +266,12 @@ export const VIEW_ALL_WORK: NavItem = {
 };
 
 /** Footer "Company" column. */
-export const FOOTER_COMPANY: NavItem[] = [
+export const FOOTER_COMPANY: NavItem[] = released([
   { label: 'About us', target: { kind: 'route', to: ROUTES.about } },
   { label: 'Services', target: { kind: 'route', to: ROUTES.services } },
   { label: 'Work', target: { kind: 'route', to: ROUTES.work } },
   { label: 'Career', target: { kind: 'route', to: ROUTES.career } },
-];
+]);
 
 /**
  * Footer legal row. The Sept-2026 footer draws both entries and labels the first
