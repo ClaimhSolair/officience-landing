@@ -360,14 +360,16 @@ export const ASSETS = {
     },
   },
   testimonials: {
-    quote: a('/testimonials/quote.svg'),
-    // 112px WebP: the circle shows at 52px (desktop, 2x) and 36px (phone, 3x).
-    // The PNG sources were 512-1024px and 637 KB together for three avatars.
-    authors: [
-      a('/testimonials/author-1-112.webp'),
-      a('/testimonials/author-2-112.webp'),
-      a('/testimonials/author-3-112.webp'),
-    ],
+    // 192px WebP, cut from the Figma originals of 4469:5931 (2026-10-16). The
+    // largest circle is 64 at 1440 and 85 at fhd, so 192 covers 2x. These are
+    // new keys, so they need no ASSET_VERSION bump.
+    people: {
+      guillon: a('/testimonials/author-guillon-192.webp'),
+      leurette: a('/testimonials/author-leurette-192.webp'),
+      lemaire: a('/testimonials/author-lemaire-192.webp'),
+      bastien: a('/testimonials/author-bastien-192.webp'),
+      adrien: a('/testimonials/author-adrien-192.webp'),
+    },
   },
   /**
    * The client wall, exported from the Figma marquee (3137:2138) at 2x the size

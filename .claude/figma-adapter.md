@@ -1794,3 +1794,25 @@ card `4229:5008`.
      - **Footer "Our friends":** each tile links to the partner site in a new tab: Offinity diaries.offinity.io,
        Officonnect offi-alumni.com, OpenReal openreal.vn, Uniques uniques.vn, Rizlum rizlum.ai. White inset focus
        ring, the footer's 70% hover fade.
+
+### 27o — People Trust Us = featured quote + author tabs (user, 2026-10-16)
+Source: layout 4469:5926 ("Option 2 · Featured + List"), the five reviews of 4359:6449, the dev note 4496:5012.
+This replaces 27g (the downward loop).
+27o. - **Layout:** the Section Header, then two equal columns (656 at 1440, 80 gap; a CSS grid): the author tabs
+       (avatar 48, name 20/28, role 14/20, px20 py16; default 60%, hover 85%, active 100% on white, 350ms) and the
+       featured card (p48, gap 32, quote icon 64 in #1F49BF, quote Lexend SemiBold 28/40, a 2px progress divider,
+       author 64 / 24/32 / 20/28). Below lg: one column, the card on top (dev note).
+     - **Motion:** auto-advance every 6000ms (user chose 6000; the note draws 2000 and proposes 5000-6000), 5 to 1.
+       The fill is a linear scaleX Web Animation; its end advances. Hover, keyboard focus in the section, a hidden
+       browser tab and an off-screen section pause it in place; it continues from there. A click or an arrow key
+       selects a tab and restarts the fill. Out 300ms (opacity, -10px), in 450ms cubic-bezier(.2,.7,.2,1) (+14px).
+       Reduced motion: no auto-advance, no transition, no fill (the track stays).
+     - **Height:** all five quotes and authors sit in one grid cell, so the card keeps the height of the longest quote
+       (482 at 1440; Figma draws a fixed 100px quote box, which the longest quote does not fit).
+     - **A11y:** `role="tablist"`/`tab`/`tabpanel`, roving tabindex, arrows + Home/End. The panel is `aria-live="off"`
+       while it changes by itself and `polite` with focus in the section or with reduced motion (WAI carousel rule).
+       Design team: WCAG 2.2.2 asks for a visible pause control on content that changes by itself; the design has
+       none (hover and focus pause it).
+     - **Text:** curly quotes on all five (U-15). FIGMA-SLIP: card 5 "fune tuning", "golive" are reproduced as drawn;
+       card 2 keeps "team’s" (Figma: "teams").
+     - **Assets:** five 192px portraits from the Figma originals, `testimonials/author-<name>-192.webp` (new keys).
