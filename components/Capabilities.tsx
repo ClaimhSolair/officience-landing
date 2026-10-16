@@ -57,7 +57,7 @@ interface Service {
  */
 const SERVICES: Service[] = [
   {
-    title: 'Design & Digital Experience',
+    title: 'Design Digital Experiences',
     blurb: 'Craft visual identities and digital products across every online touchpoint.',
     offerings: ['Branding', 'UX/UI', 'Web product'],
     to: serviceHref('design-digital'),
@@ -148,7 +148,7 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
       >
         <div className="flex w-full flex-col items-start" style={{ gap: s(20) }}>
           <div className="flex w-full flex-col items-start" style={{ gap: s(12) }}>
-            <h3 className="font-sans text-[28px] font-medium leading-[36px] text-text-default md:text-[32px] md:leading-[40px] lg:text-[length:calc(50*var(--u))] lg:leading-[calc(58*var(--u))]">
+            <h3 className="font-sans text-[28px] font-semibold leading-[36px] text-text-default md:text-[32px] md:leading-[40px] lg:text-[length:calc(50*var(--u))] lg:leading-[calc(58*var(--u))]">
               {/* The frame draws no title link. The button is the only link to
                   the service page, so the keyboard has one stop per card (U-30). */}
               {service.display ?? service.title}
@@ -157,9 +157,10 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
               {service.blurb}
             </p>
           </div>
-          {/* Service List: Montserrat Medium 16/26, #5A5A5A, disc bullets in a
-              24 indent, no gap between the items. */}
-          <ul className="w-full list-disc pl-[24px] font-body text-[16px] font-medium leading-[26px] text-subtitle lg:pl-[calc(24*var(--u))] lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]">
+          {/* Service List: Montserrat Regular 16/26 (Body-lg-regular), #0F1219,
+              disc bullets in a 24 indent, no gap between the items (user,
+              2026-10-16). */}
+          <ul className="w-full list-disc pl-[24px] font-body text-[16px] font-normal leading-[26px] text-text-default lg:pl-[calc(24*var(--u))] lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(23px,calc(26*var(--u)))]">
             {service.offerings.map((offering) => (
               <li key={offering}>{offering}</li>
             ))}

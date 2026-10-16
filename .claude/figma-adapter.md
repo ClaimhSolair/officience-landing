@@ -1835,3 +1835,12 @@ This replaces 27g (the downward loop).
        full before 40% of the window; reduced motion and below lg do not change.
      - Not changed, flagged: the frame writes the first card title "Design Digital Experiences"; the build keeps
        "Design & Digital Experience" (the service name on the hub and the service page). Ask the design team.
+
+### 27q — Our Work card text, Our Approach text (user, 2026-10-16)
+27q. - **Our Work (grid 4459:5903):** the first card is "Design Digital Experiences". All four titles are Lexend
+       SemiBold 50/58 (was Medium). The service lists are Body-lg-regular: Montserrat Regular 16/26, #0F1219 (was
+       Medium, #5A5A5A). The blurb is already Body-lg-regular.
+     - **Our Approach:** the subtitle is "We let the machines work, and we take care of people. Keep it simple."
+       (header 4249:5079). The steps are 4229:4899 "…draft a plan together. COSMIC.", 4229:4911 "We execute in agile
+       mode for proximity, transparency, and productivity." and 4229:4923 "People first, tech second. We deploy, guide
+       adoption, and support users." Figma still draws "Check Our FAQ" in the header; it stays hidden (27d).

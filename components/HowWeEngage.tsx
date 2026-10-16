@@ -46,11 +46,12 @@ interface Step {
   alignTop: boolean;
 }
 
+// The step texts of 4229:4899, 4229:4911 and 4229:4923 (user, 2026-10-16).
 const STEPS: Step[] = [
   {
     number: '01',
     name: 'Engage',
-    body: "We clarify your concerns, find options, and draft a plan together. We're COSMIC.",
+    body: 'We clarify your concerns, find options, and draft a plan together. COSMIC.',
     mark: 'engage',
     markPx: 169,
     gapPx: 64,
@@ -59,7 +60,7 @@ const STEPS: Step[] = [
   {
     number: '02',
     name: 'Collaborate',
-    body: 'We execute in agile mode — proximity, transparency, productivity.',
+    body: 'We execute in agile mode for proximity, transparency, and productivity.',
     mark: 'collaborate',
     markPx: 140.191,
     gapPx: 80,
@@ -68,7 +69,7 @@ const STEPS: Step[] = [
   {
     number: '03',
     name: 'Run',
-    body: 'We deploy, guide adoption, and support users. People first, tech second.',
+    body: 'People first, tech second. We deploy, guide adoption, and support users.',
     mark: 'run',
     markPx: 140.419,
     gapPx: 80,
@@ -279,7 +280,7 @@ const HowWeEngage: React.FC = () => {
         <SectionHeader
           headingId="approach-heading"
           headline="Our Approach"
-          subtitle="We work simple. We let machines work, we take care of people."
+          subtitle="We let the machines work, and we take care of people. Keep it simple."
         />
       </HomeColumn>
 
