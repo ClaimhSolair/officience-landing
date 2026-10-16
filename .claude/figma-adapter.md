@@ -1780,3 +1780,17 @@ card `4229:5008`.
      - Contact: the "Our Contact" eyebrow is gone on the home page only (`showEyebrow={false}`); 27i holds elsewhere.
      - Build note: from 1400 to 1879 (`--u` = 1) the Our Work card grows with the width, and the extra height goes
        above the button.
+
+### 27n — Menu hover, new spotlight track, partner links (user, 2026-10-16)
+27n. - **Menu:** with a mouse, Services opens its children on hover and closes when the pointer leaves the group
+       (Figma 4474:6133). Touch and the keyboard still toggle on the button. A click while the hover holds the group
+       open does nothing, so it does not close the group under the pointer.
+     - **Client Spotlights = track 4483:6462:** the order IOGA, LAB, Finpivot, C.M.P, FunPass (then View All), new
+       titles and tags. The IOGA, LAB and C.M.P images are new crops baked from the Figma raw files at 640/1280
+       (`home/stories/*-v2-*.webp`, new keys, no ASSET_VERSION bump). Figma breaks the FunPass title after "for";
+       the build does the same from lg. FIGMA-SLIP: the LAB tags "Worfklow" and "Vizualisation" are reproduced as
+       drawn. The date line stays hidden.
+     - **Why Choose Us:** the "Meet our teams" CTA of 27m is removed (user).
+     - **Footer "Our friends":** each tile links to the partner site in a new tab: Offinity diaries.offinity.io,
+       Officonnect offi-alumni.com, OpenReal openreal.vn, Uniques uniques.vn, Rizlum rizlum.ai. White inset focus
+       ring, the footer's 70% hover fade.

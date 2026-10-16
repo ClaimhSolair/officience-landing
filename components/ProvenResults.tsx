@@ -46,12 +46,14 @@ interface Story {
    */
   linked: boolean;
   title: string;
+  /** The title with a forced line break, when Figma draws one. */
+  display?: React.ReactNode;
   /**
    * The date and author line of the frame. The line stays hidden (user,
    * 2026-10-16). The text is here, so a later change is one class.
    */
   meta: string;
-  tags: [string, string];
+  tags: string[];
   image: ImageSource[];
   /**
    * `box`: the file is baked at the 640:360 image box (`home/stories/`).
@@ -65,59 +67,68 @@ interface Story {
 /** The gap between the chips. Figma now draws 8 on every card. */
 const TAG_GAP = 'gap-[8px] lg:gap-[calc(8*var(--u))]';
 
-// FIGMA-SLIP: "Artisants Bâtisseur" is reproduced as drawn (adapter 27).
+// The order, titles and tags of track 4483:6462 (user, 2026-10-16).
+// FIGMA-SLIP: the LAB tags "Worfklow" and "Vizualisation" are reproduced as
+// drawn (adapter 27n).
 // FunPass and Finpivot use the Work listing files that are on R2 already. The
 // alt text is the same as on the Work listing.
 const STORIES: Story[] = [
   {
     slug: 'ioga',
     linked: true,
-    title: 'IOGA video learning platform from construction',
+    title: 'IOGA deploys video learning platform from construction',
     meta: '23 Nov 2019 | Kiet Binh',
-    tags: ['Software Development', 'E-Learning Platform'],
+    tags: ['AI', 'Software', 'E-Learning'],
     image: ASSETS.home.stories.ioga,
     framing: 'box',
-    alt: 'Presenter filming a piece to camera on a phone rig',
-  },
-  {
-    slug: 'cmp',
-    linked: false,
-    title: 'C.M.P e-trading precious metal within minutes',
-    meta: '03 Mar 2023 | Day Pham',
-    tags: ['E - commerce', 'Pricing Automation'],
-    image: ASSETS.home.stories.cmp,
-    framing: 'box',
-    alt: 'Laptop showing the Gestion Métal & Négoce interface',
+    alt: 'An engineer in a white hard hat films a robot arm with a phone in a factory.',
   },
   {
     slug: 'lab',
     linked: false,
-    title: 'LAB Les Artisants Bâtisseur - a start-up building fast',
+    title: 'LAB Les Artisans Bâtisseurs: a customizable CRM',
     meta: '5 Sep 2025 | Steven',
-    tags: ['Software', 'E-Learning Platform'],
+    tags: ['CRM', 'Worfklow', 'Vizualisation'],
     image: ASSETS.home.stories.lab,
     framing: 'box',
-    alt: 'Analytics dashboard with workload charts',
-  },
-  {
-    slug: 'funpass',
-    linked: false,
-    title: 'FunPass, festival travel for music fans',
-    meta: '10 Feb 2024 | Steven',
-    tags: ['Data Collection', 'Operation Support'],
-    image: workSources('listing', 'funpass', [700, 1400]),
-    framing: 'listing',
-    alt: 'Young people dance and cheer with red cups at an outdoor festival.',
+    alt: 'A LAB donut chart of the files created by type of work.',
   },
   {
     slug: 'finpivot',
     linked: false,
-    title: 'Finpivot, money admin for freelancers',
+    title: 'Finpivot makes money admin simple for freelancers',
     meta: '5 Oct 2025 | Phuong',
-    tags: ['Logo & Branding', 'Dashboard'],
+    tags: ['Fintech', 'Branding', 'Dashboard'],
     image: workSources('listing', 'finpivot', [700, 1400]),
     framing: 'listing',
     alt: 'Two FINPIVOT business cards, one blue and one white, on a grey folded surface.',
+  },
+  {
+    slug: 'cmp',
+    linked: false,
+    title: 'Trading precious metal within minutes with C.M.P',
+    meta: '03 Mar 2023 | Day Pham',
+    tags: ['E - commerce', 'Pricing'],
+    image: ASSETS.home.stories.cmp,
+    framing: 'box',
+    alt: 'The C.M.P ORders login page for precious metals trading, over a periodic table.',
+  },
+  {
+    slug: 'funpass',
+    linked: false,
+    title: 'FunPass: festivals for music fans',
+    // Figma breaks the line after "for". From lg the build does the same.
+    display: (
+      <>
+        FunPass: festivals for <br className="hidden lg:inline" />
+        music fans
+      </>
+    ),
+    meta: '10 Feb 2024 | Steven',
+    tags: ['Data', 'Operations', 'Support'],
+    image: workSources('listing', 'funpass', [700, 1400]),
+    framing: 'listing',
+    alt: 'Young people dance and cheer with red cups at an outdoor festival.',
   },
 ];
 
@@ -371,10 +382,10 @@ const ProvenResults: React.FC = () => {
                               to={workHref(story.slug)}
                               className="after:absolute after:inset-0 after:rounded-[12px] lg:after:rounded-[calc(12*var(--u))] focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-offset-[-2px] focus-visible:after:outline-primary"
                             >
-                              {story.title}
+                              {story.display ?? story.title}
                             </Link>
                           ) : (
-                            story.title
+                            story.display ?? story.title
                           )}
                         </h3>
                         {/* The tags stay on the right, as drawn. The cards in a

@@ -116,11 +116,28 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
   useModalA11y({ isOpen, onClose, containerRef: panelRef, backgroundRef });
 
   // The design default is all groups collapsed. Reset on reopen, so the menu does
-  // not show a group the reader expanded on a previous open. Services opens on a
-  // manual click only.
+  // not show a group the reader expanded on a previous open.
   useEffect(() => {
     if (isOpen) setExpanded(null);
   }, [isOpen]);
+
+  // A mouse opens a group on hover and closes it when the pointer leaves the
+  // group (Figma 4474:6133, user 2026-10-16). Touch and the keyboard use the
+  // button click. While a hover holds the group open, a click does not close
+  // it, so a click on the open group does not make it go away.
+  const hovering = useRef(false);
+  const hoverProps = (label: string) => ({
+    onPointerEnter: (e: React.PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
+      hovering.current = true;
+      setExpanded(label);
+    },
+    onPointerLeave: (e: React.PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
+      hovering.current = false;
+      setExpanded((cur) => (cur === label ? null : cur));
+    },
+  });
 
   const go = useNavigateTarget(onClose);
 
@@ -238,14 +255,21 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, backgroundRe
                 'font-sans font-medium text-white text-h1 lg:text-[length:64px] fhd:text-[length:85px] lg:leading-[58px] fhd:leading-[77px] lg:tracking-[-0.03em] hover:text-pri-100 transition-colors motion-reduce:transition-none';
 
               return (
-                <motion.li key={item.label} variants={cascading ? itemVariants : undefined}>
+                <motion.li
+                  key={item.label}
+                  variants={cascading ? itemVariants : undefined}
+                  {...(isExpandable ? hoverProps(item.label) : {})}
+                >
                   {isExpandable ? (
                     <>
                       {/* `align-top`: an inline-flex box on the baseline adds
                           1px of descender space to the 58px line. */}
                       <button
                         type="button"
-                        onClick={() => setExpanded(isExpanded ? null : item.label)}
+                        onClick={() => {
+                          if (hovering.current && isExpanded) return;
+                          setExpanded(isExpanded ? null : item.label);
+                        }}
                         aria-expanded={isExpanded}
                         aria-controls={panelId}
                         className={`group inline-flex align-top items-center gap-fig-12 lg:gap-[12px] fhd:gap-[16px] ${topLevel} ${focusRing}`}

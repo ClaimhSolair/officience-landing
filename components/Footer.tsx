@@ -39,6 +39,15 @@ const PHONE_DISPLAY = '+84 28 3862 0055';
 const PHONE_TEL = '+842838620055';
 const COPYRIGHT = '© 2026 Officience, All rights reserved';
 
+/** The partner sites, keyed by the name in `ASSETS.footer.partners` (user, 2026-10-16). */
+const PARTNER_LINKS: Record<string, string> = {
+  Offinity: 'https://diaries.offinity.io',
+  Officonnect: 'https://offi-alumni.com',
+  Rizlum: 'https://rizlum.ai',
+  OpenReal: 'https://openreal.vn',
+  Uniques: 'https://uniques.vn',
+};
+
 /** The footer's own Figma glyphs, keyed by the label in `SOCIALS`. */
 const SOCIAL_ICONS: Record<string, React.FC<{ className?: string }>> = {
   LinkedIn: LinkedInIcon,
@@ -152,8 +161,9 @@ const Footer: React.FC = () => (
               <h2 className="font-sans font-medium text-[16px] leading-[24px] lg:text-[length:16px] fhd:text-[length:21.33px] lg:leading-[24px] fhd:leading-[32px]">
                 Our friends
               </h2>
-              {/* Figma gives no destinations for these, so they are images, not
-                  links — see the adapter backlog. The logo sizes in assets.ts are
+              {/* Each tile is a link to the partner site (user, 2026-10-16). The
+                  link fills the tile, so its focus ring is inset: the tile
+                  clips anything outside it. The logo sizes in assets.ts are
                   the 1920 frame's. The 1440 frame draws them at 0.9273 of that
                   (128 / 138.04), and 390 at 0.8136. `--partner-u` is the length
                   of one assets.ts px. Below 360 the list is full width, so the
@@ -173,18 +183,26 @@ const Footer: React.FC = () => (
                     duration={SEC.revealFast}
                     className="flex h-[48px] w-[112px] items-center justify-center overflow-hidden rounded-[4px] border border-border-field lg:h-[54px] fhd:h-[72px] lg:w-[128px] fhd:w-[170.67px] lg:rounded-[4.8px] fhd:rounded-[6.4px]"
                   >
-                    <img
-                      src={partner.url}
-                      alt={partner.name}
-                      className="max-w-none"
-                      style={{
-                        width: `calc(${partner.w} * var(--partner-u))`,
-                        height: `calc(${partner.h} * var(--partner-u))`,
-                      }}
-                      loading="lazy"
-                      decoding="async"
-                      referrerPolicy="no-referrer"
-                    />
+                    <a
+                      href={PARTNER_LINKS[partner.name]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-full w-full items-center justify-center transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white motion-reduce:transition-none"
+                    >
+                      <img
+                        src={partner.url}
+                        alt={partner.name}
+                        className="max-w-none"
+                        style={{
+                          width: `calc(${partner.w} * var(--partner-u))`,
+                          height: `calc(${partner.h} * var(--partner-u))`,
+                        }}
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                      />
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
                   </RevealChild>
                 ))}
               </Reveal>

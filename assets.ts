@@ -351,12 +351,12 @@ export const ASSETS = {
   home: {
     // The 1440x595 band of 4291:12606, cut from the 4096x2731 original.
     team: [768, 1440, 2160, 2880].map((w) => ({ url: a(`/home/team-${w}.webp`), w })),
-    // The 640x360 image boxes of the Success Stories cards. Figma stretches the
-    // IOGA and C.M.P sources (FILL mode), and the files keep that crop.
+    // The 640x360 image boxes of the Client Spotlights cards (track 4483:6462,
+    // 2026-10-16). The v2 files are new keys, so they need no ASSET_VERSION bump.
     stories: {
-      ioga: [640, 1280].map((w) => ({ url: a(`/home/stories/ioga-${w}.webp`), w })),
-      cmp: [640, 1280].map((w) => ({ url: a(`/home/stories/cmp-${w}.webp`), w })),
-      lab: [640, 1280].map((w) => ({ url: a(`/home/stories/lab-${w}.webp`), w })),
+      ioga: [640, 1280].map((w) => ({ url: a(`/home/stories/ioga-v2-${w}.webp`), w })),
+      cmp: [640, 1280].map((w) => ({ url: a(`/home/stories/cmp-v2-${w}.webp`), w })),
+      lab: [640, 1280].map((w) => ({ url: a(`/home/stories/lab-v2-${w}.webp`), w })),
     },
   },
   testimonials: {

@@ -1,9 +1,6 @@
 import React from 'react';
 import { motion, type Variants } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import Button, { HOME_BTN_ICON } from './ui/Button';
 import { HomeColumn, SectionHeader } from './ui/HomeSection';
-import { ROUTES } from './navigation';
 import { EASE, MOTION, SEC, STAGGER, useMotionEnabled } from '../lib/motion';
 
 /**
@@ -132,22 +129,6 @@ const WhyOfficience: React.FC = () => {
             reveal={MOTION.whyUs}
             className="w-full"
             headingId="why-us-heading"
-            // Header 4426:5701 (2026-10-16) adds this CTA. It is the on-blue
-            // primary button of the hero: white, a #1F49BF label, hover pri-50,
-            // pressed pri-100 and a white focus ring. The target is the old
-            // "Meet our Team" target (ruling 27d).
-            cta={
-              <Button
-                to={`${ROUTES.about}#our-team`}
-                variant="secondary"
-                size="home"
-                onDark
-                className="border-transparent"
-                icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
-              >
-                Meet our teams
-              </Button>
-            }
           />
 
           {/* The observer: it never transforms. Its variants reach every motion
