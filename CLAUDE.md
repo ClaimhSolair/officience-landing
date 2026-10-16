@@ -39,7 +39,7 @@ officience/
     Header.tsx         # Sticky nav bar
     Hero.tsx           # Hero - blue band, headline, "Let’s start!" (opens the survey), 5 3D shapes
     Capabilities.tsx   # "Our Work" - 2x2 service cards, brochure links
-    ClientStories.tsx  # "People Trust Us" - 5 author tabs + a featured quote that auto-advances (6 s, off under reduced motion)
+    ClientStories.tsx  # "People Trust Us" - 5 author tabs + a featured quote that auto-advances (4 s, off under reduced motion)
     LogoMarquee.tsx    # Client logo wall - looping greyscale marquee, colour on hover
     HowWeEngage.tsx    # "Our Approach" - 3 pinned steps with inline pinwheel marks
     WhyOfficience.tsx  # "Why Choose Us" - 4 values in a crosshair, inlined pinwheel

@@ -29,10 +29,10 @@ import { ASSETS } from '../assets';
  */
 
 /**
- * The time for one testimonial. The note draws 2000 and proposes 5000-6000, so
- * that people can read a long quote. The user chose 6000 (2026-10-16).
+ * The time for one testimonial, the same for all five. The note draws 2000 and
+ * proposes 5000-6000. The user chose 6000, then 4000 (2026-10-16).
  */
-const ADVANCE_MS = 6000;
+const ADVANCE_MS = 4000;
 
 interface Testimonial {
   quote: string;

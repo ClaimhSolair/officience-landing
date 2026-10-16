@@ -1802,7 +1802,7 @@ This replaces 27g (the downward loop).
        (avatar 48, name 20/28, role 14/20, px20 py16; default 60%, hover 85%, active 100% on white, 350ms) and the
        featured card (p48, gap 32, quote icon 64 in #1F49BF, quote Lexend SemiBold 28/40, a 2px progress divider,
        author 64 / 24/32 / 20/28). Below lg: one column, the card on top (dev note).
-     - **Motion:** auto-advance every 6000ms (user chose 6000; the note draws 2000 and proposes 5000-6000), 5 to 1.
+     - **Motion:** auto-advance every 4000ms for all five (user: 6000, then 4000 on 2026-10-16; the note draws 2000), 5 to 1.
        The fill is a linear scaleX Web Animation; its end advances. Hover, keyboard focus in the section, a hidden
        browser tab and an off-screen section pause it in place; it continues from there. A click or an arrow key
        selects a tab and restarts the fill. Out 300ms (opacity, -10px), in 450ms cubic-bezier(.2,.7,.2,1) (+14px).
