@@ -1816,3 +1816,22 @@ This replaces 27g (the downward loop).
      - **Text:** curly quotes on all five (U-15). FIGMA-SLIP: card 5 "fune tuning", "golive" are reproduced as drawn;
        card 2 keeps "team’s" (Figma: "teams").
      - **Assets:** five 192px portraits from the Figma originals, `testimonials/author-<name>-192.webp` (new keys).
+
+### 27p — Header CTA, Our Work order and hover, Spotlight dates, Approach timing (user, 2026-10-16)
+27p. - **Header CTA = header 4285:7667:** the Buttons md size, 48 tall, 20 side padding, the width hugs the label
+       (126 at 1440; before: a fixed 224 x 56). Lexend Medium 16/24. From fhd: 56 tall, 24 padding, so it has the
+       height of the 56px menu button (build choice: no 1920 frame draws this button). This closes U-23.
+     - **Our Work = grid 4459:5903 order:** Design, Software (row 1), Data Processing, Business Intelligence (row 2).
+       The Software shape is red `#CF344F` at 30% (before: green `#22B573`). The other three shapes did not change.
+       The lists follow the frame: BI "Analytics" (was "Data analytics"), Data "Pipelines" (was "Pipeline streams").
+     - **"View Brochure" hover = the Buttons Hover state:** `#1F49BF` fill, white label and icon (user). This replaces
+       the pri-50 hover of 24aa on the Our Work cards. The pressed state does not change.
+     - **Client Spotlights shows the date and author line** (Meta 4483:6468), the per-card text of track 4483:6462.
+       This replaces the "hidden" part of 27f and 27m. The row wraps: on a narrow card the tags go under the date.
+     - **Our Approach:** step 1 now comes in while the step row scrolls into view, before the pin. Before, all three
+       steps waited for the pin, so the reader scrolled through about one window height of an empty row. The progress
+       starts at `start end`. Steps 2 and 3 keep their pinned timing; the hold stays 63vh. The pinned runway is now
+       108vh (was 135vh). Measured at 1024x680-2560x1400: step 1 is at 0.6 opacity when 136-280px of the row shows and
+       full before 40% of the window; reduced motion and below lg do not change.
+     - Not changed, flagged: the frame writes the first card title "Design Digital Experiences"; the build keeps
+       "Design & Digital Experience" (the service name on the hub and the service page). Ask the design team.

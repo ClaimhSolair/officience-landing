@@ -64,12 +64,12 @@ const DataShape: React.FC<ShapeProps> = ({ className, style }) => (
 );
 
 /** Software Development: node 4459:5941 (was 4353:18195), a 298 box. The
- *  grid 4459:5903 changes the fill from red #DD3C57 to green #22B573. */
+ *  fill is red #CF344F (Figma of 2026-10-16; before: green #22B573). */
 const SoftwareShape: React.FC<ShapeProps> = ({ className, style }) => (
   <svg viewBox="0 0 298 298" className={className} style={style} {...common}>
     <path
       opacity="0.3"
-      fill="#22B573"
+      fill="#CF344F"
       d="M100.076 298C74.2243 288.822 51.5952 272.572 34.3877 251.505L87.5997 169.769L0 141.558C2.09436 112.975 11.8366 86.5799 27.136 64.5179L109.398 91.0106L107.823 5.88947C120.896 2.05673 134.7 8.99932e-05 148.973 0C162.343 0 175.303 1.80299 187.635 5.18106L189.233 91.6289L271.244 65.1427C286.427 87.2694 296.04 113.703 298 142.302L214.764 169.184L268.06 245.723C251.811 267.679 229.92 285.004 204.601 295.426L151.449 219.09L100.076 298Z"
     />
   </svg>

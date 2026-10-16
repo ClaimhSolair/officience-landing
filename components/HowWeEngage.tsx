@@ -77,23 +77,31 @@ const STEPS: Step[] = [
 ];
 
 /**
- * How the pinned runway is divided, in vh of scroll. Step i occupies
- * `[START + i*PITCH, + SPAN]`. A hold follows the last step before the section
- * releases. Without it the last step is still arriving as the pin lets go, and
- * the procession reads as unfinished.
+ * The scroll timeline, in vh of scroll. 0 is where the top of the step row
+ * area comes in at the bottom of the window. `PRE_VH` (one window height)
+ * later the area reaches its pinned position, and the pin starts.
  *
- * The steps keep the scroll lengths they had on a 90vh travel. The hold was 18vh.
- * The team asked for more reading time after the third card (2026-10-12), so the
- * hold is now 63vh. Tune `HOLD_VH`. The step timing does not change with it.
+ * Step 1 comes in before the pin, while the row scrolls into view (user,
+ * 2026-10-16). Before, all three steps waited for the pin, so the reader
+ * scrolled through about one window height of an empty row. Steps 2 and 3
+ * keep their pinned timing (5.4 and 32.4 vh after the pin starts).
+ *
+ * A hold follows the last step before the section releases. Without it the
+ * last step is still arriving as the pin lets go. The team asked for more
+ * reading time after the third card (2026-10-12), so the hold is 63vh.
+ * Tune `HOLD_VH`. The step timing does not change with it.
  */
-const START_VH = 5.4;
-const PITCH_VH = 27;
-const SPAN_VH = 12.6;
+const PRE_VH = 100;
+const STEP_VH: Array<[number, number]> = [
+  [10, 60],
+  [PRE_VH + 5.4, PRE_VH + 18],
+  [PRE_VH + 32.4, PRE_VH + 45],
+];
 const HOLD_VH = 63;
-const TRAVEL_VH = START_VH + 2 * PITCH_VH + SPAN_VH + HOLD_VH;
-const START = START_VH / TRAVEL_VH;
-const PITCH = PITCH_VH / TRAVEL_VH;
-const SPAN = SPAN_VH / TRAVEL_VH;
+/** The pinned runway: the scroll from the pin start to the release. */
+const TRAVEL_VH = STEP_VH[STEP_VH.length - 1][1] + HOLD_VH - PRE_VH;
+/** The step windows as fractions of the full progress (`PRE_VH + TRAVEL_VH`). */
+const STEP_WINDOWS = STEP_VH.map(([a, b]) => [a / (PRE_VH + TRAVEL_VH), b / (PRE_VH + TRAVEL_VH)] as const);
 
 /** Unpinned fallback: the same arrival, on its own clock. */
 const STEP_VARIANTS: Variants = {
@@ -122,8 +130,7 @@ const StepItem: React.FC<{
   pinned: boolean;
   motionOn: boolean;
 }> = ({ step, index, progress, pinned, motionOn }) => {
-  const from = START + index * PITCH;
-  const to = from + SPAN;
+  const [from, to] = STEP_WINDOWS[index];
 
   // The full 350px interyo measures, over a narrow window so one flick spans it.
   // `progress` arrives already smoothed (`useScrub` in the section), so a flick
@@ -133,7 +140,7 @@ const StepItem: React.FC<{
   const x = useTransform(progress, [from, to], [350, 0], { clamp: true });
   // Opacity finishes in the first part of the window, so the step is legible for
   // most of its slide rather than arriving and only then becoming visible.
-  const opacity = useTransform(progress, [from, from + SPAN * 0.6], [0, 1], { clamp: true });
+  const opacity = useTransform(progress, [from, from + (to - from) * 0.6], [0, 1], { clamp: true });
 
   // Below lg the rule stretches to the height of the stack. From lg it is the
   // frame's 484px rule, and the stack aligns to it as the frame draws.
@@ -245,9 +252,10 @@ const HowWeEngage: React.FC = () => {
   }, [wantsPin]);
 
   // The runway is the column height + TRAVEL_VH, so the pin holds for TRAVEL_VH
-  // of scroll. The progress starts when the section top reaches the top of the
-  // screen. It ends when the section bottom reaches the bottom of the pinned
-  // column (frameH below the top), which is where the pin releases.
+  // of scroll. The progress starts when the runway top comes in at the bottom
+  // of the screen, so step 1 can arrive before the pin. It ends when the
+  // runway bottom reaches the bottom of the pinned column (frameH below the
+  // top), which is where the pin releases.
   // The sticky top. It follows the header (`STICKY_TOP` in lib/motion), but it
   // never puts the column bottom below the window. On a scroll up the header
   // comes back. If the column fills the window, the header then covers the top
@@ -255,7 +263,7 @@ const HowWeEngage: React.FC = () => {
   // the limit, the step text went 46-58px below a 600-730px window.
   const pinTop = `min(calc(var(--header-h) * var(--header-shown)), calc(100vh - ${frameH}px))`;
 
-  const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', `end ${frameH}px`] });
+  const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start end', `end ${frameH}px`] });
   // Smoothed once for all three steps.
   const progress = useScrub(scrollYProgress);
 

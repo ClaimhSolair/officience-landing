@@ -49,8 +49,8 @@ interface Story {
   /** The title with a forced line break, when Figma draws one. */
   display?: React.ReactNode;
   /**
-   * The date and author line of the frame. The line stays hidden (user,
-   * 2026-10-16). The text is here, so a later change is one class.
+   * The date and author line of the frame (Meta 4483:6468). It shows on
+   * every card (user, 2026-10-16; before, 27f/27m hid it).
    */
   meta: string;
   tags: string[];
@@ -391,14 +391,15 @@ const ProvenResults: React.FC = () => {
                         {/* The tags stay on the right, as drawn. The cards in a
                             row have the same height, so the tags go to the
                             bottom of the card. */}
-                        <div className="mt-auto flex items-center justify-end gap-[12px]">
-                          {/* The date and author line stays hidden (ruling 27f, user
-                              2026-10-16). Each card has the Figma text in `meta`.
-                              To show it, remove `hidden`. */}
-                          <p className="mr-auto hidden whitespace-nowrap font-sans text-[16px] font-medium leading-[24px] text-subtitle lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(21px,calc(24*var(--u)))]">
+                        {/* Meta 4483:6468: the date and author at the left, the
+                            tags at the right. The row wraps. Then the tags go
+                            under the date, 8 lower, and stay at the right. The
+                            tag group is 180 wide at minimum, as drawn. */}
+                        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-[12px] gap-y-[8px] lg:gap-y-[calc(8*var(--u))]">
+                          <p className="whitespace-nowrap font-sans text-[16px] font-medium leading-[24px] text-subtitle lg:text-[length:max(14px,calc(16*var(--u)))] lg:leading-[max(21px,calc(24*var(--u)))]">
                             {story.meta}
                           </p>
-                          <ul className={`flex flex-wrap items-center justify-end ${TAG_GAP}`} aria-label="Services">
+                          <ul className={`flex min-w-[180px] flex-1 flex-wrap items-center justify-end lg:min-w-[calc(180*var(--u))] ${TAG_GAP}`} aria-label="Services">
                             {story.tags.map((tag) => (
                               <li key={tag} className={TAG}>
                                 {tag}

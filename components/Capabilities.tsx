@@ -51,8 +51,9 @@ interface Service {
 }
 
 /**
- * The text that the frame draws (adapter 27c, grid 4459:5903). The Services hub
- * keeps its own lists.
+ * The text and the order that the frame draws (adapter 27c, grid 4459:5903):
+ * Design and Software in the first row, Data Processing and Business
+ * Intelligence in the second row. The Services hub keeps its own lists.
  */
 const SERVICES: Service[] = [
   {
@@ -63,11 +64,11 @@ const SERVICES: Service[] = [
     shape: 'design',
   },
   {
-    title: 'Business Intelligence',
-    blurb: 'Turn your data into actionable insights.',
-    offerings: ['Data analytics', 'KPI dashboards', 'Automation', 'Machine Learning'],
-    to: serviceHref('business-intelligence-analytics'),
-    shape: 'bi',
+    title: 'Software Development',
+    blurb: 'Build the technology that runs your enterprise.',
+    offerings: ['Web applications', 'E-commerce', 'SaaS platforms', 'Mobile apps'],
+    to: serviceHref('software-web-development'),
+    shape: 'software',
   },
   {
     title: 'Data Processing',
@@ -82,16 +83,16 @@ const SERVICES: Service[] = [
     ),
     // FIGMA-SLIP: the frame writes "worflows". The build writes "workflows".
     blurb: 'Engineer & drive workflows to support your operations.',
-    offerings: ['Data entry / collection / cleaning', 'Pipeline streams', 'Support'],
+    offerings: ['Data entry / collection / cleaning', 'Pipelines', 'Support'],
     to: serviceHref('data-engineering-processing'),
     shape: 'data',
   },
   {
-    title: 'Software Development',
-    blurb: 'Build the technology that runs your enterprise.',
-    offerings: ['Web applications', 'E-commerce', 'SaaS platforms', 'Mobile apps'],
-    to: serviceHref('software-web-development'),
-    shape: 'software',
+    title: 'Business Intelligence',
+    blurb: 'Turn your data into actionable insights.',
+    offerings: ['Analytics', 'KPI dashboards', 'Automation', 'Machine Learning'],
+    to: serviceHref('business-intelligence-analytics'),
+    shape: 'bi',
   },
 ];
 
@@ -171,10 +172,13 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
           size="home"
           /* The frame draws a white fill at rest, the same white as the card.
              The variant's white fill gives that, and it keeps the button clear
-             of the shape on a narrow card. The hover is pri-50 (ruling 24aa).
-             The pressed fill does not change. `mt-auto` puts the button at
-             the bottom of the content at all widths. */
-          className="mt-auto [&:hover:not(:active)]:bg-pri-50"
+             of the shape on a narrow card. The hover is the Hover state of
+             the Buttons component: a #1F49BF fill and a white label and icon
+             (user, 2026-10-16; this replaces the pri-50 hover of 24aa here).
+             The `!` is necessary because the variant's hover fill comes later
+             in the stylesheet. `mt-auto` puts the button at the bottom of the
+             content at all widths. */
+          className="mt-auto hover:!bg-primary hover:!text-white"
           icon={<ArrowRight className={HOME_BTN_ICON} strokeWidth={2} aria-hidden="true" />}
         >
           View Brochure

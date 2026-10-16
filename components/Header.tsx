@@ -164,10 +164,15 @@ const Header: React.FC<HeaderProps> = ({ onOpenMenu, isMenuOpen }) => {
               <Menu className="h-[32px] w-[32px] lg:h-[48px] lg:w-[48px] fhd:h-[56px] fhd:w-[56px] fhd:[stroke-width:1.75]" strokeWidth={1.5} />
             </button>
 
+            {/* Header 4285:7667 (2026-10-16): the Buttons md size, 48 tall, 20 of
+                side padding, and the width hugs the label. From fhd the button
+                is 56 tall with 24 of padding, so it has the height of the 56px
+                menu button next to it (a build choice: no 1920 frame draws
+                this button). */}
             <button
               type="button"
               onClick={goToContact}
-              className="hidden lg:inline-flex w-[224px] fhd:w-[336px] h-[56px] items-center justify-center bg-surface text-text-primary font-sans text-btn-md hover:bg-bg-secondary active:bg-pri-50 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="hidden lg:inline-flex h-[48px] px-fig-20 fhd:h-[56px] fhd:px-fig-24 items-center justify-center bg-surface text-text-primary font-sans text-btn-md hover:bg-bg-secondary active:bg-pri-50 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Contact Us
             </button>
